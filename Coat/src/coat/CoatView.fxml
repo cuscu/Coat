@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.*?>
+
+<BorderPane prefHeight="600" prefWidth="1000" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="coat.CoatView">
+    <stylesheets>
+        <URL value="@/coat/main.css" />
+    </stylesheets>
+    <top>
+        <MenuBar BorderPane.alignment="CENTER">
+            <menus>
+                <Menu mnemonicParsing="false" text="File">
+                    <items>
+                        <MenuItem fx:id="openMenu" mnemonicParsing="false" onAction="#open" text="Open" />
+                        <MenuItem fx:id="saveMenu" mnemonicParsing="false" onAction="#saveAs" text="Save as" />
+                        <MenuItem fx:id="exitMenu" mnemonicParsing="false" onAction="#exit" text="Exit" />
+                    </items>
+                </Menu>
+                <Menu fx:id="vcfMenu" mnemonicParsing="false" text="VCF" visible="false">
+                    <items>
+                        <MenuItem fx:id="headersMenu" mnemonicParsing="false" text="View headers" />
+                        <MenuItem fx:id="lfsMenu" mnemonicParsing="false" text="Add LFS" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+    <center>
+        <TabPane fx:id="workspace" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER" />
+    </center>
+</BorderPane>

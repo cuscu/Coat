@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import java.net.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<fx:root dividerPositions="0.5" orientation="VERTICAL" type="SplitPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8">
+    <stylesheets>
+        <URL value="@/coat/main.css"/>
+    </stylesheets>
+    <items>
+        <TableView fx:id="table" maxHeight="9999" VBox.vgrow="ALWAYS" />
+        <VBox >
+            <children>
+                <HBox spacing="5" alignment="CENTER_LEFT">
+                    <children>
+                        <Label fx:id="infoLabel" />
+                        <Button text="%export" fx:id="export" />
+                        <!--Button fx:id="vep" text="VEP" /-->
+                        <Button fx:id="lfs" text="LFS" />
+                        <Button fx:id="viewHeaders" text="%view.headers" />
+                    </children>
+                </HBox>
+                <!-- GENOTYPE -->
+                <!--VBox styleClass="niceBox">
+                    <children>
+                        <SectionTitle hLine="false" title="GENOTYPE" />
+                        <exomesuite.vcf.VariantGenotype fx:id="formatBox" />
+                    </children>
+                </VBox-->
+                <HBox VBox.vgrow="ALWAYS"  >
+                    <children>
+                        <!-- FILTERS -->
+                        <VBox alignment="TOP_CENTER" styleClass="niceBox">
+                            <children>
+                                <Label text="FILTERS" />
+                                <VBox fx:id="filtersPane" spacing="5" />
+                                <Button fx:id="addFilter" styleClass="graphic-button" text="New filter" />
+                            </children>
+                        </VBox>
+                        <!-- INFO -->
+                        <VBox styleClass="niceBox" HBox.hgrow="ALWAYS" >
+                            <children>
+                                <coat.vcf.VariantInfoTable fx:id="variantInfo" VBox.vgrow="ALWAYS"  />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+            </children>
+            <padding>
+                <javafx.geometry.Insets bottom="5" left="5" right="5" top="5" />
+            </padding>
+        </VBox>
+    </items>
+</fx:root>

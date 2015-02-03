@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.*?>
+
+<fx:root type="SplitPane" xmlns:fx="http://javafx.com/fxml/1" orientation="VERTICAL" >
+    <stylesheets>
+        <URL value="@/coat/main.css"/>
+    </stylesheets>
+    <items>
+        <TableView fx:id="table" />
+        <VBox alignment="TOP_LEFT"  >
+            <children>
+                <HBox alignment="CENTER_LEFT" >
+                    <children>
+                        <Label fx:id="infoLabel"  />
+                        <Button fx:id="export" styleClass="graphic-button"/>
+                    </children>
+                </HBox>
+                <VBox spacing="5" styleClass="niceBox" alignment="TOP_CENTER" >
+                    <children>
+                        <VBox fx:id="filtersPane" spacing="5" />
+                        <Button fx:id="addFilter" styleClass="flat-button" text="New filter"  />
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </items>
+</fx:root>

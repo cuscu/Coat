@@ -1,0 +1,190 @@
+.background{
+    -fx-background-color: #1d1d1d;
+}
+
+.tab-pane, .vbox, .hbox {
+    -fx-background-color: transparent;
+}
+
+.flow-pane {
+    -fx-background-color: white;
+}
+
+.tool {
+    -fx-border-color: lightgray;
+    -fx-border-width: 2;
+    -fx-padding: 2;
+}
+
+.index-cell:filled {
+    -fx-background-color: lightgrey;
+    -fx-border-width: 1 0 0 0;
+    -fx-border-color: whitesmoke;
+}
+
+// Button with only graphic, whe hover or pressed a border is shown.
+.flat-button {
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-pref-height: 16px;
+}
+.flat-button:hover {
+    -fx-opacity: 0.5;
+    -fx-border-color: black;
+}
+
+.flat-button:pressed{
+    -fx-opacity: 0.25;
+    -fx-border-color: black;
+
+}
+// Buttons that only show an icon, hover and pressed are only made by decreasing the opacity
+.graphic-button {
+    -fx-background-color: transparent;
+}
+.graphic-button:hover {
+    -fx-opacity: 0.5;
+}
+
+.graphic-button:pressed{
+    -fx-opacity: 0.25;
+}
+
+#nameColumn, #codeColumn {
+    -fx-alignment: CENTER;
+}
+
+.parameter {
+    -fx-background-color: ghostwhite;
+    -fx-background-insets: 2px;
+    -fx-background-radius: 5px;
+    -fx-text-alignment: left;
+    -fx-padding: 4px;
+    -fx-border-color: darkgray;
+    -fx-border-width: 1px;
+    -fx-border-insets: 2px;
+    -fx-border-radius: 5px;
+}
+
+.parameter:hover {
+    -fx-background-color: white;
+}
+
+// Filtering boxes in TSVReader/VCFReader
+.filter-box {
+    -fx-background-color: ghostwhite;
+    -fx-text-alignment: left;
+    //    -fx-border-color: darkgray;
+    -fx-padding: 5px;
+}
+
+.filter-box:hover{
+    -fx-background-color: white;
+}
+// A button that is in a filter box
+.filter-box .button {
+    -fx-background-color: transparent;
+}
+.filter-box .button:hover {
+    -fx-opacity: 0.5;
+}
+
+.list-cell .button {
+    -fx-background-radius: 8px;
+    -fx-border-radius: 16px;
+}
+
+// Clear the end of lists
+.list-cell:empty {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+
+// Clear the bottom of tables
+.table-row-cell:empty {
+    -fx-background-color: white;
+}
+
+.table-row-cell:empty .table-cell {
+    -fx-border-width: 0px;
+}
+
+.root {
+    -fx-background-color: white;
+}
+
+.text-area {
+    -fx-font: 1em monospace;
+}
+
+/* Isabel Castillo http://isabelcastillo.com/error-info-messages-css */
+.info-label {
+    -fx-text-fill: #00529B;
+}
+.success-label {
+    -fx-text-fill:  #4F8A10;
+}
+.warning-label {
+    -fx-text-fill:  #9F6000;
+}
+.error-label {
+    -fx-text-fill:  #D8000C;
+}
+.info-box {
+    -fx-background-color: #BDE5F8;
+}
+.success-box {
+    -fx-background-color: #DFF2BF;
+}
+.warning-box {
+    -fx-background-color: #FEEFB3;
+}
+.error-box,.error-box .button {
+    -fx-background-color: #FFBABA;
+}
+.success-box .button {
+    -fx-border-color: #4F8A10;
+}
+.info-box .button {
+    -fx-border-color: #00529B;
+}
+.warning-box .button {
+    -fx-border-color: #9F6000;
+}
+.error-box .button {
+    -fx-border-color: #D8000C;
+}
+
+.niceBox {
+    -fx-padding: 4px;
+    -fx-border-color: darkgray;
+    -fx-border-width: 1px;
+    -fx-border-insets: 2px;
+    -fx-border-radius: 5px;
+}
+
+.combo-box {
+
+    -fx-padding: 0;
+    -fx-border-width: 0;
+}
+
+// Progress bar
+.progress-bar{
+    -fx-background-radius: 5;
+    -fx-background-color: lightgrey;
+    -fx-border-color: grey;
+    -fx-border-radius: 5;
+}
+
+.progress-bar>*.track{
+    -fx-background-color: transparent;
+}
+
+.progress-bar>*.bar{
+    -fx-background-color: lightblue;
+    -fx-background-insets: 0;
+    -fx-background-radius: 5  ;
+}
