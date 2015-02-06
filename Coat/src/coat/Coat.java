@@ -5,6 +5,7 @@
  */
 package coat;
 
+import coat.utils.OS;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -21,7 +22,7 @@ public class Coat extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("CoatView.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("CoatView.fxml"), OS.getResources());
 
         Scene scene = new Scene(root);
 

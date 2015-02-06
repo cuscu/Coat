@@ -48,8 +48,12 @@ public class NaturalCell extends TableCell {
     protected void updateItem(Object item, boolean empty) {
         super.updateItem(item, empty);
         if (!empty) {
-            textField.setText(item.toString());
-            setTooltip(new Tooltip(item.toString()));
+            if (item == null) {
+                System.out.println("Line " + getIndex() + " column " + getTableColumn().getText());
+            } else {
+                textField.setText(item.toString());
+                setTooltip(new Tooltip(item.toString()));
+            }
             setGraphic(textField);
         } else {
             setGraphic(null);

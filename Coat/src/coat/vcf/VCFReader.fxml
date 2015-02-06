@@ -8,31 +8,35 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<fx:root dividerPositions="0.5" orientation="VERTICAL" type="SplitPane" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8">
+<SplitPane xmlns:fx="http://javafx.com/fxml/1" dividerPositions="0.5" orientation="VERTICAL" xmlns="http://javafx.com/javafx/8" fx:controller="coat.vcf.VCFReader">
     <stylesheets>
-        <URL value="@/coat/main.css"/>
+        <URL value="@/coat/main.css" />
     </stylesheets>
     <items>
-        <TableView fx:id="table" maxHeight="9999" VBox.vgrow="ALWAYS" />
-        <VBox >
+        <TableView fx:id="table" maxHeight="9999" VBox.vgrow="ALWAYS" >
+            <columns>
+                <TableColumn fx:id="lineNumber" />
+                <TableColumn fx:id="chrom" text="Crhomosome" />
+                <TableColumn fx:id="position" text="Position"  />
+                <TableColumn fx:id="variant" text="Variant" />
+                <TableColumn fx:id="rsId" text="ID"  />
+                <TableColumn fx:id="qual" text="Quality" />
+                <TableColumn fx:id="filter" text="Filter"  />
+            </columns>
+        </TableView>
+        <VBox>
             <children>
-                <HBox spacing="5" alignment="CENTER_LEFT">
+                <HBox alignment="CENTER_LEFT" spacing="5">
                     <children>
                         <Label fx:id="infoLabel" />
-                        <Button text="%export" fx:id="export" />
-                        <!--Button fx:id="vep" text="VEP" /-->
-                        <Button fx:id="lfs" text="LFS" />
-                        <Button fx:id="viewHeaders" text="%view.headers" />
+                        <Separator visible="false" HBox.hgrow="ALWAYS" />
+                        <Label text="Chr" />
+                        <ComboBox fx:id="chromosome" prefWidth="150.0" />
+                        <Label text="Position" />
+                        <TextField fx:id="pos" />
                     </children>
                 </HBox>
-                <!-- GENOTYPE -->
-                <!--VBox styleClass="niceBox">
-                    <children>
-                        <SectionTitle hLine="false" title="GENOTYPE" />
-                        <exomesuite.vcf.VariantGenotype fx:id="formatBox" />
-                    </children>
-                </VBox-->
-                <HBox VBox.vgrow="ALWAYS"  >
+                <HBox VBox.vgrow="ALWAYS">
                     <children>
                         <!-- FILTERS -->
                         <VBox alignment="TOP_CENTER" styleClass="niceBox">
@@ -43,9 +47,15 @@
                             </children>
                         </VBox>
                         <!-- INFO -->
-                        <VBox styleClass="niceBox" HBox.hgrow="ALWAYS" >
+                        <VBox styleClass="niceBox" HBox.hgrow="ALWAYS">
                             <children>
-                                <coat.vcf.VariantInfoTable fx:id="variantInfo" VBox.vgrow="ALWAYS"  />
+                                <TableView VBox.vgrow="ALWAYS" fx:id="infoTable">
+                                    <columns>
+                                        <TableColumn fx:id="name"  text="%name" />
+                                        <TableColumn fx:id="value"  text="value" />
+                                        <TableColumn fx:id="description"  text="%description" />
+                                    </columns>
+                                </TableView>
                             </children>
                         </VBox>
                     </children>
@@ -56,4 +66,4 @@
             </padding>
         </VBox>
     </items>
-</fx:root>
+</SplitPane>

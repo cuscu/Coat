@@ -12,25 +12,32 @@
         <URL value="@/coat/main.css" />
     </stylesheets>
     <top>
-        <MenuBar BorderPane.alignment="CENTER">
-            <menus>
-                <Menu mnemonicParsing="false" text="File">
-                    <items>
-                        <MenuItem fx:id="openMenu" mnemonicParsing="false" onAction="#open" text="Open" />
-                        <MenuItem fx:id="saveMenu" mnemonicParsing="false" onAction="#saveAs" text="Save as" />
-                        <MenuItem fx:id="exitMenu" mnemonicParsing="false" onAction="#exit" text="Exit" />
-                    </items>
-                </Menu>
-                <Menu fx:id="vcfMenu" mnemonicParsing="false" text="VCF" visible="false">
-                    <items>
-                        <MenuItem fx:id="headersMenu" mnemonicParsing="false" text="View headers" />
-                        <MenuItem fx:id="lfsMenu" mnemonicParsing="false" text="Add LFS" />
-                    </items>
-                </Menu>
-            </menus>
-        </MenuBar>
+        <TabPane fx:id="menu">
+            <tabs>
+                <Tab text="%file" closable="false" >
+                    <content>
+                        <FlowPane  >
+                            <Button fx:id="openFile" text="%open" onAction="#open" contentDisplay="TOP" styleClass="graphic-button"  />
+                            <Button fx:id="saveFile" text="%save" onAction="#saveAs" contentDisplay="TOP" styleClass="graphic-button"  />
+                        </FlowPane>
+                    </content>
+                </Tab>
+                <Tab text="VCF" closable="false" fx:id="vcfTab" >
+                    <content>
+                        <FlowPane >
+                            <Button fx:id="viewHeaders" onAction="#viewHeaders" text="View headers" contentDisplay="TOP" styleClass="graphic-button" />
+                            <Button fx:id="addLFS" onAction="#addLFS" text="Add LFS" contentDisplay="TOP" styleClass="graphic-button"/>
+
+                        </FlowPane>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
     </top>
     <center>
         <TabPane fx:id="workspace" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER" />
     </center>
+    <bottom>
+
+    </bottom>
 </BorderPane>

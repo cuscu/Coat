@@ -11,10 +11,14 @@ import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.vcf.VCFReader;
 import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 
@@ -27,17 +31,17 @@ public class CoatView {
     @FXML
     private TabPane workspace;
     @FXML
-    private Menu vcfMenu;
+    private Button openFile;
     @FXML
-    private MenuItem openMenu;
+    private Button saveFile;
     @FXML
-    private MenuItem saveMenu;
+    private Button viewHeaders;
     @FXML
-    private MenuItem exitMenu;
+    private Button addLFS;
     @FXML
-    private MenuItem headersMenu;
+    private Tab vcfTab;
     @FXML
-    private MenuItem lfsMenu;
+    private TabPane menu;
 
     public void initialize() {
         // Listen whe user clicks on a tab, or opens a file
@@ -47,13 +51,23 @@ public class CoatView {
             Coat.setTitle(f.getName());
             // Show/hide VCF menu
             if (f.getName().endsWith(".vcf")) {
-                vcfMenu.setVisible(true);
+                if (!menu.getTabs().contains(vcfTab)) {
+                    menu.getTabs().add(vcfTab);
+                }
             } else {
-                vcfMenu.setVisible(false);
+                menu.getTabs().remove(vcfTab);
             }
-
         });
+        menu.getTabs().remove(vcfTab);
         assignMenuIcons();
+    }
+
+    private void assignMenuIcons() {
+        openFile.setGraphic(new SizableImage("coat/img/open.png", SizableImage.MEDIUM_SIZE));
+        saveFile.setGraphic(new SizableImage("coat/img/save.png", SizableImage.MEDIUM_SIZE));
+        viewHeaders.setGraphic(new SizableImage("coat/img/headers.png", SizableImage.MEDIUM_SIZE));
+        addLFS.setGraphic(new SizableImage("coat/img/lfs.png", SizableImage.MEDIUM_SIZE));
+
     }
 
     @FXML
@@ -73,7 +87,7 @@ public class CoatView {
                 // VCF files
                 Tab t = new Tab(f.getName());
                 t.setUserData(f);
-                t.setContent(new VCFReader(f));
+                t.setContent(createVCFReader(f));
                 workspace.getTabs().add(t);
                 workspace.getSelectionModel().select(t);
             } else if (f.getName().endsWith(".mist") || f.getName().endsWith(".tsv")) {
@@ -90,24 +104,58 @@ public class CoatView {
     @FXML
     private void saveAs(ActionEvent event) {
         if (!workspace.getSelectionModel().isEmpty()) {
-            if (workspace.getSelectionModel().getSelectedItem().getContent().getClass().equals(VCFReader.class)) {
-                VCFReader reader = (VCFReader) workspace.getSelectionModel().getSelectedItem().getContent();
+            if (workspace.getSelectionModel().getSelectedItem().getContent().getUserData().getClass().equals(VCFReader.class)) {
+                VCFReader reader = (VCFReader) workspace.getSelectionModel().getSelectedItem().getContent().getUserData();
                 reader.saveAs();
             } else {
-                TSVReader reader = (TSVReader) workspace.getSelectionModel().getSelectedItem().getContent();
+                TSVReader reader = (TSVReader) workspace.getSelectionModel().getSelectedItem().getContent().getUserData();
                 reader.saveAs();
             }
         }
     }
 
     @FXML
-    private void exit(ActionEvent event) {
+    private void viewHeaders(ActionEvent event) {
+        if (!workspace.getSelectionModel().isEmpty()) {
+            if (workspace.getSelectionModel().getSelectedItem().getContent().getUserData().getClass().equals(VCFReader.class)) {
+                VCFReader reader = (VCFReader) workspace.getSelectionModel().getSelectedItem().getContent().getUserData();
+                reader.viewHeaders();
+            }
+        }
     }
 
-    private void assignMenuIcons() {
-        exitMenu.setGraphic(new SizableImage("coat/img/exit.png", SizableImage.SMALL_SIZE));
-        openMenu.setGraphic(new SizableImage("coat/img/open.png", SizableImage.SMALL_SIZE));
-        saveMenu.setGraphic(new SizableImage("coat/img/save.png", SizableImage.SMALL_SIZE));
+    @FXML
+    private void addLFS(ActionEvent event) {
+        if (!workspace.getSelectionModel().isEmpty()) {
+            if (workspace.getSelectionModel().getSelectedItem().getContent().getUserData().getClass().equals(VCFReader.class)) {
+                VCFReader reader = (VCFReader) workspace.getSelectionModel().getSelectedItem().getContent().getUserData();
+                reader.addLFS();
+            }
+        }
+
+    }
+
+    /**
+     * Returns a node that contains the main node of a new VCFReader, where the userData is the
+     * controller.
+     *
+     * @param f
+     * @return
+     */
+    private Node createVCFReader(File f) {
+        FXMLLoader loader = new FXMLLoader(VCFReader.class.getResource("VCFReader.fxml"), OS.getResources());
+        try {
+            Node n = loader.load();
+            // Associate file to the controller
+            VCFReader controller = loader.getController();
+            controller.setVcfFile(f);
+            // Include controller as node's userData property
+            n.setUserData(controller);
+            return n;
+        } catch (IOException ex) {
+            Logger.getLogger(CoatView.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 
 }
