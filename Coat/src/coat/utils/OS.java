@@ -1,6 +1,23 @@
+/*
+ * Copyright (C) 2014 UICHUIMI
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package coat.utils;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,10 +28,9 @@ import javafx.collections.ObservableList;
 
 /**
  * Contains methods to control application properties (databases, opened projects..) and most
- * general methods, like {@code humanReadableByteCount()} or {@code asString()}. If you want to
- * perform a general GUI operation, such as print a message, use {@link MainViewController}.
+ * general methods, like {@code humanReadableByteCount()} or {@code asString()}.
  *
- * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
+ * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class OS {
 
@@ -123,4 +139,16 @@ public class OS {
         return resources;
     }
 
+    /**
+     * Formats the String key from resources (the current ResourceBundle) using a MessageFormat
+     * which will have args.
+     *
+     * @param key the key of the string
+     * @param args the arguments of the string
+     * @return the resulting string using the current locale
+     */
+    public static String getStringFormatted(String key, Object... args) {
+        MessageFormat formatter = new MessageFormat(resources.getString(key), resources.getLocale());
+        return formatter.format(args);
+    }
 }

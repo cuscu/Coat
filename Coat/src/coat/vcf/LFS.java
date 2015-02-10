@@ -23,12 +23,21 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Computes the Low Frequency Synonym Change. A tag that indicates the proportion between the
+ * reference codon frequency and the alternative codon frequency in cells.
  *
- * @author Lorente Arencibia, Pascual <pasculorente@gmail.com>
+ * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class LFS {
 
+    /**
+     * The list of frequencies. Each codon is given a real number between 0.0 and 1.0.
+     */
     private static final Map<String, Double> frequencies = new TreeMap();
+    /**
+     * The list of aminoacids. Gives the corresponding aminoacid of a codon. Use this list to know
+     * which codons are synonym.
+     */
     private static final Map<String, String> aminoacids = new TreeMap();
 
     static {
@@ -162,6 +171,11 @@ public class LFS {
         aminoacids.put("GGG", "G");
     }
 
+    /**
+     * Adds the tag lfs to the variant.
+     *
+     * @param variant
+     */
     public static void addLFS(Variant variant) {
         try {
             Map<String, String> infos = variant.getInfos();

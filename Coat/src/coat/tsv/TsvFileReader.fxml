@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import java.net.*?>
 
-<fx:root type="SplitPane" xmlns:fx="http://javafx.com/fxml/1" orientation="VERTICAL" >
+<SplitPane xmlns:fx="http://javafx.com/fxml/1" orientation="VERTICAL" fx:controller="coat.tsv.TsvFileReader">
     <stylesheets>
         <URL value="@/coat/main.css"/>
     </stylesheets>
@@ -30,4 +30,4 @@
             </children>
         </VBox>
     </items>
-</fx:root>
+</SplitPane>

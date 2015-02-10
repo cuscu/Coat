@@ -1,24 +1,14 @@
 /*
- * Copyright (C) 2014 UICHUIMI
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package coat.tsv;
 
 import coat.graphic.IndexCell;
 import coat.graphic.NaturalCell;
 import coat.graphic.SizableImage;
+import coat.reader.Reader;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import java.io.BufferedReader;
@@ -29,6 +19,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -36,22 +28,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 
 /**
- * A pane that shows a Tab Separated Values file.
  *
- * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
+ * @author UICHUIMI
  */
-public class TSVReader extends SplitPane {
+public class TsvFileReader extends Reader {
 
     @FXML
     private TableView<String[]> table;
@@ -64,29 +53,11 @@ public class TSVReader extends SplitPane {
     @FXML
     private Button export;
 
-    private final File file;
     private String[] headers;
 
-    private AtomicInteger totalLines = new AtomicInteger();
-    private AtomicInteger currentLines = new AtomicInteger();
-
-    /**
-     * Creates a new TSVReader.
-     *
-     * @param file the file to read
-     */
-    public TSVReader(File file) {
-        this.file = file;
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("TSVReader.fxml"));
-            loader.setRoot(this);
-            loader.setController(this);
-            loader.load();
-        } catch (Exception e) {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, e);
-        }
-        loadFile();
-    }
+    private final AtomicInteger totalLines = new AtomicInteger();
+    private final AtomicInteger currentLines = new AtomicInteger();
+    private final static List<Button> actions = new LinkedList();
 
     @FXML
     private void initialize() {
@@ -189,6 +160,7 @@ public class TSVReader extends SplitPane {
      * Ask user to open a file.
      *
      */
+    @Override
     public void saveAs() {
         File output = FileManager.saveFile("Select output file", file.getParentFile(),
                 file.getName(), FileManager.ALL_FILTER);
@@ -209,6 +181,22 @@ public class TSVReader extends SplitPane {
         } catch (IOException ex) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    @Override
+    public void setFile(File file) {
+        this.file = file;
+        loadFile();
+    }
+
+    @Override
+    public List<Button> getActions() {
+        return null;
+    }
+
+    @Override
+    public String getActionsName() {
+        return "TSV";
     }
 
 }

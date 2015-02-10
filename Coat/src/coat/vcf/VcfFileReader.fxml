@@ -8,7 +8,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<SplitPane xmlns:fx="http://javafx.com/fxml/1" dividerPositions="0.5" orientation="VERTICAL" xmlns="http://javafx.com/javafx/8" fx:controller="coat.vcf.VCFReader">
+<SplitPane xmlns:fx="http://javafx.com/fxml/1" dividerPositions="0.5" orientation="VERTICAL" xmlns="http://javafx.com/javafx/8" fx:controller="coat.vcf.VcfFileReader">
     <stylesheets>
         <URL value="@/coat/main.css" />
     </stylesheets>
@@ -16,24 +16,24 @@
         <TableView fx:id="table" maxHeight="9999" VBox.vgrow="ALWAYS" >
             <columns>
                 <TableColumn fx:id="lineNumber" />
-                <TableColumn fx:id="chrom" text="Crhomosome" />
-                <TableColumn fx:id="position" text="Position"  />
-                <TableColumn fx:id="variant" text="Variant" />
-                <TableColumn fx:id="rsId" text="ID"  />
-                <TableColumn fx:id="qual" text="Quality" />
-                <TableColumn fx:id="filter" text="Filter"  />
+                <TableColumn fx:id="chrom" text="%chromosome" />
+                <TableColumn fx:id="position" text="%position"  />
+                <TableColumn fx:id="variant" text="%variant" />
+                <TableColumn fx:id="rsId" text="ID" />
+                <TableColumn fx:id="qual" text="%quality" />
+                <TableColumn fx:id="filter" text="%filter"  />
             </columns>
         </TableView>
-        <VBox>
+        <VBox spacing="5"  >
             <children>
                 <HBox alignment="CENTER_LEFT" spacing="5">
                     <children>
-                        <Label fx:id="infoLabel" />
-                        <Separator visible="false" HBox.hgrow="ALWAYS" />
-                        <Label text="Chr" />
+                        <Label text="%chromosome" />
                         <ComboBox fx:id="chromosome" prefWidth="150.0" />
-                        <Label text="Position" />
+                        <Label text="%position" />
                         <TextField fx:id="pos" />
+                        <Separator visible="false" HBox.hgrow="ALWAYS" />
+                        <Label fx:id="infoLabel" />
                     </children>
                 </HBox>
                 <HBox VBox.vgrow="ALWAYS">
@@ -41,18 +41,17 @@
                         <!-- FILTERS -->
                         <VBox alignment="TOP_CENTER" styleClass="niceBox">
                             <children>
-                                <Label text="FILTERS" />
                                 <VBox fx:id="filtersPane" spacing="5" />
-                                <Button fx:id="addFilter" styleClass="graphic-button" text="New filter" />
+                                <Button fx:id="addFilter" styleClass="graphic-button" text="%add.filter" />
                             </children>
                         </VBox>
                         <!-- INFO -->
-                        <VBox styleClass="niceBox" HBox.hgrow="ALWAYS">
+                        <VBox HBox.hgrow="ALWAYS">
                             <children>
                                 <TableView VBox.vgrow="ALWAYS" fx:id="infoTable">
                                     <columns>
                                         <TableColumn fx:id="name"  text="%name" />
-                                        <TableColumn fx:id="value"  text="value" />
+                                        <TableColumn fx:id="value"  text="%value" />
                                         <TableColumn fx:id="description"  text="%description" />
                                     </columns>
                                 </TableView>

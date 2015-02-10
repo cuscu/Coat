@@ -16,11 +16,14 @@
  */
 package coat.vcf;
 
+import coat.CoatView;
 import coat.graphic.IndexCell;
 import coat.graphic.NaturalCell;
 import coat.graphic.SizableImage;
+import coat.reader.Reader;
 import coat.utils.FileManager;
 import coat.utils.OS;
+import coat.vep.EnsemblAPI;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -29,7 +32,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -38,32 +44,29 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
- * Main scenario for the VCF Reader View. Created with {@code new VCFReader(file)}.
- *
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class VCFReader {
-    /* TODO:
-     * Change filtersPane to a list.
-     * Integrate INFO table inside.
-     */
+public class VcfFileReader extends Reader {
 
     /**
      * The variants' table.
@@ -95,11 +98,6 @@ public class VCFReader {
      */
     @FXML
     private TextField pos;
-
-    /**
-     * The VCF file.
-     */
-    private File vcfFile;
     /**
      * Total number of lines.
      */
@@ -164,26 +162,19 @@ public class VCFReader {
      */
     private final Set<String> infos = new TreeSet();
     /**
-     * List of header lines. They are stored in the same order as added (internally is a
-     * {@link LinkedHashSet}).
-     */
-    private Set<String> headers = new LinkedHashSet();
-    /**
      * Contains the headers metaprocessed.
      */
     private VCFHeader vcfHeader;
-    /**
-     * True if variant was selected by table, false if variant was selected by chrom and pos boxes.
-     */
-    private boolean flag;
+
+    private final List<Button> actions = new LinkedList();
 
     /**
      * Initializes the controller class.
      */
-    @FXML
     public void initialize() {
         initializeVariantsTable();
         initializeInfoTable();
+        initializeButtons();
 
         addFilter.setGraphic(new SizableImage("coat/img/new.png", SizableImage.SMALL_SIZE));
         addFilter.setOnAction(e -> addFilter());
@@ -195,7 +186,9 @@ public class VCFReader {
             }
         });
         pos.setOnAction(event -> selectVariant());
+
         chromosome.setOnAction(event -> selectVariant());
+        chromosome.setEditable(true);
 
     }
 
@@ -252,8 +245,7 @@ public class VCFReader {
      */
     private void clearView() {
         // Clear header
-        vcfHeader = new VCFHeader(vcfFile);
-        headers.clear();
+        vcfHeader = new VCFHeader(file);
         // Clear table
         table.getItems().clear();
         totalLines.set(0);
@@ -266,17 +258,19 @@ public class VCFReader {
      * Reads the file and populate the table.
      */
     private void readFile() {
-        try (BufferedReader in = new BufferedReader(new FileReader(vcfFile))) {
+        try (BufferedReader in = new BufferedReader(new FileReader(file))) {
             in.lines().forEachOrdered(line -> {
                 if (line.startsWith("#")) {
-                    addHeader(line);
+                    vcfHeader.add(line);
                 } else {
                     table.getItems().add(new Variant(line));
                     totalLines.incrementAndGet();
                 }
             });
+            // Fulfill infos
+            vcfHeader.getInfos().forEach(map -> infos.add(map.get("ID")));
         } catch (Exception ex) {
-            Logger.getLogger(VCFReader.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -285,8 +279,9 @@ public class VCFReader {
      *
      * @return the opened file
      */
+    @Override
     public File getFile() {
-        return vcfFile;
+        return file;
     }
 
     /**
@@ -295,7 +290,7 @@ public class VCFReader {
      * @param vcfFile new file to use with the VCFReader
      */
     public void setVcfFile(File vcfFile) {
-        this.vcfFile = vcfFile;
+        this.file = vcfFile;
         loadFile();
 
     }
@@ -305,11 +300,14 @@ public class VCFReader {
      */
     private void variantChanged() {
         Variant v = table.getSelectionModel().getSelectedItem();
-        flag = true;
         infoTable.getItems().clear();
         if (v != null) {
-            chromosome.setValue(v.getChrom());
             pos.setText(v.getPos() + "");
+            // Silently change chromosome, avoiding it to fire a selection
+            chromosome.setOnAction(null);
+            chromosome.setValue(v.getChrom());
+            chromosome.setOnAction(event -> selectVariant());
+
             // Update info table
             v.getInfos().forEach((key, val) -> {
                 // Search the description in headers
@@ -340,7 +338,6 @@ public class VCFReader {
             filter();
         });
         filtersPane.getChildren().add(filterPane);
-
     }
 
     /**
@@ -353,7 +350,7 @@ public class VCFReader {
         // Clear table
         table.getItems().clear();
         // Read file again, but do not process headers, only the variants
-        try (BufferedReader in = new BufferedReader(new FileReader(vcfFile))) {
+        try (BufferedReader in = new BufferedReader(new FileReader(file))) {
             in.lines().forEachOrdered(line -> {
                 if (!line.startsWith("#")) {
                     final Variant v = new Variant(line);
@@ -363,13 +360,12 @@ public class VCFReader {
                 }
             });
         } catch (Exception ex) {
-            Logger.getLogger(VCFReader.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         }
         updateInfo();
         // Reselect last selected variat
         chromosome.setValue(chrm);
         pos.setText(p);
-        flag = false;
         selectVariant();
     }
 
@@ -405,28 +401,12 @@ public class VCFReader {
     }
 
     /**
-     * Adds a header line to the headers array and, if it is a info line, adds the name to names
-     * array.
-     *
-     * @param line a header line, ## starting is not check
-     */
-    private void addHeader(String line) {
-        headers.add(line);
-        if (line.startsWith("##INFO=<")) {
-            // ##INFO=<ID=DP,...
-            String[] row = line.substring(8).split(",");
-            // ID=DP
-            String name = row[0].split("=")[1];
-            infos.add(name);
-        }
-    }
-
-    /**
      * Ask user to select a save File (VCF or TSV) and exports variants in the current table.
      */
+    @Override
     public void saveAs() {
-        File output = FileManager.saveFile("Select output file", vcfFile.getParentFile(),
-                vcfFile.getName(), FileManager.VCF_FILTER, FileManager.TSV_FILTER);
+        File output = FileManager.saveFile("Select output file", file.getParentFile(),
+                file.getName(), FileManager.VCF_FILTER, FileManager.TSV_FILTER);
         if (output != null) {
             if (output.getName().endsWith(".vcf")) {
                 exportToVCF(output);
@@ -435,7 +415,7 @@ public class VCFReader {
             }
 //            File json = new File(output.getAbsolutePath().replace(".vcf", ".json"));
             // Too big files, cause header repeats for every variant
-            //VCF2JSON.vcf2Json(vcfFile, json);
+            //VCF2JSON.vcf2Json(file, json);
         }
     }
 
@@ -446,7 +426,7 @@ public class VCFReader {
      */
     private void exportToVCF(File output) {
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(output)))) {
-            headers.forEach(writer::println);
+            vcfHeader.getHeaders().forEach(writer::println);
             table.getItems().forEach(writer::println);
         } catch (IOException ex) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
@@ -454,37 +434,21 @@ public class VCFReader {
     }
 
     public void addLFS() {
-        injectLFSHeasder();
-        // Store filters status and deactivate all of them
-        boolean[] enabled = new boolean[filtersPane.getChildren().size()];
-        for (int i = 0; i < enabled.length; i++) {
-            VCFFilterPane pane = (VCFFilterPane) filtersPane.getChildren().get(i);
-            enabled[i] = pane.getFilter().isEnabled();
-            pane.getFilter().setEnabled(false);
-        }
-        // Load all variants
-        filter();
-        // Apply LFS.
+        injectLFSHeader();
         table.getItems().parallelStream().forEach(LFS::addLFS);
-        // Export to file
-        exportToVCF(vcfFile);
-        // Restore filters
-        for (int i = 0; i < enabled.length; i++) {
-            VCFFilterPane pane = (VCFFilterPane) filtersPane.getChildren().get(i);
-            pane.getFilter().setEnabled(enabled[i]);
-        }
-        filter();
     }
 
     public void viewHeaders() {
         TextArea area = new TextArea();
         vcfHeader.getHeaders().forEach(header -> area.appendText(header + "\n"));
         area.setEditable(false);
+        area.setWrapText(true);
+        area.home();
         Scene scene = new Scene(area);
         Stage stage = new Stage();
         stage.setWidth(600);
         stage.setHeight(600);
-        stage.setTitle(vcfFile.getName());
+        stage.setTitle(file.getName());
         stage.centerOnScreen();
         stage.setScene(scene);
         stage.show();
@@ -493,22 +457,17 @@ public class VCFReader {
     /**
      * Inserts LFS header alphabetically.
      */
-    private void injectLFSHeasder() {
+    private void injectLFSHeader() {
+        // Let's check if LFS header is already stored
+        for (Map<String, String> map : vcfHeader.getInfos()) {
+            if (map.get("ID").equals("LFS")) {
+                return;
+            }
+        }
         // Insert LFS header
         final String lfsInfo = "##INFO=<ID=LFS,Number=1,Type=Integer,Description=\"Low frequency codon substitution\">";
-        if (!headers.contains(lfsInfo)) {
-            Set<String> copy = new LinkedHashSet();
-            boolean inserted = false;
-            for (String h : headers) {
-                if (!inserted && h.startsWith("##INFO=<") && h.compareTo(lfsInfo) > 0) {
-                    copy.add(lfsInfo);
-                }
-                copy.add(h);
-            }
-            headers = copy;
-            infos.add("LFS");
-            vcfHeader.addInfo(lfsInfo);
-        }
+        vcfHeader.add(lfsInfo);
+        infos.add("LFS");
     }
 
     /**
@@ -576,10 +535,6 @@ public class VCFReader {
      * empty values. If there is no variant in the given position, it focus on the next variant.
      */
     private void selectVariant() {
-        if (flag) {
-            flag = false;
-            return;
-        }
         if (chromosome.getValue() != null && !pos.getText().isEmpty()) {
             String c = chromosome.getValue();
             int i = Integer.valueOf(pos.getText());
@@ -591,6 +546,71 @@ public class VCFReader {
                 }
             }
         }
+    }
+
+    @Override
+    public List<Button> getActions() {
+        return actions;
+    }
+
+    @Override
+    public void setFile(File file) {
+        this.file = file;
+        loadFile();
+    }
+
+    private void initializeButtons() {
+        // View headers button
+        Button viewheaders = new Button(OS.getResources().getString("headers"));
+        viewheaders.setTooltip(new Tooltip(OS.getResources().getString("view.headers")));
+        viewheaders.setOnAction(event -> viewHeaders());
+        viewheaders.setGraphic(new SizableImage("coat/img/headers.png", SizableImage.MEDIUM_SIZE));
+        viewheaders.getStyleClass().add("graphic-button");
+        viewheaders.setContentDisplay(ContentDisplay.TOP);
+        actions.add(viewheaders);
+
+        // Add lfs button
+        Button lfs = new Button("LFS");
+        lfs.setTooltip(new Tooltip(OS.getResources().getString("add.lfs")));
+        lfs.setOnAction(event -> addLFS());
+        lfs.setGraphic(new SizableImage("coat/img/lfs.png", SizableImage.MEDIUM_SIZE));
+        lfs.getStyleClass().add("graphic-button");
+        lfs.setContentDisplay(ContentDisplay.TOP);
+        actions.add(lfs);
+
+        // Add vep button
+        Button vep = new Button("VEP");
+        vep.setTooltip(new Tooltip("Add info from Ensembl VEP"));
+        vep.setGraphic(new SizableImage("coat/img/vep_logo.png", SizableImage.MEDIUM_SIZE));
+        vep.setOnAction(e -> addVep());
+        vep.getStyleClass().add("graphic-button");
+        vep.setContentDisplay(ContentDisplay.TOP);
+        actions.add(vep);
+    }
+
+    @Override
+    public String getActionsName() {
+        return "VCF";
+    }
+
+    private void addVep() {
+        injectVEPHeaders();
+        Task task = EnsemblAPI.vepAnnotator(table.getItems());
+        task.setOnSucceeded(event
+                -> CoatView.printMessage(table.getItems().size()
+                        + " variants annotated", "success"));
+        task.setOnFailed(event -> CoatView.printMessage("something wrong", "error"));
+        task.messageProperty().addListener((obs, old, current)
+                -> CoatView.printMessage(current, "info"));
+        CoatView.printMessage("Annotating variants...", "info");
+        new Thread(task).start();
+    }
+
+    private void injectVEPHeaders() {
+        // Add headers to vcfHeader
+        Arrays.stream(EnsemblAPI.headers).forEach(vcfHeader::add);
+        // Update infos
+        vcfHeader.getInfos().forEach(inf -> infos.add(inf.get("ID")));
     }
 
 }

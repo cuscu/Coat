@@ -37,7 +37,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
 /**
- *
+ * This class contains methods to deal with FileSystem. Methods to open/save files, select paths,
+ * copy directories and get user/home path.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
@@ -279,26 +280,7 @@ public final class FileManager {
      * @return the selected file or null
      */
     public static File saveFile(String title, File initDir, List<ExtensionFilter> filters) {
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle(title);
-        chooser.setInitialDirectory(initDir != null && initDir.isDirectory() && initDir.exists()
-                ? initDir : getLastPath());
-        chooser.getExtensionFilters().addAll(filters);
-        File file = chooser.showSaveDialog(null);
-        if (file != null) {
-            lastPath = file.getParentFile();
-            if (!filters.isEmpty()) {
-                String f = chooser.getSelectedExtensionFilter().getExtensions().get(0);
-                if (f != null) {
-                    String ext = f.replace("*", "");
-                    if (file.getName().endsWith(ext)) {
-                    } else {
-                        return new File(file.getAbsolutePath() + ext);
-                    }
-                }
-            }
-        }
-        return file;
+        return saveFile(title, initDir, null, filters);
     }
 
     /**
@@ -314,7 +296,9 @@ public final class FileManager {
      */
     public static File saveFile(String title, File initDir, String initName, List<ExtensionFilter> filters) {
         FileChooser chooser = new FileChooser();
-        chooser.setInitialFileName(initName);
+        if (initName != null) {
+            chooser.setInitialFileName(initName);
+        }
         chooser.setTitle(title);
         chooser.setInitialDirectory(initDir != null && initDir.isDirectory() && initDir.exists()
                 ? initDir : getLastPath());

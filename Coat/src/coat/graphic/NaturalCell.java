@@ -48,9 +48,7 @@ public class NaturalCell extends TableCell {
     protected void updateItem(Object item, boolean empty) {
         super.updateItem(item, empty);
         if (!empty) {
-            if (item == null) {
-                System.out.println("Line " + getIndex() + " column " + getTableColumn().getText());
-            } else {
+            if (null != item) {
                 textField.setText(item.toString());
                 setTooltip(new Tooltip(item.toString()));
             }

@@ -20,9 +20,10 @@ import javafx.geometry.Pos;
 import javafx.scene.control.TableCell;
 
 /**
- * A convenient Cell that plots the index of the cell.
+ * A convenient Cell that plots the index of the cell. Every cell has styleClass 'index-cell' to
+ * style with CSS.
  *
- * @author Lorente Arencibia, Pascual <pasculorente@gmail.com>
+ * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class IndexCell extends TableCell {
 

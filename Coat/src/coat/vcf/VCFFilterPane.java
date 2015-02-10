@@ -42,19 +42,63 @@ import javafx.scene.layout.VBox;
  */
 public class VCFFilterPane extends VBox {
 
+    /**
+     * The label when the filter is not being edited.
+     */
     private final Label staticInfo = new Label();
+    /**
+     * Field (CHROM, POS, FILTER...) combo box.
+     */
     private final ComboBox<VCFFilter.Field> field = new ComboBox();
+    /**
+     * Connector (contains, less than...) combo box.
+     */
     private final ComboBox<VCFFilter.Connector> connector = new ComboBox();
+    /**
+     * Info fields combo box.
+     */
     private final ComboBox<String> info = new ComboBox();
+    /**
+     * The value textField.
+     */
     private final TextField value = new TextField();
+    /**
+     * Accept button.
+     */
     private final Button accept = new Button(null, new SizableImage("coat/img/accept.png", SizableImage.SMALL_SIZE));
+    /**
+     * Cancel button.
+     */
     private final Button cancel = new Button(null, new SizableImage("coat/img/cancel.png", SizableImage.SMALL_SIZE));
+    /**
+     * Delete button.
+     */
     private final Button delete = new Button(null, new SizableImage("coat/img/delete.png", SizableImage.SMALL_SIZE));
+    /**
+     * Button to enable/disable filter.
+     */
     private final Button view = new Button(null, new SizableImage("coat/img/view.png", SizableImage.SMALL_SIZE));
+    /**
+     * Button to set strictness.
+     */
     private final Button strict = new Button(null, new SizableImage("coat/img/circle.png", SizableImage.SMALL_SIZE));
-
-    private EventHandler onUpdate, onDelete;
+    /**
+     * Event to fire when filter is updated. Since a single filter does not have privileges on
+     * firing whole table to be filtered, main window will override this value.
+     */
+    private EventHandler onUpdate;
+    /**
+     * Event to fire when filter is deleted. Since a single filter does not have privileges on
+     * delete itself, main window will override this value.
+     */
+    private EventHandler onDelete;
+    /**
+     * Editing mode view.
+     */
     private final HBox activePane = new HBox(field, info, connector, value, accept, cancel);
+    /**
+     * The related filter.
+     */
     private final VCFFilter filter;
 
     /**
@@ -63,34 +107,28 @@ public class VCFFilterPane extends VBox {
      * @param infos the infos list
      */
     public VCFFilterPane(List<String> infos) {
-        filter = new VCFFilter(VCFFilter.Connector.EQUALS, VCFFilter.Field.CHROMOSOME, infos.get(0));
-        Collections.sort(infos);
-        info.getItems().setAll(infos);
-        initialize();
-        accept.setTooltip(new Tooltip("Accept"));
-        cancel.setTooltip(new Tooltip("Cancel changes"));
-        delete.setTooltip(new Tooltip("Delete filter"));
-        view.setTooltip(new Tooltip("Enable/disable filter"));
-        strict.setTooltip(new Tooltip("Strict/Non-strict"));
+        filter = new VCFFilter();
+
+        initializeFieldBox();
+        initializeInfoBox(infos);
+        initializeConnectorBox();
+        initializeValueTextField();
+        initializeButtons();
+
+        staticInfo.setText(OS.getResources().getString("click.filter"));
+
+        setOnMouseClicked(e -> startEdit());
+        getStyleClass().add("filter-box");
+
+        // Start in passive mode
+        startEdit();
     }
 
-    private void initialize() {
+    private void initializeFieldBox() {
+        // Fields are constants
         field.getItems().setAll(VCFFilter.Field.values());
-        connector.getItems().setAll(VCFFilter.Connector.values());
-        accept.setOnAction(e -> accept());
-        cancel.setOnAction(e -> toPassive());
-        setOnMouseClicked(e -> startEdit());
-        value.setOnAction(e -> accept());
-        delete.setOnAction(e -> delete());
-        view.setOnAction(e -> alternateView());
-        strict.setOnAction(e -> alternateStrictness());
-        value.setOnKeyReleased(e -> {
-            if (e.getCode() == KeyCode.ENTER) {
-                accept();
-            } else if (e.getCode() == KeyCode.ESCAPE) {
-                toPassive();
-            }
-        });
+        field.setPromptText(OS.getResources().getString("field"));
+        // Detect when the info field is selected to activate INFO combo box
         field.setOnAction(e -> {
             if (field.getSelectionModel().getSelectedItem() == VCFFilter.Field.INFO) {
                 info.setDisable(false);
@@ -99,12 +137,52 @@ public class VCFFilterPane extends VBox {
             }
             value.requestFocus();
         });
+        info.setDisable(true);
+    }
+
+    private void initializeInfoBox(List<String> infos) {
+        Collections.sort(infos);
+        info.getItems().setAll(infos);
+        info.setPromptText(OS.getResources().getString("info"));
+    }
+
+    private void initializeConnectorBox() {
+        connector.setPromptText(OS.getResources().getString("connector"));
+        connector.getItems().setAll(VCFFilter.Connector.values());
+        connector.valueProperty().addListener((obs, old, current)
+                -> value.setDisable(current == VCFFilter.Connector.NOT_PRESENT
+                        || current == VCFFilter.Connector.PRESENT));
+
+    }
+
+    private void initializeValueTextField() {
+        // Force textfield to have always the focus
         info.setOnAction(e -> value.requestFocus());
         connector.setOnAction(e -> value.requestFocus());
-        staticInfo.setText(OS.getResources().getString("click.filter"));
+        value.setOnAction(e -> accept());
+        value.setOnKeyReleased(e -> {
+            // I think this is not necessary (it is called with setOnAction)
+            if (e.getCode() == KeyCode.ENTER) {
+                accept();
+            } else if (e.getCode() == KeyCode.ESCAPE) {
+                toPassive();
+            }
+        });
         HBox.setHgrow(value, Priority.SOMETIMES);
-        getStyleClass().add("filter-box");
-        toPassive();
+    }
+
+    private void initializeButtons() {
+        accept.setOnAction(e -> accept());
+        cancel.setOnAction(e -> toPassive());
+        delete.setOnAction(e -> delete());
+        view.setOnAction(e -> alternateView());
+        strict.setOnAction(e -> alternateStrictness());
+
+        accept.setTooltip(new Tooltip(OS.getResources().getString("accept")));
+        cancel.setTooltip(new Tooltip(OS.getResources().getString("cancel.changes")));
+        delete.setTooltip(new Tooltip(OS.getResources().getString("delete.filter")));
+        view.setTooltip(new Tooltip(OS.getResources().getString("enable.disable.filter")));
+        strict.setTooltip(new Tooltip(OS.getResources().getString("strict.non.strict")));
     }
 
     /**
@@ -120,13 +198,14 @@ public class VCFFilterPane extends VBox {
      * User clicked in accept.
      */
     private void accept() {
+        // Set the filter
         filter.setField(field.getSelectionModel().getSelectedItem());
         filter.setConnector(connector.getSelectionModel().getSelectedItem());
         filter.setValue(value.getText());
         filter.setSelectedInfo(info.getValue());
-        getChildren().clear();
-        setStaticInfo();
+        // Go to passive mode
         toPassive();
+        // Fire onUpdate
         if (onUpdate != null) {
             onUpdate.handle(new ActionEvent());
         }
@@ -136,27 +215,23 @@ public class VCFFilterPane extends VBox {
      * Show the passive state: only text and buttons.
      */
     private void toPassive() {
+        getChildren().clear();
+
+        // The separator right aligns buttons
         Separator separator = new Separator(Orientation.HORIZONTAL);
         separator.setVisible(false);
         HBox.setHgrow(separator, Priority.ALWAYS);
+
         HBox box = new HBox(staticInfo, separator, strict, view, delete);
         box.setAlignment(Pos.CENTER);
         getChildren().setAll(box);
+        setStaticInfo();
     }
 
     /**
      * Enables field selectors and textField.
      */
     private void startEdit() {
-        if (info.getSelectionModel().isEmpty()) {
-            info.getSelectionModel().select(0);
-        }
-        if (connector.getSelectionModel().isEmpty()) {
-            connector.getSelectionModel().select(VCFFilter.Connector.EQUALS);
-        }
-        if (field.getSelectionModel().isEmpty()) {
-            field.getSelectionModel().select(VCFFilter.Field.CHROMOSOME);
-        }
         getChildren().setAll(activePane);
         value.requestFocus();
     }
@@ -167,9 +242,16 @@ public class VCFFilterPane extends VBox {
     private void setStaticInfo() {
         String f = (filter.getField() == VCFFilter.Field.INFO)
                 ? filter.getSelectedInfo() : filter.getField().name();
-        String v = filter.getValue() == null || filter.getValue().isEmpty()
-                ? "[empty]" : filter.getValue();
-        staticInfo.setText(f + " " + filter.getConnector() + " " + v);
+        String v = "";
+        // v == "" if connector is present or not_present
+        // v == " [empty]" if value is null or ""
+        // v == value otherwise
+        if (filter.getConnector() != VCFFilter.Connector.PRESENT
+                && filter.getConnector() != VCFFilter.Connector.NOT_PRESENT) {
+            v = " " + (filter.getValue() == null || filter.getValue().isEmpty()
+                    ? "[empty]" : filter.getValue());
+        }
+        staticInfo.setText(f + " " + filter.getConnector() + v);
     }
 
     /**
@@ -213,7 +295,7 @@ public class VCFFilterPane extends VBox {
     }
 
     /**
-     * Change the acceptVoids flag and the tag icon.
+     * Change the strictness flag and the tag icon.
      */
     private void alternateStrictness() {
         boolean isStrict = filter.isStrict();

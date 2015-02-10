@@ -22,8 +22,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,7 +48,12 @@ public class VCFHeader {
     /**
      * The list of header lines.
      */
-    private List<String> unprocessedHeaders = new ArrayList();
+    private Set<String> unprocessedHeaders = new LinkedHashSet();
+
+    private Set<String> unformattedInfos = new LinkedHashSet();
+    private Set<String> unformattedFormats = new LinkedHashSet();
+
+    private static String masterHeader = "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO";
 
     /**
      * Creates a new VCFHeader using the header lines of the vcfFile.
@@ -62,11 +69,15 @@ public class VCFHeader {
                 }
                 if (line.startsWith("##INFO=<")) {
                     infos.add(parseInfo(line));
+                    unformattedInfos.add(line);
                 } else if (line.startsWith("##FORMAT=<")) {
                     formats.add(parseFormat(line));
+                    unformattedFormats.add(line);
+                } else if (line.startsWith("#CHROM")) {
+                    masterHeader = line;
+                } else {
+                    unprocessedHeaders.add(line);
                 }
-                unprocessedHeaders.add(line);
-
             }
         } catch (IOException ex) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
@@ -134,8 +145,13 @@ public class VCFHeader {
                     // token is the text between cursor and next "=" or ","
                     // cursor at "=" or ","
                     int end = cursor;
-                    while (line.charAt(end) != '=' && line.charAt(end) != ',') {
-                        end++;
+                    try {
+                        while (line.charAt(end) != '=' && line.charAt(end) != ',') {
+                            end++;
+                        }
+
+                    } catch (Exception e) {
+                        Logger.getLogger(getClass().getName()).log(Level.SEVERE, line, e);
                     }
                     if (isKey) {
                         key = line.substring(cursor, end);
@@ -160,15 +176,6 @@ public class VCFHeader {
     }
 
     /**
-     * Adds a INFO header. This method will parse the complete line: ##INFO&ltID=STH,Type=...&gt
-     *
-     * @param line the INFO line in the VCF
-     */
-    public void addInfo(String line) {
-        infos.add(parseInfo(line));
-    }
-
-    /**
      * Gets the list of infos. Each info is a map (key=value), as the VCF ##INFO= line. Use
      * {@code getInfos().get("ID")} to get th ID.
      *
@@ -179,22 +186,33 @@ public class VCFHeader {
     }
 
     /**
-     * Adds a FORMAT header. This method will parse the complete line: ##FORMAT&ltID=STH,Type=...&gt
+     * Gets the content of the VCF header as a list of Strings, each String correspond to a header
+     * line. This list is unmodificable.
      *
-     * @param line the FORMAT line from the VCF
+     * @return a copy of the list with the headers lines
      */
-    public void addFormat(String line) {
-        formats.add(parseFormat(line));
+    public Set<String> getHeaders() {
+        Set<String> copy = new LinkedHashSet(unprocessedHeaders);
+        copy.addAll(unformattedFormats);
+        copy.addAll(unformattedInfos);
+        copy.add(masterHeader);
+        return copy;
     }
 
     /**
-     * Gets the content of the VCF header as a list of Strings, each String correspond to a header
-     * line.
+     * Adds the line to the headers if it is a valid line.
      *
-     * @return a list with the headers lines
+     * @param line
      */
-    public List<String> getHeaders() {
-        return unprocessedHeaders;
+    public void add(String line) {
+        if (line.startsWith("##INFO=<")) {
+            infos.add(parseInfo(line));
+        } else if (line.startsWith("##FORMAT=<")) {
+            formats.add(parseFormat(line));
+        } else if (!line.startsWith("##")) {
+            return;
+        }
+        unprocessedHeaders.add(line);
     }
 
 }

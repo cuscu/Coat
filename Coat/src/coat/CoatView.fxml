@@ -7,6 +7,22 @@
 <?import javafx.scene.layout.*?>
 <?import java.net.*?>
 
+<!--
+Copyright (C) 2014 UICHUIMI
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
 <BorderPane prefHeight="600" prefWidth="1000" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="coat.CoatView">
     <stylesheets>
         <URL value="@/coat/main.css" />
@@ -22,12 +38,19 @@
                         </FlowPane>
                     </content>
                 </Tab>
-                <Tab text="VCF" closable="false" fx:id="vcfTab" >
+                <Tab text="%tools" closable="false" >
                     <content>
-                        <FlowPane >
-                            <Button fx:id="viewHeaders" onAction="#viewHeaders" text="View headers" contentDisplay="TOP" styleClass="graphic-button" />
-                            <Button fx:id="addLFS" onAction="#addLFS" text="Add LFS" contentDisplay="TOP" styleClass="graphic-button"/>
-
+                        <FlowPane  >
+                            <Button fx:id="combineVCF" onAction="#combineVCF" contentDisplay="TOP" styleClass="graphic-button" >
+                                <tooltip>
+                                    <Tooltip text="%combine.vcf"/>
+                                </tooltip>
+                            </Button>
+                            <Button fx:id="combineMIST" onAction="#combineMIST" contentDisplay="TOP" styleClass="graphic-button"  >
+                                <tooltip>
+                                    <Tooltip  text="%combine.mist"/>
+                                </tooltip>
+                            </Button>
                         </FlowPane>
                     </content>
                 </Tab>
@@ -35,9 +58,16 @@
         </TabPane>
     </top>
     <center>
-        <TabPane fx:id="workspace" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER" />
+        <TabPane fx:id="workspace" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
     </center>
     <bottom>
-
+        <HBox fx:id="infoBox" prefWidth="9999">
+            <children>
+                <Label fx:id="info"/>
+            </children>
+            <padding>
+                <javafx.geometry.Insets bottom="5" top="5" left="5" right="5" />
+            </padding>
+        </HBox>
     </bottom>
 </BorderPane>

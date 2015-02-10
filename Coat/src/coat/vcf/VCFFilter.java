@@ -58,6 +58,13 @@ public class VCFFilter {
         this.selectedInfo = selectedInfo;
     }
 
+    public VCFFilter(String value, Connector connector, Field field, String selectedInfo) {
+        this.value = value;
+        this.connector = connector;
+        this.field = field;
+        this.selectedInfo = selectedInfo;
+    }
+
     /**
      * Gets the value of the filter.
      *

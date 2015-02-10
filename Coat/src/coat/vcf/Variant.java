@@ -23,17 +23,19 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Stores a variant.
+ * Stores a variant. chrom, pos, ref, alt, filter and format are Strings. pos is an integer, qual a
+ * double. Info is stored as a map of key==value. If value is null, key is treated as a flag.
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class Variant {
 
-    private final String chrom, id, ref, alt, filter, info, format;
+    private final String chrom, ref, alt, filter, info, format;
     private final int pos;
     private final double qual;
     private final String[] samples;
     private final Map<String, String> infos = new TreeMap();
+    private String id;
 
     /**
      * Parses the VCF line and creates a Variant.
@@ -50,9 +52,11 @@ public class Variant {
         qual = Double.valueOf(v[5]);
         filter = v[6];
         info = v[7];
+        // Split by ;
         Arrays.stream(info.split(";")).forEach(i -> {
             String[] pair = i.split("=");
             String key = pair[0];
+            // If it is a flag, value is null
             String value = pair.length > 1 ? pair[1] : null;
             infos.put(key, value);
         });
@@ -150,6 +154,10 @@ public class Variant {
         return qual;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     /**
      * Returns a String array. Each element contains genotype info about one sample in the vcf. For
      * instance, if vcf contains variants of one sample, the size of the array will be 1. If 3
@@ -183,8 +191,9 @@ public class Variant {
             }
         }
         // Remove last comma
-        inf = inf.substring(0, inf.length() - 2);
-        return String.format(Locale.US, "%s\t%d\t%s\t%s\t%s\t%.4f\t%s\t%s%s", chrom, pos, id, ref, alt, qual, filter, inf, formats);
+        inf = inf.substring(0, inf.length() - 1);
+        return String.format(Locale.US, "%s\t%d\t%s\t%s\t%s\t%.4f\t%s\t%s%s",
+                chrom, pos, id, ref, alt, qual, filter, inf, formats);
     }
 
 }
