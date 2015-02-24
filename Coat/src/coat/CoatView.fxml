@@ -33,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 <Tab text="%file" closable="false" >
                     <content>
                         <FlowPane  >
-                            <Button fx:id="openFile" text="%open" onAction="#open" contentDisplay="TOP" styleClass="graphic-button"  />
+                            <Button fx:id="openFile" text="%open" onAction="#openAFile" contentDisplay="TOP" styleClass="graphic-button"  />
                             <Button fx:id="saveFile" text="%save" onAction="#saveAs" contentDisplay="TOP" styleClass="graphic-button"  />
                         </FlowPane>
                     </content>

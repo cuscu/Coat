@@ -8,23 +8,23 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<SplitPane xmlns:fx="http://javafx.com/fxml/1" dividerPositions="0.5" orientation="VERTICAL" xmlns="http://javafx.com/javafx/8" fx:controller="coat.vcf.VcfFileReader">
+<SplitPane dividerPositions="0.5" orientation="VERTICAL" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="coat.vcf.VcfFileReader">
     <stylesheets>
         <URL value="@/coat/main.css" />
     </stylesheets>
     <items>
-        <TableView fx:id="table" maxHeight="9999" VBox.vgrow="ALWAYS" >
+        <TableView fx:id="table" maxHeight="9999" VBox.vgrow="ALWAYS">
             <columns>
                 <TableColumn fx:id="lineNumber" />
                 <TableColumn fx:id="chrom" text="%chromosome" />
-                <TableColumn fx:id="position" text="%position"  />
+                <TableColumn fx:id="position" text="%position" />
                 <TableColumn fx:id="variant" text="%variant" />
                 <TableColumn fx:id="rsId" text="ID" />
                 <TableColumn fx:id="qual" text="%quality" />
-                <TableColumn fx:id="filter" text="%filter"  />
+                <TableColumn fx:id="filter" text="%filter" />
             </columns>
         </TableView>
-        <VBox spacing="5"  >
+        <VBox spacing="5" SplitPane.resizableWithParent="false" >
             <children>
                 <HBox alignment="CENTER_LEFT" spacing="5">
                     <children>
@@ -48,11 +48,11 @@
                         <!-- INFO -->
                         <VBox HBox.hgrow="ALWAYS">
                             <children>
-                                <TableView VBox.vgrow="ALWAYS" fx:id="infoTable">
+                                <TableView fx:id="infoTable" VBox.vgrow="ALWAYS">
                                     <columns>
-                                        <TableColumn fx:id="name"  text="%name" />
-                                        <TableColumn fx:id="value"  text="%value" />
-                                        <TableColumn fx:id="description"  text="%description" />
+                                        <TableColumn fx:id="name" text="%name" />
+                                        <TableColumn fx:id="value" text="%value" />
+                                        <TableColumn fx:id="description" text="%description" />
                                     </columns>
                                 </TableView>
                             </children>

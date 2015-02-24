@@ -17,6 +17,7 @@
 package coat;
 
 import coat.graphic.SizableImage;
+import coat.graphic.Workspace;
 import coat.mist.CombineMIST;
 import coat.reader.Reader;
 import coat.tsv.TsvFileReader;
@@ -73,6 +74,8 @@ public class CoatView {
     private static HBox staticInfoBox;
     private final static DateFormat df = new SimpleDateFormat("HH:mm:ss");
 
+    private Workspace workspace1;
+
     public void initialize() {
         staticInfo = info;
         staticInfoBox = infoBox;
@@ -124,54 +127,12 @@ public class CoatView {
      * @param event
      */
     @FXML
-    private void open(ActionEvent event) {
+    private void openAFile(ActionEvent event) {
         File f = FileManager.openFile(OS.getResources().getString("choose.file"),
                 FileManager.VCF_FILTER, FileManager.MIST_FILTER, FileManager.TSV_FILTER);
         if (f != null) {
-            // Check if the file is already opened
-            for (Tab t : workspace.getTabs()) {
-                if (t.getUserData().equals(f)) {
-                    workspace.getSelectionModel().select(t);
-                    return;
-                }
-            }
-
-            // Load corresponding View
-            FXMLLoader loader = null;
-            if (f.getName().endsWith(".vcf")) {
-                try {
-                    loader = new FXMLLoader(
-                            VcfFileReader.class.getResource("VcfFileReader.fxml"),
-                            OS.getResources());
-                    loader.load();
-                } catch (IOException ex) {
-                    Logger.getLogger(CoatView.class.getName()).log(Level.SEVERE, null, ex);
-                    return;
-                }
-            } else if (f.getName().endsWith(".mist") || f.getName().endsWith(".tsv")) {
-                try {
-                    loader = new FXMLLoader(
-                            TsvFileReader.class.getResource("TsvFileReader.fxml"),
-                            OS.getResources());
-                    loader.load();
-                } catch (IOException ex) {
-                    Logger.getLogger(CoatView.class.getName()).log(Level.SEVERE, null, ex);
-                    return;
-                }
-            }
-            if (loader == null) {
-                return;
-            }
-            // Load file
-            Reader reader = loader.getController();
-            reader.setFile(f);
-            // Create tab
-            Tab t = new Tab(f.getName());
-            t.setContent(loader.getRoot());
-            t.setUserData(reader);
-            // Add and select tab
-            workspace.getTabs().add(t);
-            workspace.getSelectionModel().select(t);
+//            workspace1.open(f);
+            openFileInWorkspace(f);
         }
     }
 
@@ -225,5 +186,87 @@ public class CoatView {
         } else {
             staticInfo.setText(date + " (" + level + "): " + message);
         }
+    }
+
+    private void openFileInWorkspace(File f) {
+        if (isOpenInWorkspace(f)) {
+            selectTabInWorkspace(f);
+        } else {
+            addFileTabToWorkspace(f);
+        }
+
+    }
+
+    private boolean isOpenInWorkspace(File f) {
+        return workspace.getTabs().stream().anyMatch(tab -> (tab.getUserData().equals(f)));
+    }
+
+    private void selectTabInWorkspace(File f) {
+        workspace.getTabs().stream().filter(tab -> (tab.getUserData().equals(f))).forEach(tab
+                -> workspace.getSelectionModel().select(tab));
+    }
+
+    private void addFileTabToWorkspace(File f) {
+        if (isVCF(f)) {
+            openVCFInWorkspace(f);
+        } else if (isTSV(f)) {
+            openTSVInWorkspace(f);
+        }
+    }
+
+    private boolean isVCF(File f) {
+        return f.getName().endsWith(".vcf");
+    }
+
+    private void openVCFInWorkspace(File f) {
+        try {
+            addVCFReaderToWorkspace(f);
+        } catch (IOException ex) {
+            Logger.getLogger(CoatView.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private boolean isTSV(File f) {
+        return f.getName().endsWith(".mist") || f.getName().endsWith(".tsv");
+    }
+
+    private void openTSVInWorkspace(File f) {
+        try {
+            addTSVReaderToWorkspace(f);
+        } catch (IOException ex) {
+            Logger.getLogger(CoatView.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void addVCFReaderToWorkspace(File f) throws IOException {
+        FXMLLoader loader = new FXMLLoader(VcfFileReader.class.getResource("VcfFileReader.fxml"),
+                OS.getResources());
+        loader.load();
+        // Load file
+        Reader reader = loader.getController();
+        reader.setFile(f);
+        addReaderToWorkspace(loader);
+
+    }
+
+    private void addTSVReaderToWorkspace(File f) throws IOException {
+        FXMLLoader loader = new FXMLLoader(
+                TsvFileReader.class.getResource("TsvFileReader.fxml"),
+                OS.getResources());
+        loader.load();
+        // Load file
+        Reader reader = loader.getController();
+        reader.setFile(f);
+        addReaderToWorkspace(loader);
+    }
+
+    private void addReaderToWorkspace(FXMLLoader loader) {
+        Reader reader = loader.getController();
+        Tab t = new Tab(reader.getFile().getName());
+        t.setContent(loader.getRoot());
+        t.setUserData(reader);
+        // Add and select tab
+        workspace.getTabs().add(t);
+        workspace.getSelectionModel().select(t);
     }
 }

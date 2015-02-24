@@ -30,11 +30,11 @@ import java.util.TreeMap;
  */
 public class Variant {
 
-    private final String chrom, ref, alt, filter, info, format;
-    private final int pos;
-    private final double qual;
-    private final String[] samples;
-    private final Map<String, String> infos = new TreeMap();
+    protected String chrom, ref, alt, filter, info, format;
+    protected int pos;
+    protected double qual;
+    protected String[] samples;
+    private Map<String, String> infos = new TreeMap();
     private String id;
 
     /**
