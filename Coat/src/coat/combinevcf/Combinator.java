@@ -14,32 +14,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package coat.graphic;
+package coat.combinevcf;
 
 import java.io.File;
-import javafx.scene.Node;
+import java.io.IOException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author UICHUIMI
  */
-public abstract class FileView {
+class Combinator {
 
-    private final File file;
-    private final Node view;
-
-    public FileView(File file, Node view) {
-        this.file = file;
-        this.view = view;
+    static File combine(List<File> includes, List<File> excludes, String outputFile) {
+        try {
+            File output = new File(outputFile);
+            new CombinatorVcf().combine(includes.toArray(new File[includes.size()]), excludes.toArray(new File[excludes.size()]), output);
+            return output;
+        } catch (IOException ex) {
+            Logger.getLogger(Combinator.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 
-    public File getFile() {
-        return file;
-    }
-
-    public Node getView() {
-        return view;
-    }
-
-    public abstract void saveAs();
 }

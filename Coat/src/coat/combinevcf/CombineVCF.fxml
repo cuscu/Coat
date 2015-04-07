@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" fx:controller="coat.combinevcf.CombineVCF">
+    <stylesheets>
+        <URL value="@/coat/main.css"/>
+    </stylesheets>
+    <children>
+        <HBox VBox.vgrow="ALWAYS" >
+            <children>
+                <VBox alignment="CENTER"  styleClass="niceBox" HBox.hgrow="SOMETIMES" >
+                    <Label text="Files to intersect"/>
+                    <ListView fx:id="includes" VBox.vgrow="SOMETIMES" maxWidth="9999"/>
+                    <Button fx:id="addInclude" text="Add" styleClass="graphic-button" />
+                </VBox>
+                <VBox alignment="CENTER" styleClass="niceBox" HBox.hgrow="SOMETIMES">
+                    <Label text="Files to exclude"/>
+                    <ListView fx:id="excludes" VBox.vgrow="SOMETIMES" maxWidth="9999"/>
+                    <Button fx:id="addExclude" text="Add" styleClass="graphic-button" />
+                </VBox>
+            </children>
+        </HBox>
+        <HBox >
+            <children>
+                <TextField fx:id="output" editable="false" HBox.hgrow="ALWAYS" />
+                <Button text="%browse" onAction="#selectOutput" />
+            </children>
+        </HBox>
+        <!--FileParam fx:id="output" title="Output" behaviour="SAVE" /-->
+        <Button fx:id="startButton" text="Start" styleClass="graphic-button" />
+    </children>
+</VBox>

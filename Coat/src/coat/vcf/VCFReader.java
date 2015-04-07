@@ -14,8 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package coat.graphic;
+package coat.vcf;
 
+import coat.graphic.FileView;
 import java.io.File;
 import javafx.scene.Node;
 
@@ -23,23 +24,15 @@ import javafx.scene.Node;
  *
  * @author UICHUIMI
  */
-public abstract class FileView {
+public class VCFReader extends FileView {
 
-    private final File file;
-    private final Node view;
-
-    public FileView(File file, Node view) {
-        this.file = file;
-        this.view = view;
+    public VCFReader(File file, Node view) {
+        super(file, view);
     }
 
-    public File getFile() {
-        return file;
+    @Override
+    public void saveAs() {
+
     }
 
-    public Node getView() {
-        return view;
-    }
-
-    public abstract void saveAs();
 }

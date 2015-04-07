@@ -16,8 +16,8 @@
  */
 package coat;
 
+import coat.combinevcf.CombineVCF;
 import coat.graphic.SizableImage;
-import coat.graphic.Workspace;
 import coat.mist.CombineMIST;
 import coat.reader.Reader;
 import coat.tsv.TsvFileReader;
@@ -40,6 +40,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
@@ -52,7 +53,8 @@ import javafx.stage.Stage;
 public class CoatView {
 
     @FXML
-    private TabPane workspace;
+    BorderPane root;
+
     @FXML
     private Button openFile;
     @FXML
@@ -74,9 +76,10 @@ public class CoatView {
     private static HBox staticInfoBox;
     private final static DateFormat df = new SimpleDateFormat("HH:mm:ss");
 
-    private Workspace workspace1;
+    private final TabPane workspace = new TabPane();
 
     public void initialize() {
+        root.setCenter(workspace);
         staticInfo = info;
         staticInfoBox = infoBox;
         // Listen whe user clicks on a tab, or opens a file
@@ -88,7 +91,7 @@ public class CoatView {
             if (current != null) {
                 // Try to load custom tab
                 Reader reader = (Reader) current.getUserData();
-                if (reader.getActions() == null) {
+                if (reader == null || reader.getActions() == null) {
                     return;
                 }
                 // Load buttons in the custom tab
@@ -150,7 +153,14 @@ public class CoatView {
 
     @FXML
     private void combineVCF(ActionEvent event) {
-        System.out.println("Combine VCF");
+        try {
+            FXMLLoader loader = new FXMLLoader(CombineVCF.class.getResource("CombineVCF.fxml"), OS.getResources());
+            Tab t = new Tab("Combine VCF");
+            t.setContent(loader.load());
+            workspace.getTabs().add(t);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML

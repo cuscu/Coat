@@ -85,7 +85,7 @@ public class EnsemblAPI {
 
     public static void addVepInfo(List<Variant> variants) {
         // List must be split into 1000 variants' fragments
-        for (int i = 0; i < variants.size(); i += 1000) {
+        for (int i = 0; i < variants.size(); i += 1000)
             try {
                 // http://grch37.rest.ensembl.org/vep/human/region
                 final URL url = new URL("http://grch37.rest.ensembl.org/vep/human/region");
@@ -120,7 +120,6 @@ public class EnsemblAPI {
             } catch (MalformedURLException ex) {
                 Logger.getLogger(EnsemblAPI.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }
     }
 
     public static Task<Boolean> vepAnnotator(List<Variant> variants) {
@@ -207,7 +206,7 @@ public class EnsemblAPI {
         }
     }
 
-    private static void incorporateData(Variant v, JSONObject json) {
+    private static void incorporateData(Variant variant, JSONObject json) {
         /*
          - "id":"temp"
          - "input":"1 1534738 1534738 G/A"
@@ -255,17 +254,16 @@ public class EnsemblAPI {
 
             // ID goes in the VCF id field
             String id = var.getString("id");
-            if (v.getId().equals(".")) {
-                v.setId(id);
-            }
+            if (variant.getId().equals("."))
+                variant.setId(id);
 
-            findAndPut(var, "minor_allele_freq", v, "GMAF", Double.class);
-            findAndPut(var, "amr_maf", v, "AMR_F", Double.class);
-            findAndPut(var, "asn_maf", v, "ASN_F", Double.class);
-            findAndPut(var, "eur_maf", v, "EUR_F", Double.class);
-            findAndPut(var, "afr_maf", v, "AFR_F", Double.class);
-            findAndPut(var, "ea_maf", v, "EA_F", Double.class);
-            findAndPut(var, "aa_maf", v, "AA_F", Double.class);
+            findAndPut(var, "minor_allele_freq", variant, "GMAF", Double.class);
+            findAndPut(var, "amr_maf", variant, "AMR_F", Double.class);
+            findAndPut(var, "asn_maf", variant, "ASN_F", Double.class);
+            findAndPut(var, "eur_maf", variant, "EUR_F", Double.class);
+            findAndPut(var, "afr_maf", variant, "AFR_F", Double.class);
+            findAndPut(var, "ea_maf", variant, "EA_F", Double.class);
+            findAndPut(var, "aa_maf", variant, "AA_F", Double.class);
 
         } catch (JSONException ex) {
             // No colocated_variants
@@ -308,13 +306,13 @@ public class EnsemblAPI {
             // Only take the first one
             JSONObject first = cons.getJSONObject(0);
 
-            findAndPut(first, "gene_symbol", v, "GNAME", String.class);
-            findAndPut(first, "gene_id", v, "GENE", String.class);
-            findAndPut(first, "distance", v, "DIST", Integer.class);
-            findAndPut(first, "biotype", v, "BIO", String.class);
-            findAndPut(first, "transcript_id", v, "FEAT", String.class);
-            findAndPut(first, "codons", v, "COD", String.class);
-            findAndPut(first, "amino_acids", v, "AA", String.class);
+            findAndPut(first, "gene_symbol", variant, "GNAME", String.class);
+            findAndPut(first, "gene_id", variant, "GENE", String.class);
+            findAndPut(first, "distance", variant, "DIST", Integer.class);
+            findAndPut(first, "biotype", variant, "BIO", String.class);
+            findAndPut(first, "transcript_id", variant, "FEAT", String.class);
+            findAndPut(first, "codons", variant, "COD", String.class);
+            findAndPut(first, "amino_acids", variant, "AA", String.class);
             // Unnecesary
 //            findAndPut(first, "protein_start", v, "PROTS", Integer.class);
 //            findAndPut(first, "protein_end", v, "PROTE", Integer.class);
@@ -322,11 +320,11 @@ public class EnsemblAPI {
 //            findAndPut(first, "cds_end", v, "CDSE", Integer.class);
 //            findAndPut(first, "cdna_start", v, "CDNAS", Integer.class);
 //            findAndPut(first, "cdna_end", v, "CDNAE", Integer.class);
-            findAndPut(first, "sift_score", v, "SIFTs", Double.class);
-            findAndPut(first, "sift_prediction", v, "SIFTp", String.class);
-            findAndPut(first, "polyphen_score", v, "PPHs", Double.class);
-            findAndPut(first, "polyphen_prediction", v, "PPHp", String.class);
-            findAndPutArray(first, "consequence_terms", v, "CONS", String.class);
+            findAndPut(first, "sift_score", variant, "SIFTs", Double.class);
+            findAndPut(first, "sift_prediction", variant, "SIFTp", String.class);
+            findAndPut(first, "polyphen_score", variant, "PPHs", Double.class);
+            findAndPut(first, "polyphen_prediction", variant, "PPHp", String.class);
+            findAndPutArray(first, "consequence_terms", variant, "CONS", String.class);
 
         } catch (JSONException e) {
             // NO transcript_consequences
@@ -340,7 +338,7 @@ public class EnsemblAPI {
          */
         try {
             JSONArray cons = json.getJSONArray("intergenic_consequences");
-            findAndPut(cons.getJSONObject(0), "consequence_terms", v, "CONS", String.class);
+            findAndPut(cons.getJSONObject(0), "consequence_terms", variant, "CONS", String.class);
         } catch (JSONException e) {
             // NO intergenic_consequences
 
@@ -352,27 +350,25 @@ public class EnsemblAPI {
         // To go faster, I will copy the list of variants
         // Then, each located variant will be removed from list
         List<Variant> copy = new LinkedList(variants);
-        for (int i = 0; i < json.length(); i++) {
+        for (int i = 0; i < json.length(); i++)
             try {
                 // Check similar variant
                 JSONObject object = json.getJSONObject(i);
                 // 1 156897 156897 A/C
                 String[] input = ((String) object.get("input")).split(" ");
                 // Look for the variant
-                for (Variant variant : copy) {
+                for (Variant variant : copy)
                     if (variant.getChrom().equals(input[0]) && variant.getPos() == Integer.valueOf(input[1])) {
                         incorporateData(variant, object);
                         // Remove variant from list
                         copy.remove(variant);
                         break;
                     }
-                }
             } catch (JSONException | NumberFormatException ex) {
                 Logger.getLogger(EnsemblAPI.class.getName()).
                         log(Level.SEVERE, json.get(i).toString(), ex);
 
             }
-        }
     }
 
     /**
@@ -387,21 +383,19 @@ public class EnsemblAPI {
      */
     private static void findAndPut(JSONObject source, String sourceKey, Variant target,
             String targetKey, Class classType) {
-        if (source.containsKey(sourceKey)) {
-            if (classType == String.class) {
+        if (source.containsKey(sourceKey))
+            if (classType == String.class)
                 target.getInfos().put(targetKey, source.getString(sourceKey));
-            } else if (classType == Integer.class) {
+            else if (classType == Integer.class)
                 target.getInfos().put(targetKey, source.getInt(sourceKey) + "");
-            } else if (classType == Double.class) {
+            else if (classType == Double.class)
                 target.getInfos().put(targetKey, source.getDouble(sourceKey) + "");
-            } else if (classType == Boolean.class) {
+            else if (classType == Boolean.class)
                 target.getInfos().put(targetKey, source.getBoolean(sourceKey) + "");
-            } else if (classType == Long.class) {
+            else if (classType == Long.class)
                 target.getInfos().put(targetKey, source.getLong(sourceKey) + "");
-            } else {
+            else
                 target.getInfos().put(targetKey, String.valueOf(source.get(sourceKey)));
-            }
-        }
     }
 
     private static void findAndPutArray(JSONObject source, String sourceKey, Variant target,
@@ -410,21 +404,19 @@ public class EnsemblAPI {
             JSONArray terms = source.getJSONArray(sourceKey);
             if (terms.length() > 0) {
                 String result = "";
-                for (int i = 0; i < terms.length(); i++) {
-                    if (classType == String.class) {
+                for (int i = 0; i < terms.length(); i++)
+                    if (classType == String.class)
                         result += terms.getString(i) + ",";
-                    } else if (classType == Integer.class) {
+                    else if (classType == Integer.class)
                         result += terms.getInt(i) + ",";
-                    } else if (classType == Double.class) {
+                    else if (classType == Double.class)
                         result += terms.getDouble(i) + ",";
-                    } else if (classType == Boolean.class) {
+                    else if (classType == Boolean.class)
                         result += terms.getBoolean(i) + ",";
-                    } else if (classType == Long.class) {
+                    else if (classType == Long.class)
                         result += terms.getLong(i) + ",";
-                    } else {
+                    else
                         result += String.valueOf(terms.get(i)) + ",";
-                    }
-                }
                 if (!result.isEmpty()) {
                     result = result.substring(0, result.length() - 1);
                     target.getInfos().put(targetKey, result);

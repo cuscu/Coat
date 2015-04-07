@@ -52,6 +52,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY;
@@ -60,6 +61,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
 /**
@@ -79,7 +82,7 @@ public class VcfFileReader extends Reader {
     @FXML
     private VBox filtersPane;
     /**
-     * Button to add a new filter.
+     * Button to add a new pass.
      */
     @FXML
     private Button addFilter;
@@ -135,8 +138,8 @@ public class VcfFileReader extends Reader {
     /**
      * Filters column in the variants' table.
      */
-    @FXML
-    private TableColumn<Variant, String> filter;
+//    @FXML
+//    private TableColumn<Variant, String> pass;
     /**
      * The table with the info values.
      */
@@ -155,16 +158,25 @@ public class VcfFileReader extends Reader {
     /**
      * Description column in info table.
      */
-    @FXML
-    private TableColumn<Info, String> description;
+//    @FXML
+//    private TableColumn<Info, String> description;
     /**
      * List of info ids to use in filters.
      */
+    @FXML
+    private ProgressBar variantsProgressBar;
+    @FXML
+    private Label variantsProgressLabel;
+    @FXML
+    private TextFlow infoDescription;
+
     private final Set<String> infos = new TreeSet();
     /**
      * Contains the headers metaprocessed.
      */
     private VCFHeader vcfHeader;
+
+    private VcfFile vcfFile;
 
     private final List<Button> actions = new LinkedList();
 
@@ -181,15 +193,38 @@ public class VcfFileReader extends Reader {
 
         // Avoid non digit character
         pos.setOnKeyTyped(event -> {
-            if (!Character.isDigit(event.getCharacter().charAt(0))) {
+            if (!Character.isDigit(event.getCharacter().charAt(0)))
                 event.consume();
-            }
         });
         pos.setOnAction(event -> selectVariant());
 
         chromosome.setOnAction(event -> selectVariant());
         chromosome.setEditable(true);
 
+    }
+
+    @FXML
+    private void frequencyFilters() {
+        VcfFilter[] filters = {
+            new VcfFilter(VcfFilter.Field.INFO, "AA_F", VcfFilter.Connector.LESS, "0.01"),
+            new VcfFilter(VcfFilter.Field.INFO, "AFR_F", VcfFilter.Connector.LESS, "0.01"),
+            new VcfFilter(VcfFilter.Field.INFO, "EUR_F", VcfFilter.Connector.LESS, "0.01"),
+            new VcfFilter(VcfFilter.Field.INFO, "AMR_F", VcfFilter.Connector.LESS, "0.01"),
+            new VcfFilter(VcfFilter.Field.INFO, "EA_F", VcfFilter.Connector.LESS, "0.01"),
+            new VcfFilter(VcfFilter.Field.INFO, "ASN_F", VcfFilter.Connector.LESS, "0.01")};
+        for (VcfFilter filter : filters)
+            addFilter(filter);
+        filter();
+    }
+
+    private void addFilter(VcfFilter filter) {
+        VCFFilterPane filterPane = new VCFFilterPane(new ArrayList(infos), filter);
+        filterPane.setOnUpdate(e -> filter());
+        filterPane.setOnDelete(e -> {
+            filtersPane.getChildren().remove(filterPane);
+            filter();
+        });
+        filtersPane.getChildren().add(filterPane);
     }
 
     private void initializeVariantsTable() {
@@ -203,7 +238,6 @@ public class VcfFileReader extends Reader {
         variant.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getRef()
                 + "->" + param.getValue().getAlt()));
         rsId.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getId()));
-        filter.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getFilter()));
         qual.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getQual() + ""));
 
         // Factories
@@ -212,7 +246,6 @@ public class VcfFileReader extends Reader {
         position.setCellFactory(column -> new NaturalCell());
         variant.setCellFactory(column -> new NaturalCell());
         rsId.setCellFactory(column -> new NaturalCell());
-        filter.setCellFactory(column -> new NaturalCell());
         qual.setCellFactory(column -> new NaturalCell());
         table.getSelectionModel().selectedItemProperty().addListener(e -> variantChanged());
     }
@@ -220,13 +253,10 @@ public class VcfFileReader extends Reader {
     private void initializeInfoTable() {
         infoTable.setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY);
         infoTable.setEditable(false);
-        infoTable.setSelectionModel(null);
+        infoTable.getSelectionModel().selectedItemProperty().addListener(e -> infoSelected());
         name.setCellValueFactory(new PropertyValueFactory("name"));
         value.setCellValueFactory(new PropertyValueFactory("value"));
-        description.setCellValueFactory(new PropertyValueFactory("description"));
-        name.setCellFactory(param -> new NaturalCell());
         value.setCellFactory(param -> new NaturalCell());
-        description.setCellFactory(param -> new NaturalCell());
     }
 
     /**
@@ -260,15 +290,16 @@ public class VcfFileReader extends Reader {
     private void readFile() {
         try (BufferedReader in = new BufferedReader(new FileReader(file))) {
             in.lines().forEachOrdered(line -> {
-                if (line.startsWith("#")) {
+                if (line.startsWith("#"))
                     vcfHeader.add(line);
-                } else {
+                else {
                     table.getItems().add(new Variant(line));
                     totalLines.incrementAndGet();
                 }
             });
             // Fulfill infos
             vcfHeader.getInfos().forEach(map -> infos.add(map.get("ID")));
+            infos.add("FILTER");
         } catch (Exception ex) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         }
@@ -312,16 +343,14 @@ public class VcfFileReader extends Reader {
             v.getInfos().forEach((key, val) -> {
                 // Search the description in headers
                 String desc = "";
-                for (Map<String, String> property : vcfHeader.getInfos()) {
+                for (Map<String, String> property : vcfHeader.getInfos())
                     if (property.get("ID").equals(key)) {
                         desc = property.getOrDefault("Description", "");
                         break;
                     }
-                }
                 // For flag properties
-                if (val == null) {
+                if (val == null)
                     val = "yes";
-                }
                 infoTable.getItems().add(new Info(key, val, desc));
             });
         }
@@ -338,6 +367,7 @@ public class VcfFileReader extends Reader {
             filter();
         });
         filtersPane.getChildren().add(filterPane);
+        filterPane.requestFocus();
     }
 
     /**
@@ -354,9 +384,8 @@ public class VcfFileReader extends Reader {
             in.lines().forEachOrdered(line -> {
                 if (!line.startsWith("#")) {
                     final Variant v = new Variant(line);
-                    if (filter(v)) {
+                    if (filter(v))
                         table.getItems().add(v);
-                    }
                 }
             });
         } catch (Exception ex) {
@@ -377,8 +406,8 @@ public class VcfFileReader extends Reader {
     private boolean filter(Variant variant) {
         boolean pass = true;
         for (Node pane : filtersPane.getChildren()) {
-            VCFFilter f = ((VCFFilterPane) pane).getFilter();
-            if (f.getConnector() != null && f.getField() != null && !f.filter(variant)) {
+            VcfFilter f = ((VCFFilterPane) pane).getFilter();
+            if (f.getConnector() != null && f.getField() != null && !f.pass(variant)) {
                 pass = false;
                 break;
             }
@@ -392,8 +421,11 @@ public class VcfFileReader extends Reader {
     private void updateInfo() {
         int lines = table.getItems().size();
         final double percentage = lines * 100.0 / totalLines.get();
-        infoLabel.setText(String.format("%,d / %,d (%.2f%%)", lines, totalLines.get(),
-                percentage));
+        infoLabel.setText(String.format("%,d / %,d", lines, totalLines.get()));
+        variantsProgressLabel.setText(String.format("%.2f%%", percentage));
+        variantsProgressBar.setProgress(percentage / 100);
+//        infoLabel.setText(String.format("%,d / %,d (%.2f%%)", lines, totalLines.get(),
+//                percentage));
         Set<String> chrs = new LinkedHashSet();
         table.getItems().forEach(v -> chrs.add(v.getChrom()));
         chromosome.setItems(FXCollections.observableArrayList(chrs));
@@ -407,16 +439,13 @@ public class VcfFileReader extends Reader {
     public void saveAs() {
         File output = FileManager.saveFile("Select output file", file.getParentFile(),
                 file.getName(), FileManager.VCF_FILTER, FileManager.TSV_FILTER);
-        if (output != null) {
-            if (output.getName().endsWith(".vcf")) {
+        if (output != null)
+            if (output.getName().endsWith(".vcf"))
                 exportToVCF(output);
-            } else {
-                exportToTSV(output);
-            }
-//            File json = new File(output.getAbsolutePath().replace(".vcf", ".json"));
-            // Too big files, cause header repeats for every variant
-            //VCF2JSON.vcf2Json(file, json);
-        }
+            else
+                exportToTSV(output); //            File json = new File(output.getAbsolutePath().replace(".vcf", ".json"));
+        // Too big files, cause header repeats for every variant
+        //VCF2JSON.vcf2Json(file, json);
     }
 
     /**
@@ -459,11 +488,9 @@ public class VcfFileReader extends Reader {
      */
     private void injectLFSHeader() {
         // Let's check if LFS header is already stored
-        for (Map<String, String> map : vcfHeader.getInfos()) {
-            if (map.get("ID").equals("LFS")) {
+        for (Map<String, String> map : vcfHeader.getInfos())
+            if (map.get("ID").equals("LFS"))
                 return;
-            }
-        }
         // Insert LFS header
         final String lfsInfo = "##INFO=<ID=LFS,Number=1,Type=Integer,Description=\"Low frequency codon substitution\">";
         vcfHeader.add(lfsInfo);
@@ -488,9 +515,8 @@ public class VcfFileReader extends Reader {
         head[6] = "FILTER";
         int i = 7;
         // INFO columns
-        for (String info : infos) {
+        for (String info : infos)
             head[i++] = info;
-        }
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(output)))) {
             writer.println(OS.asString("\t", head));
             table.getItems().forEach(var -> {
@@ -502,11 +528,10 @@ public class VcfFileReader extends Reader {
                 line[3] = var.getRef();
                 line[4] = var.getAlt();
                 line[5] = String.format("%.4f", var.getQual());
-                line[6] = var.getFilter();
+                line[6] = var.getInfos().get("FILTER");
                 // Empty values are represented with a dot "."
-                for (int k = 7; k < line.length; k++) {
+                for (int k = 7; k < line.length; k++)
                     line[k] = ".";
-                }
                 var.getInfos().forEach((key, val) -> {
                     int index = -1;
                     // Iterate infos to locate the position of key
@@ -518,10 +543,9 @@ public class VcfFileReader extends Reader {
                         }
                         j++;
                     }
-                    if (index != -1) {
+                    if (index != -1)
                         // val == null when key is located, but has no value (a flag)
                         line[index + 7] = (val == null) ? "yes" : val;
-                    }
                 });
                 writer.println(OS.asString("\t", line));
             });
@@ -538,13 +562,12 @@ public class VcfFileReader extends Reader {
         if (chromosome.getValue() != null && !pos.getText().isEmpty()) {
             String c = chromosome.getValue();
             int i = Integer.valueOf(pos.getText());
-            for (Variant v : table.getItems()) {
+            for (Variant v : table.getItems())
                 if (v.getChrom().equals(c) && v.getPos() >= i) {
                     table.getSelectionModel().select(v);
                     table.scrollTo(v);
                     break;
                 }
-            }
         }
     }
 
@@ -611,6 +634,11 @@ public class VcfFileReader extends Reader {
         Arrays.stream(EnsemblAPI.headers).forEach(vcfHeader::add);
         // Update infos
         vcfHeader.getInfos().forEach(inf -> infos.add(inf.get("ID")));
+    }
+
+    private void infoSelected() {
+        Info info = infoTable.getSelectionModel().getSelectedItem();
+        infoDescription.getChildren().setAll(new Text(info != null ? info.getDescription() : ""));
     }
 
 }

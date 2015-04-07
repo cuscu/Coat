@@ -16,6 +16,7 @@
  */
 package coat.vcf;
 
+import coat.CoatView;
 import coat.utils.OS;
 import java.util.Arrays;
 import java.util.Locale;
@@ -30,7 +31,7 @@ import java.util.TreeMap;
  */
 public class Variant {
 
-    protected String chrom, ref, alt, filter, info, format;
+    protected String chrom, ref, alt, info, format;
     protected int pos;
     protected double qual;
     protected String[] samples;
@@ -49,8 +50,12 @@ public class Variant {
         id = v[2];
         ref = v[3];
         alt = v[4];
-        qual = Double.valueOf(v[5]);
-        filter = v[6];
+        try {
+            qual = Double.valueOf(v[5]);
+        } catch (Exception e) {
+            CoatView.printMessage("Quality " + v[5] + " is not a valid number", "error");
+        }
+        infos.put("FILTER", v[6]);
         info = v[7];
         // Split by ;
         Arrays.stream(info.split(";")).forEach(i -> {
@@ -64,9 +69,8 @@ public class Variant {
             format = v[8];
             final int nSamples = v.length - 9;
             samples = new String[nSamples];
-            for (int i = 0; i < nSamples; i++) {
+            for (int i = 0; i < nSamples; i++)
                 samples[i] = v[9 + i];
-            }
         } else {
             format = null;
             samples = null;
@@ -107,15 +111,6 @@ public class Variant {
      */
     public String getAlt() {
         return alt;
-    }
-
-    /**
-     * Gets the FILTER value of the variant.
-     *
-     * @return the filter value
-     */
-    public String getFilter() {
-        return filter;
     }
 
     /**
@@ -177,23 +172,23 @@ public class Variant {
     @Override
     public String toString() {
         String formats = "";
-        if (format != null) {
+        if (format != null)
             formats = "\t" + format + OS.asString("\t", samples);
-        }
         String inf = "";
         for (Map.Entry<String, String> entry : infos.entrySet()) {
             String key = entry.getKey();
+            if (key.equals("FILTER"))
+                continue;
             String value = entry.getValue();
-            if (value == null) {
+            if (value == null)
                 inf += key + ";";
-            } else {
+            else
                 inf += key + "=" + value + ";";
-            }
         }
         // Remove last comma
         inf = inf.substring(0, inf.length() - 1);
         return String.format(Locale.US, "%s\t%d\t%s\t%s\t%s\t%.4f\t%s\t%s%s",
-                chrom, pos, id, ref, alt, qual, filter, inf, formats);
+                chrom, pos, id, ref, alt, qual, infos.get("FILTER"), inf, formats);
     }
 
 }

@@ -16,30 +16,13 @@
  */
 package coat.graphic;
 
-import java.io.File;
-import javafx.scene.Node;
-
 /**
  *
  * @author UICHUIMI
  */
-public abstract class FileView {
+class FileNotOpened extends Exception {
 
-    private final File file;
-    private final Node view;
-
-    public FileView(File file, Node view) {
-        this.file = file;
-        this.view = view;
+    public FileNotOpened() {
     }
 
-    public File getFile() {
-        return file;
-    }
-
-    public Node getView() {
-        return view;
-    }
-
-    public abstract void saveAs();
 }

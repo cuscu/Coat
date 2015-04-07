@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -64,20 +63,18 @@ public class VCFHeader {
         try (BufferedReader reader = new BufferedReader(new FileReader(vcfFile))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                if (!line.startsWith("#")) {
+                if (!line.startsWith("#"))
                     break;
-                }
                 if (line.startsWith("##INFO=<")) {
                     infos.add(parseInfo(line));
                     unformattedInfos.add(line);
                 } else if (line.startsWith("##FORMAT=<")) {
                     formats.add(parseFormat(line));
                     unformattedFormats.add(line);
-                } else if (line.startsWith("#CHROM")) {
+                } else if (line.startsWith("#CHROM"))
                     masterHeader = line;
-                } else {
+                else
                     unprocessedHeaders.add(line);
-                }
             }
         } catch (IOException ex) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
@@ -91,7 +88,7 @@ public class VCFHeader {
      * @return a map with the INFO keys=values
      */
     private Map<String, String> parseInfo(String line) {
-        return generateMap(line.substring(8, line.length() - 1));
+        return new MapGenerator().parse(line.substring(8, line.length() - 1));
     }
 
     /**
@@ -101,68 +98,7 @@ public class VCFHeader {
      * @return a map with the FORMAT keys=values
      */
     private Map<String, String> parseFormat(String line) {
-        return generateMap(line.substring(10, line.length() - 1));
-    }
-
-    /**
-     * Returns a LinkedHashMap with the content of the line parsed. So "ID=AC,Number=A,Type=Integer"
-     * becomes a map. This method is convenient to parse almost any VCF header lines.
-     *
-     * @param line line to map, without ##INFO neither ##FORMAT neither &lt neither &gt
-     * @return a map with the content of the line
-     */
-    private Map<String, String> generateMap(String line) {
-        Map<String, String> map = new LinkedHashMap();
-        int cursor = 0;
-        String key = null;
-        String value;
-        // Am I reading a key or a value?
-        boolean isKey = true;
-        while (cursor < line.length()) {
-            switch (line.charAt(cursor)) {
-                case '"':
-                    // If isKey is false, something went wrong
-                    // Text in quotes
-                    // token is the text between quotes
-                    // place cursor at next position after end quote
-                    int endQuotePosition = line.indexOf("\"", cursor + 1);
-                    value = line.substring(cursor + 1, endQuotePosition);
-                    cursor = endQuotePosition + 1;
-                    map.put(key, value);
-                    break;
-                case '=':
-                    // Equals symbol: cursor at next position and expected a value
-                    cursor++;
-                    isKey = false;
-                    break;
-                case ',':
-                    // Comma symbol, cursor at next position and expected a key
-                    cursor++;
-                    isKey = true;
-                    break;
-                default:
-                    // Text not in quotes
-                    // token is the text between cursor and next "=" or ","
-                    // cursor at "=" or ","
-                    int end = cursor;
-                    try {
-                        while (line.charAt(end) != '=' && line.charAt(end) != ',') {
-                            end++;
-                        }
-
-                    } catch (Exception e) {
-                        Logger.getLogger(getClass().getName()).log(Level.SEVERE, line, e);
-                    }
-                    if (isKey) {
-                        key = line.substring(cursor, end);
-                    } else {
-                        value = line.substring(cursor, end);
-                        map.put(key, value);
-                    }
-                    cursor = end;
-            }
-        }
-        return map;
+        return new MapGenerator().parse(line.substring(10, line.length() - 1));
     }
 
     /**
@@ -205,13 +141,12 @@ public class VCFHeader {
      * @param line
      */
     public void add(String line) {
-        if (line.startsWith("##INFO=<")) {
+        if (line.startsWith("##INFO=<"))
             infos.add(parseInfo(line));
-        } else if (line.startsWith("##FORMAT=<")) {
+        else if (line.startsWith("##FORMAT=<"))
             formats.add(parseFormat(line));
-        } else if (!line.startsWith("##")) {
+        else if (!line.startsWith("##"))
             return;
-        }
         unprocessedHeaders.add(line);
     }
 

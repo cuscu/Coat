@@ -18,31 +18,33 @@ package coat.vcf;
 
 import coat.utils.OS;
 import java.util.Map;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 
 /**
- * This class represents a filter for a VCF file. The filter is characterized by a field (CHROM,
- * POS, INFO...), a connector (greater than, equals...) and a value. When a variant is passed to the
- * filter it is read: variant.field connector value (variant.chrom is equals to 7). As a particular
- * case of VCF, a variant can be filtered by its INFO field, so when the selected field is INFO, the
+ * This class represents a pass for a VCF file. The pass is characterized by a field (CHROM, POS,
+ * INFO...), a connector (greater than, equals...) and a value. When a variant is passed to the pass
+ * it is read: variant.field connector value (variant.chrom is equals to 7). As a particular case of
+ * VCF, a variant can be filtered by its INFO field, so when the selected field is INFO, the
  * selectedInfo is activated.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
-public class VCFFilter {
+public class VcfFilter {
 
-    private String value;
-    private Connector connector;
-    private Field field;
-    private String selectedInfo;
     private boolean strict = true;
     private boolean enabled = true;
+
+    private final Property<Connector> connectorProperty = new SimpleObjectProperty<>();
+    private final Property<String> valueProperty = new SimpleStringProperty();
+    private final Property<String> infoProperty = new SimpleStringProperty();
+    private final Property<Field> fieldProperty = new SimpleObjectProperty<>();
 
     /**
      * Creates a new VCFFIlter with default connector EQUALS and default field CHROMOSOME.
      */
-    public VCFFilter() {
-        connector = Connector.EQUALS;
-        field = Field.CHROMOSOME;
+    public VcfFilter() {
     }
 
     /**
@@ -50,46 +52,46 @@ public class VCFFilter {
      *
      * @param connector the selected connector
      * @param field the selected field
-     * @param selectedInfo the selected info in case INFO is selected as field
+     * @param value the selected info in case INFO is selected as field
      */
-    public VCFFilter(Connector connector, Field field, String selectedInfo) {
-        this.connector = connector;
-        this.field = field;
-        this.selectedInfo = selectedInfo;
+    public VcfFilter(Field field, Connector connector, String value) {
+        this.connectorProperty.setValue(connector);
+        this.fieldProperty.setValue(field);
+        this.valueProperty.setValue(value);
     }
 
-    public VCFFilter(String value, Connector connector, Field field, String selectedInfo) {
-        this.value = value;
-        this.connector = connector;
-        this.field = field;
-        this.selectedInfo = selectedInfo;
+    public VcfFilter(Field field, String selectedInfo, Connector connector, String value) {
+        this.valueProperty.setValue(value);
+        this.connectorProperty.setValue(connector);
+        this.fieldProperty.setValue(field);
+        this.infoProperty.setValue(selectedInfo);
     }
 
     /**
-     * Gets the value of the filter.
+     * Gets the value of the pass.
      *
-     * @return the value of the filter.
+     * @return the value of the pass.
      */
     public String getValue() {
-        return value;
+        return valueProperty.getValue();
     }
 
     /**
-     * Sets a value for the filter.
+     * Sets a value for the pass.
      *
      * @param value the value
      */
     public void setValue(String value) {
-        this.value = value;
+        this.valueProperty.setValue(value);
     }
 
     /**
-     * The connector of the filter.
+     * The connector of the pass.
      *
      * @return the connector
      */
     public Connector getConnector() {
-        return connector;
+        return connectorProperty.getValue();
     }
 
     /**
@@ -98,7 +100,11 @@ public class VCFFilter {
      * @param connector the new connector
      */
     public void setConnector(Connector connector) {
-        this.connector = connector;
+        this.connectorProperty.setValue(connector);
+    }
+
+    public Property<Connector> getConnectorProperty() {
+        return connectorProperty;
     }
 
     /**
@@ -107,7 +113,7 @@ public class VCFFilter {
      * @return the selected field
      */
     public Field getField() {
-        return field;
+        return fieldProperty.getValue();
     }
 
     /**
@@ -116,7 +122,11 @@ public class VCFFilter {
      * @param field the new selected field
      */
     public void setField(Field field) {
-        this.field = field;
+        this.fieldProperty.setValue(field);
+    }
+
+    public Property<Field> getFieldProperty() {
+        return fieldProperty;
     }
 
     /**
@@ -125,7 +135,7 @@ public class VCFFilter {
      * @return the selected info
      */
     public String getSelectedInfo() {
-        return selectedInfo;
+        return infoProperty.getValue();
     }
 
     /**
@@ -134,11 +144,11 @@ public class VCFFilter {
      * @param selectedInfo the new selected info
      */
     public void setSelectedInfo(String selectedInfo) {
-        this.selectedInfo = selectedInfo;
+        this.infoProperty.setValue(selectedInfo);
     }
 
     /**
-     * If true, filter will not throw variants that do not contain the INFO field.
+     * If true, pass will not throw variants that do not contain the INFO field.
      *
      * @return true if accepting void values.
      */
@@ -147,7 +157,7 @@ public class VCFFilter {
     }
 
     /**
-     * If true, filter will not throw variants that do not contain the INFO field.
+     * If true, pass will not throw variants that do not contain the INFO field.
      *
      * @param accept true to accept void values
      */
@@ -156,16 +166,16 @@ public class VCFFilter {
     }
 
     /**
-     * If true it will filter variants, if false it will accept all variants.
+     * If true it will pass variants, if false it will accept all variants.
      *
-     * @return true if filter is enable
+     * @return true if pass is enable
      */
     public boolean isEnabled() {
         return enabled;
     }
 
     /**
-     * If true it will filter variants, if false it will accept all variants.
+     * If true it will pass variants, if false it will accept all variants.
      *
      * @param enabled the new enable state
      */
@@ -173,20 +183,29 @@ public class VCFFilter {
         this.enabled = enabled;
     }
 
+    public Property<String> getValueProperty() {
+        return valueProperty;
+    }
+
+    public Property<String> getInfoProperty() {
+        return infoProperty;
+    }
+
     /**
-     * Returns true in case this variant passes this filter or filter can NOT be applied due to
+     * Returns true in case this variant passes this pass or pass can NOT be applied due to
      * field/connector/value incompatibilities.
      *
-     * @param variant the variant to filter.
-     * @return true if passes the filter or the filter cannot be applied, false otherwise.
+     * @param variant the variant to pass.
+     * @return true if passes the pass or the pass cannot be applied, false otherwise.
      */
-    public boolean filter(Variant variant) {
-        if (field == null) {
+    public boolean pass(Variant variant) {
+        final Field field = fieldProperty.getValue();
+        if (field == null)
             return true;
-        }
-        if (!enabled) {
+        if (!enabled)
             return true;
-        }
+        final String value = valueProperty.getValue();
+        final String info = infoProperty.getValue();
         // Get the value (one of the Field.values())
         String stringValue = null;
         double doubleValue = Double.MIN_VALUE;
@@ -200,9 +219,9 @@ public class VCFFilter {
             case QUALITY:
                 doubleValue = variant.getQual();
                 break;
-            case FILTER:
-                stringValue = variant.getFilter();
-                break;
+//            case FILTER:
+//                stringValue = variant.getFilter();
+//                break;
             case ID:
                 stringValue = variant.getId();
                 break;
@@ -214,76 +233,70 @@ public class VCFFilter {
                 break;
             case INFO:
                 Map<String, String> map = variant.getInfos();
-                if (map.containsKey(selectedInfo)) {
-                    stringValue = map.get(selectedInfo);
-                    if (stringValue != null) {
+                if (map.containsKey(info)) {
+                    stringValue = map.get(info);
+                    if (stringValue != null)
                         try {
                             // Take only the first value, supposing they are comma separated
                             doubleValue = Double.valueOf(stringValue.split(",")[0]);
                         } catch (NumberFormatException e) {
                             // If not a number
                         }
-                    }
                 }
                 break;
         }
+        final Connector connector = connectorProperty.getValue();
         switch (connector) {
             case CONTAINS:
-                if (stringValue != null) {
+                if (stringValue != null)
                     return stringValue.contains(value);
-                }
                 break;
             case DIFFERS:
-                if (stringValue != null) {
+                if (stringValue != null)
                     return !value.equals(stringValue);
-                }
                 break;
             case EQUALS:
-                if (doubleValue > Double.MIN_VALUE) {
+                if (doubleValue > Double.MIN_VALUE)
                     try {
                         return Double.valueOf(value) == doubleValue;
                     } catch (NumberFormatException e) {
                         return true;
                     }
-                } else if (stringValue != null) {
+                else if (stringValue != null)
                     return stringValue.equals(value);
-                }
                 break;
             case GREATER:
-                if (doubleValue > Double.MIN_VALUE) {
+                if (doubleValue > Double.MIN_VALUE)
                     try {
                         return doubleValue > Double.valueOf(value);
                     } catch (NumberFormatException e) {
-                        // If user did not input a number, filter is passed
+                        // If user did not input a number, pass is passed
                         return true;
                     }
-                }
                 break;
             case LESS:
-                if (doubleValue > Double.MIN_VALUE) {
+                if (doubleValue > Double.MIN_VALUE)
                     try {
                         return doubleValue < Double.valueOf(value);
                     } catch (NumberFormatException e) {
-                        // If user did not input a number, filter is passed
+                        // If user did not input a number, pass is passed
                         return true;
                     }
-                }
                 break;
             case MATCHES:
-                if (stringValue != null) {
+                if (stringValue != null)
                     return stringValue.matches(value);
-                }
                 break;
             case PRESENT:
-                return variant.getInfos().containsKey(selectedInfo);
+                return variant.getInfos().containsKey(info);
             case NOT_PRESENT:
-                return !variant.getInfos().containsKey(selectedInfo);
+                return !variant.getInfos().containsKey(info);
         }
         return strict;
     }
 
     /**
-     * The type of relation between the filter value and the field value.
+     * The type of relation between the pass value and the field value.
      */
     public enum Connector {
 
@@ -397,10 +410,6 @@ public class VCFFilter {
          * INFO field of the VCF.
          */
         INFO,
-        /**
-         * FILTER field of the VCF.
-         */
-        FILTER,
         /**
          * ID field of the VCF.
          */

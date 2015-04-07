@@ -14,32 +14,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package coat.graphic;
+package coat;
 
 import java.io.File;
-import javafx.scene.Node;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 /**
  *
  * @author UICHUIMI
  */
-public abstract class FileView {
+public class Workspace {
 
-    private final File file;
-    private final Node view;
+    private ObservableList<File> openFiles = FXCollections.observableArrayList();
 
-    public FileView(File file, Node view) {
-        this.file = file;
-        this.view = view;
+    public ObservableList<File> getOpenFiles() {
+        return openFiles;
     }
 
-    public File getFile() {
-        return file;
-    }
-
-    public Node getView() {
-        return view;
-    }
-
-    public abstract void saveAs();
 }

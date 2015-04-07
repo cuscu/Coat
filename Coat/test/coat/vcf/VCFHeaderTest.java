@@ -73,8 +73,6 @@ public class VCFHeaderTest {
         expResult.add(rp);
         expResult.add(sor);
         List<Map<String, String>> result = instance.getInfos();
-        System.out.println("Expected: " + expResult);
-        System.out.println("Result: " + result);
         assertEquals(expResult, result);
     }
 
