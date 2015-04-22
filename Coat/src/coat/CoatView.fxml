@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import java.net.*?>
-
 <!--
 Copyright (C) 2014 UICHUIMI
 
@@ -23,50 +16,39 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<BorderPane fx:id="root" prefHeight="600" prefWidth="1000" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="coat.CoatView">
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import java.net.URL?>
+<BorderPane fx:id="root" prefHeight="600" prefWidth="1000" xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="coat.CoatView">
     <stylesheets>
-        <URL value="@/coat/main.css" />
+        <URL value="@/coat/main.css"/>
     </stylesheets>
     <top>
-        <TabPane fx:id="menu">
-            <tabs>
-                <Tab text="%file" closable="false" >
-                    <content>
-                        <FlowPane  >
-                            <Button fx:id="openFile" text="%open" onAction="#openAFile" contentDisplay="TOP" styleClass="graphic-button"  />
-                            <Button fx:id="saveFile" text="%save" onAction="#saveAs" contentDisplay="TOP" styleClass="graphic-button"  />
-                        </FlowPane>
-                    </content>
-                </Tab>
-                <Tab text="%tools" closable="false" >
-                    <content>
-                        <FlowPane  >
-                            <Button fx:id="combineVCF" onAction="#combineVCF" contentDisplay="TOP" styleClass="graphic-button" >
-                                <tooltip>
-                                    <Tooltip text="%combine.vcf"/>
-                                </tooltip>
-                            </Button>
-                            <Button fx:id="combineMIST" onAction="#combineMIST" contentDisplay="TOP" styleClass="graphic-button"  >
-                                <tooltip>
-                                    <Tooltip  text="%combine.mist"/>
-                                </tooltip>
-                            </Button>
-                        </FlowPane>
-                    </content>
-                </Tab>
-            </tabs>
-        </TabPane>
+        <MenuBar fx:id="menu">
+            <Menu text="%file">
+                <items>
+                    <MenuItem fx:id="openFileMenu" text="%open" onAction="#openAFile"/>
+                    <MenuItem fx:id="saveFileMenu" text="%save" onAction="#saveAs"/>
+                </items>
+            </Menu>
+            <Menu text="%tools">
+                <items>
+                    <MenuItem fx:id="combineVcfMenu" onAction="#combineVCF" text="%combine.vcf"/>
+                    <MenuItem fx:id="combineMistMenu" onAction="#combineMIST" text="%combine.mist"/>
+                </items>
+            </Menu>
+        </MenuBar>
     </top>
-    <center>
-        <!--TabPane fx:id="workspace" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" /-->
-    </center>
     <bottom>
         <HBox fx:id="infoBox" prefWidth="9999">
             <children>
                 <Label fx:id="info"/>
             </children>
             <padding>
-                <javafx.geometry.Insets bottom="5" top="5" left="5" right="5" />
+                <javafx.geometry.Insets bottom="5" top="5" left="5" right="5"/>
             </padding>
         </HBox>
     </bottom>

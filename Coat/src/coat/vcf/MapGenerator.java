@@ -27,8 +27,9 @@ import java.util.Map;
  */
 public class MapGenerator {
 
-    private final static String QUOTE = "\"";
-    private final static String COMMA = ",";
+    private final static char QUOTE = '"';
+    private final static char COMMA = ',';
+    public static final char EQUALS = '=';
 
     private int cursor = 0;
     private String key;
@@ -55,15 +56,15 @@ public class MapGenerator {
 
     private void nextCharacter() {
         switch (line.charAt(cursor)) {
-            case '"':
+            case QUOTE:
                 putQuotedValue();
                 break;
-            case '=':
+            case EQUALS:
                 // Equals symbol: cursor at next position and expected a value
                 cursor++;
                 isKey = false;
                 break;
-            case ',':
+            case COMMA:
                 // Comma symbol, cursor at next position and expected a key
                 cursor++;
                 isKey = true;
@@ -89,7 +90,7 @@ public class MapGenerator {
         // token is the text between cursor and next "=" or ","
         // cursor at "=" or ","
         int end = cursor;
-        while (line.charAt(end) != '=' && line.charAt(end) != ',')
+        while (line.charAt(end) != EQUALS && line.charAt(end) != COMMA)
             end++;
         return end;
     }
@@ -99,7 +100,7 @@ public class MapGenerator {
         // Text in quotes
         // token is the text between quotes
         // place cursor at next position after end quote
-        int endQuotePosition = line.indexOf("\"", cursor + 1);
+        int endQuotePosition = line.indexOf(QUOTE, cursor + 1);
         value = line.substring(cursor + 1, endQuotePosition);
         cursor = endQuotePosition + 1;
         map.put(key, value);

@@ -16,23 +16,27 @@
  */
 package coat.vcf;
 
-import java.io.File;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
+import java.util.*;
+
+import static org.junit.Assert.assertEquals;
+
 /**
- *
  * @author UICHUIMI
  */
 public class VcfFileTest {
 
     private static final File s002 = new File("test/s002.vcf");
     private static final File test = new File("test/test.vcf");
+    final VcfFile vcfFile = new VcfFile();
 
     @Test
     public void size() {
         // Given
-        VcfFile vcfFile = new VcfFile(s002);
+        vcfFile.setFile(s002);
         // Then
         Assert.assertEquals(18, vcfFile.getVariants().size());
     }
@@ -40,7 +44,7 @@ public class VcfFileTest {
     @Test
     public void size2() {
         // Given
-        VcfFile vcfFile = new VcfFile(test);
+        vcfFile.setFile(test);
         // Then
         Assert.assertEquals(21956, vcfFile.getVariants().size());
     }
@@ -48,7 +52,7 @@ public class VcfFileTest {
     @Test
     public void infos() {
         // Given
-        VcfFile vcfFile = new VcfFile(test);
+        vcfFile.setFile(test);
         // Then
         Assert.assertEquals(3, vcfFile.getInfos().size());
     }
@@ -56,56 +60,107 @@ public class VcfFileTest {
     @Test
     public void infos2() {
         // Given
-        VcfFile vcfFile = new VcfFile(s002);
+        vcfFile.setFile(s002);
         // Then
         Assert.assertEquals(6, vcfFile.getInfos().size());
     }
 
-    @Test
-    public void chromFilter() {
-        // Given
-        VcfFilter filter = new VcfFilter(VcfFilter.Field.CHROMOSOME, VcfFilter.Connector.EQUALS, "1");
-        VcfFile vcfFile = new VcfFile(s002);
-        // When
-        vcfFile.getFilters().add(filter);
-        // Then
-        Assert.assertEquals(5, vcfFile.getFilteredVariants().size());
-    }
+    /*
+        @Test
+        public void chromFilter() {
+            // Given
+            VcfFilter filter = new VcfFilter(VcfFilter.Field.CHROMOSOME, VcfFilter.Connector.EQUALS, "1");
+            VcfFile vcfFile = new VcfFile(s002);
+            // When
+            vcfFile.getFilters().add(filter);
+            // Then
+            Assert.assertEquals(5, vcfFile.getFilteredVariants().size());
+        }
 
-    @Test
-    public void refFilter() {
-        // Given
-        VcfFilter filter = new VcfFilter(VcfFilter.Field.REF, VcfFilter.Connector.EQUALS, "T");
-        VcfFile vcfFile = new VcfFile(test);
-        // When
-        vcfFile.getFilters().add(filter);
-        // Then
-        Assert.assertEquals(4875, vcfFile.getFilteredVariants().size());
-    }
+        @Test
+        public void refFilter() {
+            // Given
+            VcfFilter filter = new VcfFilter(VcfFilter.Field.REF, VcfFilter.Connector.EQUALS, "T");
+            VcfFile vcfFile = new VcfFile(test);
+            // When
+            vcfFile.getFilters().add(filter);
+            // Then
+            Assert.assertEquals(4875, vcfFile.getFilteredVariants().size());
+        }
 
-    @Test
-    public void infoFilter() {
-        // Given
-        VcfFilter filter = new VcfFilter(VcfFilter.Field.INFO, "DP", VcfFilter.Connector.GREATER, "9");
-        VcfFile vcfFile = new VcfFile(s002);
-        // When
-        vcfFile.getFilters().add(filter);
-        // Then
-        Assert.assertEquals(2, vcfFile.getFilteredVariants().size());
-    }
+        @Test
+        public void infoFilter() {
+            // Given
+            VcfFilter filter = new VcfFilter(VcfFilter.Field.INFO, "DP", VcfFilter.Connector.GREATER, "9");
+            VcfFile vcfFile = new VcfFile(s002);
+            // When
+            vcfFile.getFilters().add(filter);
+            // Then
+            Assert.assertEquals(2, vcfFile.getFilteredVariants().size());
+        }
 
+        @Test
+        public void multipleFilters() {
+            // Given
+            VcfFile vcfFile = new VcfFile(test);
+            VcfFilter[] filters = new VcfFilter[]{
+                    new VcfFilter(VcfFilter.Field.CHROMOSOME, VcfFilter.Connector.CONTAINS, "1"),
+                    new VcfFilter(VcfFilter.Field.INFO, "DP", VcfFilter.Connector.GREATER, "10"),
+                    new VcfFilter(VcfFilter.Field.QUALITY, VcfFilter.Connector.GREATER, "20")
+            };
+            // When
+            vcfFile.getFilters().addAll(filters);
+            // Then
+            Assert.assertEquals(6444, vcfFile.getFilteredVariants().size());
+        }
+    */
     @Test
-    public void multipleFilters() {
-        // Given
-        VcfFile vcfFile = new VcfFile(test);
-        VcfFilter[] filters = new VcfFilter[]{
-            new VcfFilter(VcfFilter.Field.CHROMOSOME, VcfFilter.Connector.CONTAINS, "1"),
-            new VcfFilter(VcfFilter.Field.INFO, "DP", VcfFilter.Connector.GREATER, "10"),
-            new VcfFilter(VcfFilter.Field.QUALITY, VcfFilter.Connector.GREATER, "20")
-        };
-        // When
-        vcfFile.getFilters().addAll(filters);
-        // Then
-        Assert.assertEquals(6444, vcfFile.getFilteredVariants().size());
+    public void testGetInfos() {
+        File testFile = new File("test/s002.vcf");
+
+        vcfFile.setFile(testFile);
+
+        /*
+         ##INFO=<ID=AC,Number=A,Type=Integer,Description="Allele count in genotypes, for each ALT allele, in the same order as listed">
+         ##INFO=<ID=AF,Number=A,Type=Float,Description="Allele Frequency, for each ALT allele, in the same order as listed">
+         ##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
+         ##INFO=<ID=HaplotypeScore,Number=1,Type=Float,Description="Consistency of the site with at most two segregating haplotypes">
+         ##INFO=<ID=ReadPosRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt vs. Ref read position bias">
+         ##INFO=<ID=SOR,Number=1,Type=Float,Description="Symmetric Odds Ratio of 2x2 contingency table to detect strand bias">
+         */
+        Map<String, String> ac = new LinkedHashMap<>();
+        ac.put("ID", "AC");
+        ac.put("Number", "A");
+        ac.put("Type", "Integer");
+        ac.put("Description", "Allele count in genotypes, for each ALT allele, in the same order as listed");
+        Map<String, String> af = new LinkedHashMap<>();
+        af.put("ID", "AF");
+        af.put("Number", "A");
+        af.put("Type", "Float");
+        af.put("Description", "Allele Frequency, for each ALT allele, in the same order as listed");
+        Map<String, String> an = new LinkedHashMap<>();
+        an.put("ID", "AN");
+        an.put("Number", "1");
+        an.put("Type", "Integer");
+        an.put("Description", "Total number of alleles in called genotypes");
+        Map<String, String> hs = new LinkedHashMap<>();
+        hs.put("ID", "HaplotypeScore");
+        hs.put("Number", "1");
+        hs.put("Type", "Float");
+        hs.put("Description", "Consistency of the site with at most two segregating haplotypes");
+        Map<String, String> rp = new LinkedHashMap<>();
+        rp.put("ID", "ReadPosRankSum");
+        rp.put("Number", "1");
+        rp.put("Type", "Float");
+        rp.put("Description", "Z-score from Wilcoxon rank sum test of Alt vs. Ref read position bias");
+        Map<String, String> sor = new LinkedHashMap<>();
+        sor.put("ID", "SOR");
+        sor.put("Number", "1");
+        sor.put("Type", "Float");
+        sor.put("Description", "Symmetric Odds Ratio of 2x2 contingency table to detect strand bias");
+        List<Map<String, String>> expResult = new ArrayList<>();
+        expResult.addAll(Arrays.asList(ac, af, an, hs, rp, sor));
+        List<Map<String, String>> result = vcfFile.getInfos();
+        assertEquals(expResult, result);
     }
 }

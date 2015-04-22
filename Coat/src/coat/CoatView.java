@@ -23,7 +23,19 @@ import coat.reader.Reader;
 import coat.tsv.TsvFileReader;
 import coat.utils.FileManager;
 import coat.utils.OS;
-import coat.vcf.VcfFileReader;
+import coat.vcf.view.VcfReader;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -31,20 +43,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 
 /**
  *
@@ -53,24 +51,23 @@ import javafx.stage.Stage;
 public class CoatView {
 
     @FXML
-    BorderPane root;
-
+    private  MenuItem combineMistMenu;
     @FXML
-    private Button openFile;
+    private  MenuItem combineVcfMenu;
     @FXML
-    private Button saveFile;
+    private MenuItem openFileMenu;
     @FXML
-    private TabPane menu;
+    private MenuItem saveFileMenu;
     @FXML
-    private Button combineVCF;
+    private BorderPane root;
     @FXML
-    private Button combineMIST;
+    private MenuBar menu;
     @FXML
     private Label info;
     @FXML
     private HBox infoBox;
 
-    private Tab customTab;
+    private Menu customMenu;
 
     private static Label staticInfo;
     private static HBox staticInfoBox;
@@ -85,43 +82,46 @@ public class CoatView {
         // Listen whe user clicks on a tab, or opens a file
         workspace.getSelectionModel().selectedItemProperty().addListener((obs, old, current) -> {
             // Remove custom tab if it exists
-            if (menu.getTabs().contains(customTab)) {
-                menu.getTabs().remove(customTab);
-            }
+            menu.getMenus().remove(customMenu);
             if (current != null) {
                 // Try to load custom tab
                 Reader reader = (Reader) current.getUserData();
-                if (reader == null || reader.getActions() == null) {
-                    return;
+                if (reader == null) return;
+
+                if (reader.getActions() != null) {
+                    // Load buttons in the custom tab
+                    FlowPane pane = new FlowPane();
+                    pane.getChildren().setAll(reader.getActions());
+                    customMenu = new Menu(reader.getActionsName());
+                    reader.getActions().forEach(button-> customMenu.getItems().add(getMenuItem(button)));
+                    menu.getMenus().add(customMenu);
                 }
-                // Load buttons in the custom tab
-                FlowPane pane = new FlowPane();
-                pane.getChildren().setAll(reader.getActions());
-
-                customTab = new Tab(reader.getActionsName());
-                customTab.setClosable(false);
-                customTab.setContent(pane);
-                menu.getTabs().add(customTab);
-                menu.getSelectionModel().select(customTab);
-                Coat.setTitle(reader.getFile().getName());
-
                 // Activate save file
-                saveFile.setDisable(false);
-            } else {
+                saveFileMenu.setDisable(false);
+//                saveFile.setOnAction(event -> reader.saveAs());
+
+                Coat.setTitle(reader.getFile().getName());
+            } else
                 // If no tab is selected, save button should be disabled
-                saveFile.setDisable(true);
-            }
+                saveFileMenu.setDisable(true);
         });
         // By default is disabled
-        saveFile.setDisable(true);
+        saveFileMenu.setDisable(true);
         assignMenuIcons();
     }
 
+    private MenuItem getMenuItem(Button button) {
+        MenuItem menuItem = new MenuItem(button.getText());
+        menuItem.setOnAction(button.getOnAction());
+        menuItem.setGraphic(button.getGraphic());
+        return menuItem;
+    }
+
     private void assignMenuIcons() {
-        openFile.setGraphic(new SizableImage("coat/img/open.png", SizableImage.MEDIUM_SIZE));
-        saveFile.setGraphic(new SizableImage("coat/img/save.png", SizableImage.MEDIUM_SIZE));
-        combineVCF.setGraphic(new SizableImage("coat/img/documents_vcf.png", SizableImage.MEDIUM_SIZE));
-        combineMIST.setGraphic(new SizableImage("coat/img/documents_mist.png", SizableImage.MEDIUM_SIZE));
+        openFileMenu.setGraphic(new SizableImage("coat/img/open.png", SizableImage.SMALL_SIZE));
+        saveFileMenu.setGraphic(new SizableImage("coat/img/save.png", SizableImage.SMALL_SIZE));
+        combineVcfMenu.setGraphic(new SizableImage("coat/img/documents_vcf.png", SizableImage.SMALL_SIZE));
+        combineMistMenu.setGraphic(new SizableImage("coat/img/documents_mist.png", SizableImage.SMALL_SIZE));
     }
 
     /**
@@ -133,10 +133,9 @@ public class CoatView {
     private void openAFile(ActionEvent event) {
         File f = FileManager.openFile(OS.getResources().getString("choose.file"),
                 FileManager.VCF_FILTER, FileManager.MIST_FILTER, FileManager.TSV_FILTER);
-        if (f != null) {
+        if (f != null)
 //            workspace1.open(f);
             openFileInWorkspace(f);
-        }
     }
 
     @FXML
@@ -145,9 +144,8 @@ public class CoatView {
             // workspace.getSelectionModel.getSelectedItem is a Tab
             // tab.getUserData is a VCFReader controller
             Reader reader = (Reader) workspace.getSelectionModel().getSelectedItem().getUserData();
-            if (reader != null) {
+            if (reader != null)
                 reader.saveAs();
-            }
         }
     }
 
@@ -193,17 +191,15 @@ public class CoatView {
             staticInfoBox.getStyleClass().add(type + "-box");
             staticInfo.setGraphic(new SizableImage("coat/img/" + type + ".png",
                     SizableImage.SMALL_SIZE));
-        } else {
+        } else
             staticInfo.setText(date + " (" + level + "): " + message);
-        }
     }
 
     private void openFileInWorkspace(File f) {
-        if (isOpenInWorkspace(f)) {
+        if (isOpenInWorkspace(f))
             selectTabInWorkspace(f);
-        } else {
+        else
             addFileTabToWorkspace(f);
-        }
 
     }
 
@@ -217,11 +213,10 @@ public class CoatView {
     }
 
     private void addFileTabToWorkspace(File f) {
-        if (isVCF(f)) {
+        if (isVCF(f))
             openVCFInWorkspace(f);
-        } else if (isTSV(f)) {
+        else if (isTSV(f))
             openTSVInWorkspace(f);
-        }
     }
 
     private boolean isVCF(File f) {
@@ -249,7 +244,7 @@ public class CoatView {
     }
 
     private void addVCFReaderToWorkspace(File f) throws IOException {
-        FXMLLoader loader = new FXMLLoader(VcfFileReader.class.getResource("VcfFileReader.fxml"),
+        FXMLLoader loader = new FXMLLoader(VcfReader.class.getResource("VcfReaderView.fxml"),
                 OS.getResources());
         loader.load();
         // Load file

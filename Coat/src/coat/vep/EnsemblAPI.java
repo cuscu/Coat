@@ -175,7 +175,7 @@ public class EnsemblAPI {
     }
 
     /**
-     * Incorporates vep data to variant.
+     * Incorporates vep icarus to variant.
      *
      * @param v
      */
@@ -195,7 +195,7 @@ public class EnsemblAPI {
             // Connect to the internet
             String response = Web.httpRequest(url, hea, null);
 
-            // Add data to variant
+            // Add icarus to variant
             if (response != null) {
                 JSONArray json = new JSONArray(response);
                 incorporateData(v, json.getJSONObject(0));

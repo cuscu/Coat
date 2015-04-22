@@ -502,7 +502,7 @@ public final class FileManager {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public static BufferedReader openGZipBR(File input) throws FileNotFoundException, IOException {
+    public static BufferedReader openGZipBR(File input) throws IOException {
         return new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(
                 input))));
     }

@@ -18,6 +18,7 @@ package coat.vcf;
 
 import coat.CoatView;
 import coat.utils.OS;
+
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
@@ -29,14 +30,16 @@ import java.util.TreeMap;
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class Variant {
+public class Variant implements Comparable<Variant> {
 
-    protected String chrom, ref, alt, info, format;
-    protected int pos;
-    protected double qual;
-    protected String[] samples;
+    private String chrom, ref, alt, info, format;
+    private int pos;
+    private double qual;
+    private String[] samples;
     private Map<String, String> infos = new TreeMap();
     private String id;
+
+    private int chromIndex;
 
     /**
      * Parses the VCF line and creates a Variant.
@@ -46,6 +49,7 @@ public class Variant {
     public Variant(String line) {
         final String[] v = line.split("\t");
         chrom = v[0];
+        chromIndex = OS.getStandardChromosomes().indexOf(chrom);
         pos = Integer.valueOf(v[1]);
         id = v[2];
         ref = v[3];
@@ -75,6 +79,19 @@ public class Variant {
             format = null;
             samples = null;
         }
+    }
+
+    public Variant(String chrom, int position, String ref, String alt, String id) {
+        this.chrom = chrom;
+        this.pos = position;
+        this.ref = ref;
+        this.alt = alt;
+        this.id = id;
+        chromIndex = OS.getStandardChromosomes().indexOf(chrom);
+    }
+
+    public void setProperty(String key, String value) {
+        infos.put(key, value);
     }
 
     /**
@@ -153,6 +170,10 @@ public class Variant {
         this.id = id;
     }
 
+    public void setQual(double qual) {
+        this.qual = qual;
+    }
+
     /**
      * Returns a String array. Each element contains genotype info about one sample in the vcf. For
      * instance, if vcf contains variants of one sample, the size of the array will be 1. If 3
@@ -191,4 +212,16 @@ public class Variant {
                 chrom, pos, id, ref, alt, qual, infos.get("FILTER"), inf, formats);
     }
 
+    @Override
+    public int compareTo(Variant variant) {
+        // Variants with no standard chromosome goes to the end
+        if (chromIndex != -1 && variant.chromIndex == -1) return -1;
+        if (chromIndex == -1 && variant.chromIndex != -1) return 1;
+        // Non-standard chromosomes are orderer alphabetically
+        int compare = (chromIndex == -1 && variant.chromIndex == -1)
+                ? chrom.compareTo(variant.chrom)
+                : Integer.compare(chromIndex, variant.chromIndex);
+        if (compare != 0) return compare;
+        return Integer.compare(pos, variant.pos);
+    }
 }

@@ -311,7 +311,7 @@ public class JSONArray {
 
     /**
      * Make a string from the contents of this JSONArray. The <code>separator</code> string is
-     * inserted between each element. Warning: This method assumes that the data structure is
+     * inserted between each element. Warning: This method assumes that the icarus structure is
      * acyclical.
      *
      * @param separator A string that will be inserted between the elements.
@@ -773,7 +773,7 @@ public class JSONArray {
      * it is not possible to produce a syntactically correct JSON text then null will be returned
      * instead. This could occur if the array contains an invalid number.
      * <p>
-     * Warning: This method assumes that the data structure is acyclical.
+     * Warning: This method assumes that the icarus structure is acyclical.
      *
      * @return a printable, displayable, transmittable representation of the array.
      */
@@ -786,7 +786,7 @@ public class JSONArray {
     }
 
     /**
-     * Make a prettyprinted JSON text of this JSONArray. Warning: This method assumes that the data
+     * Make a prettyprinted JSON text of this JSONArray. Warning: This method assumes that the icarus
      * structure is acyclical.
      *
      * @param indentFactor The number of spaces to add to each level of indentation.
@@ -806,7 +806,7 @@ public class JSONArray {
      * Write the contents of the JSONArray as JSON text to a writer. For compactness, no whitespace
      * is added.
      * <p>
-     * Warning: This method assumes that the data structure is acyclical.
+     * Warning: This method assumes that the icarus structure is acyclical.
      *
      * @return The writer.
      * @throws JSONException
@@ -819,7 +819,7 @@ public class JSONArray {
      * Write the contents of the JSONArray as JSON text to a writer. For compactness, no whitespace
      * is added.
      * <p>
-     * Warning: This method assumes that the data structure is acyclical.
+     * Warning: This method assumes that the icarus structure is acyclical.
      *
      * @param indentFactor The number of spaces to add to each level of indentation.
      * @param indent The indention of the top level.

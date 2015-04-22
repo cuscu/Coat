@@ -74,7 +74,7 @@ public class CombinatorVcf {
      * @throws IOException
      * @throws FileNotFoundException
      */
-    public void combine(File[] include, File[] exclude, File output) throws IOException, FileNotFoundException {
+    public void combine(File[] include, File[] exclude, File output) throws IOException {
         //----- Añadido el 20/10/2014:
         // Se inicializan los Buffered Reader para los ficheros de entrada (include y exclude):
         initializeBufferedReader(include, exclude);
@@ -193,7 +193,7 @@ public class CombinatorVcf {
      * @throws IOException
      * @throws FileNotFoundException
      */
-    private void initializeBufferedReader(File[] include, File[] exclude) throws IOException, FileNotFoundException {
+    private void initializeBufferedReader(File[] include, File[] exclude) throws IOException {
         try {
             // Al vector de Buffered Reader le damos como tamaño el número de ficheros de entrada (número de ficheros include +
             // número de ficheros exclude):
@@ -239,7 +239,7 @@ public class CombinatorVcf {
      * @throws IOException
      * @throws FileNotFoundException
      */
-    private void skipHeader(BufferedReader[] array_buffreader) throws IOException, FileNotFoundException {
+    private void skipHeader(BufferedReader[] array_buffreader) throws IOException {
         try {
             // Se recorren todos los ficheros de entrada (include y exclude):
             for (int i = 0; i < array_buffreader.length; i++)
@@ -436,7 +436,7 @@ public class CombinatorVcf {
      * @throws IOException
      * @throws FileNotFoundException
      */
-    private void generateOutputFileHeader(File[] include, File[] exclude, PrintWriter print_out) throws IOException, FileNotFoundException {
+    private void generateOutputFileHeader(File[] include, File[] exclude, PrintWriter print_out) throws IOException {
         try {
             // Se recorre el fichero de referencia copiando en el fichero de salida las líneas de cabecera que nos interesen (en un fichero
             // en formato .vcf, las líneas de cabecera empiezan por "#"):

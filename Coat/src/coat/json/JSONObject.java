@@ -1285,7 +1285,7 @@ public class JSONObject {
      * Make a JSON text of this JSONObject. For compactness, no whitespace is added. If this would
      * not result in a syntactically correct JSON text, then null will be returned instead.
      * <p>
-     * Warning: This method assumes that the data structure is acyclical.
+     * Warning: This method assumes that the icarus structure is acyclical.
      *
      * @return a printable, displayable, portable, transmittable representation of the object,
      * beginning with <code>{</code>&nbsp;<small>(left brace)</small> and ending with
@@ -1302,7 +1302,7 @@ public class JSONObject {
     /**
      * Make a prettyprinted JSON text of this JSONObject.
      * <p>
-     * Warning: This method assumes that the data structure is acyclical.
+     * Warning: This method assumes that the icarus structure is acyclical.
      *
      * @param indentFactor The number of spaces to add to each level of indentation.
      * @return a printable, displayable, portable, transmittable representation of the object,
@@ -1328,7 +1328,7 @@ public class JSONObject {
      * quoted.
      *
      * <p>
-     * Warning: This method assumes that the data structure is acyclical.
+     * Warning: This method assumes that the icarus structure is acyclical.
      *
      * @param value The value to be serialized.
      * @return a printable, displayable, transmittable representation of the object, beginning with
@@ -1423,7 +1423,7 @@ public class JSONObject {
      * Write the contents of the JSONObject as JSON text to a writer. For compactness, no whitespace
      * is added.
      * <p>
-     * Warning: This method assumes that the data structure is acyclical.
+     * Warning: This method assumes that the icarus structure is acyclical.
      *
      * @param writer
      * @return The writer.
@@ -1476,7 +1476,7 @@ public class JSONObject {
      * Write the contents of the JSONObject as JSON text to a writer. For compactness, no whitespace
      * is added.
      * <p>
-     * Warning: This method assumes that the data structure is acyclical.
+     * Warning: This method assumes that the icarus structure is acyclical.
      *
      * @return The writer.
      * @throws JSONException

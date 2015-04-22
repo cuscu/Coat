@@ -110,10 +110,10 @@ public class TSVFilter {
     }
 
     /**
-     * A void is a data incompatible with a filter. For instance, you specify that a column must be
+     * A void is a icarus incompatible with a filter. For instance, you specify that a column must be
      * greater than, but the filter cannot convert the value of a cell to a Double.
      *
-     * @return true if when the data is incompatible with the filter, the data pass the filter,
+     * @return true if when the icarus is incompatible with the filter, the icarus pass the filter,
      * false otherwise
      */
     public boolean isAceptingVoids() {
@@ -121,10 +121,10 @@ public class TSVFilter {
     }
 
     /**
-     * A void is a data incompatible with a filter. For instance, you specify that a column must be
+     * A void is a icarus incompatible with a filter. For instance, you specify that a column must be
      * greater than, but the filter cannot convert the value of a cell to a Double.
      *
-     * @param aceptingVoids true if you want to keep incompatible data, false if you want to drop it
+     * @param aceptingVoids true if you want to keep incompatible icarus, false if you want to drop it
      */
     public void setAceptingVoids(boolean aceptingVoids) {
         this.aceptingVoids = aceptingVoids;
@@ -268,6 +268,6 @@ public class TSVFilter {
                     }
 
                 }
-    };
+    }
 
 }

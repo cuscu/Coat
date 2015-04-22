@@ -35,7 +35,7 @@ public class CombinatorMist {
     public CombinatorMist() {
     }
         
-    void start() throws FileNotFoundException, IOException{
+    void start() throws IOException{
         // Ficheros de entrada (en formato .vcf):
         File[] vcf_files = {
             new File("/home/uai02/Investigacion_Jacob/ficheros_vcf_mist/niv_19.vcf"),
@@ -57,7 +57,7 @@ public class CombinatorMist {
      * @throws IOException 
      * @throws FileNotFoundException
      */
-    private static void intersectVcfMist (File[] vcf_files) throws IOException, FileNotFoundException {                       
+    private static void intersectVcfMist (File[] vcf_files) throws IOException {
         //----- Añadido el 17/11/2014:
         // Le damos como tamaño al array que almacenará los map el número de ficheros de entrada:
         map_array = new HashMap[vcf_files.length];

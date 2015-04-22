@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package coat.vcf;
+package coat.vcf.view;
 
 /**
  * Encapsulates name, value and description of a VCF INFO field. Use it on variant INFO table. This

@@ -17,10 +17,12 @@
 package coat.vcf;
 
 import coat.utils.OS;
-import java.util.Map;
 import javafx.beans.property.Property;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+
+import java.util.Map;
 
 /**
  * This class represents a pass for a VCF file. The pass is characterized by a field (CHROM, POS,
@@ -33,13 +35,12 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class VcfFilter {
 
-    private boolean strict = true;
-    private boolean enabled = true;
-
     private final Property<Connector> connectorProperty = new SimpleObjectProperty<>();
     private final Property<String> valueProperty = new SimpleStringProperty();
     private final Property<String> infoProperty = new SimpleStringProperty();
     private final Property<Field> fieldProperty = new SimpleObjectProperty<>();
+    private Property<Boolean> enabledProperty = new SimpleBooleanProperty(true);
+    private Property<Boolean> strictProperty = new SimpleBooleanProperty(true);
 
     /**
      * Creates a new VCFFIlter with default connector EQUALS and default field CHROMOSOME.
@@ -51,8 +52,8 @@ public class VcfFilter {
      * Creates a new VCFFilter with the given connector and field. If field is not INFO.
      *
      * @param connector the selected connector
-     * @param field the selected field
-     * @param value the selected info in case INFO is selected as field
+     * @param field     the selected field
+     * @param value     the selected info in case INFO is selected as field
      */
     public VcfFilter(Field field, Connector connector, String value) {
         this.connectorProperty.setValue(connector);
@@ -153,7 +154,7 @@ public class VcfFilter {
      * @return true if accepting void values.
      */
     public boolean isStrict() {
-        return strict;
+        return strictProperty.getValue();
     }
 
     /**
@@ -162,7 +163,7 @@ public class VcfFilter {
      * @param accept true to accept void values
      */
     public void setStrict(boolean accept) {
-        this.strict = accept;
+        strictProperty.setValue(accept);
     }
 
     /**
@@ -171,7 +172,7 @@ public class VcfFilter {
      * @return true if pass is enable
      */
     public boolean isEnabled() {
-        return enabled;
+        return enabledProperty.getValue();
     }
 
     /**
@@ -180,7 +181,7 @@ public class VcfFilter {
      * @param enabled the new enable state
      */
     public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+        enabledProperty.setValue(enabled);
     }
 
     public Property<String> getValueProperty() {
@@ -199,11 +200,12 @@ public class VcfFilter {
      * @return true if passes the pass or the pass cannot be applied, false otherwise.
      */
     public boolean pass(Variant variant) {
+        return enabledProperty.getValue() ? checkField(variant) : true;
+    }
+
+    private boolean checkField(Variant variant) {
         final Field field = fieldProperty.getValue();
-        if (field == null)
-            return true;
-        if (!enabled)
-            return true;
+        if (field == null) return true;
         final String value = valueProperty.getValue();
         final String info = infoProperty.getValue();
         // Get the value (one of the Field.values())
@@ -219,9 +221,6 @@ public class VcfFilter {
             case QUALITY:
                 doubleValue = variant.getQual();
                 break;
-//            case FILTER:
-//                stringValue = variant.getFilter();
-//                break;
             case ID:
                 stringValue = variant.getId();
                 break;
@@ -232,6 +231,7 @@ public class VcfFilter {
                 stringValue = variant.getAlt();
                 break;
             case INFO:
+                if (info == null) return true;
                 Map<String, String> map = variant.getInfos();
                 if (map.containsKey(info)) {
                     stringValue = map.get(info);
@@ -246,6 +246,7 @@ public class VcfFilter {
                 break;
         }
         final Connector connector = connectorProperty.getValue();
+        if (connector == null) return true;
         switch (connector) {
             case CONTAINS:
                 if (stringValue != null)
@@ -292,7 +293,18 @@ public class VcfFilter {
             case NOT_PRESENT:
                 return !variant.getInfos().containsKey(info);
         }
-        return strict;
+        return strictProperty.getValue();    }
+
+    public Property<Boolean> getEnabledProperty() {
+        return enabledProperty;
+    }
+
+    public void setEnabledProperty(Property<Boolean> enabledProperty) {
+        this.enabledProperty = enabledProperty;
+    }
+
+    public Property<Boolean> getStrictProperty() {
+        return strictProperty;
     }
 
     /**
@@ -304,90 +316,82 @@ public class VcfFilter {
          * Equals to (String or natural number).
          */
         EQUALS {
+            @Override
+            public String toString() {
+                return OS.getResources().getString("equals.to");
+            }
 
-                    @Override
-                    public String toString() {
-                        return OS.getResources().getString("equals.to");
-                    }
-
-                },
+        },
         /**
          * Contains (String)
          */
         CONTAINS {
-
-                    @Override
-                    public String toString() {
-                        return OS.getResources().getString("contains");
-                    }
-                },
+            @Override
+            public String toString() {
+                return OS.getResources().getString("contains");
+            }
+        },
         /**
          * Greater than (number).
          */
         GREATER {
+            @Override
+            public String toString() {
+                return OS.getResources().getString("greater.than");
+            }
 
-                    @Override
-                    public String toString() {
-                        return OS.getResources().getString("greater.than");
-                    }
-
-                },
+        },
         /**
          * Less than (number).
          */
         LESS {
+            @Override
+            public String toString() {
+                return OS.getResources().getString("less.than");
+            }
 
-                    @Override
-                    public String toString() {
-                        return OS.getResources().getString("less.than");
-                    }
-
-                },
+        },
         /**
          * Regular expression (String).
          */
         MATCHES {
+            @Override
+            public String toString() {
+                return OS.getResources().getString("matches");
+            }
 
-                    @Override
-                    public String toString() {
-                        return OS.getResources().getString("matches");
-                    }
-
-                },
+        },
         /**
          * Different (String, ¿number?).
          */
         DIFFERS {
+            @Override
+            public String toString() {
+                return OS.getResources().getString("differs.from");
+            }
 
-                    @Override
-                    public String toString() {
-                        return OS.getResources().getString("differs.from");
-                    }
-
-                },
+        },
         /**
          * Exists.
          */
         PRESENT {
+            @Override
+            public String toString() {
+                return OS.getResources().getString("is.present");
+            }
 
-                    @Override
-                    public String toString() {
-                        return OS.getResources().getString("is.present");
-                    }
-
-                },
+        },
         /**
          * If is not present.
          */
         NOT_PRESENT {
+            @Override
+            public String toString() {
+                return OS.getResources().getString("is.not.present");
+            }
 
-                    @Override
-                    public String toString() {
-                        return OS.getResources().getString("is.not.present");
-                    }
-
-                }
-    };
+        }
+    }
 
     /**
      * The field from the VCF.

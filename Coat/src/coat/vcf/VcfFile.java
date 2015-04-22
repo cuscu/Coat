@@ -16,38 +16,31 @@
  */
 package coat.vcf;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import javafx.beans.Observable;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 
 /**
- *
  * @author Lorente Arencibia, Pascual <pasculorente@gmail.com>
  */
-class VcfFile {
+public class VcfFile {
 
-    private final List<Variant> variants = new ArrayList<>();
-    private final List<Map<String, String>> infos = new ArrayList<>();
+    private final ObservableList<Variant> variants = FXCollections.observableArrayList();
+    private final ObservableList<Map<String, String>> infos = FXCollections.observableArrayList();
     private final List<Map<String, String>> formats = new ArrayList<>();
     private final List<String> unformattedHeaders = new ArrayList<>();
-    private final ObservableList<VcfFilter> filters = FXCollections.observableArrayList();
-    private final ObservableList<Variant> filteredVariants = FXCollections.observableArrayList();
 
-    private String headerLine;
-
-    public VcfFile(File file) {
-        read(file);
-        filters.addListener((Observable change) -> applyFilters());
-    }
-
-    private void read(File file) {
+    public void setFile(File file) {
+        variants.clear();
+        infos.clear();
+        formats.clear();
+        unformattedHeaders.clear();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             readLines(reader);
         } catch (Exception e) {
@@ -57,49 +50,51 @@ class VcfFile {
 
     private void readLines(final BufferedReader reader) {
         reader.lines().forEach(line -> {
-            if (!line.startsWith("#"))
-                variants.add(new Variant(line));
-            else if (line.startsWith("##INFO=<"))
-                infos.add(new MapGenerator().parse(line.substring(8, line.length() - 1)));
-            else if (line.startsWith("##FORMAT=<"))
-                formats.add(new MapGenerator().parse(line.substring(10, line.length() - 1)));
-            else if (line.startsWith("#CHROM"))
-                headerLine = line;
-            else
+            System.out.println(line);
+            if (!line.startsWith("#")) variants.add(new Variant(line));
+            else {
                 unformattedHeaders.add(line);
+                if (line.startsWith("##INFO=<"))
+                    infos.add(new MapGenerator().parse(line.substring(8, line.length() - 1)));
+                else if (line.startsWith("##FORMAT=<"))
+                    formats.add(new MapGenerator().parse(line.substring(10, line.length() - 1)));
+            }
         });
     }
 
-    public List<Variant> getVariants() {
+    public ObservableList<Variant> getVariants() {
         return variants;
     }
 
-    public List<Map<String, String>> getInfos() {
+    public ObservableList<Map<String, String>> getInfos() {
         return infos;
-    }
-
-    public List<Map<String, String>> getFormats() {
-        return formats;
     }
 
     public List<String> getUnformattedHeaders() {
         return unformattedHeaders;
     }
 
-    public ObservableList<Variant> getFilteredVariants() {
-        return filteredVariants;
+    public void addInfoLines(String... lines) {
+        for (String line : lines) {
+            infos.add(new MapGenerator().parse(line.substring(8, line.length() - 1)));
+            addToUnformattedHeaders(line);
+        }
     }
 
-    public ObservableList<VcfFilter> getFilters() {
-        return filters;
+    private void addToUnformattedHeaders(String line) {
+        if (unformattedHeaders.contains(line)) return;
+        int posOfLastInfoLine = -1;
+        for (int i = 0; i < unformattedHeaders.size(); i++)
+            if (unformattedHeaders.get(i).startsWith("##INFO=")) {
+                posOfLastInfoLine = i;
+                if (unformattedHeaders.get(i).compareTo(line) > 0) {
+                    unformattedHeaders.add(i, line);
+                    return;
+                }
+            }
+        if (posOfLastInfoLine != -1) unformattedHeaders.add(posOfLastInfoLine + 1, line);
+        else unformattedHeaders.add(1, line);
     }
 
-    private void applyFilters() {
-        filteredVariants.setAll(variants.stream().filter(this::pass).collect(Collectors.toList()));
-    }
-
-    private boolean pass(Variant variant) {
-        return filters.stream().allMatch(filter -> filter.pass(variant));
-    }
 
 }
