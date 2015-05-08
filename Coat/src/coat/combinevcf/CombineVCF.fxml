@@ -1,38 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.net.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import coat.combinevcf.FileList?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
-<VBox styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" fx:controller="coat.combinevcf.CombineVCF">
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" fx:controller="coat.combinevcf.CombineVCF"
+      spacing="5" alignment="CENTER">
     <stylesheets>
         <URL value="@/coat/main.css"/>
     </stylesheets>
     <children>
-        <HBox VBox.vgrow="ALWAYS" >
+        <HBox VBox.vgrow="ALWAYS" spacing="5">
             <children>
-                <VBox alignment="CENTER"  styleClass="niceBox" HBox.hgrow="SOMETIMES" >
-                    <Label text="Files to intersect"/>
-                    <ListView fx:id="includes" VBox.vgrow="SOMETIMES" maxWidth="9999"/>
-                    <Button fx:id="addInclude" text="Add" styleClass="graphic-button" />
+                <VBox alignment="CENTER" HBox.hgrow="SOMETIMES">
+                    <Label text="%include.files"/>
+                    <FileList fx:id="includes" VBox.vgrow="SOMETIMES" maxWidth="Infinity"/>
                 </VBox>
-                <VBox alignment="CENTER" styleClass="niceBox" HBox.hgrow="SOMETIMES">
-                    <Label text="Files to exclude"/>
-                    <ListView fx:id="excludes" VBox.vgrow="SOMETIMES" maxWidth="9999"/>
-                    <Button fx:id="addExclude" text="Add" styleClass="graphic-button" />
+                <VBox alignment="CENTER" HBox.hgrow="SOMETIMES" >
+                    <Label text="%exclude.files"/>
+                    <FileList fx:id="excludes" VBox.vgrow="SOMETIMES" maxWidth="Infinity"/>
                 </VBox>
             </children>
         </HBox>
-        <HBox >
+        <HBox spacing="5">
             <children>
-                <TextField fx:id="output" editable="false" HBox.hgrow="ALWAYS" />
-                <Button text="%browse" onAction="#selectOutput" />
+                <TextField fx:id="output" editable="false" HBox.hgrow="ALWAYS"/>
+                <Button text="%browse" onAction="#selectOutput"/>
             </children>
+            <padding>
+                <Insets left="5" right="5" />
+            </padding>
         </HBox>
-        <!--FileParam fx:id="output" title="Output" behaviour="SAVE" /-->
-        <Button fx:id="startButton" text="Start" styleClass="graphic-button" />
+        <Button fx:id="startButton" text="%start" styleClass="graphic-button"/>
     </children>
 </VBox>

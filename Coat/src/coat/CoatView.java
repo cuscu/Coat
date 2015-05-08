@@ -17,6 +17,7 @@
 package coat;
 
 import coat.combinevcf.CombineVCF;
+import coat.graphic.MemoryPane;
 import coat.graphic.SizableImage;
 import coat.mist.CombineMIST;
 import coat.reader.Reader;
@@ -27,14 +28,10 @@ import coat.vcf.view.VcfReader;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,15 +42,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class CoatView {
 
     @FXML
-    private  MenuItem combineMistMenu;
+    private MemoryPane memoryPane;
     @FXML
-    private  MenuItem combineVcfMenu;
+    private MenuItem combineMistMenu;
+    @FXML
+    private MenuItem combineVcfMenu;
     @FXML
     private MenuItem openFileMenu;
     @FXML
@@ -64,13 +62,11 @@ public class CoatView {
     private MenuBar menu;
     @FXML
     private Label info;
-    @FXML
-    private HBox infoBox;
 
     private Menu customMenu;
 
     private static Label staticInfo;
-    private static HBox staticInfoBox;
+    //    private static HBox staticInfoBox;
     private final static DateFormat df = new SimpleDateFormat("HH:mm:ss");
 
     private final TabPane workspace = new TabPane();
@@ -78,7 +74,7 @@ public class CoatView {
     public void initialize() {
         root.setCenter(workspace);
         staticInfo = info;
-        staticInfoBox = infoBox;
+//        staticInfoBox = infoBox;
         // Listen whe user clicks on a tab, or opens a file
         workspace.getSelectionModel().selectedItemProperty().addListener((obs, old, current) -> {
             // Remove custom tab if it exists
@@ -93,14 +89,14 @@ public class CoatView {
                     FlowPane pane = new FlowPane();
                     pane.getChildren().setAll(reader.getActions());
                     customMenu = new Menu(reader.getActionsName());
-                    reader.getActions().forEach(button-> customMenu.getItems().add(getMenuItem(button)));
+                    reader.getActions().forEach(button -> customMenu.getItems().add(getMenuItem(button)));
                     menu.getMenus().add(customMenu);
                 }
                 // Activate save file
                 saveFileMenu.setDisable(false);
 //                saveFile.setOnAction(event -> reader.saveAs());
 
-                Coat.setTitle(reader.getFile().getName());
+                Coat.setTitle(reader.getTitle().getValue());
             } else
                 // If no tab is selected, save button should be disabled
                 saveFileMenu.setDisable(true);
@@ -108,6 +104,7 @@ public class CoatView {
         // By default is disabled
         saveFileMenu.setDisable(true);
         assignMenuIcons();
+        printMessage(System.getProperty("user.dir"), "info");
     }
 
     private MenuItem getMenuItem(Button button) {
@@ -124,18 +121,11 @@ public class CoatView {
         combineMistMenu.setGraphic(new SizableImage("coat/img/documents_mist.png", SizableImage.SMALL_SIZE));
     }
 
-    /**
-     * When user clicks on open button.
-     *
-     * @param event
-     */
     @FXML
     private void openAFile(ActionEvent event) {
         File f = FileManager.openFile(OS.getResources().getString("choose.file"),
                 FileManager.VCF_FILTER, FileManager.MIST_FILTER, FileManager.TSV_FILTER);
-        if (f != null)
-//            workspace1.open(f);
-            openFileInWorkspace(f);
+        if (f != null) openFileInWorkspace(f);
     }
 
     @FXML
@@ -144,8 +134,7 @@ public class CoatView {
             // workspace.getSelectionModel.getSelectedItem is a Tab
             // tab.getUserData is a VCFReader controller
             Reader reader = (Reader) workspace.getSelectionModel().getSelectedItem().getUserData();
-            if (reader != null)
-                reader.saveAs();
+            if (reader != null) reader.saveAs();
         }
     }
 
@@ -153,9 +142,10 @@ public class CoatView {
     private void combineVCF(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(CombineVCF.class.getResource("CombineVCF.fxml"), OS.getResources());
-            Tab t = new Tab("Combine VCF");
+            Tab t = new Tab(OS.getResources().getString("combine.vcf"));
             t.setContent(loader.load());
             workspace.getTabs().add(t);
+            workspace.getSelectionModel().select(t);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -166,14 +156,10 @@ public class CoatView {
         try {
             FXMLLoader loader = new FXMLLoader(CombineMIST.class
                     .getResource("CombineMIST.fxml"), OS.getResources());
-            Parent p = loader.load();
-            Scene scene = new Scene(p);
-            Stage stage = new Stage();
-            stage.setScene(scene);
-            stage.centerOnScreen();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setTitle(OS.getResources().getString("combine.mist"));
-            stage.showAndWait();
+            Tab t = new Tab(OS.getResources().getString("combine.mist"));
+            t.setContent(loader.load());
+            workspace.getTabs().add(t);
+            workspace.getSelectionModel().select(t);
         } catch (IOException ex) {
             Logger.getLogger(CoatView.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -182,13 +168,13 @@ public class CoatView {
     public static void printMessage(String message, String level) {
         String date = df.format(new Date());
         staticInfo.getStyleClass().clear();
-        staticInfoBox.getStyleClass().clear();
+        //staticInfoBox.getStyleClass().clear();
         String type = level.toLowerCase();
         if (type.equals("info") || type.equals("success") || type.equals("warning")
                 || type.equals("error")) {
             staticInfo.setText(date + ": " + message);
             staticInfo.getStyleClass().add(type + "-label");
-            staticInfoBox.getStyleClass().add(type + "-box");
+//            staticInfoBox.getStyleClass().add(type + "-box");
             staticInfo.setGraphic(new SizableImage("coat/img/" + type + ".png",
                     SizableImage.SMALL_SIZE));
         } else
@@ -204,7 +190,7 @@ public class CoatView {
     }
 
     private boolean isOpenInWorkspace(File f) {
-        return workspace.getTabs().stream().anyMatch(tab -> (tab.getUserData().equals(f)));
+        return workspace.getTabs().stream().anyMatch(tab -> tab.getUserData() != null && tab.getUserData().equals(f));
     }
 
     private void selectTabInWorkspace(File f) {
@@ -244,31 +230,20 @@ public class CoatView {
     }
 
     private void addVCFReaderToWorkspace(File f) throws IOException {
-        FXMLLoader loader = new FXMLLoader(VcfReader.class.getResource("VcfReaderView.fxml"),
-                OS.getResources());
-        loader.load();
-        // Load file
-        Reader reader = loader.getController();
-        reader.setFile(f);
-        addReaderToWorkspace(loader);
+        VcfReader vcfReader = new VcfReader(f);
+        addReaderToWorkspace(vcfReader, vcfReader);
 
     }
 
     private void addTSVReaderToWorkspace(File f) throws IOException {
-        FXMLLoader loader = new FXMLLoader(
-                TsvFileReader.class.getResource("TsvFileReader.fxml"),
-                OS.getResources());
-        loader.load();
-        // Load file
-        Reader reader = loader.getController();
-        reader.setFile(f);
-        addReaderToWorkspace(loader);
+        TsvFileReader tsvFileReader = new TsvFileReader(f);
+        addReaderToWorkspace(tsvFileReader, tsvFileReader);
     }
 
-    private void addReaderToWorkspace(FXMLLoader loader) {
-        Reader reader = loader.getController();
-        Tab t = new Tab(reader.getFile().getName());
-        t.setContent(loader.getRoot());
+    private void addReaderToWorkspace(Reader reader, Node content) {
+        Tab t = new Tab();
+        t.textProperty().bind(reader.getTitle());
+        t.setContent(content);
         t.setUserData(reader);
         // Add and select tab
         workspace.getTabs().add(t);

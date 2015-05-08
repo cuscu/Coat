@@ -33,6 +33,7 @@ public class Coat extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+//        System.out.println(System.getProperty("user.dir"));
         Parent root = FXMLLoader.load(getClass().getResource("CoatView.fxml"), OS.getResources());
 
         Scene scene = new Scene(root);
@@ -51,11 +52,11 @@ public class Coat extends Application {
     }
 
     public static void setTitle(String title) {
-        if (title != null && !title.isEmpty()) {
-            stage.setTitle("COAT - " + title);
-        } else {
-            stage.setTitle("COAT");
-        }
+        if (title != null && !title.isEmpty()) stage.setTitle("COAT - " + title);
+        else stage.setTitle("COAT");
     }
 
+    public static Stage getStage() {
+        return stage;
+    }
 }

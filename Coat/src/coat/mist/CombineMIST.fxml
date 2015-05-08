@@ -24,11 +24,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
+<?import coat.combinevcf.FileList?>
 <VBox alignment="TOP_CENTER" prefWidth="600.0" spacing="5.0" xmlns:fx="http://javafx.com/fxml/1"
       xmlns="http://javafx.com/javafx/8" fx:controller="coat.mist.CombineMIST">
     <children>
-        <ListView fx:id="fileList" maxWidth="9999" VBox.vgrow="SOMETIMES" />
-        <Button fx:id="addButton" styleClass="graphic-button" text="%add.files" />
+        <FileList fx:id="files" VBox.vgrow="SOMETIMES" maxWidth="Infinity"/>
         <HBox HBox.hgrow="ALWAYS" spacing="5"  >
             <children>
                 <TextField fx:id="output" editable="false" HBox.hgrow="ALWAYS" />
@@ -36,7 +36,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             </children>
         </HBox>
         <Button fx:id="startButton" styleClass="graphic-button" text="%start" />
-        <Label fx:id="success" />
     </children>
     <padding>
         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

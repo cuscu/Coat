@@ -48,19 +48,6 @@ public class VcfFilter {
     public VcfFilter() {
     }
 
-    /**
-     * Creates a new VCFFilter with the given connector and field. If field is not INFO.
-     *
-     * @param connector the selected connector
-     * @param field     the selected field
-     * @param value     the selected info in case INFO is selected as field
-     */
-    public VcfFilter(Field field, Connector connector, String value) {
-        this.connectorProperty.setValue(connector);
-        this.fieldProperty.setValue(field);
-        this.valueProperty.setValue(value);
-    }
-
     public VcfFilter(Field field, String selectedInfo, Connector connector, String value) {
         this.valueProperty.setValue(value);
         this.connectorProperty.setValue(connector);
@@ -68,38 +55,18 @@ public class VcfFilter {
         this.infoProperty.setValue(selectedInfo);
     }
 
-    /**
-     * Gets the value of the pass.
-     *
-     * @return the value of the pass.
-     */
     public String getValue() {
         return valueProperty.getValue();
     }
 
-    /**
-     * Sets a value for the pass.
-     *
-     * @param value the value
-     */
     public void setValue(String value) {
         this.valueProperty.setValue(value);
     }
 
-    /**
-     * The connector of the pass.
-     *
-     * @return the connector
-     */
     public Connector getConnector() {
         return connectorProperty.getValue();
     }
 
-    /**
-     * Sets the connector
-     *
-     * @param connector the new connector
-     */
     public void setConnector(Connector connector) {
         this.connectorProperty.setValue(connector);
     }
@@ -108,20 +75,10 @@ public class VcfFilter {
         return connectorProperty;
     }
 
-    /**
-     * Get the selected field
-     *
-     * @return the selected field
-     */
     public Field getField() {
         return fieldProperty.getValue();
     }
 
-    /**
-     * Set the selected field
-     *
-     * @param field the new selected field
-     */
     public void setField(Field field) {
         this.fieldProperty.setValue(field);
     }
@@ -130,58 +87,12 @@ public class VcfFilter {
         return fieldProperty;
     }
 
-    /**
-     * gets the current selected info
-     *
-     * @return the selected info
-     */
     public String getSelectedInfo() {
         return infoProperty.getValue();
     }
 
-    /**
-     * Sets the new selected info
-     *
-     * @param selectedInfo the new selected info
-     */
     public void setSelectedInfo(String selectedInfo) {
         this.infoProperty.setValue(selectedInfo);
-    }
-
-    /**
-     * If true, pass will not throw variants that do not contain the INFO field.
-     *
-     * @return true if accepting void values.
-     */
-    public boolean isStrict() {
-        return strictProperty.getValue();
-    }
-
-    /**
-     * If true, pass will not throw variants that do not contain the INFO field.
-     *
-     * @param accept true to accept void values
-     */
-    public void setStrict(boolean accept) {
-        strictProperty.setValue(accept);
-    }
-
-    /**
-     * If true it will pass variants, if false it will accept all variants.
-     *
-     * @return true if pass is enable
-     */
-    public boolean isEnabled() {
-        return enabledProperty.getValue();
-    }
-
-    /**
-     * If true it will pass variants, if false it will accept all variants.
-     *
-     * @param enabled the new enable state
-     */
-    public void setEnabled(boolean enabled) {
-        enabledProperty.setValue(enabled);
     }
 
     public Property<String> getValueProperty() {
@@ -200,7 +111,7 @@ public class VcfFilter {
      * @return true if passes the pass or the pass cannot be applied, false otherwise.
      */
     public boolean pass(Variant variant) {
-        return enabledProperty.getValue() ? checkField(variant) : true;
+        return !enabledProperty.getValue() || checkField(variant);
     }
 
     private boolean checkField(Variant variant) {
@@ -232,16 +143,25 @@ public class VcfFilter {
                 break;
             case INFO:
                 if (info == null) return true;
-                Map<String, String> map = variant.getInfos();
+                Map<String, Object> map = variant.getInfos();
                 if (map.containsKey(info)) {
-                    stringValue = map.get(info);
-                    if (stringValue != null)
-                        try {
-                            // Take only the first value, supposing they are comma separated
-                            doubleValue = Double.valueOf(stringValue.split(",")[0]);
-                        } catch (NumberFormatException e) {
-                            // If not a number
+                    final Object val = map.get(info);
+                    if (val != null) {
+                        if (val.getClass() == String.class) {
+                            stringValue = (String) val;
+                            try {
+                                doubleValue = Double.valueOf(stringValue);
+                            } catch (NumberFormatException e) {
+                                // If not a number
+                            }
+                        } else {
+                            try {
+                                doubleValue = (Double) map.get(info);
+                            } catch (NumberFormatException e) {
+                                // If not a number
+                            }
                         }
+                    }
                 }
                 break;
         }
@@ -293,14 +213,12 @@ public class VcfFilter {
             case NOT_PRESENT:
                 return !variant.getInfos().containsKey(info);
         }
-        return strictProperty.getValue();    }
+        return strictProperty.getValue();
+    }
+
 
     public Property<Boolean> getEnabledProperty() {
         return enabledProperty;
-    }
-
-    public void setEnabledProperty(Property<Boolean> enabledProperty) {
-        this.enabledProperty = enabledProperty;
     }
 
     public Property<Boolean> getStrictProperty() {

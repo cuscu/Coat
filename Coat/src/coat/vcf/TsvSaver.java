@@ -41,7 +41,7 @@ public class TsvSaver {
         readInfoColumns();
         this.writer = writer;
         writer.println(OS.asString("\t", header));
-        variants.forEach(var -> writeVariant(var));
+        variants.forEach(this::writeVariant);
     }
 
     private void readInfoColumns() {
@@ -85,10 +85,10 @@ public class TsvSaver {
         var.getInfos().forEach((key, val) -> setInfo(line, key, val));
     }
 
-    private void setInfo(String[] line, String key, String val) {
+    private void setInfo(String[] line, String key, Object val) {
         int index = infoNames.indexOf(key);
         // val == null when key is located, but has no value (a flag)
-        if (index != -1) line[index + FIXED_COLUMNS] = (val == null) ? "yes" : val;
+        if (index != -1) line[index + FIXED_COLUMNS] = (val == null) ? "yes" : val.toString();
     }
 
     private void fillEmpties(String[] line) {
@@ -102,7 +102,7 @@ public class TsvSaver {
         line[3] = var.getRef();
         line[4] = var.getAlt();
         line[5] = String.format("%.4f", var.getQual());
-        line[6] = var.getInfos().get("FILTER");
+        line[6] = (String) var.getInfos().get("FILTER");
     }
 
 }

@@ -35,26 +35,25 @@ public class NaturalCell extends TableCell {
      * Creates a new NaturalCell, which replaces the cell with a non-editable TextField.
      */
     public NaturalCell() {
+        textField.styleProperty().bind(styleProperty());
         textField.setEditable(false);
         textField.setBackground(Background.EMPTY);
         textField.setPadding(new Insets(0));
-//        textField.setOnMouseClicked(e -> textField.selectAll());
-        setTooltip(new Tooltip());
-        setText(null);
-        setGraphic(textField);
+        textField.setOnMouseClicked(event -> getTableView().getSelectionModel().select(getTableRow().getIndex()));
     }
 
     @Override
     protected void updateItem(Object item, boolean empty) {
         super.updateItem(item, empty);
-        if (!empty) {
-            if (null != item) {
-                textField.setText(item.toString());
-                setTooltip(new Tooltip(item.toString()));
-            }
-            setGraphic(textField);
-        } else {
-            setGraphic(null);
+        if (!empty) writeItem(item);
+        else setGraphic(null);
+    }
+
+    private void writeItem(Object item) {
+        if (item != null) {
+            textField.setText(item.toString());
+            setTooltip(new Tooltip(item.toString()));
         }
+        setGraphic(textField);
     }
 }

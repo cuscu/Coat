@@ -37,10 +37,18 @@ public class VcfFile {
     private final List<String> unformattedHeaders = new ArrayList<>();
 
     public void setFile(File file) {
+        clear();
+        readFile(file);
+    }
+
+    private void clear() {
         variants.clear();
         infos.clear();
         formats.clear();
         unformattedHeaders.clear();
+    }
+
+    private void readFile(File file) {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             readLines(reader);
         } catch (Exception e) {
@@ -50,16 +58,17 @@ public class VcfFile {
 
     private void readLines(final BufferedReader reader) {
         reader.lines().forEach(line -> {
-            System.out.println(line);
             if (!line.startsWith("#")) variants.add(new Variant(line));
-            else {
-                unformattedHeaders.add(line);
-                if (line.startsWith("##INFO=<"))
-                    infos.add(new MapGenerator().parse(line.substring(8, line.length() - 1)));
-                else if (line.startsWith("##FORMAT=<"))
-                    formats.add(new MapGenerator().parse(line.substring(10, line.length() - 1)));
-            }
+            else processMetaLine(line);
         });
+    }
+
+    private void processMetaLine(String line) {
+        unformattedHeaders.add(line);
+        if (line.startsWith("##INFO=<"))
+            infos.add(new MapGenerator().parse(line.substring(8, line.length() - 1)));
+        else if (line.startsWith("##FORMAT=<"))
+            formats.add(new MapGenerator().parse(line.substring(10, line.length() - 1)));
     }
 
     public ObservableList<Variant> getVariants() {

@@ -9,6 +9,8 @@ import coat.json.JSONArray;
 import coat.json.JSONException;
 import coat.json.JSONObject;
 import coat.vcf.Variant;
+import javafx.concurrent.Task;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -17,10 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.concurrent.Task;
 
 /**
- *
  * @author UICHUIMI
  */
 public class EnsemblAPI {
@@ -31,56 +31,56 @@ public class EnsemblAPI {
     private final static String variantURL = SERVER + SPECIES + "/" + REGION + "/";
 
     public final static String[] headers = {
-        "##INFO=<ID=GENE,Number=1,Type=String,Description=\"Ensemble gene ID\">",
-        "##INFO=<ID=FEAT,Number=1,Type=String,Description=\"Ensemble feature ID\">",
-        "##INFO=<ID=TYPE,Number=1,Type=String,Description=\"Type of feature (Transcript, RegulatoryFeature, MotifFeature)\">",
-        "##INFO=<ID=CONS,Number=1,Type=String,Description=\"Consequence type\">",
-        "##INFO=<ID=CDNA,Number=1,Type=Integer,Description=\"Relative position of base pair in cDNA sequence\">",
-        "##INFO=<ID=CDS,Number=1,Type=Integer,Description=\"Relative position of base pair in coding sequence\">",
-        "##INFO=<ID=PROT,Number=1,Type=Integer,Description=\"Relative position of amino acid in protein\">",
-        "##INFO=<ID=AMINO,Number=1,Type=String,Description=\"Amino acid change. Only given if the variation affects the protein-coding sequence\">",
-        "##INFO=<ID=COD,Number=1,Type=String,Description=\"The alternative codons\">",
-        "##INFO=<ID=DIST,Number=1,Type=String,Description=\"Shortest distance from variant to transcript\">",
-        "##INFO=<ID=STR,Number=1,Type=String,Description=\"The DNA strand (1 or -1) on which the transcript/feature lies\">",
-        "##INFO=<ID=GNAME,Number=1,Type=String,Description=\"Gene symbol or name\">",
-        "##INFO=<ID=SRC,Number=1,Type=String,Description=\"The source of the gene symbol\">",
-        "##INFO=<ID=ENSP,Number=1,Type=String,Description=\"Ensembl protein identifier of the affected transcript\">",
-        "##INFO=<ID=SWPR,Number=1,Type=String,Description=\"UniProtKB/Swiss-Prot identifier of protein product\">",
-        "##INFO=<ID=TRBL,Number=1,Type=String,Description=\"UniProtKB/TrEMBL identifier of protein product\">",
-        "##INFO=<ID=UNI,Number=1,Type=String,Description=\"UniParc identifier of protein product\">",
-        "##INFO=<ID=HGVSc,Number=1,Type=String,Description=\"HGVS coding sequence name\">",
-        "##INFO=<ID=HGVSp,Number=1,Type=String,Description=\"HGVS protein sequence name\">",
-        "##INFO=<ID=SIFTs,Number=1,Type=String,Description=\"SIFT score\">",
-        "##INFO=<ID=SIFTp,Number=1,Type=String,Description=\"SIFT prediction\">",
-        "##INFO=<ID=PPHs,Number=1,Type=String,Description=\"Polyphen score\">",
-        "##INFO=<ID=PPHp,Number=1,Type=String,Description=\"Polyphen prediction\">",
-        "##INFO=<ID=POLY,Number=1,Type=String,Description=\"PolyPhen prediction and/or score\">",
-        "##INFO=<ID=MTFN,Number=1,Type=String,Description=\"source and identifier of a transcription factor binding profile aligned at this position\">",
-        "##INFO=<ID=MTFP,Number=1,Type=String,Description=\"relative position of the variation in the aligned TFBP\">",
-        "##INFO=<ID=HIP,Number=0,Type=Flag,Description=\"a flag indicating if the variant falls in a high information position of a transcription factor binding profile (TFBP)\">",
-        "##INFO=<ID=MSC,Number=1,Type=String,Description=\"difference in motif score of the reference and variant sequences for the TFBP\">",
-        "##INFO=<ID=CLLS,Number=1,Type=String,Description=\"List of cell types and classifications for regulatory feature\">",
-        "##INFO=<ID=CANON,Number=0,Type=Flag,Description=\"Transcript is denoted as the canonical transcript for this gene\">",
-        "##INFO=<ID=CCDS,Number=1,Type=String,Description=\"CCDS identifer for this transcript, where applicable\">",
-        "##INFO=<ID=INTR,Number=1,Type=String,Description=\"Intron number (out of total number)\">",
-        "##INFO=<ID=EXON,Number=1,Type=String,Description=\"Exon number (out of total number)\">",
-        "##INFO=<ID=DOM,Number=1,Type=String,Description=\"the source and identifer of any overlapping protein domains\">",
-        "##INFO=<ID=IND,Number=1,Type=String,Description=\"Individual name\">",
-        "##INFO=<ID=ZYG,Number=1,Type=String,Description=\"Zygosity of individual genotype at this locus\">",
-        "##INFO=<ID=SV,Number=1,Type=String,Description=\"IDs of overlapping structural variants\">",
-        "##INFO=<ID=FRQ,Number=1,Type=String,Description=\"Frequencies of overlapping variants used in filtering\">",
-        "##INFO=<ID=GMAF,Number=1,Type=String,Description=\"Minor allele and frequency of existing variation in 1000 Genomes Phase 1\">",
-        "##INFO=<ID=AFR_F,Number=1,Type=String,Description=\"Minor allele and frequency of existing variation in 1000 Genomes Phase 1 combined African population\">",
-        "##INFO=<ID=AMR_F,Number=1,Type=String,Description=\"Minor allele and frequency of existing variation in 1000 Genomes Phase 1 combined American population\">",
-        "##INFO=<ID=ASN_F,Number=1,Type=String,Description=\"Minor allele and frequency of existing variation in 1000 Genomes Phase 1 combined Asian population\">",
-        "##INFO=<ID=EUR_F,Number=1,Type=String,Description=\"Minor allele and frequency of existing variation in 1000 Genomes Phase 1 combined European population\">",
-        "##INFO=<ID=AA_F,Number=1,Type=String,Description=\"Minor allele and frequency of existing variant in NHLBI-ESP African American population\">",
-        "##INFO=<ID=EA_F,Number=1,Type=String,Description=\"Minor allele and frequency of existing variant in NHLBI-ESP European American population\">",
-        "##INFO=<ID=CLIN,Number=1,Type=String,Description=\"Clinical significance of variant from dbSNP\">",
-        "##INFO=<ID=BIO,Number=1,Type=String,Description=\"Biotype of transcript or regulatory feature\">",
-        "##INFO=<ID=TSL,Number=1,Type=String,Description=\"Transcript support level\">",
-        "##INFO=<ID=PUBM,Number=1,Type=String,Description=\"Pubmed ID(s) of publications that cite existing variant\">",
-        "##INFO=<ID=SOMA,Number=1,Type=String,Description=\"Somatic status of existing variation(s)\">"
+            "##INFO=<ID=GENE,Number=1,Type=String,Description=\"Ensemble gene ID\">",
+            "##INFO=<ID=FEAT,Number=1,Type=String,Description=\"Ensemble feature ID\">",
+            "##INFO=<ID=TYPE,Number=1,Type=String,Description=\"Type of feature (Transcript, RegulatoryFeature, MotifFeature)\">",
+            "##INFO=<ID=CONS,Number=1,Type=String,Description=\"Consequence type\">",
+            "##INFO=<ID=CDNA,Number=1,Type=Integer,Description=\"Relative position of base pair in cDNA sequence\">",
+            "##INFO=<ID=CDS,Number=1,Type=Integer,Description=\"Relative position of base pair in coding sequence\">",
+            "##INFO=<ID=PROT,Number=1,Type=Integer,Description=\"Relative position of amino acid in protein\">",
+            "##INFO=<ID=AMINO,Number=1,Type=String,Description=\"Amino acid change. Only given if the variation affects the protein-coding sequence\">",
+            "##INFO=<ID=COD,Number=1,Type=String,Description=\"The alternative codons\">",
+            "##INFO=<ID=DIST,Number=1,Type=String,Description=\"Shortest distance from variant to transcript\">",
+            "##INFO=<ID=STR,Number=1,Type=String,Description=\"The DNA strand (1 or -1) on which the transcript/feature lies\">",
+            "##INFO=<ID=GNAME,Number=1,Type=String,Description=\"Gene symbol or name\">",
+            "##INFO=<ID=SRC,Number=1,Type=String,Description=\"The source of the gene symbol\">",
+            "##INFO=<ID=ENSP,Number=1,Type=String,Description=\"Ensembl protein identifier of the affected transcript\">",
+            "##INFO=<ID=SWPR,Number=1,Type=String,Description=\"UniProtKB/Swiss-Prot identifier of protein product\">",
+            "##INFO=<ID=TRBL,Number=1,Type=String,Description=\"UniProtKB/TrEMBL identifier of protein product\">",
+            "##INFO=<ID=UNI,Number=1,Type=String,Description=\"UniParc identifier of protein product\">",
+            "##INFO=<ID=HGVSc,Number=1,Type=String,Description=\"HGVS coding sequence name\">",
+            "##INFO=<ID=HGVSp,Number=1,Type=String,Description=\"HGVS protein sequence name\">",
+            "##INFO=<ID=SIFTs,Number=1,Type=String,Description=\"SIFT score\">",
+            "##INFO=<ID=SIFTp,Number=1,Type=String,Description=\"SIFT prediction\">",
+            "##INFO=<ID=PPHs,Number=1,Type=String,Description=\"Polyphen score\">",
+            "##INFO=<ID=PPHp,Number=1,Type=String,Description=\"Polyphen prediction\">",
+            "##INFO=<ID=POLY,Number=1,Type=String,Description=\"PolyPhen prediction and/or score\">",
+            "##INFO=<ID=MTFN,Number=1,Type=String,Description=\"source and identifier of a transcription factor binding profile aligned at this position\">",
+            "##INFO=<ID=MTFP,Number=1,Type=String,Description=\"relative position of the variation in the aligned TFBP\">",
+            "##INFO=<ID=HIP,Number=0,Type=Flag,Description=\"a flag indicating if the variant falls in a high information position of a transcription factor binding profile (TFBP)\">",
+            "##INFO=<ID=MSC,Number=1,Type=String,Description=\"difference in motif score of the reference and variant sequences for the TFBP\">",
+            "##INFO=<ID=CLLS,Number=1,Type=String,Description=\"List of cell types and classifications for regulatory feature\">",
+            "##INFO=<ID=CANON,Number=0,Type=Flag,Description=\"Transcript is denoted as the canonical transcript for this gene\">",
+            "##INFO=<ID=CCDS,Number=1,Type=String,Description=\"CCDS identifer for this transcript, where applicable\">",
+            "##INFO=<ID=INTR,Number=1,Type=String,Description=\"Intron number (out of total number)\">",
+            "##INFO=<ID=EXON,Number=1,Type=String,Description=\"Exon number (out of total number)\">",
+            "##INFO=<ID=DOM,Number=1,Type=String,Description=\"the source and identifer of any overlapping protein domains\">",
+            "##INFO=<ID=IND,Number=1,Type=String,Description=\"Individual name\">",
+            "##INFO=<ID=ZYG,Number=1,Type=String,Description=\"Zygosity of individual genotype at this locus\">",
+            "##INFO=<ID=SV,Number=1,Type=String,Description=\"IDs of overlapping structural variants\">",
+            "##INFO=<ID=FRQ,Number=1,Type=String,Description=\"Frequencies of overlapping variants used in filtering\">",
+            "##INFO=<ID=GMAF,Number=1,Type=String,Description=\"Minor allele and frequency of existing variation in 1000 Genomes Phase 1\">",
+            "##INFO=<ID=AFR_F,Number=1,Type=String,Description=\"Minor allele and frequency of existing variation in 1000 Genomes Phase 1 combined African population\">",
+            "##INFO=<ID=AMR_F,Number=1,Type=String,Description=\"Minor allele and frequency of existing variation in 1000 Genomes Phase 1 combined American population\">",
+            "##INFO=<ID=ASN_F,Number=1,Type=String,Description=\"Minor allele and frequency of existing variation in 1000 Genomes Phase 1 combined Asian population\">",
+            "##INFO=<ID=EUR_F,Number=1,Type=String,Description=\"Minor allele and frequency of existing variation in 1000 Genomes Phase 1 combined European population\">",
+            "##INFO=<ID=AA_F,Number=1,Type=String,Description=\"Minor allele and frequency of existing variant in NHLBI-ESP African American population\">",
+            "##INFO=<ID=EA_F,Number=1,Type=String,Description=\"Minor allele and frequency of existing variant in NHLBI-ESP European American population\">",
+            "##INFO=<ID=CLIN,Number=1,Type=String,Description=\"Clinical significance of variant from dbSNP\">",
+            "##INFO=<ID=BIO,Number=1,Type=String,Description=\"Biotype of transcript or regulatory feature\">",
+            "##INFO=<ID=TSL,Number=1,Type=String,Description=\"Transcript support level\">",
+            "##INFO=<ID=PUBM,Number=1,Type=String,Description=\"Pubmed ID(s) of publications that cite existing variant\">",
+            "##INFO=<ID=SOMA,Number=1,Type=String,Description=\"Somatic status of existing variation(s)\">"
     };
 
     public static void addVepInfo(List<Variant> variants) {
@@ -91,7 +91,7 @@ public class EnsemblAPI {
                 final URL url = new URL("http://grch37.rest.ensembl.org/vep/human/region");
 
                 // Put json request
-                Map<String, String> hea = new HashMap();
+                Map<String, String> hea = new HashMap<>();
                 hea.put("Content-Type", "application/json");
 
                 // Translate list into JSON
@@ -137,7 +137,7 @@ public class EnsemblAPI {
                         final URL url = new URL("http://grch37.rest.ensembl.org/vep/human/region");
 
                         // Put json request
-                        Map<String, String> hea = new HashMap();
+                        Map<String, String> hea = new HashMap<>();
                         hea.put("Content-Type", "application/json");
 
                         // Translate list into JSON
@@ -177,7 +177,7 @@ public class EnsemblAPI {
     /**
      * Incorporates vep icarus to variant.
      *
-     * @param v
+     * @param v variant
      */
     public static void addVepInfo(Variant v) {
         try {
@@ -189,7 +189,7 @@ public class EnsemblAPI {
             URL url = new URL(variantURL + region + "/" + v.getAlt());
 
             // Put json request
-            Map<String, String> hea = new HashMap();
+            Map<String, String> hea = new HashMap<>();
             hea.put("content-type", "application/json");
 
             // Connect to the internet
@@ -349,7 +349,7 @@ public class EnsemblAPI {
     private static void mapVepInfo(JSONArray json, List<Variant> variants) {
         // To go faster, I will copy the list of variants
         // Then, each located variant will be removed from list
-        List<Variant> copy = new LinkedList(variants);
+        List<Variant> copy = new LinkedList<>(variants);
         for (int i = 0; i < json.length(); i++)
             try {
                 // Check similar variant
@@ -375,14 +375,14 @@ public class EnsemblAPI {
      * Checks if sourceKey is present in the source JSONObject. In that case, reads a classType
      * object and puts it into target variant with targetKey.
      *
-     * @param source source JSONObject
+     * @param source    source JSONObject
      * @param sourceKey key in the source JSONObject
-     * @param target target variant
+     * @param target    target variant
      * @param targetKey key in the target variant
      * @param classType type of value in source JSONObject
      */
     private static void findAndPut(JSONObject source, String sourceKey, Variant target,
-            String targetKey, Class classType) {
+                                   String targetKey, Class classType) {
         if (source.containsKey(sourceKey))
             if (classType == String.class)
                 target.getInfos().put(targetKey, source.getString(sourceKey));
@@ -399,7 +399,7 @@ public class EnsemblAPI {
     }
 
     private static void findAndPutArray(JSONObject source, String sourceKey, Variant target,
-            String targetKey, Class classType) {
+                                        String targetKey, Class classType) {
         if (source.containsKey(sourceKey)) {
             JSONArray terms = source.getJSONArray(sourceKey);
             if (terms.length() > 0) {

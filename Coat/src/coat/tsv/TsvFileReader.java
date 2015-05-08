@@ -11,58 +11,54 @@ import coat.graphic.SizableImage;
 import coat.reader.Reader;
 import coat.utils.FileManager;
 import coat.utils.OS;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
+
+import java.io.*;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.fxml.FXML;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.layout.VBox;
 
 /**
- *
  * @author UICHUIMI
  */
-public class TsvFileReader extends Reader {
+public class TsvFileReader extends VBox implements Reader {
 
-    @FXML
-    private TableView<String[]> table;
-    @FXML
-    private VBox filtersPane;
-    @FXML
-    private Button addFilter;
-    @FXML
-    private Label infoLabel;
-    @FXML
-    private Button export;
-
-    private String[] headers;
+    private final File file;
+    private final TableView<String[]> table = new TableView<>();
+    private final VBox filtersPane = new VBox();
+    private final Button addFilter = new Button();
+    private final Label infoLabel = new Label();
+    private final VBox bottomVBox = new VBox(5, infoLabel, filtersPane, addFilter);
+    private final SplitPane mainPane = new SplitPane(table, bottomVBox);
 
     private final AtomicInteger totalLines = new AtomicInteger();
     private final AtomicInteger currentLines = new AtomicInteger();
-    private final static List<Button> actions = new LinkedList();
+    private Property<String> titleProperty = new SimpleStringProperty();
 
-    @FXML
+    private String[] headers;
+
+    public TsvFileReader(File file) {
+        this.file = file;
+        titleProperty.setValue(file.getName());
+        mainPane.setOrientation(Orientation.VERTICAL);
+        mainPane.setDividerPositions(0.75);
+        SplitPane.setResizableWithParent(bottomVBox, false);
+        getChildren().setAll(mainPane);
+        VBox.setVgrow(mainPane, Priority.ALWAYS);
+        initialize();
+        loadFile();
+    }
+
     private void initialize() {
         addFilter.setGraphic(new SizableImage("coat/img/new.png", SizableImage.SMALL_SIZE));
-        export.setGraphic(new SizableImage("coat/img/save.png", SizableImage.SMALL_SIZE));
         //table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         addFilter.setOnAction(event -> {
             TSVFilterPane filterPane = new TSVFilterPane(Arrays.asList(headers));
@@ -73,6 +69,7 @@ public class TsvFileReader extends Reader {
             });
             filtersPane.getChildren().add(filterPane);
         });
+
     }
 
     private void loadFile() {
@@ -89,12 +86,12 @@ public class TsvFileReader extends Reader {
     }
 
     private void generateColumns() {
-        TableColumn<String[], String> in = new TableColumn();
+        TableColumn<String[], String> in = new TableColumn<>();
         in.setCellFactory(column -> new IndexCell());
         table.getColumns().add(in);
         for (int i = 0; i < headers.length; i++) {
             final int index = i;
-            TableColumn<String[], String> tc = new TableColumn(headers[i]);
+            TableColumn<String[], String> tc = new TableColumn<>(headers[i]);
             tc.setCellValueFactory(param -> new SimpleStringProperty(param.getValue()[index]));
             tc.setCellFactory(column -> new NaturalCell());
             table.getColumns().add(tc);
@@ -131,13 +128,9 @@ public class TsvFileReader extends Reader {
         infoLabel.setText(String.format("%,d / %,d (%.2f%%)", currentLines.get(), totalLines.get(),
                 percentage));
         Set<String>[] uniques = new Set[headers.length];
-        for (int i = 0; i < uniques.length; i++) {
-            uniques[i] = new TreeSet<>();
-        }
+        for (int i = 0; i < uniques.length; i++) uniques[i] = new TreeSet<>();
         table.getItems().stream().forEach(line -> {
-            for (int i = 0; i < line.length; i++) {
-                uniques[i].add(line[i]);
-            }
+            for (int i = 0; i < line.length; i++) uniques[i].add(line[i]);
         });
         for (int i = 0; i < headers.length; i++) {
             // Skip index column
@@ -156,9 +149,13 @@ public class TsvFileReader extends Reader {
         }
     }
 
+    @Override
+    public Property<String> getTitle() {
+        return titleProperty;
+    }
+
     /**
      * Ask user to open a file.
-     *
      */
     @Override
     public void saveAs() {
@@ -181,12 +178,6 @@ public class TsvFileReader extends Reader {
         } catch (IOException ex) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    @Override
-    public void setFile(File file) {
-        this.file = file;
-        loadFile();
     }
 
     @Override

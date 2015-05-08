@@ -29,6 +29,8 @@ import java.util.logging.Logger;
 class Combinator {
 
     static File combine(List<File> includes, List<File> excludes, String outputFile) {
+        System.out.println(includes.size());
+        System.out.println(excludes.size());
         try {
             File output = new File(outputFile);
             new CombinatorVcf().combine(includes.toArray(new File[includes.size()]), excludes.toArray(new File[excludes.size()]), output);

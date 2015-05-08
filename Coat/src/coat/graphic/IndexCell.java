@@ -34,17 +34,13 @@ public class IndexCell extends TableCell {
     public IndexCell() {
         getStyleClass().add("index-cell");
         setAlignment(Pos.CENTER_RIGHT);
+        setGraphic(null);
     }
 
     @Override
     protected void updateItem(Object item, boolean empty) {
         super.updateItem(item, empty);
-        if (empty) {
-            setText(null);
-            setGraphic(null);
-        } else {
-            setText(String.valueOf(1 + getIndex()));
-        }
+        setText((empty) ? null : String.valueOf(1 + getIndex()));
     }
 
 }

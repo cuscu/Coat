@@ -19,14 +19,12 @@ package coat.combinevcf;
 import coat.CoatView;
 import coat.graphic.SizableImage;
 import coat.utils.FileManager;
-import java.io.File;
-import java.util.List;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
+
+import java.io.File;
 
 /**
  *
@@ -35,13 +33,9 @@ import javafx.scene.input.KeyCode;
 public class CombineVCF {
 
     @FXML
-    private ListView<File> includes;
+    private FileList includes;
     @FXML
-    private Button addInclude;
-    @FXML
-    private ListView<File> excludes;
-    @FXML
-    private Button addExclude;
+    private FileList excludes;
     @FXML
     private Button startButton;
     @FXML
@@ -49,41 +43,21 @@ public class CombineVCF {
 
     @FXML
     private void initialize() {
-        includes.setOnKeyReleased(e -> {
-            if (e.getCode() == KeyCode.DELETE)
-                includes.getItems().remove(includes.getSelectionModel().getSelectedItem());
-        });
-        excludes.setOnKeyReleased(e -> {
-            if (e.getCode() == KeyCode.DELETE)
-                excludes.getItems().remove(excludes.getSelectionModel().getSelectedItem());
-        });
-        addInclude.setOnAction(e -> addInclude());
-        addExclude.setOnAction(e -> addExclude());
         startButton.setOnAction(e -> start());
-        startButton.setGraphic(new SizableImage("coat/img/start.png", 32));
-        addExclude.setGraphic(new SizableImage("coat/img/new.png", 32));
-        addInclude.setGraphic(new SizableImage("coat/img/new.png", 32));
+        startButton.setGraphic(new SizableImage("coat/img/start.png", SizableImage.MEDIUM_SIZE));
+        startButton.setDisable(true);
+        includes.setFilters(FileManager.VCF_FILTER);
+        excludes.setFilters(FileManager.VCF_FILTER);
     }
 
     @FXML
     private void selectOutput(ActionEvent event) {
-        FileManager.saveFile(output, "Select ouptut file", FileManager.VCF_FILTER);
-    }
-
-    private void addInclude() {
-        List<File> f = FileManager.openFiles("Select VCF", FileManager.VCF_FILTER);
-        if (f != null)
-            includes.getItems().addAll(f);
-    }
-
-    private void addExclude() {
-        List<File> f = FileManager.openFiles("Select VCF", FileManager.VCF_FILTER);
-        if (f != null)
-            excludes.getItems().addAll(f);
+        final File file = FileManager.saveFile(output, "Select ouptut file", FileManager.VCF_FILTER);
+        if (file != null) startButton.setDisable(false);
     }
 
     private void start() {
-        File intersection = Combinator.combine(includes.getItems(), excludes.getItems(), output.getText());
+        File intersection = Combinator.combine(includes.getFiles(), excludes.getFiles(), output.getText());
         if (intersection != null)
             CoatView.printMessage("Intersection finished, output file: " + intersection, "success");
         else

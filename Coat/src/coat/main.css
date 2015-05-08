@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-.background{
+.background {
     -fx-background-color: #1d1d1d;
 }
 
@@ -38,7 +38,7 @@
     -fx-border-color: whitesmoke;
 }
 
-// Button with only graphic, whe hover or pressed a border is shown.
+/* Button with only graphic, whe hover or pressed a border is shown.*/
 .flat-button {
     -fx-border-width: 1px;
     -fx-border-radius: 2px;
@@ -51,17 +51,19 @@
     -fx-border-color: black;
 }
 
-.flat-button:pressed{
+.flat-button:pressed {
     -fx-opacity: 0.25;
     -fx-border-color: black;
 
 }
-// Buttons that only show an icon, hover and pressed are only made by decreasing the opacity
+/* Buttons that only show an icon, hover and pressed are only made by decreasing the opacity*/
 .graphic-button {
     -fx-background-color: transparent;
 }
 .graphic-button:hover {
     -fx-opacity: 0.5;
+/*    -fx-border-color: black;
+    -fx-border-width: 0 1 1 0;*/
 }
 
 .graphic-button:pressed{
@@ -88,7 +90,7 @@
     -fx-background-color: white;
 }
 
-// Filtering boxes in TSVReader/VCFReader
+/* Filtering boxes in TSVReader/VCFReader*/
 .filter-box {
     -fx-background-color: ghostwhite;
     -fx-text-alignment: left;
@@ -99,7 +101,7 @@
 .filter-box:hover{
     -fx-background-color: white;
 }
-// A button that is in a filter box
+/* A button that is in a filter box */
 .filter-box .button {
     -fx-background-color: transparent;
 }
@@ -112,13 +114,13 @@
     -fx-border-radius: 16px;
 }
 
-// Clear the end of lists
+/* Clear the end of lists*/
 .list-cell:empty {
     -fx-background-color: transparent;
     -fx-border-width: 0;
 }
 
-// Clear the bottom of tables
+/* Clear the bottom of tables*/
 .table-row-cell:empty {
     -fx-background-color: white;
 }
@@ -187,7 +189,7 @@
     -fx-border-width: 0;
 }
 
-// Progress bar
+/* Progress bar */
 .progress-bar{
     -fx-background-radius: 5;
     -fx-background-color: lightgrey;

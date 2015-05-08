@@ -109,7 +109,7 @@ public class FilterCell extends ListCell<VcfFilter> {
         connector.valueProperty().addListener((obs, old, current)
                 -> value.setDisable(current == VcfFilter.Connector.NOT_PRESENT
                 || current == VcfFilter.Connector.PRESENT));
-
+        connector.setOnAction(event -> value.requestFocus());
     }
 
     private void initializeFieldBox() {
@@ -120,10 +120,7 @@ public class FilterCell extends ListCell<VcfFilter> {
     }
 
     private void fieldSelected() {
-        if (field.getSelectionModel().getSelectedItem() == VcfFilter.Field.INFO)
-            info.setDisable(false);
-        else
-            info.setDisable(true);
+        info.setDisable(field.getSelectionModel().getSelectedItem() != VcfFilter.Field.INFO);
         value.requestFocus();
     }
 
@@ -207,7 +204,7 @@ public class FilterCell extends ListCell<VcfFilter> {
         if (currentFilter == null) return false;
         if (currentFilter.getConnector() == null) return false;
         if (currentFilter.getField() == null) return false;
-        if (currentFilter.getField() == VcfFilter.Field.INFO && currentFilter.getSelectedInfo() == null) return false;
+        if (currentFilter.getField() == VcfFilter.Field.INFO && (currentFilter.getSelectedInfo() == null)) return false;
         return true;
     }
 
@@ -247,16 +244,16 @@ public class FilterCell extends ListCell<VcfFilter> {
     }
 
     @Override
-    public void commitEdit(VcfFilter newValue) {
-        super.commitEdit(newValue);
-        currentFilter = newValue;
+    public void commitEdit(VcfFilter ignored) {
+        super.commitEdit(ignored);
+        currentFilter.setValue(value.getText());
+        currentFilter.setSelectedInfo(info.getValue());
+        currentFilter.setConnector(connector.getValue());
+        currentFilter.setField(field.getValue());
         toPassive();
     }
 
     private void commit() {
-        VcfFilter filter = new VcfFilter(field.getValue(), info.getValue(), connector.getValue(), value.getText());
-        filter.setEnabled(view.isSelected());
-        filter.setStrict(strict.isSelected());
-        commitEdit(filter);
+        commitEdit(currentFilter);
     }
 }

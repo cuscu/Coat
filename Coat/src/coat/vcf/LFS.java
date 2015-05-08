@@ -16,7 +16,6 @@
  */
 package coat.vcf;
 
-import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -178,8 +177,8 @@ public class LFS {
      */
     public static void addLFS(Variant variant) {
         try {
-            Map<String, String> infos = variant.getInfos();
-            String codons = infos.get("COD");
+            Map<String, Object> infos = variant.getInfos();
+            String codons = (String) infos.get("COD");
             if (codons != null) {
                 String[] cods = codons.split("[/-]");
                 // Only supports 2 structures: aaT/aaC and tta-Gta
@@ -197,9 +196,7 @@ public class LFS {
                     double source = frequencies.get(cods[0].toUpperCase());
                     double destiny = frequencies.get(cods[1].toUpperCase());
                     double score = source / destiny;
-                    if (score > 1) {
-                        infos.put("LFS", String.format(Locale.US, "%.2f", score));
-                    }
+                    if (score > 1) infos.put("LFS", score);
                 }
             }
         } catch (Exception ex) {

@@ -20,7 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import java.net.URL?>
+<?import coat.graphic.MemoryPane?>
 <BorderPane fx:id="root" prefHeight="600" prefWidth="1000" xmlns="http://javafx.com/javafx/8"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="coat.CoatView">
     <stylesheets>
@@ -43,13 +45,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </MenuBar>
     </top>
     <bottom>
-        <HBox fx:id="infoBox" prefWidth="9999">
+        <HBox spacing="5">
             <children>
-                <Label fx:id="info"/>
+                <HBox HBox.hgrow="ALWAYS">
+                    <children>
+                        <Label fx:id="info"/>
+                    </children>
+                    <padding>
+                        <javafx.geometry.Insets bottom="5" top="5" left="5" right="5"/>
+                    </padding>
+                </HBox>
+                <MemoryPane HBox.hgrow="NEVER" fx:id="memoryPane"/>
             </children>
-            <padding>
-                <javafx.geometry.Insets bottom="5" top="5" left="5" right="5"/>
-            </padding>
         </HBox>
     </bottom>
 </BorderPane>

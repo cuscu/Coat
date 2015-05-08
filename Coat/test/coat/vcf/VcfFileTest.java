@@ -65,55 +65,6 @@ public class VcfFileTest {
         Assert.assertEquals(6, vcfFile.getInfos().size());
     }
 
-    /*
-        @Test
-        public void chromFilter() {
-            // Given
-            VcfFilter filter = new VcfFilter(VcfFilter.Field.CHROMOSOME, VcfFilter.Connector.EQUALS, "1");
-            VcfFile vcfFile = new VcfFile(s002);
-            // When
-            vcfFile.getFilters().add(filter);
-            // Then
-            Assert.assertEquals(5, vcfFile.getFilteredVariants().size());
-        }
-
-        @Test
-        public void refFilter() {
-            // Given
-            VcfFilter filter = new VcfFilter(VcfFilter.Field.REF, VcfFilter.Connector.EQUALS, "T");
-            VcfFile vcfFile = new VcfFile(test);
-            // When
-            vcfFile.getFilters().add(filter);
-            // Then
-            Assert.assertEquals(4875, vcfFile.getFilteredVariants().size());
-        }
-
-        @Test
-        public void infoFilter() {
-            // Given
-            VcfFilter filter = new VcfFilter(VcfFilter.Field.INFO, "DP", VcfFilter.Connector.GREATER, "9");
-            VcfFile vcfFile = new VcfFile(s002);
-            // When
-            vcfFile.getFilters().add(filter);
-            // Then
-            Assert.assertEquals(2, vcfFile.getFilteredVariants().size());
-        }
-
-        @Test
-        public void multipleFilters() {
-            // Given
-            VcfFile vcfFile = new VcfFile(test);
-            VcfFilter[] filters = new VcfFilter[]{
-                    new VcfFilter(VcfFilter.Field.CHROMOSOME, VcfFilter.Connector.CONTAINS, "1"),
-                    new VcfFilter(VcfFilter.Field.INFO, "DP", VcfFilter.Connector.GREATER, "10"),
-                    new VcfFilter(VcfFilter.Field.QUALITY, VcfFilter.Connector.GREATER, "20")
-            };
-            // When
-            vcfFile.getFilters().addAll(filters);
-            // Then
-            Assert.assertEquals(6444, vcfFile.getFilteredVariants().size());
-        }
-    */
     @Test
     public void testGetInfos() {
         File testFile = new File("test/s002.vcf");

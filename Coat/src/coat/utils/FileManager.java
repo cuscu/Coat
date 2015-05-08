@@ -16,25 +16,14 @@
  */
 package coat.utils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.zip.GZIPInputStream;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * This class contains methods to deal with FileSystem. Methods to open/save files, select paths,
@@ -49,7 +38,7 @@ public final class FileManager {
      */
     public static final FileChooser.ExtensionFilter SAM_FILTER
             = new FileChooser.ExtensionFilter("Sequence Alignment/Map Format (.bam .sam)", "*.bam",
-                    "*.sam");
+            "*.sam");
     /**
      * Admits all files
      */
@@ -109,7 +98,7 @@ public final class FileManager {
      * Opens a Dialog to select a folder. If initDir is a valid directory, FileChooser will open
      * there.
      *
-     * @param title The title for the DirectoryChooser.
+     * @param title   The title for the DirectoryChooser.
      * @param initDir the initial directory.
      * @return A File or null if user canceled.
      */
@@ -129,8 +118,8 @@ public final class FileManager {
      * the selected file is not null, the textField text will be set to the file.getAbsolutePath().
      *
      * @param textField the textField to set if a file is selected
-     * @param title the title of the FileChooser
-     * @param filters any number of ExtensionFilter. Use OS.[FORMAT]_FILTER constants.
+     * @param title     the title of the FileChooser
+     * @param filters   any number of ExtensionFilter. Use OS.[FORMAT]_FILTER constants.
      * @return the selected file or null
      */
     public static File openFile(TextField textField, String title, ExtensionFilter... filters) {
@@ -142,13 +131,13 @@ public final class FileManager {
      * the selected file is not null, the textField text will be set to the file.getAbsolutePath().
      *
      * @param textField the textField to set if a file is selected
-     * @param title the title of the FileChooser
-     * @param initDir the initial directory
-     * @param filters any number of ExtensionFilter. Use OS.[FORMAT]_FILTER constants.
+     * @param title     the title of the FileChooser
+     * @param initDir   the initial directory
+     * @param filters   any number of ExtensionFilter. Use OS.[FORMAT]_FILTER constants.
      * @return the selected file or null
      */
     public static File openFile(TextField textField, String title, File initDir,
-            ExtensionFilter... filters) {
+                                ExtensionFilter... filters) {
         File f = openFile(title, initDir, filters);
         if (f != null) {
             textField.setText(f.getAbsolutePath());
@@ -159,7 +148,7 @@ public final class FileManager {
     /**
      * Opens a dialog window (FileChooser) and lets the user select a single File.
      *
-     * @param title the title of the FileChooser
+     * @param title   the title of the FileChooser
      * @param filters any number of ExtensionFilter. Use OS.[FORMAT]_FILTER constants.
      * @return the selected file or null
      */
@@ -170,7 +159,7 @@ public final class FileManager {
     /**
      * Opens a dialog window (FileChooser) and lets the user select a single File.
      *
-     * @param title the title of the FileChooser
+     * @param title   the title of the FileChooser
      * @param filters any number of ExtensionFilter. Use OS.[FORMAT]_FILTER constants.
      * @return the selected file or null
      */
@@ -181,7 +170,7 @@ public final class FileManager {
     /**
      * Opens a dialog window (FileChooser) and lets the user select a single File.
      *
-     * @param title the title of the FileChooser
+     * @param title   the title of the FileChooser
      * @param initDir the initial directory
      * @param filters any number of ExtensionFilter. Use OS.[FORMAT]_FILTER constants.
      * @return the selected file or null
@@ -193,7 +182,7 @@ public final class FileManager {
     /**
      * Opens a dialog window (FileChooser) and lets the user select a single File.
      *
-     * @param title the title of the FileChooser
+     * @param title   the title of the FileChooser
      * @param initDir the initial directory
      * @param filters any number of ExtensionFilter. Use OS.[FORMAT]_FILTER constants.
      * @return the selected file or null
@@ -214,7 +203,7 @@ public final class FileManager {
     /**
      * Opens a dialog that let the user to select one or more files.
      *
-     * @param title the title of the window
+     * @param title   the title of the window
      * @param filters the filters to use
      * @return the list of selected files or null
      */
@@ -225,7 +214,7 @@ public final class FileManager {
     /**
      * Opens a dialog window (FileChooser) and lets the user select multiple Files.
      *
-     * @param title the title of the FileChooser
+     * @param title   the title of the FileChooser
      * @param initDir the initial directory
      * @param filters any number of ExtensionFilter. Use OS.[FORMAT]_FILTER constants.
      * @return the selected files or null
@@ -248,7 +237,7 @@ public final class FileManager {
      * If the user do not write the file extension, the default will be the first of the selected
      * ExtensionFilter.
      *
-     * @param title dialog title
+     * @param title   dialog title
      * @param filters any number of ExtensionFilters
      * @return the selected file or null
      */
@@ -261,7 +250,7 @@ public final class FileManager {
      * If the user do not write the file extension, the default will be the first of the selected
      * ExtensionFilter.
      *
-     * @param title dialog title
+     * @param title   dialog title
      * @param filters any number of ExtensionFilters
      * @return the selected file or null
      */
@@ -274,7 +263,7 @@ public final class FileManager {
      * If the user do not write the file extension, the default will be the first of the selected
      * ExtensionFilter.
      *
-     * @param title dialog title
+     * @param title   dialog title
      * @param initDir the initial directory
      * @param filters any number of ExtensionFilters
      * @return the selected file or null
@@ -288,10 +277,10 @@ public final class FileManager {
      * If the user do not write the file extension, the default will be the first of the selected
      * ExtensionFilter.
      *
-     * @param title dialog title
-     * @param initDir the initial directory
+     * @param title    dialog title
+     * @param initDir  the initial directory
      * @param initName initial name for file
-     * @param filters any number of ExtensionFilters
+     * @param filters  any number of ExtensionFilters
      * @return the selected file or null
      */
     public static File saveFile(String title, File initDir, String initName, List<ExtensionFilter> filters) {
@@ -310,10 +299,7 @@ public final class FileManager {
                 String f = chooser.getSelectedExtensionFilter().getExtensions().get(0);
                 if (f != null) {
                     String ext = f.replace("*", "");
-                    if (file.getName().endsWith(ext)) {
-                    } else {
-                        return new File(file.getAbsolutePath() + ext);
-                    }
+                    if (!file.getName().endsWith(ext)) return new File(file.getAbsolutePath() + ext);
                 }
             }
         }
@@ -325,10 +311,10 @@ public final class FileManager {
      * If the user do not write the file extension, the default will be the first of the selected
      * ExtensionFilter.
      *
-     * @param title dialog title
-     * @param initDir the initial directory
+     * @param title    dialog title
+     * @param initDir  the initial directory
      * @param initName initial name for file
-     * @param filters any number of ExtensionFilters
+     * @param filters  any number of ExtensionFilters
      * @return the selected file or null
      */
     public static File saveFile(String title, File initDir, String initName, ExtensionFilter... filters) {
@@ -341,8 +327,8 @@ public final class FileManager {
      * selected ExtensionFilter.
      *
      * @param textField the textField
-     * @param title dialog title
-     * @param filters any number of ExtensionFilters
+     * @param title     dialog title
+     * @param filters   any number of ExtensionFilters
      * @return the selected file or null
      */
     public static File saveFile(TextField textField, String title, ExtensionFilter... filters) {
@@ -355,13 +341,13 @@ public final class FileManager {
      * selected ExtensionFilter.
      *
      * @param textField the textField
-     * @param title dialog title
-     * @param initDir the initial directory
-     * @param filters any number of ExtensionFilters
+     * @param title     dialog title
+     * @param initDir   the initial directory
+     * @param filters   any number of ExtensionFilters
      * @return the selected file or null
      */
     public static File saveFile(TextField textField, String title, File initDir,
-            ExtensionFilter... filters) {
+                                ExtensionFilter... filters) {
         File f = saveFile(title, initDir, Arrays.asList(filters));
         if (f != null) {
             textField.setText(f.getAbsolutePath());
@@ -405,145 +391,16 @@ public final class FileManager {
      * Deletes this file/directory and, if recursive is true and it is a directory, everything
      * inside it.
      *
-     * @param file the file or directory to remove
+     * @param file      the file or directory to remove
      * @param recursive true if you want to perform a recursive deletion
      * @return true if it could delete the file and, if specified, all of its content
      */
     public static boolean delete(File file, boolean recursive) {
-        if (recursive) {
-            if (file.isDirectory()) {
-                for (File f : file.listFiles()) {
-                    if (!delete(f, recursive)) {
-                        return false;
-                    }
-                }
-                return file.delete();
-            } else {
-                return file.delete();
-            }
-        } else {
-            return file.delete();
+        if (recursive && file.isDirectory()) {
+            final File[] files = file.listFiles();
+            if (files != null) for (File f : files) if (!delete(f, true)) return false;
         }
-    }
-
-    /**
-     * Macro function that ckecks that String is not null, not empty and the file it represents
-     * exists.
-     *
-     * @param parameter a string that represents a File
-     * @return parameter not null and parameter is not empty and file exists
-     */
-    public static boolean tripleCheck(String parameter) {
-        return parameter != null && !parameter.isEmpty() && new File(parameter).exists();
-    }
-
-    /**
-     * Checks all of the files passed by argument and returns a list with the files that return
-     * false in {@code tripleCheck()}. Use this function when you have to systematically check a
-     * list of File parameters.
-     *
-     * @param parameters the list of parameters to check
-     * @return the list of parameters which do not pass tripleCheck
-     */
-    public static List<String> tripleCheck(String... parameters) {
-        return tripleCheck(Arrays.asList(parameters));
-    }
-
-    /**
-     * Checks all of the files passed by argument and returns a list with the files that return
-     * false in {@code tripleCheck()}. Use this function when you have to systematically check a
-     * list of File parameters.
-     *
-     * @param parameters the list of parameters to check
-     * @return the list of parameters which do not pass tripleCheck
-     */
-    public static List<String> tripleCheck(List<String> parameters) {
-        return parameters.stream().filter(param -> !tripleCheck(param)).collect(Collectors.toList());
-    }
-
-    public static String guessEncoding(File fastFile) {
-        try (BufferedReader br = openGZipBR(fastFile)) {
-            int phred33 = 0;
-            int phred64 = 0;
-            for (int i = 0; i < 100; i++) {
-                br.readLine();
-                br.readLine();
-                br.readLine();
-                String encoding = br.readLine();
-                for (int j = 0; j < encoding.length(); j++) {
-                    int c = encoding.charAt(j);
-                    if (c - 64 < 0) {
-                        phred33++;
-                    } else if (c - 33 > 41) {
-                        phred64++;
-                    }
-                }
-            }
-            if (phred33 > phred64) {
-                return "phred+33";
-            } else if (phred64 > phred33) {
-                return "phred+64";
-            } else {
-                System.out.println("Encoding unknown");
-            }
-        } catch (FileNotFoundException ex) {
-//            MainViewController.printException(ex);
-            Logger.getLogger(FileManager.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(FileManager.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    /**
-     *
-     * @param input
-     * @return
-     * @throws FileNotFoundException
-     * @throws IOException
-     */
-    public static BufferedReader openGZipBR(File input) throws IOException {
-        return new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(
-                input))));
-    }
-
-    //    private void changePath() {
-    //        // Move files and directories
-    //        final File from = new File(project.getProperties().getProperty(Project.PATH));
-    //        final File to = path.getValue();
-    //        clone(from, to);
-    //        // Change properties by replacing path in all properties
-    //        project.getProperties().forEach((Object t, Object u) -> {
-    //            String key = (String) t;
-    //            String value = (String) u;
-    //            if (value.startsWith(from.getAbsolutePath())) {
-    //                project.getProperties().setProperty(key,
-    //                        value.replace(from.getAbsolutePath(), to.getAbsolutePath()));
-    //            }
-    //        });
-    //        // Force properties file to be written
-    //        project.getProperties().setProperty(Project.PATH, to.getAbsolutePath());
-    //    }
-    private void clone(File from, File to) {
-        for (File f : from.listFiles()) {
-            if (f.isFile()) {
-                Path source = f.toPath();
-                Path target = new File(to, f.getName()).toPath();
-                try {
-                    Files.copy(source, target, StandardCopyOption.COPY_ATTRIBUTES);
-                    f.delete();
-                } catch (IOException ex) {
-                    Logger.getLogger(FileManager.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            } else if (f.isDirectory()) {
-                File newPath = new File(to, f.getName());
-                newPath.mkdirs();
-                clone(f, newPath);
-            } else {
-                f.delete();
-            }
-        }
-        from.delete();
+        return file.delete();
     }
 
 }

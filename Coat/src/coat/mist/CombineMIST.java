@@ -16,16 +16,16 @@
  */
 package coat.mist;
 
+import coat.CoatView;
+import coat.combinevcf.FileList;
 import coat.graphic.SizableImage;
 import coat.utils.FileManager;
 import coat.utils.OS;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -33,11 +33,6 @@ import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
 
 /**
  * Controller for the Combine MIST Window.
@@ -46,51 +41,18 @@ import javafx.scene.control.TextField;
  */
 public class CombineMIST {
 
-    /**
-     * The list of files to combine.
-     */
     @FXML
-    private ListView<File> fileList;
-    /**
-     * A reference to the button that adds files.
-     */
-    @FXML
-    private Button addButton;
-    /**
-     * The output file.
-     */
+    private FileList files;
     @FXML
     private TextField output;
-    /**
-     * The button to start the combination.
-     */
     @FXML
     private Button startButton;
-    /**
-     * A label to say 'success' or 'problems'.
-     */
-    @FXML
-    private Label success;
 
-    /**
-     * The field that contains the EXON_ID
-     */
     private final int ID_COLUMN = 8;
-    /**
-     * The field that contains the start_poor
-     */
     private final int START_POOR = 3;
-    /**
-     * The field that contains the end_poor
-     */
     private final int END_POOR = 4;
-    /**
-     * The field that contains the match
-     */
     private final int MATCH = 11;
-    /**
-     * Header line must not mutate
-     */
+
     private final String[] HEADER = {"chrom", "exon_start", "exon_end", "poor_start", "poor_end",
         "gene_id", "gene_name", "exon_number", "exon_id", "transcript_name", "biotype", "match"};
 
@@ -99,28 +61,18 @@ public class CombineMIST {
      */
     @FXML
     private void initialize() {
-        // The add Button can add multilpe files
-        addButton.setOnAction(e -> {
-            List<File> f = FileManager.openFiles(OS.getResources().getString("select.mist"),
-                    FileManager.MIST_FILTER, FileManager.ALL_FILTER);
-            if (f != null) {
-                fileList.getItems().addAll(f);
-            }
-        });
         // The start Button is disabled until user selects an output file.
         startButton.setDisable(true);
-        startButton.setOnAction(e -> intersect(fileList.getItems(), new File(output.getText())));
-        addButton.setGraphic(new SizableImage("coat/img/new.png", SizableImage.SMALL_SIZE));
-        startButton.setGraphic(new SizableImage("coat/img/start.png", SizableImage.SMALL_SIZE));
+        startButton.setOnAction(e -> intersect(files.getFiles(), new File(output.getText())));
+        startButton.setGraphic(new SizableImage("coat/img/start.png", SizableImage.MEDIUM_SIZE));
+        files.setFilters(FileManager.MIST_FILTER);
     }
 
     @FXML
     private void selectOutput() {
         String message = OS.getStringFormatted("select.file", "MIST");
         File f = FileManager.saveFile(output, message, FileManager.MIST_FILTER);
-        if (f != null) {
-            startButton.setDisable(false);
-        }
+        if (f != null) startButton.setDisable(false);
 
     }
 
@@ -129,9 +81,6 @@ public class CombineMIST {
      * exon for all of them.
      */
     private void intersect(List<File> inputs, File output) {
-
-        success.setText("");
-
         // Let's count the matches so the user will see it in the 'Everything went OK' dialog.
         final AtomicInteger m = new AtomicInteger();
         // The firs file includes the lines with the exons info.
@@ -166,8 +115,7 @@ public class CombineMIST {
             Logger.getLogger(CombineMIST.class.getName()).log(Level.SEVERE, null, ex);
         }
         String message = OS.getStringFormatted("combine.mist.success", output.getAbsolutePath(), m);
-        System.out.println(message);
-        success.setText(message);
+        CoatView.printMessage(message, "success");
     }
 
     /**
@@ -178,7 +126,7 @@ public class CombineMIST {
      * @return a list with line.split("\t")
      */
     private List<String[]> readExons(File file) {
-        final List<String[]> exons = new ArrayList();
+        final List<String[]> exons = new ArrayList<>();
         final Set<String> ids = new TreeSet<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             // Skip HEADER
@@ -191,8 +139,6 @@ public class CombineMIST {
                     exons.add(row);
                 }
             });
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(CombineMIST.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(CombineMIST.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -212,8 +158,6 @@ public class CombineMIST {
             // Skip HEADER
             reader.readLine();
             reader.lines().forEach(line -> ids.add(line.split("\t")[ID_COLUMN]));
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(CombineMIST.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(CombineMIST.class.getName()).log(Level.SEVERE, null, ex);
         }

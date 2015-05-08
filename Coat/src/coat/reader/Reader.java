@@ -16,9 +16,10 @@
  */
 package coat.reader;
 
-import java.io.File;
-import java.util.List;
+import javafx.beans.property.Property;
 import javafx.scene.control.Button;
+
+import java.util.List;
 
 /**
  * Abstract class that is used to read a File. Use this class for the controllers of the FXML views.
@@ -28,38 +29,27 @@ import javafx.scene.control.Button;
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public abstract class Reader {
+public interface Reader {
+
+    Property<String> getTitle();
 
     /**
-     * Associated file.
+     * This method will be called when user clicks on save as button.
      */
-    protected File file;
-
-    public void setFile(File file) {
-        this.file = file;
-    }
-
-    public File getFile() {
-        return file;
-    }
-
-    /**
-     * This method will be callled when user clicks on save as button.
-     */
-    public abstract void saveAs();
+    void saveAs();
 
     /**
      * Get the list of buttons of the tool. Return null if no actions are available.
      *
      * @return the list of buttons or null
      */
-    public abstract List<Button> getActions();
+    List<Button> getActions();
 
     /**
      * The title of the actions tab.
      *
      * @return
      */
-    public abstract String getActionsName();
+    String getActionsName();
 
 }

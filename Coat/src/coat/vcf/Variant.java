@@ -18,6 +18,7 @@ package coat.vcf;
 
 import coat.CoatView;
 import coat.utils.OS;
+import com.sun.istack.internal.Nullable;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -36,7 +37,7 @@ public class Variant implements Comparable<Variant> {
     private int pos;
     private double qual;
     private String[] samples;
-    private Map<String, String> infos = new TreeMap();
+    private Map<String, Object> infos = new TreeMap<>();
     private String id;
 
     private int chromIndex;
@@ -73,8 +74,7 @@ public class Variant implements Comparable<Variant> {
             format = v[8];
             final int nSamples = v.length - 9;
             samples = new String[nSamples];
-            for (int i = 0; i < nSamples; i++)
-                samples[i] = v[9 + i];
+            System.arraycopy(v, 9, samples, 0, nSamples);
         } else {
             format = null;
             samples = null;
@@ -88,10 +88,6 @@ public class Variant implements Comparable<Variant> {
         this.alt = alt;
         this.id = id;
         chromIndex = OS.getStandardChromosomes().indexOf(chrom);
-    }
-
-    public void setProperty(String key, String value) {
-        infos.put(key, value);
     }
 
     /**
@@ -186,7 +182,7 @@ public class Variant implements Comparable<Variant> {
         return samples;
     }
 
-    public Map<String, String> getInfos() {
+    public Map<String, Object> getInfos() {
         return infos;
     }
 
@@ -196,11 +192,11 @@ public class Variant implements Comparable<Variant> {
         if (format != null)
             formats = "\t" + format + OS.asString("\t", samples);
         String inf = "";
-        for (Map.Entry<String, String> entry : infos.entrySet()) {
+        for (Map.Entry<String, Object> entry : infos.entrySet()) {
             String key = entry.getKey();
             if (key.equals("FILTER"))
                 continue;
-            String value = entry.getValue();
+            String value = String.valueOf(entry.getValue());
             if (value == null)
                 inf += key + ";";
             else
@@ -213,12 +209,12 @@ public class Variant implements Comparable<Variant> {
     }
 
     @Override
-    public int compareTo(Variant variant) {
+    public int compareTo(@Nullable Variant variant) {
         // Variants with no standard chromosome goes to the end
         if (chromIndex != -1 && variant.chromIndex == -1) return -1;
         if (chromIndex == -1 && variant.chromIndex != -1) return 1;
-        // Non-standard chromosomes are orderer alphabetically
-        int compare = (chromIndex == -1 && variant.chromIndex == -1)
+        // Non-standard chromosomes are ordered alphabetically
+        int compare = (chromIndex == -1)
                 ? chrom.compareTo(variant.chrom)
                 : Integer.compare(chromIndex, variant.chromIndex);
         if (compare != 0) return compare;
