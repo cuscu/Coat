@@ -16,15 +16,15 @@
  */
 package coat;
 
-import coat.combinevcf.CombineVCF;
-import coat.graphic.MemoryPane;
-import coat.graphic.SizableImage;
-import coat.mist.CombineMIST;
-import coat.reader.Reader;
-import coat.tsv.TsvFileReader;
+import coat.view.vcf.CombineVCF;
+import coat.view.graphic.MemoryPane;
+import coat.view.graphic.SizableImage;
+import coat.view.mist.CombineMIST;
+import coat.model.reader.Reader;
+import coat.view.tsv.TsvFileReader;
 import coat.utils.FileManager;
 import coat.utils.OS;
-import coat.vcf.view.VcfReader;
+import coat.view.vcf.VcfReader;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;

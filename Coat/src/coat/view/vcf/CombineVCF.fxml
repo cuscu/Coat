@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import coat.view.graphic.FileList?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" fx:controller="coat.view.vcf.CombineVCF"
+      spacing="5" alignment="CENTER">
+    <stylesheets>
+        <URL value="@/coat/main.css"/>
+    </stylesheets>
+    <HBox VBox.vgrow="ALWAYS" spacing="5">
+        <VBox alignment="CENTER" HBox.hgrow="SOMETIMES">
+            <Label text="%include.files"/>
+            <FileList fx:id="includes" VBox.vgrow="SOMETIMES" maxWidth="Infinity"/>
+        </VBox>
+        <VBox alignment="CENTER" HBox.hgrow="SOMETIMES">
+            <Label text="%exclude.files"/>
+            <FileList fx:id="excludes" VBox.vgrow="SOMETIMES" maxWidth="Infinity"/>
+        </VBox>
+    </HBox>
+    <HBox spacing="5">
+        <padding>
+            <Insets left="5" right="5"/>
+        </padding>
+        <TextField fx:id="output" editable="false" HBox.hgrow="ALWAYS"/>
+        <Button text="%browse" onAction="#selectOutput"/>
+    </HBox>
+    <Button fx:id="startButton" text="%start" styleClass="graphic-button"/>
+</VBox>
