@@ -16,14 +16,15 @@
  */
 package coat;
 
-import coat.view.vcf.CombineVCF;
+import coat.model.reader.Reader;
+import coat.utils.FileManager;
+import coat.utils.OS;
+import coat.view.poirot.PoirotView;
 import coat.view.graphic.MemoryPane;
 import coat.view.graphic.SizableImage;
 import coat.view.mist.CombineMIST;
-import coat.model.reader.Reader;
 import coat.view.tsv.TsvFileReader;
-import coat.utils.FileManager;
-import coat.utils.OS;
+import coat.view.vcf.CombineVCF;
 import coat.view.vcf.VcfReader;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -32,9 +33,12 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.web.WebView;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -48,6 +52,8 @@ public class CoatView {
 
     @FXML
     private MemoryPane memoryPane;
+    @FXML
+    private MenuItem poirotMenu;
     @FXML
     private MenuItem combineMistMenu;
     @FXML
@@ -63,6 +69,8 @@ public class CoatView {
     @FXML
     private Label info;
 
+    private WebView webView = new WebView();
+
     private Menu customMenu;
 
     private static Label staticInfo;
@@ -74,6 +82,9 @@ public class CoatView {
     public void initialize() {
         root.setCenter(workspace);
         staticInfo = info;
+        //startWeb();
+
+
 //        staticInfoBox = infoBox;
         // Listen whe user clicks on a tab, or opens a file
         workspace.getSelectionModel().selectedItemProperty().addListener((obs, old, current) -> {
@@ -105,6 +116,17 @@ public class CoatView {
         saveFileMenu.setDisable(true);
         assignMenuIcons();
         printMessage(System.getProperty("user.dir"), "info");
+    }
+
+    private void startWeb() {
+        workspace.getTabs().add(new Tab("HTML", webView));
+        // path in current directory for WebEngine.load()
+        final String html = "Coat/graph/index.html";
+        final URI uri = Paths.get(html).toAbsolutePath().toUri();
+
+        webView.getEngine().load(uri.toString());
+
+
     }
 
     private MenuItem getMenuItem(Button button) {
@@ -248,5 +270,12 @@ public class CoatView {
         // Add and select tab
         workspace.getTabs().add(t);
         workspace.getSelectionModel().select(t);
+    }
+
+    public void startPoirot(ActionEvent event) {
+        PoirotView poirotView = new PoirotView();
+        Tab tab = new Tab("Poirot", poirotView);
+        workspace.getTabs().add(tab);
+        workspace.getSelectionModel().select(tab);
     }
 }

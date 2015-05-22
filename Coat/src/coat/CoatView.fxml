@@ -37,6 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <Menu text="%tools">
                 <MenuItem fx:id="combineVcfMenu" onAction="#combineVCF" text="%combine.vcf"/>
                 <MenuItem fx:id="combineMistMenu" onAction="#combineMIST" text="%combine.mist"/>
+                <MenuItem fx:id="poirotMenu" onAction="#startPoirot" text="%start.poirot"/>
             </Menu>
         </MenuBar>
     </top>

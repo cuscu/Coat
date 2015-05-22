@@ -2,13 +2,15 @@ package coat.view.vcf;
 
 import coat.model.vcf.InfoStats;
 import coat.model.vcf.VcfStats;
-import javafx.scene.chart.PieChart;
+import javafx.geometry.Pos;
+import javafx.scene.chart.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
@@ -16,6 +18,7 @@ import java.util.Map;
 public class StatsReader extends HBox {
 
     public static final int MAX_VALUES = 7;
+    public static final int ITEMS_PIE_CHART = 5;
     private final ListView<String> infoListView = new ListView<>();
     private final GridPane gridPane = new GridPane();
     private final Label minLabel = new Label("min");
@@ -24,6 +27,8 @@ public class StatsReader extends HBox {
     private final Label max = new Label();
     private final PieChart pieChart = new PieChart();
     private final HBox editPane = new HBox();
+    private final Label noData = new Label("Not enough data");
+    private final BarChart<String, Number> barChart = new BarChart<>(new CategoryAxis(), new NumberAxis());
 
     private final VcfStats vcfStats;
 
@@ -31,8 +36,19 @@ public class StatsReader extends HBox {
         this.vcfStats = vcfStats;
         infoListView.getItems().addAll(vcfStats.getStats().keySet());
         infoListView.getSelectionModel().selectedItemProperty().addListener((obs, prev, current) -> show(current));
+        setAlignment(Pos.CENTER);
+        HBox.setHgrow(editPane, Priority.ALWAYS);
         initGridPane();
         getChildren().addAll(infoListView, editPane);
+        editPane.setAlignment(Pos.CENTER);
+        HBox.setHgrow(pieChart, Priority.ALWAYS);
+        HBox.setHgrow(barChart, Priority.ALWAYS);
+        configurePieChart();
+    }
+
+    private void configurePieChart() {
+        pieChart.setStartAngle(90);
+
     }
 
     private void initGridPane() {
@@ -49,44 +65,48 @@ public class StatsReader extends HBox {
     }
 
     private void asString(InfoStats infoStats) {
-        final Map<String, Integer> counts = infoStats.getCounts();
-        System.out.println("Generating data");
         pieChart.getData().clear();
-        counts.forEach((s, integer) -> {
-            PieChart.Data data = new PieChart.Data(s, integer);
-            addToPieChart(data);
-        });
-        editPane.getChildren().setAll(pieChart);
-    }
+        final Map<String, Integer> counts = infoStats.getCounts();
+        if (counts.isEmpty()) {
+            editPane.getChildren().setAll(noData);
+        } else {
+            List<String> names = new ArrayList<>();
+            counts.keySet().forEach(names::add);
+            Collections.sort(names, (key1, key2) -> counts.get(key2).compareTo(counts.get(key1)));
+            if (counts.get(names.get(0)) > 1) {
+                int sum = 0;
+                for (int i = 0; i < ITEMS_PIE_CHART && i < names.size(); i++) {
+                    final String name = names.get(i);
+                    final int count = counts.get(name);
+                    sum += count;
+                    pieChart.getData().add(new PieChart.Data(name + "(" + count + ")", count));
+                }
+                if (counts.size() > ITEMS_PIE_CHART) {
+                    int others = 0;
+                    for (int i = ITEMS_PIE_CHART; i < names.size(); i++) others += counts.get(names.get(i));
+                    if (others > 0 && others < sum)
+                        pieChart.getData().add(new PieChart.Data("Others(" + others + ")", others));
 
-    private void addToPieChart(PieChart.Data data) {
-        insertInOrder(data);
-        if (pieChart.getData().size() > MAX_VALUES){
-            double sum = 0.0;
-            while (pieChart.getData().size() > MAX_VALUES) {
-                sum += pieChart.getData().get(MAX_VALUES).getPieValue();
-                pieChart.getData().remove(MAX_VALUES);
-            }
-            PieChart.Data others = new PieChart.Data("others", sum);
-            pieChart.getData().add(others);
+                }
+                editPane.getChildren().setAll(pieChart);
+            } else editPane.getChildren().setAll(noData);
         }
-    }
-
-    private void insertInOrder(PieChart.Data data) {
-        boolean added = false;
-        for (int i = 0; i < pieChart.getData().size(); i++) {
-            if (pieChart.getData().get(i).getPieValue() > data.getPieValue()) {
-                pieChart.getData().add(i, data);
-                added = true;
-            }
-        }
-        if (!added) pieChart.getData().add(data);
-
     }
 
     private void asNumber(InfoStats infoStats) {
-        min.setText(infoStats.getValues().stream().min(Double::compare) + "");
-        max.setText(infoStats.getValues().stream().max(Double::compare) + "");
-        editPane.getChildren().setAll(gridPane);
+        double minValue = infoStats.getValues().stream().min(Double::compare).get();
+        double maxValue = infoStats.getValues().stream().max(Double::compare).get();
+        double range = maxValue - minValue;
+        Map<Double, Integer> map = new TreeMap<>();
+        infoStats.getValues().forEach(value -> {
+            double interval = Math.floor(((value - minValue) * 50 / range)) * range * 0.02 + minValue;
+            int current = map.getOrDefault(interval, 0);
+            map.put(interval, current + 1);
+        });
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        map.forEach((x, y) -> series.getData().add(new XYChart.Data<>(String.format("%.2f", x), y)));
+        barChart.getData().clear();
+        barChart.getData().add(series);
+        editPane.getChildren().setAll(barChart);
     }
 }
