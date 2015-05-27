@@ -67,8 +67,8 @@ public class PearlDatabase {
         return typeMap == null ? null : typeMap.get(name);
     }
 
-    public Pearl getOrCreate(String name, String type) {
-        if (blackList.contains(name)) return null;
+    public synchronized Pearl getOrCreate(String name, String type) {
+//        if (blackList.contains(name)) return null;
         HashMap<String, Pearl> typeMap = types.get(type);
         Pearl pearl;
         if (typeMap != null) {
@@ -87,7 +87,7 @@ public class PearlDatabase {
         }
     }
 
-    public List<Pearl> getPearls(String type) {
+    public synchronized List<Pearl> getPearls(String type) {
         final HashMap<String, Pearl> pearls = types.get(type);
         return (pearls == null) ? null : pearls.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
     }
@@ -108,7 +108,6 @@ public class PearlDatabase {
     public void subgraph(File graphFile, ObservableList<Pearl> genes) {
         List<Pearl> pearlNodes = new ArrayList<>();
         List<PearlRelationship> relationshipEdges = new ArrayList<>();
-
         genes.forEach(gene -> {
             List<List<PearlRelationship>> paths = getShortestPaths(gene);
             paths.forEach(path -> path.forEach(relationship -> {
@@ -130,9 +129,16 @@ public class PearlDatabase {
     }
 
     private String getCaption(PearlRelationship relationship) {
-        Map<String, Integer> map = new HashMap<>();
+        final String[] ret = {"["};
+        relationship.getProperties().forEach((key, value) -> ret[0] += String.format("%d %s,", (int) value, key));
+        return ret[0].substring(0, ret[0].length() - 1) + "]";
+//        int physical = (int) relationship.getOrDefaultProperty("physical", 0);
+//        int genetic = (int) relationship.getOrDefaultProperty("genetic", 0);
+//        return String.format("[%d physical, %d genetic]", physical, genetic);
+
+/*        Map<String, Integer> map = new HashMap<>();
         List<String> types = (List<String>) relationship.getProperty("types");
-        return types == null ? "" : getCounts(map, types);
+        return types == null ? "" : getCounts(map, types);*/
     }
 
     private String getCounts(Map<String, Integer> map, List<String> types) {
@@ -141,7 +147,7 @@ public class PearlDatabase {
             map.put(s, count + 1);
         });
         final String[] ret = {"["};
-        map.forEach((s, integer) -> ret[0] += integer + " " + s +",");
+        map.forEach((s, integer) -> ret[0] += integer + " " + s + ",");
         ret[0] = ret[0].substring(0, ret[0].length() - 1) + "]";
         return ret[0];
     }

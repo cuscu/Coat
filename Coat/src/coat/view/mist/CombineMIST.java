@@ -17,14 +17,12 @@
 package coat.view.mist;
 
 import coat.CoatView;
-import coat.view.graphic.FileList;
 import coat.model.mist.MistCombinator;
 import coat.utils.FileManager;
 import coat.utils.OS;
-import coat.view.graphic.SizableImage;
+import coat.view.graphic.FileList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
 
 import java.io.File;
 
@@ -38,8 +36,6 @@ public class CombineMIST {
     @FXML
     private FileList files;
     @FXML
-    private TextField output;
-    @FXML
     private Button startButton;
 
     /**
@@ -47,26 +43,24 @@ public class CombineMIST {
      */
     @FXML
     private void initialize() {
-        // The start Button is disabled until user selects an output file.
-        startButton.setDisable(true);
-        startButton.setOnAction(e -> {
-            final MistCombinator mistCombinator = new MistCombinator(files.getFiles(), new File(output.getText()));
-            mistCombinator.setOnSucceeded(event -> {
-                String message = OS.getStringFormatted("combine.mist.success", output.getText(), event.getSource().getValue());
-                CoatView.printMessage(message, "success");
-            });
-            mistCombinator.run();
-        });
-        startButton.setGraphic(new SizableImage("coat/img/start.png", SizableImage.MEDIUM_SIZE));
+        startButton.setOnAction(e -> combine());
         files.setFilters(FileManager.MIST_FILTER);
     }
 
-    @FXML
-    private void selectOutput() {
-        String message = OS.getStringFormatted("select.file", "MIST");
-        File f = FileManager.saveFile(output, message, FileManager.MIST_FILTER);
-        if (f != null) startButton.setDisable(false);
-
+    private void combine() {
+        File f = getOutput();
+        if (f != null){
+            final MistCombinator mistCombinator = new MistCombinator(files.getFiles(), f);
+            mistCombinator.setOnSucceeded(event -> {
+                String message = OS.getStringFormatted("combine.mist.success", f, event.getSource().getValue());
+                CoatView.printMessage(message, "success");
+            });
+            mistCombinator.run();
+        }
     }
 
+    private File getOutput() {
+        String message = OS.getStringFormatted("select.file", "MIST");
+        return FileManager.saveFile(message, FileManager.MIST_FILTER);
+    }
 }

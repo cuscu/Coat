@@ -19,17 +19,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <?import coat.view.graphic.FileList?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.VBox?>
 <VBox alignment="TOP_CENTER" prefWidth="600.0" spacing="5.0" xmlns:fx="http://javafx.com/fxml/1"
       xmlns="http://javafx.com/javafx/8" fx:controller="coat.view.mist.CombineMIST">
     <padding>
         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
     </padding>
     <FileList fx:id="files" VBox.vgrow="SOMETIMES" maxWidth="Infinity"/>
-    <HBox HBox.hgrow="ALWAYS" spacing="5">
-        <TextField fx:id="output" editable="false" HBox.hgrow="ALWAYS"/>
-        <Button onAction="#selectOutput" text="%browse"/>
-    </HBox>
-    <Button fx:id="startButton" styleClass="graphic-button" text="%start"/>
+    <Button fx:id="startButton" text="%combine" maxWidth="Infinity">
+        <padding>
+            <Insets top="10" bottom="10"/>
+        </padding>
+    </Button>
 </VBox>

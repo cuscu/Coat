@@ -23,22 +23,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author UICHUIMI
  */
 public class Combinator {
 
-    public static File combine(List<File> includes, List<File> excludes, String outputFile) {
-        System.out.println(includes.size());
-        System.out.println(excludes.size());
+    public static boolean combine(List<File> includes, List<File> excludes, File output) {
         try {
-            File output = new File(outputFile);
             new CombinatorVcf().combine(includes.toArray(new File[includes.size()]), excludes.toArray(new File[excludes.size()]), output);
-            return output;
+            return true;
         } catch (IOException ex) {
             Logger.getLogger(Combinator.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return null;
+        return false;
     }
 
 }

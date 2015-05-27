@@ -34,6 +34,10 @@ public class PearlRelationship {
         return properties.get(name);
     }
 
+    public Object getOrDefaultProperty(String name, Object defaultValue) {
+        return properties.getOrDefault(name, defaultValue);
+    }
+
     public void setProperty(String name, Object value) {
         properties.put(name, value);
     }
@@ -41,5 +45,9 @@ public class PearlRelationship {
     @Override
     public String toString() {
         return source.getName() + "->" + target.getName();
+    }
+
+    public Map<String, Object> getProperties() {
+        return properties;
     }
 }

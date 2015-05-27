@@ -2,10 +2,11 @@ package coat.model.poirot;
 
 import javafx.concurrent.Task;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -16,6 +17,10 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
     private final List<String> phenotypes;
     private final PearlDatabase pearlDatabase = new PearlDatabase();
     private final Map<String, List<String>> phenotypeGenes = new HashMap<>();
+    private final static File localRelationships = new File(System.getProperty("user.dir"), "Coat/omim/biogrid-database.txt");
+    private final List<MyRelationship> relationships = new ArrayList<>();
+    private String[] headers;
+
 
     public PoirotAnalysis(List<String> genes, List<String> phenotypes) {
         this.genes = genes;
@@ -43,8 +48,29 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
     }
 
     private void initializeDatabase() {
+        loadRelationships();
         addInitialPhenotypes();
         addInitialGenes();
+    }
+
+    private void loadRelationships() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(localRelationships))) {
+            headers = reader.readLine().split(",");
+            headers = Arrays.copyOfRange(headers, 2, headers.length);
+            reader.lines().forEach(line -> {
+                try {
+
+                    final String row[] = line.split(",");
+                    int[] relations = new int[headers.length];
+                    for (int i = 0; i < relations.length; i++) relations[i] = Integer.valueOf(row[i + 2]);
+                    relationships.add(new MyRelationship(row[0], row[1], relations));
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void addInitialGenes() {
@@ -71,51 +97,34 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
     }
 
     private void expandGenes(List<String> genes) {
-        // List is split in fragments of 50, cause BioGrid gives MySQL error when too much genes
-        // (how much? I don't know)
-        connectWithGenes(genes);
+//        connectWithGenes(genes);
+        connectWithLocalGenes(genes);
         connectWithPhenotypes(genes);
         unLeaf(genes);
     }
 
-    private void connectWithGenes(List<String> genes) {
-        for (int j = 0; j < genes.size(); j += 50) {
-            updateMessage(j + " nodes processed");
-            int to = j + 50;
-            if (to > genes.size()) to = genes.size();
-            final List<String> interactions = BioGrid.getInteractions(genes.subList(j, to));
-            if (interactions != null) expandInteractions(interactions);
-        }
+    private void connectWithLocalGenes(List<String> genes) {
+        genes.forEach(geneName -> relationships.stream().
+                filter(relationship -> relationship.getSource().equals(geneName) || relationship.getTarget().equals(geneName)).
+                forEach(relationship -> {
+                    final Pearl source = pearlDatabase.getOrCreate(relationship.getSource(), "gene");
+                    final Pearl target = pearlDatabase.getOrCreate(relationship.getTarget(), "gene");
+                    updateRelationship(relationship, source, target);
+                }));
     }
 
-    private void expandInteractions(List<String> interactions) {
-        interactions.forEach(line -> addInteraction(line.split("\t")));
-    }
-
-    private void addInteraction(String[] row) {
-        final String from = row[7].toUpperCase();
-        final String to = row[8].toUpperCase();
-        final String type = row[12];
-        final Pearl source = pearlDatabase.getOrCreate(from, "gene");
-        if (source == null) return;
-        final Pearl target = pearlDatabase.getOrCreate(to, "gene");
-        if (target == null) return;
+    private void updateRelationship(MyRelationship myRelationship, Pearl source, Pearl target) {
         PearlRelationship relationship = findRelationship(source, target);
-        if (relationship != null) {
-            final int count = (int) relationship.getProperty("count");
-            relationship.setProperty("count", count + 1);
-            final List<String> types = (List<String>) relationship.getProperty("types");
-            types.add(type);
-        } else {
+        if (relationship == null) {
             relationship = source.createRelationshipTo(target);
-            relationship.setProperty("count", 1);
-            List<String> types = new ArrayList<>();
-            types.add(type);
-            relationship.setProperty("types", types);
+            for (int i = 0; i < headers.length; i++)
+                if (myRelationship.getRelations()[i] > 0)
+                    relationship.setProperty(headers[i], myRelationship.getRelations()[i]);
+            relationship.setProperty("count", Arrays.stream(myRelationship.getRelations()).sum());
         }
     }
 
-    private void connectWithPhenotypes(List<String> genes) {
+        private void connectWithPhenotypes(List<String> genes) {
         for (String phenotype : phenotypes)
             for (String gene : genes)
                 if (phenotypeGenes.get(phenotype).contains(gene))
@@ -143,7 +152,7 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
     }
 
     private void unLeaf(List<String> genes) {
-        genes.stream().map(gene->pearlDatabase.getPearl(gene, "gene")).filter(pearl -> pearl!=null).forEach(pearl -> pearl.setLeaf(false));
+        genes.stream().map(gene -> pearlDatabase.getPearl(gene, "gene")).filter(pearl -> pearl != null).forEach(pearl -> pearl.setLeaf(false));
     }
 
     private void setWeights() {
@@ -166,4 +175,29 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
         pearlDatabase.getPearls("gene").stream().filter(pearl -> pearl.getWeight() < 0).forEach(pearlDatabase::remove);
     }
 
+    private class MyRelationship {
+        private final String source;
+        private final String target;
+        private final int[] relations;
+
+        public MyRelationship(String source, String target, int[] relations) {
+
+            this.source = source;
+            this.target = target;
+            this.relations = relations;
+        }
+
+        public String getSource() {
+            return source;
+        }
+
+        public String getTarget() {
+            return target;
+        }
+
+        public int[] getRelations() {
+            return relations;
+        }
+
+    }
 }

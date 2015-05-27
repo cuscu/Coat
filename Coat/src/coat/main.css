@@ -47,6 +47,7 @@
     -fx-background-color: transparent;
     -fx-pref-height: 16px;
 }
+
 .flat-button:hover {
     -fx-opacity: 0.5;
     -fx-border-color: black;
@@ -57,17 +58,19 @@
     -fx-border-color: black;
 
 }
+
 /* Buttons that only show an icon, hover and pressed are only made by decreasing the opacity*/
 .graphic-button {
     -fx-background-color: transparent;
 }
+
 .graphic-button:hover {
     -fx-opacity: 0.5;
-/*    -fx-border-color: black;
-    -fx-border-width: 0 1 1 0;*/
+    /*    -fx-border-color: black;
+        -fx-border-width: 0 1 1 0;*/
 }
 
-.graphic-button:pressed{
+.graphic-button:pressed {
     -fx-opacity: 0.25;
 }
 
@@ -95,17 +98,19 @@
 .filter-box {
     -fx-background-color: ghostwhite;
     -fx-text-alignment: left;
-    //    -fx-border-color: darkgray;
+    /* -fx-border-color : darkgray;*/
     -fx-padding: 5px;
 }
 
-.filter-box:hover{
+.filter-box:hover {
     -fx-background-color: white;
 }
+
 /* A button that is in a filter box */
 .filter-box .button {
     -fx-background-color: transparent;
 }
+
 .filter-box .button:hover {
     -fx-opacity: 0.5;
 }
@@ -142,36 +147,47 @@
 .info-label {
     -fx-text-fill: #00529B;
 }
+
 .success-label {
-    -fx-text-fill:  #4F8A10;
+    -fx-text-fill: #4F8A10;
 }
+
 .warning-label {
-    -fx-text-fill:  #9F6000;
+    -fx-text-fill: #9F6000;
 }
+
 .error-label {
-    -fx-text-fill:  #D8000C;
+    -fx-text-fill: #D8000C;
 }
+
 .info-box {
     -fx-background-color: #BDE5F8;
 }
+
 .success-box {
     -fx-background-color: #DFF2BF;
 }
+
 .warning-box {
     -fx-background-color: #FEEFB3;
 }
-.error-box,.error-box .button {
+
+.error-box, .error-box .button {
     -fx-background-color: #FFBABA;
 }
+
 .success-box .button {
     -fx-border-color: #4F8A10;
 }
+
 .info-box .button {
     -fx-border-color: #00529B;
 }
+
 .warning-box .button {
     -fx-border-color: #9F6000;
 }
+
 .error-box .button {
     -fx-border-color: #D8000C;
 }
@@ -191,25 +207,25 @@
 }
 
 /* Progress bar */
-.progress-bar{
+.progress-bar {
     -fx-background-radius: 5;
     -fx-background-color: lightgrey;
     -fx-border-color: grey;
     -fx-border-radius: 5;
 }
 
-.progress-bar>*.track{
+.progress-bar > *.track {
     -fx-background-color: transparent;
 }
 
-.progress-bar>*.bar{
+.progress-bar > *.bar {
     -fx-background-color: lightblue;
     -fx-background-insets: 0;
-    -fx-background-radius: 5  ;
+    -fx-background-radius: 5;
 }
 
 .protein-coding {
-//    -fx-background-color: #ddffdd;
+/ / -fx-background-color : #ddffdd;
     -fx-text-fill: #00ae1b;
 }
 
@@ -218,10 +234,16 @@
 }
 
 .damaging {
-//    -fx-background-color:lightsalmon;
+/ / -fx-background-color : lightsalmon;
     -fx-text-fill: red;
 }
 
 .search-box {
     -fx-background-radius: 0;
+}
+
+.drop-entered {
+/*    -fx-background-color: whitesmoke;*/
+    -fx-border-width: 2;
+    -fx-border-color: darkgrey;
 }

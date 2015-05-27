@@ -17,7 +17,7 @@ public class Pearl {
     public Pearl(String name, String type) {
         this.name = name;
         this.type = type;
-        this.name = name.toUpperCase();
+        this.name = name;
     }
 
     public boolean isLeaf() {

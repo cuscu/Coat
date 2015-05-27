@@ -17,19 +17,15 @@
 package coat.view.vcf;
 
 import coat.CoatView;
-import coat.view.graphic.FileList;
 import coat.model.vcf.Combinator;
-import coat.view.graphic.SizableImage;
 import coat.utils.FileManager;
-import javafx.event.ActionEvent;
+import coat.view.graphic.FileList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
 
 import java.io.File;
 
 /**
- *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class CombineVCF {
@@ -40,30 +36,23 @@ public class CombineVCF {
     private FileList excludes;
     @FXML
     private Button startButton;
-    @FXML
-    private TextField output;
 
     @FXML
     private void initialize() {
         startButton.setOnAction(e -> start());
-        startButton.setGraphic(new SizableImage("coat/img/start.png", SizableImage.MEDIUM_SIZE));
-        startButton.setDisable(true);
         includes.setFilters(FileManager.VCF_FILTER);
         excludes.setFilters(FileManager.VCF_FILTER);
     }
 
-    @FXML
-    private void selectOutput(ActionEvent event) {
-        final File file = FileManager.saveFile(output, "Select ouptut file", FileManager.VCF_FILTER);
-        if (file != null) startButton.setDisable(false);
-    }
-
     private void start() {
-        File intersection = Combinator.combine(includes.getFiles(), excludes.getFiles(), output.getText());
-        if (intersection != null)
-            CoatView.printMessage("Intersection finished, output file: " + intersection, "success");
-        else
-            CoatView.printMessage("Error with intersection", "error");
+        final File file = FileManager.saveFile("Select ouptut file", FileManager.VCF_FILTER);
+        if (file != null) {
+            if (Combinator.combine(includes.getFiles(), excludes.getFiles(), file))
+                CoatView.printMessage("Intersection finished, output file: " + file, "success");
+            else
+                CoatView.printMessage("Error with intersection", "error");
+        }
+
     }
 
 }

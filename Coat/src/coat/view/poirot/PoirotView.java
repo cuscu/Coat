@@ -33,9 +33,9 @@ import java.util.stream.Collectors;
  */
 public class PoirotView extends HBox {
 
-    private final String html = "Coat/graph/index.html";
+    private final String html = System.getProperty("user.dir") + "/Coat/graph/index.html";
     private final URI uri = Paths.get(html).toAbsolutePath().toUri();
-    private final File graphFile = new File("Coat/graph/data/data.json");
+    private final File graphFile = new File(System.getProperty("user.dir"), "Coat/graph/data/data.json");
 
     private final TextArea geneList = new TextArea();
     private final TextArea phenotypeList = new TextArea();
