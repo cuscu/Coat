@@ -5,12 +5,12 @@
  */
 package coat.view.tsv;
 
-import coat.view.graphic.IndexCell;
-import coat.view.graphic.NaturalCell;
-import coat.view.graphic.SizableImage;
 import coat.model.reader.Reader;
 import coat.utils.FileManager;
 import coat.utils.OS;
+import coat.view.graphic.IndexCell;
+import coat.view.graphic.NaturalCell;
+import coat.view.graphic.SizableImage;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Orientation;
@@ -21,7 +21,10 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.io.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;

@@ -35,17 +35,11 @@ public class VcfFile {
     private final ObservableList<Map<String, String>> infos = FXCollections.observableArrayList();
     private final List<Map<String, String>> formats = new ArrayList<>();
     private final List<String> unformattedHeaders = new ArrayList<>();
+    private File file;
 
-    public void setFile(File file) {
-        clear();
+    public VcfFile(File file ) {
+        this.file = file;
         readFile(file);
-    }
-
-    private void clear() {
-        variants.clear();
-        infos.clear();
-        formats.clear();
-        unformattedHeaders.clear();
     }
 
     private void readFile(File file) {
@@ -106,4 +100,7 @@ public class VcfFile {
     }
 
 
+    public File getFile() {
+        return file;
+    }
 }

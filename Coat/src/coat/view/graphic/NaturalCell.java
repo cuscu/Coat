@@ -20,11 +20,13 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Background;
+import javafx.scene.layout.HBox;
 
 /**
  * This Cell is a TextField that can be read but not written.
@@ -33,7 +35,9 @@ import javafx.scene.layout.Background;
  */
 public class NaturalCell extends TableCell {
 
+
     private final TextField textField = new TextField();
+    private final HBox box = new HBox(textField);
 
     final ListChangeListener<String> listChangeListener = (ListChangeListener<String>) change -> {
         change.next();
@@ -46,6 +50,7 @@ public class NaturalCell extends TableCell {
      */
     public NaturalCell() {
         textField.styleProperty().bind(styleProperty());
+        box.setAlignment(Pos.CENTER);
         tableRowProperty().addListener(new ChangeListener<TableRow>() {
             @Override
             public void changed(ObservableValue<? extends TableRow> observable, TableRow oldTableRow, TableRow newTableRow) {
@@ -71,6 +76,6 @@ public class NaturalCell extends TableCell {
             textField.setText(item.toString());
             setTooltip(new Tooltip(item.toString()));
         }
-        setGraphic(textField);
+        setGraphic(box);
     }
 }

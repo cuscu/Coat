@@ -1,8 +1,8 @@
 package coat.view.vcf;
 
-import coat.view.graphic.SizableImage;
-import coat.utils.OS;
 import coat.model.vcf.VcfFilter;
+import coat.utils.OS;
+import coat.view.graphic.SizableImage;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;

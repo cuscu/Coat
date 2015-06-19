@@ -247,3 +247,17 @@
     -fx-border-width: 2;
     -fx-border-color: darkgrey;
 }
+
+.table-view:focused .table-row-cell:filled:focused:selected {
+    -fx-background-color: lightblue;
+}
+
+.table-view {
+    -fx-background-color: transparent;
+    -fx-table-cell-border-color: transparent;
+    -fx-table-header-border-color: transparent;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: transparent;
+}

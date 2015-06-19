@@ -1,0 +1,4491 @@
+{
+  "elements": {
+    "nodes": [
+      {
+        "data": {
+          "id": "cr18_001",
+          "cluster": "0",
+          "family": "cr18"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18_002",
+          "cluster": "0",
+          "family": "cr18"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18A_001",
+          "cluster": "1",
+          "family": "cr18A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18A_002",
+          "cluster": "1",
+          "family": "cr18A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18A_003",
+          "cluster": "1",
+          "family": "cr18A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18A_004",
+          "cluster": "1",
+          "family": "cr18A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18A_005",
+          "cluster": "1",
+          "family": "cr18A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18A_006",
+          "cluster": "1",
+          "family": "cr18A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18A_007",
+          "cluster": "1",
+          "family": "cr18A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_001",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_002",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_004",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_005",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_006",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_007",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_008",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_009",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_010",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_011",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_012",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_013",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_014",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_015",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_016",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_017",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_018",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_019",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_020",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_021",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_022",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_023",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_024",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_025",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_026",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_027",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_028",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_029",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_030",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18B_031",
+          "cluster": "2",
+          "family": "cr18B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18C_001",
+          "cluster": "3",
+          "family": "cr18C"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18C_002",
+          "cluster": "3",
+          "family": "cr18C"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18C_003",
+          "cluster": "3",
+          "family": "cr18C"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18C_004",
+          "cluster": "3",
+          "family": "cr18C"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18C_005",
+          "cluster": "3",
+          "family": "cr18C"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18C_006",
+          "cluster": "3",
+          "family": "cr18C"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18C_007",
+          "cluster": "3",
+          "family": "cr18C"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18C_008",
+          "cluster": "3",
+          "family": "cr18C"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18C_009",
+          "cluster": "3",
+          "family": "cr18C"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18C_010",
+          "cluster": "3",
+          "family": "cr18C"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18C_011",
+          "cluster": "3",
+          "family": "cr18C"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18C_012",
+          "cluster": "3",
+          "family": "cr18C"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18C_013",
+          "cluster": "3",
+          "family": "cr18C"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18C_014",
+          "cluster": "3",
+          "family": "cr18C"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18D_001",
+          "cluster": "4",
+          "family": "cr18D"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18D_002",
+          "cluster": "4",
+          "family": "cr18D"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18D_003",
+          "cluster": "4",
+          "family": "cr18D"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18D_004",
+          "cluster": "4",
+          "family": "cr18D"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18D_005",
+          "cluster": "4",
+          "family": "cr18D"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18D_006",
+          "cluster": "4",
+          "family": "cr18D"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18E_001",
+          "cluster": "5",
+          "family": "cr18E"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18E_002",
+          "cluster": "5",
+          "family": "cr18E"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18E_003",
+          "cluster": "5",
+          "family": "cr18E"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18F_001",
+          "cluster": "6",
+          "family": "cr18F"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18F_002",
+          "cluster": "6",
+          "family": "cr18F"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18F_003",
+          "cluster": "6",
+          "family": "cr18F"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18F_004",
+          "cluster": "6",
+          "family": "cr18F"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18F_005",
+          "cluster": "6",
+          "family": "cr18F"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18F_006",
+          "cluster": "6",
+          "family": "cr18F"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18F_007",
+          "cluster": "6",
+          "family": "cr18F"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18F_008",
+          "cluster": "6",
+          "family": "cr18F"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18G_001",
+          "cluster": "7",
+          "family": "cr18G"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18G_002",
+          "cluster": "7",
+          "family": "cr18G"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18G_003",
+          "cluster": "7",
+          "family": "cr18G"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18G_004",
+          "cluster": "7",
+          "family": "cr18G"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18G_005",
+          "cluster": "7",
+          "family": "cr18G"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18G_006",
+          "cluster": "7",
+          "family": "cr18G"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18G_007",
+          "cluster": "7",
+          "family": "cr18G"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18G_008",
+          "cluster": "7",
+          "family": "cr18G"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18G_009",
+          "cluster": "7",
+          "family": "cr18G"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18G_010",
+          "cluster": "7",
+          "family": "cr18G"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18G_011",
+          "cluster": "7",
+          "family": "cr18G"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18G_012",
+          "cluster": "7",
+          "family": "cr18G"
+        }
+      },
+      {
+        "data": {
+          "id": "cr18G_013",
+          "cluster": "7",
+          "family": "cr18G"
+        }
+      },
+      {
+        "data": {
+          "id": "cr20A_001",
+          "cluster": "8",
+          "family": "cr20A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr20A_002",
+          "cluster": "8",
+          "family": "cr20A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr20A_003",
+          "cluster": "8",
+          "family": "cr20A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr20A_004",
+          "cluster": "8",
+          "family": "cr20A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr20A_005",
+          "cluster": "8",
+          "family": "cr20A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr20A_006",
+          "cluster": "8",
+          "family": "cr20A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr20A_007",
+          "cluster": "8",
+          "family": "cr20A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr20A_008",
+          "cluster": "8",
+          "family": "cr20A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr20A_009",
+          "cluster": "8",
+          "family": "cr20A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr20A_010",
+          "cluster": "8",
+          "family": "cr20A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr20A_011",
+          "cluster": "8",
+          "family": "cr20A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr20A_012",
+          "cluster": "8",
+          "family": "cr20A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr20B_001",
+          "cluster": "9",
+          "family": "cr20B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr20B_002",
+          "cluster": "9",
+          "family": "cr20B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr20B_003",
+          "cluster": "9",
+          "family": "cr20B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr20B_004",
+          "cluster": "9",
+          "family": "cr20B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr20B_005",
+          "cluster": "9",
+          "family": "cr20B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr20C_001",
+          "cluster": "10",
+          "family": "cr20C"
+        }
+      },
+      {
+        "data": {
+          "id": "cr20C_002",
+          "cluster": "10",
+          "family": "cr20C"
+        }
+      },
+      {
+        "data": {
+          "id": "cr20C_003",
+          "cluster": "10",
+          "family": "cr20C"
+        }
+      },
+      {
+        "data": {
+          "id": "cr24A_001",
+          "cluster": "11",
+          "family": "cr24A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr24A_002",
+          "cluster": "11",
+          "family": "cr24A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr24A_003",
+          "cluster": "11",
+          "family": "cr24A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr24A_004",
+          "cluster": "11",
+          "family": "cr24A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr24A_005",
+          "cluster": "11",
+          "family": "cr24A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr24A_006",
+          "cluster": "11",
+          "family": "cr24A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr24A_007",
+          "cluster": "11",
+          "family": "cr24A"
+        }
+      },
+      {
+        "data": {
+          "id": "cr24B_001",
+          "cluster": "12",
+          "family": "cr24B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr24B_002",
+          "cluster": "12",
+          "family": "cr24B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr24B_003",
+          "cluster": "12",
+          "family": "cr24B"
+        }
+      },
+      {
+        "data": {
+          "id": "cr24B_004",
+          "cluster": "12",
+          "family": "cr24B"
+        }
+      },
+      {
+        "data": {
+          "id": "G03_001",
+          "cluster": "13",
+          "family": "G03"
+        }
+      },
+      {
+        "data": {
+          "id": "G03_002",
+          "cluster": "13",
+          "family": "G03"
+        }
+      },
+      {
+        "data": {
+          "id": "G03_003",
+          "cluster": "13",
+          "family": "G03"
+        }
+      },
+      {
+        "data": {
+          "id": "G03_004",
+          "cluster": "13",
+          "family": "G03"
+        }
+      },
+      {
+        "data": {
+          "id": "G03_005",
+          "cluster": "13",
+          "family": "G03"
+        }
+      },
+      {
+        "data": {
+          "id": "G03_006",
+          "cluster": "13",
+          "family": "G03"
+        }
+      },
+      {
+        "data": {
+          "id": "G03_007",
+          "cluster": "13",
+          "family": "G03"
+        }
+      },
+      {
+        "data": {
+          "id": "G03_008",
+          "cluster": "13",
+          "family": "G03"
+        }
+      },
+      {
+        "data": {
+          "id": "G03_009",
+          "cluster": "13",
+          "family": "G03"
+        }
+      },
+      {
+        "data": {
+          "id": "G03_010",
+          "cluster": "13",
+          "family": "G03"
+        }
+      },
+      {
+        "data": {
+          "id": "G03_011",
+          "cluster": "13",
+          "family": "G03"
+        }
+      },
+      {
+        "data": {
+          "id": "G03_012",
+          "cluster": "13",
+          "family": "G03"
+        }
+      },
+      {
+        "data": {
+          "id": "G03_013",
+          "cluster": "13",
+          "family": "G03"
+        }
+      },
+      {
+        "data": {
+          "id": "G03_014",
+          "cluster": "13",
+          "family": "G03"
+        }
+      },
+      {
+        "data": {
+          "id": "G03_015",
+          "cluster": "13",
+          "family": "G03"
+        }
+      },
+      {
+        "data": {
+          "id": "G03_016",
+          "cluster": "13",
+          "family": "G03"
+        }
+      },
+      {
+        "data": {
+          "id": "G03_017",
+          "cluster": "13",
+          "family": "G03"
+        }
+      },
+      {
+        "data": {
+          "id": "G03B_001",
+          "cluster": "14",
+          "family": "G03B"
+        }
+      },
+      {
+        "data": {
+          "id": "G03B_002",
+          "cluster": "14",
+          "family": "G03B"
+        }
+      },
+      {
+        "data": {
+          "id": "G03B_003",
+          "cluster": "14",
+          "family": "G03B"
+        }
+      },
+      {
+        "data": {
+          "id": "G03B_004",
+          "cluster": "14",
+          "family": "G03B"
+        }
+      },
+      {
+        "data": {
+          "id": "G03B_005",
+          "cluster": "14",
+          "family": "G03B"
+        }
+      },
+      {
+        "data": {
+          "id": "G03B_006",
+          "cluster": "14",
+          "family": "G03B"
+        }
+      },
+      {
+        "data": {
+          "id": "G03B_007",
+          "cluster": "14",
+          "family": "G03B"
+        }
+      },
+      {
+        "data": {
+          "id": "G03B_008",
+          "cluster": "14",
+          "family": "G03B"
+        }
+      },
+      {
+        "data": {
+          "id": "G03B_009",
+          "cluster": "14",
+          "family": "G03B"
+        }
+      },
+      {
+        "data": {
+          "id": "G03B_010",
+          "cluster": "14",
+          "family": "G03B"
+        }
+      },
+      {
+        "data": {
+          "id": "G04_001",
+          "cluster": "15",
+          "family": "G04"
+        }
+      },
+      {
+        "data": {
+          "id": "G04_002",
+          "cluster": "15",
+          "family": "G04"
+        }
+      },
+      {
+        "data": {
+          "id": "G04_003",
+          "cluster": "15",
+          "family": "G04"
+        }
+      },
+      {
+        "data": {
+          "id": "G04_004",
+          "cluster": "15",
+          "family": "G04"
+        }
+      },
+      {
+        "data": {
+          "id": "G04_005",
+          "cluster": "15",
+          "family": "G04"
+        }
+      },
+      {
+        "data": {
+          "id": "G04_006",
+          "cluster": "15",
+          "family": "G04"
+        }
+      },
+      {
+        "data": {
+          "id": "G04_007",
+          "cluster": "15",
+          "family": "G04"
+        }
+      },
+      {
+        "data": {
+          "id": "G04_008",
+          "cluster": "15",
+          "family": "G04"
+        }
+      },
+      {
+        "data": {
+          "id": "G04_009",
+          "cluster": "15",
+          "family": "G04"
+        }
+      },
+      {
+        "data": {
+          "id": "G04_010",
+          "cluster": "15",
+          "family": "G04"
+        }
+      },
+      {
+        "data": {
+          "id": "G04_011",
+          "cluster": "15",
+          "family": "G04"
+        }
+      },
+      {
+        "data": {
+          "id": "G04_012",
+          "cluster": "15",
+          "family": "G04"
+        }
+      },
+      {
+        "data": {
+          "id": "G04B_001",
+          "cluster": "16",
+          "family": "G04B"
+        }
+      },
+      {
+        "data": {
+          "id": "G04B_002",
+          "cluster": "16",
+          "family": "G04B"
+        }
+      },
+      {
+        "data": {
+          "id": "G04B_003",
+          "cluster": "16",
+          "family": "G04B"
+        }
+      },
+      {
+        "data": {
+          "id": "G04C_001",
+          "cluster": "17",
+          "family": "G04C"
+        }
+      },
+      {
+        "data": {
+          "id": "G04C_002",
+          "cluster": "17",
+          "family": "G04C"
+        }
+      },
+      {
+        "data": {
+          "id": "G04C_003",
+          "cluster": "17",
+          "family": "G04C"
+        }
+      },
+      {
+        "data": {
+          "id": "G04C_004",
+          "cluster": "17",
+          "family": "G04C"
+        }
+      },
+      {
+        "data": {
+          "id": "G04C_005",
+          "cluster": "17",
+          "family": "G04C"
+        }
+      },
+      {
+        "data": {
+          "id": "G04C_006",
+          "cluster": "17",
+          "family": "G04C"
+        }
+      },
+      {
+        "data": {
+          "id": "G04C_00x",
+          "cluster": "17",
+          "family": "G04C"
+        }
+      },
+      {
+        "data": {
+          "id": "G04D_001",
+          "cluster": "18",
+          "family": "G04D"
+        }
+      },
+      {
+        "data": {
+          "id": "G04D_002",
+          "cluster": "18",
+          "family": "G04D"
+        }
+      },
+      {
+        "data": {
+          "id": "G04D_00X",
+          "cluster": "18",
+          "family": "G04D"
+        }
+      },
+      {
+        "data": {
+          "id": "G05_001",
+          "cluster": "19",
+          "family": "G05"
+        }
+      },
+      {
+        "data": {
+          "id": "G05_002",
+          "cluster": "19",
+          "family": "G05"
+        }
+      },
+      {
+        "data": {
+          "id": "G05_003",
+          "cluster": "19",
+          "family": "G05"
+        }
+      },
+      {
+        "data": {
+          "id": "G05_004",
+          "cluster": "19",
+          "family": "G05"
+        }
+      },
+      {
+        "data": {
+          "id": "G05_005",
+          "cluster": "19",
+          "family": "G05"
+        }
+      },
+      {
+        "data": {
+          "id": "G05_006",
+          "cluster": "19",
+          "family": "G05"
+        }
+      },
+      {
+        "data": {
+          "id": "G05_007",
+          "cluster": "19",
+          "family": "G05"
+        }
+      },
+      {
+        "data": {
+          "id": "G05_008",
+          "cluster": "19",
+          "family": "G05"
+        }
+      },
+      {
+        "data": {
+          "id": "G05_009",
+          "cluster": "19",
+          "family": "G05"
+        }
+      },
+      {
+        "data": {
+          "id": "G05_010",
+          "cluster": "19",
+          "family": "G05"
+        }
+      },
+      {
+        "data": {
+          "id": "G05_011",
+          "cluster": "19",
+          "family": "G05"
+        }
+      },
+      {
+        "data": {
+          "id": "G05_012",
+          "cluster": "19",
+          "family": "G05"
+        }
+      },
+      {
+        "data": {
+          "id": "G05_013",
+          "cluster": "19",
+          "family": "G05"
+        }
+      },
+      {
+        "data": {
+          "id": "G05_014",
+          "cluster": "19",
+          "family": "G05"
+        }
+      },
+      {
+        "data": {
+          "id": "G05_015",
+          "cluster": "19",
+          "family": "G05"
+        }
+      },
+      {
+        "data": {
+          "id": "G05_016",
+          "cluster": "19",
+          "family": "G05"
+        }
+      },
+      {
+        "data": {
+          "id": "G05_017",
+          "cluster": "19",
+          "family": "G05"
+        }
+      },
+      {
+        "data": {
+          "id": "G05_018",
+          "cluster": "19",
+          "family": "G05"
+        }
+      },
+      {
+        "data": {
+          "id": "G05_019",
+          "cluster": "19",
+          "family": "G05"
+        }
+      },
+      {
+        "data": {
+          "id": "G05B_001",
+          "cluster": "20",
+          "family": "G05B"
+        }
+      },
+      {
+        "data": {
+          "id": "G05B_002",
+          "cluster": "20",
+          "family": "G05B"
+        }
+      },
+      {
+        "data": {
+          "id": "G05B_00x",
+          "cluster": "20",
+          "family": "G05B"
+        }
+      },
+      {
+        "data": {
+          "id": "G05C_001",
+          "cluster": "21",
+          "family": "G05C"
+        }
+      },
+      {
+        "data": {
+          "id": "G05C_002",
+          "cluster": "21",
+          "family": "G05C"
+        }
+      },
+      {
+        "data": {
+          "id": "G05C_003",
+          "cluster": "21",
+          "family": "G05C"
+        }
+      },
+      {
+        "data": {
+          "id": "G05C_004",
+          "cluster": "21",
+          "family": "G05C"
+        }
+      },
+      {
+        "data": {
+          "id": "G05C_005",
+          "cluster": "21",
+          "family": "G05C"
+        }
+      },
+      {
+        "data": {
+          "id": "G05C_006",
+          "cluster": "21",
+          "family": "G05C"
+        }
+      },
+      {
+        "data": {
+          "id": "G05C_007",
+          "cluster": "21",
+          "family": "G05C"
+        }
+      },
+      {
+        "data": {
+          "id": "G05C_008",
+          "cluster": "21",
+          "family": "G05C"
+        }
+      },
+      {
+        "data": {
+          "id": "G05C_009",
+          "cluster": "21",
+          "family": "G05C"
+        }
+      },
+      {
+        "data": {
+          "id": "G06_001",
+          "cluster": "22",
+          "family": "G06"
+        }
+      },
+      {
+        "data": {
+          "id": "G06_002",
+          "cluster": "22",
+          "family": "G06"
+        }
+      },
+      {
+        "data": {
+          "id": "G06_003",
+          "cluster": "22",
+          "family": "G06"
+        }
+      },
+      {
+        "data": {
+          "id": "G06_004",
+          "cluster": "22",
+          "family": "G06"
+        }
+      },
+      {
+        "data": {
+          "id": "G06_005",
+          "cluster": "22",
+          "family": "G06"
+        }
+      },
+      {
+        "data": {
+          "id": "G06_006",
+          "cluster": "22",
+          "family": "G06"
+        }
+      },
+      {
+        "data": {
+          "id": "G06B_001",
+          "cluster": "23",
+          "family": "G06B"
+        }
+      },
+      {
+        "data": {
+          "id": "G06B_002",
+          "cluster": "23",
+          "family": "G06B"
+        }
+      },
+      {
+        "data": {
+          "id": "G06B_003",
+          "cluster": "23",
+          "family": "G06B"
+        }
+      },
+      {
+        "data": {
+          "id": "G06B_004",
+          "cluster": "23",
+          "family": "G06B"
+        }
+      },
+      {
+        "data": {
+          "id": "G06B_00x",
+          "cluster": "23",
+          "family": "G06B"
+        }
+      },
+      {
+        "data": {
+          "id": "G06C_001",
+          "cluster": "24",
+          "family": "G06C"
+        }
+      },
+      {
+        "data": {
+          "id": "G06C_002",
+          "cluster": "24",
+          "family": "G06C"
+        }
+      },
+      {
+        "data": {
+          "id": "G06C_00x",
+          "cluster": "24",
+          "family": "G06C"
+        }
+      },
+      {
+        "data": {
+          "id": "G06D_001",
+          "cluster": "25",
+          "family": "G06D"
+        }
+      },
+      {
+        "data": {
+          "id": "G06D_002",
+          "cluster": "25",
+          "family": "G06D"
+        }
+      },
+      {
+        "data": {
+          "id": "G06D_00x",
+          "cluster": "25",
+          "family": "G06D"
+        }
+      },
+      {
+        "data": {
+          "id": "G07_001",
+          "cluster": "26",
+          "family": "G07"
+        }
+      },
+      {
+        "data": {
+          "id": "G07_002",
+          "cluster": "26",
+          "family": "G07"
+        }
+      },
+      {
+        "data": {
+          "id": "G07_003",
+          "cluster": "26",
+          "family": "G07"
+        }
+      },
+      {
+        "data": {
+          "id": "G07_004",
+          "cluster": "26",
+          "family": "G07"
+        }
+      },
+      {
+        "data": {
+          "id": "G07_005",
+          "cluster": "26",
+          "family": "G07"
+        }
+      },
+      {
+        "data": {
+          "id": "G07_006",
+          "cluster": "26",
+          "family": "G07"
+        }
+      },
+      {
+        "data": {
+          "id": "G07_007",
+          "cluster": "26",
+          "family": "G07"
+        }
+      },
+      {
+        "data": {
+          "id": "G07_008",
+          "cluster": "26",
+          "family": "G07"
+        }
+      },
+      {
+        "data": {
+          "id": "G07_009",
+          "cluster": "26",
+          "family": "G07"
+        }
+      },
+      {
+        "data": {
+          "id": "G07_010",
+          "cluster": "26",
+          "family": "G07"
+        }
+      },
+      {
+        "data": {
+          "id": "G07B_001",
+          "cluster": "27",
+          "family": "G07B"
+        }
+      },
+      {
+        "data": {
+          "id": "G07B_002",
+          "cluster": "27",
+          "family": "G07B"
+        }
+      },
+      {
+        "data": {
+          "id": "G07B_003",
+          "cluster": "27",
+          "family": "G07B"
+        }
+      },
+      {
+        "data": {
+          "id": "G07B_004",
+          "cluster": "27",
+          "family": "G07B"
+        }
+      },
+      {
+        "data": {
+          "id": "G07B_005",
+          "cluster": "27",
+          "family": "G07B"
+        }
+      },
+      {
+        "data": {
+          "id": "G07B_006",
+          "cluster": "27",
+          "family": "G07B"
+        }
+      },
+      {
+        "data": {
+          "id": "G07B_007",
+          "cluster": "27",
+          "family": "G07B"
+        }
+      },
+      {
+        "data": {
+          "id": "G08_001",
+          "cluster": "28",
+          "family": "G08"
+        }
+      },
+      {
+        "data": {
+          "id": "G08_002",
+          "cluster": "28",
+          "family": "G08"
+        }
+      },
+      {
+        "data": {
+          "id": "G08_003",
+          "cluster": "28",
+          "family": "G08"
+        }
+      },
+      {
+        "data": {
+          "id": "G08_004",
+          "cluster": "28",
+          "family": "G08"
+        }
+      },
+      {
+        "data": {
+          "id": "G08_005",
+          "cluster": "28",
+          "family": "G08"
+        }
+      },
+      {
+        "data": {
+          "id": "G08_006",
+          "cluster": "28",
+          "family": "G08"
+        }
+      },
+      {
+        "data": {
+          "id": "G08B_001",
+          "cluster": "29",
+          "family": "G08B"
+        }
+      },
+      {
+        "data": {
+          "id": "G08B_002",
+          "cluster": "29",
+          "family": "G08B"
+        }
+      },
+      {
+        "data": {
+          "id": "G08B_003",
+          "cluster": "29",
+          "family": "G08B"
+        }
+      },
+      {
+        "data": {
+          "id": "G08C_001",
+          "cluster": "30",
+          "family": "G08C"
+        }
+      },
+      {
+        "data": {
+          "id": "G08C_002",
+          "cluster": "30",
+          "family": "G08C"
+        }
+      },
+      {
+        "data": {
+          "id": "G08C_003",
+          "cluster": "30",
+          "family": "G08C"
+        }
+      },
+      {
+        "data": {
+          "id": "G08C_004",
+          "cluster": "30",
+          "family": "G08C"
+        }
+      },
+      {
+        "data": {
+          "id": "G08C_005",
+          "cluster": "30",
+          "family": "G08C"
+        }
+      },
+      {
+        "data": {
+          "id": "G08C_006",
+          "cluster": "30",
+          "family": "G08C"
+        }
+      },
+      {
+        "data": {
+          "id": "G08C_007",
+          "cluster": "30",
+          "family": "G08C"
+        }
+      },
+      {
+        "data": {
+          "id": "G08C_008",
+          "cluster": "30",
+          "family": "G08C"
+        }
+      },
+      {
+        "data": {
+          "id": "G09_001",
+          "cluster": "31",
+          "family": "G09"
+        }
+      },
+      {
+        "data": {
+          "id": "G09_002",
+          "cluster": "31",
+          "family": "G09"
+        }
+      },
+      {
+        "data": {
+          "id": "G09_003",
+          "cluster": "31",
+          "family": "G09"
+        }
+      },
+      {
+        "data": {
+          "id": "G09_004",
+          "cluster": "31",
+          "family": "G09"
+        }
+      },
+      {
+        "data": {
+          "id": "G09_005",
+          "cluster": "31",
+          "family": "G09"
+        }
+      },
+      {
+        "data": {
+          "id": "G09_006",
+          "cluster": "31",
+          "family": "G09"
+        }
+      },
+      {
+        "data": {
+          "id": "G09_007",
+          "cluster": "31",
+          "family": "G09"
+        }
+      },
+      {
+        "data": {
+          "id": "G09B_001",
+          "cluster": "32",
+          "family": "G09B"
+        }
+      },
+      {
+        "data": {
+          "id": "G09B_002",
+          "cluster": "32",
+          "family": "G09B"
+        }
+      },
+      {
+        "data": {
+          "id": "G09B_003",
+          "cluster": "32",
+          "family": "G09B"
+        }
+      },
+      {
+        "data": {
+          "id": "G09B_004",
+          "cluster": "32",
+          "family": "G09B"
+        }
+      },
+      {
+        "data": {
+          "id": "G09B_005",
+          "cluster": "32",
+          "family": "G09B"
+        }
+      },
+      {
+        "data": {
+          "id": "G09B_006",
+          "cluster": "32",
+          "family": "G09B"
+        }
+      },
+      {
+        "data": {
+          "id": "G09B_007",
+          "cluster": "32",
+          "family": "G09B"
+        }
+      },
+      {
+        "data": {
+          "id": "G09B_008",
+          "cluster": "32",
+          "family": "G09B"
+        }
+      },
+      {
+        "data": {
+          "id": "G09C_001",
+          "cluster": "33",
+          "family": "G09C"
+        }
+      },
+      {
+        "data": {
+          "id": "G09C_002",
+          "cluster": "33",
+          "family": "G09C"
+        }
+      },
+      {
+        "data": {
+          "id": "G09D_001",
+          "cluster": "34",
+          "family": "G09D"
+        }
+      },
+      {
+        "data": {
+          "id": "G09D_002",
+          "cluster": "34",
+          "family": "G09D"
+        }
+      },
+      {
+        "data": {
+          "id": "G09D_00X",
+          "cluster": "34",
+          "family": "G09D"
+        }
+      },
+      {
+        "data": {
+          "id": "G09E_001",
+          "cluster": "35",
+          "family": "G09E"
+        }
+      },
+      {
+        "data": {
+          "id": "G09E_002",
+          "cluster": "35",
+          "family": "G09E"
+        }
+      },
+      {
+        "data": {
+          "id": "G09E_00x",
+          "cluster": "35",
+          "family": "G09E"
+        }
+      },
+      {
+        "data": {
+          "id": "G09F_001",
+          "cluster": "36",
+          "family": "G09F"
+        }
+      },
+      {
+        "data": {
+          "id": "G09F_002",
+          "cluster": "36",
+          "family": "G09F"
+        }
+      },
+      {
+        "data": {
+          "id": "G09F_00X",
+          "cluster": "36",
+          "family": "G09F"
+        }
+      },
+      {
+        "data": {
+          "id": "G09G_001",
+          "cluster": "37",
+          "family": "G09G"
+        }
+      },
+      {
+        "data": {
+          "id": "G09G_002",
+          "cluster": "37",
+          "family": "G09G"
+        }
+      },
+      {
+        "data": {
+          "id": "G09G_00X",
+          "cluster": "37",
+          "family": "G09G"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "data": {
+          "source": "cr18_001",
+          "target": "cr18A_002"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18_002",
+          "target": "cr18A_002"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18A_001",
+          "target": "cr18A_003"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18A_002",
+          "target": "cr18A_003"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18A_003",
+          "target": "cr18A_004"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_004",
+          "target": "cr18A_004"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20B_005",
+          "target": "cr18A_005"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18A_004",
+          "target": "cr18A_005"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20B_005",
+          "target": "cr18A_006"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18A_004",
+          "target": "cr18A_006"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20B_005",
+          "target": "cr18A_007"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18A_004",
+          "target": "cr18A_007"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_003",
+          "target": "cr18B_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_004",
+          "target": "cr18B_001"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18_001",
+          "target": "cr18B_002"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18_002",
+          "target": "cr18B_002"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_001",
+          "target": "cr18B_004"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_002",
+          "target": "cr18B_004"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_001",
+          "target": "cr18B_005"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_002",
+          "target": "cr18B_005"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_001",
+          "target": "cr18B_007"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_002",
+          "target": "cr18B_007"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_008",
+          "target": "cr18B_009"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_007",
+          "target": "cr18B_009"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_009",
+          "target": "cr18B_010"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_014",
+          "target": "cr18B_010"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_001",
+          "target": "cr18B_011"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_002",
+          "target": "cr18B_011"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_011",
+          "target": "cr18B_013"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_012",
+          "target": "cr18B_013"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_005",
+          "target": "cr18B_014"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_006",
+          "target": "cr18B_014"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_005",
+          "target": "cr18B_015"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_006",
+          "target": "cr18B_015"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_016",
+          "target": "cr18B_017"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_015",
+          "target": "cr18B_017"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_016",
+          "target": "cr18B_018"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_015",
+          "target": "cr18B_018"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_016",
+          "target": "cr18B_019"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_015",
+          "target": "cr18B_019"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_005",
+          "target": "cr18B_020"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_006",
+          "target": "cr18B_020"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18G_003",
+          "target": "cr18B_021"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18G_004",
+          "target": "cr18B_021"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_021",
+          "target": "cr18B_022"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_020",
+          "target": "cr18B_022"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_021",
+          "target": "cr18B_023"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_020",
+          "target": "cr18B_023"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_021",
+          "target": "cr18B_024"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_020",
+          "target": "cr18B_024"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_008",
+          "target": "cr18B_025"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_007",
+          "target": "cr18B_025"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_025",
+          "target": "cr18B_027"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_026",
+          "target": "cr18B_027"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_025",
+          "target": "cr18B_028"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_026",
+          "target": "cr18B_028"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_008",
+          "target": "cr18B_030"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_007",
+          "target": "cr18B_030"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_029",
+          "target": "cr18B_031"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_030",
+          "target": "cr18B_031"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_003",
+          "target": "cr18C_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_004",
+          "target": "cr18C_001"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18_001",
+          "target": "cr18C_002"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18_002",
+          "target": "cr18C_002"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18C_001",
+          "target": "cr18C_003"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18C_002",
+          "target": "cr18C_003"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18G_001",
+          "target": "cr18C_004"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18G_002",
+          "target": "cr18C_004"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18C_003",
+          "target": "cr18C_005"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18C_004",
+          "target": "cr18C_005"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18C_003",
+          "target": "cr18C_006"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18C_004",
+          "target": "cr18C_006"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18C_003",
+          "target": "cr18C_007"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18C_004",
+          "target": "cr18C_007"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18C_003",
+          "target": "cr18C_008"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18C_004",
+          "target": "cr18C_008"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18C_003",
+          "target": "cr18C_009"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18C_004",
+          "target": "cr18C_009"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18C_003",
+          "target": "cr18C_010"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18C_004",
+          "target": "cr18C_010"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18C_003",
+          "target": "cr18C_011"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18C_004",
+          "target": "cr18C_011"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18C_003",
+          "target": "cr18C_012"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18C_004",
+          "target": "cr18C_012"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18C_013",
+          "target": "cr18C_014"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18C_009",
+          "target": "cr18C_014"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_003",
+          "target": "cr18D_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_004",
+          "target": "cr18D_001"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18D_001",
+          "target": "cr18D_003"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18D_002",
+          "target": "cr18D_003"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18D_003",
+          "target": "cr18D_004"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18E_003",
+          "target": "cr18D_004"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18D_004",
+          "target": "cr18D_006"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18D_005",
+          "target": "cr18D_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_003",
+          "target": "cr18E_002"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_004",
+          "target": "cr18E_002"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18E_001",
+          "target": "cr18E_003"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18E_002",
+          "target": "cr18E_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_003",
+          "target": "cr18F_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_004",
+          "target": "cr18F_001"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18F_001",
+          "target": "cr18F_003"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18F_002",
+          "target": "cr18F_003"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18F_003",
+          "target": "cr18F_004"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20C_003",
+          "target": "cr18F_004"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18F_004",
+          "target": "cr18F_006"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18F_005",
+          "target": "cr18F_006"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18F_004",
+          "target": "cr18F_007"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18F_005",
+          "target": "cr18F_007"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18F_004",
+          "target": "cr18F_008"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18F_005",
+          "target": "cr18F_008"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_003",
+          "target": "cr18G_002"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_004",
+          "target": "cr18G_002"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18G_001",
+          "target": "cr18G_004"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18G_002",
+          "target": "cr18G_004"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18G_001",
+          "target": "cr18G_005"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18G_002",
+          "target": "cr18G_005"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18G_005",
+          "target": "cr18G_007"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18G_006",
+          "target": "cr18G_007"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18A_003",
+          "target": "cr18G_008"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18B_004",
+          "target": "cr18G_008"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18G_007",
+          "target": "cr18G_009"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18G_008",
+          "target": "cr18G_009"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18G_003",
+          "target": "cr18G_010"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18G_004",
+          "target": "cr18G_010"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18G_010",
+          "target": "cr18G_012"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18G_011",
+          "target": "cr18G_012"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18G_010",
+          "target": "cr18G_013"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18G_011",
+          "target": "cr18G_013"
+        }
+      },
+      {
+        "data": {
+          "source": "G08_001",
+          "target": "cr20A_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G08_002",
+          "target": "cr20A_001"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20A_001",
+          "target": "cr20A_003"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20A_002",
+          "target": "cr20A_003"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20A_003",
+          "target": "cr20A_005"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20A_004",
+          "target": "cr20A_005"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20A_005",
+          "target": "cr20A_007"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20A_006",
+          "target": "cr20A_007"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20A_001",
+          "target": "cr20A_008"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20A_002",
+          "target": "cr20A_008"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20A_008",
+          "target": "cr20A_011"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20A_009",
+          "target": "cr20A_011"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20A_010",
+          "target": "cr20A_012"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20A_011",
+          "target": "cr20A_012"
+        }
+      },
+      {
+        "data": {
+          "source": "G08_001",
+          "target": "cr20B_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G08_002",
+          "target": "cr20B_001"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20B_001",
+          "target": "cr20B_003"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20B_002",
+          "target": "cr20B_003"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20B_003",
+          "target": "cr20B_005"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20B_004",
+          "target": "cr20B_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G08_001",
+          "target": "cr20C_002"
+        }
+      },
+      {
+        "data": {
+          "source": "G08_002",
+          "target": "cr20C_002"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20C_001",
+          "target": "cr20C_003"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20C_002",
+          "target": "cr20C_003"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20A_001",
+          "target": "cr24A_001"
+        }
+      },
+      {
+        "data": {
+          "source": "cr20A_002",
+          "target": "cr24A_001"
+        }
+      },
+      {
+        "data": {
+          "source": "cr24A_001",
+          "target": "cr24A_004"
+        }
+      },
+      {
+        "data": {
+          "source": "cr24A_002",
+          "target": "cr24A_004"
+        }
+      },
+      {
+        "data": {
+          "source": "cr24A_003",
+          "target": "cr24A_005"
+        }
+      },
+      {
+        "data": {
+          "source": "cr24A_004",
+          "target": "cr24A_005"
+        }
+      },
+      {
+        "data": {
+          "source": "cr24A_001",
+          "target": "cr24A_006"
+        }
+      },
+      {
+        "data": {
+          "source": "cr24A_002",
+          "target": "cr24A_006"
+        }
+      },
+      {
+        "data": {
+          "source": "cr24A_006",
+          "target": "cr24A_007"
+        }
+      },
+      {
+        "data": {
+          "source": "cr24B_003",
+          "target": "cr24A_007"
+        }
+      },
+      {
+        "data": {
+          "source": "cr24B_001",
+          "target": "cr24B_003"
+        }
+      },
+      {
+        "data": {
+          "source": "cr24B_002",
+          "target": "cr24B_003"
+        }
+      },
+      {
+        "data": {
+          "source": "cr24B_001",
+          "target": "cr24B_004"
+        }
+      },
+      {
+        "data": {
+          "source": "cr24B_002",
+          "target": "cr24B_004"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_001",
+          "target": "G03_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_002",
+          "target": "G03_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_003",
+          "target": "G03_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_004",
+          "target": "G03_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_003",
+          "target": "G03_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_004",
+          "target": "G03_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_003",
+          "target": "G03_008"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_007",
+          "target": "G03_008"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_003",
+          "target": "G03_010"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_007",
+          "target": "G03_010"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_008",
+          "target": "G03_011"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_009",
+          "target": "G03_011"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_008",
+          "target": "G03_013"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_009",
+          "target": "G03_013"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_008",
+          "target": "G03_014"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_009",
+          "target": "G03_014"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_008",
+          "target": "G03_015"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_009",
+          "target": "G03_015"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_011",
+          "target": "G03_016"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_012",
+          "target": "G03_016"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_011",
+          "target": "G03_017"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_012",
+          "target": "G03_017"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_001",
+          "target": "G03B_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_002",
+          "target": "G03B_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_001",
+          "target": "G03B_002"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_002",
+          "target": "G03B_002"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_001",
+          "target": "G03B_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_002",
+          "target": "G03B_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_001",
+          "target": "G03B_004"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_002",
+          "target": "G03B_004"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_001",
+          "target": "G03B_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_002",
+          "target": "G03B_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_001",
+          "target": "G03B_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_002",
+          "target": "G03B_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_001",
+          "target": "G03B_007"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_002",
+          "target": "G03B_007"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_001",
+          "target": "G03B_008"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_002",
+          "target": "G03B_008"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_001",
+          "target": "G03B_009"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_002",
+          "target": "G03B_009"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_001",
+          "target": "G03B_010"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_002",
+          "target": "G03B_010"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_011",
+          "target": "G04_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_012",
+          "target": "G04_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_001",
+          "target": "G04_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_002",
+          "target": "G04_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_003",
+          "target": "G04_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_004",
+          "target": "G04_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_003",
+          "target": "G04_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_004",
+          "target": "G04_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_003",
+          "target": "G04_007"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_004",
+          "target": "G04_007"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_003",
+          "target": "G04_008"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_004",
+          "target": "G04_008"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_001",
+          "target": "G04_009"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_002",
+          "target": "G04_009"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_001",
+          "target": "G04_010"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_002",
+          "target": "G04_010"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_001",
+          "target": "G04_011"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_002",
+          "target": "G04_011"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_001",
+          "target": "G04_012"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_002",
+          "target": "G04_012"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_001",
+          "target": "G04B_002"
+        }
+      },
+      {
+        "data": {
+          "source": "G04B_001",
+          "target": "G04B_002"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_001",
+          "target": "G04B_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G04B_001",
+          "target": "G04B_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_001",
+          "target": "G04C_002"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_002",
+          "target": "G04C_002"
+        }
+      },
+      {
+        "data": {
+          "source": "G04C_001",
+          "target": "G04C_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G04C_002",
+          "target": "G04C_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G04C_001",
+          "target": "G04C_004"
+        }
+      },
+      {
+        "data": {
+          "source": "G04C_002",
+          "target": "G04C_004"
+        }
+      },
+      {
+        "data": {
+          "source": "G04C_001",
+          "target": "G04C_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G04C_002",
+          "target": "G04C_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G06_001",
+          "target": "G04C_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G06_002",
+          "target": "G04C_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G04C_005",
+          "target": "G04C_00x"
+        }
+      },
+      {
+        "data": {
+          "source": "G04C_006",
+          "target": "G04C_00x"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_001",
+          "target": "G04D_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_002",
+          "target": "G04D_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G04D_001",
+          "target": "G04D_00X"
+        }
+      },
+      {
+        "data": {
+          "source": "G04D_002",
+          "target": "G04D_00X"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_011",
+          "target": "G05_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G03_012",
+          "target": "G05_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_001",
+          "target": "G05_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_002",
+          "target": "G05_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_003",
+          "target": "G05_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_004",
+          "target": "G05_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_005",
+          "target": "G05_007"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_006",
+          "target": "G05_007"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_005",
+          "target": "G05_008"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_006",
+          "target": "G05_008"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_005",
+          "target": "G05_009"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_006",
+          "target": "G05_009"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_005",
+          "target": "G05_010"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_006",
+          "target": "G05_010"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_005",
+          "target": "G05_011"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_006",
+          "target": "G05_011"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_005",
+          "target": "G05_012"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_006",
+          "target": "G05_012"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_001",
+          "target": "G05_013"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_002",
+          "target": "G05_013"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_001",
+          "target": "G05_014"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_002",
+          "target": "G05_014"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_001",
+          "target": "G05_015"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_002",
+          "target": "G05_015"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_003",
+          "target": "G05_016"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_004",
+          "target": "G05_016"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_003",
+          "target": "G05_017"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_004",
+          "target": "G05_017"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_003",
+          "target": "G05_018"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_004",
+          "target": "G05_018"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_003",
+          "target": "G05_019"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_004",
+          "target": "G05_019"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_005",
+          "target": "G05B_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_006",
+          "target": "G05B_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G05B_001",
+          "target": "G05B_00x"
+        }
+      },
+      {
+        "data": {
+          "source": "G05B_002",
+          "target": "G05B_00x"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_005",
+          "target": "G05C_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_006",
+          "target": "G05C_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G05C_001",
+          "target": "G05C_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G05C_002",
+          "target": "G05C_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G05C_001",
+          "target": "G05C_004"
+        }
+      },
+      {
+        "data": {
+          "source": "G05C_002",
+          "target": "G05C_004"
+        }
+      },
+      {
+        "data": {
+          "source": "G05C_001",
+          "target": "G05C_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G05C_002",
+          "target": "G05C_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G05C_001",
+          "target": "G05C_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G05C_002",
+          "target": "G05C_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G05C_001",
+          "target": "G05C_007"
+        }
+      },
+      {
+        "data": {
+          "source": "G05C_002",
+          "target": "G05C_007"
+        }
+      },
+      {
+        "data": {
+          "source": "G05C_001",
+          "target": "G05C_008"
+        }
+      },
+      {
+        "data": {
+          "source": "G05C_002",
+          "target": "G05C_008"
+        }
+      },
+      {
+        "data": {
+          "source": "G05C_001",
+          "target": "G05C_009"
+        }
+      },
+      {
+        "data": {
+          "source": "G05C_002",
+          "target": "G05C_009"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_001",
+          "target": "G06_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_002",
+          "target": "G06_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G06_001",
+          "target": "G06_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G06_002",
+          "target": "G06_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G06_001",
+          "target": "G06_004"
+        }
+      },
+      {
+        "data": {
+          "source": "G06_002",
+          "target": "G06_004"
+        }
+      },
+      {
+        "data": {
+          "source": "G06_001",
+          "target": "G06_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G06_002",
+          "target": "G06_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G06_001",
+          "target": "G06_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G06_002",
+          "target": "G06_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_001",
+          "target": "G06B_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_002",
+          "target": "G06B_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G06B_001",
+          "target": "G06B_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G06B_002",
+          "target": "G06B_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G06B_001",
+          "target": "G06B_004"
+        }
+      },
+      {
+        "data": {
+          "source": "G06B_002",
+          "target": "G06B_004"
+        }
+      },
+      {
+        "data": {
+          "source": "G06B_003",
+          "target": "G06B_00x"
+        }
+      },
+      {
+        "data": {
+          "source": "G04C_004",
+          "target": "G06B_00x"
+        }
+      },
+      {
+        "data": {
+          "source": "G06_001",
+          "target": "G06C_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G06_002",
+          "target": "G06C_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G06C_002",
+          "target": "G06C_00x"
+        }
+      },
+      {
+        "data": {
+          "source": "G06C_001",
+          "target": "G06C_00x"
+        }
+      },
+      {
+        "data": {
+          "source": "G06B_001",
+          "target": "G06D_002"
+        }
+      },
+      {
+        "data": {
+          "source": "G06B_002",
+          "target": "G06D_002"
+        }
+      },
+      {
+        "data": {
+          "source": "G06D_001",
+          "target": "G06D_00x"
+        }
+      },
+      {
+        "data": {
+          "source": "G06D_002",
+          "target": "G06D_00x"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_001",
+          "target": "G07_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_002",
+          "target": "G07_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_001",
+          "target": "G07_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_002",
+          "target": "G07_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_001",
+          "target": "G07_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_002",
+          "target": "G07_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_001",
+          "target": "G07_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_002",
+          "target": "G07_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_001",
+          "target": "G07_007"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_002",
+          "target": "G07_007"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_001",
+          "target": "G07_008"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_002",
+          "target": "G07_008"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_001",
+          "target": "G07_009"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_002",
+          "target": "G07_009"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_003",
+          "target": "G07_010"
+        }
+      },
+      {
+        "data": {
+          "source": "G07_004",
+          "target": "G07_010"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_001",
+          "target": "G07B_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G05_002",
+          "target": "G07B_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G07B_001",
+          "target": "G07B_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G07B_002",
+          "target": "G07B_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G07B_001",
+          "target": "G07B_004"
+        }
+      },
+      {
+        "data": {
+          "source": "G07B_002",
+          "target": "G07B_004"
+        }
+      },
+      {
+        "data": {
+          "source": "G07B_001",
+          "target": "G07B_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G07B_002",
+          "target": "G07B_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G07B_001",
+          "target": "G07B_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G07B_002",
+          "target": "G07B_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G07B_001",
+          "target": "G07B_007"
+        }
+      },
+      {
+        "data": {
+          "source": "G07B_002",
+          "target": "G07B_007"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_003",
+          "target": "G08_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_004",
+          "target": "G08_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G08_001",
+          "target": "G08_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G08_002",
+          "target": "G08_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G08_001",
+          "target": "G08_004"
+        }
+      },
+      {
+        "data": {
+          "source": "G08_002",
+          "target": "G08_004"
+        }
+      },
+      {
+        "data": {
+          "source": "G08_001",
+          "target": "G08_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G08_002",
+          "target": "G08_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G08_001",
+          "target": "G08_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G08_002",
+          "target": "G08_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_003",
+          "target": "G08B_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_004",
+          "target": "G08B_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G08B_001",
+          "target": "G08B_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G08B_002",
+          "target": "G08B_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_003",
+          "target": "G08C_002"
+        }
+      },
+      {
+        "data": {
+          "source": "G04_004",
+          "target": "G08C_002"
+        }
+      },
+      {
+        "data": {
+          "source": "G08C_001",
+          "target": "G08C_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G08C_002",
+          "target": "G08C_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G08C_001",
+          "target": "G08C_004"
+        }
+      },
+      {
+        "data": {
+          "source": "G08C_002",
+          "target": "G08C_004"
+        }
+      },
+      {
+        "data": {
+          "source": "G08C_001",
+          "target": "G08C_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G08C_002",
+          "target": "G08C_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G08C_001",
+          "target": "G08C_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G08C_002",
+          "target": "G08C_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G08C_001",
+          "target": "G08C_007"
+        }
+      },
+      {
+        "data": {
+          "source": "G08C_002",
+          "target": "G08C_007"
+        }
+      },
+      {
+        "data": {
+          "source": "G08C_001",
+          "target": "G08C_008"
+        }
+      },
+      {
+        "data": {
+          "source": "G08C_002",
+          "target": "G08C_008"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18D_001",
+          "target": "G09_001"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18D_002",
+          "target": "G09_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G09_001",
+          "target": "G09_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G09_002",
+          "target": "G09_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G09_001",
+          "target": "G09_004"
+        }
+      },
+      {
+        "data": {
+          "source": "G09_002",
+          "target": "G09_004"
+        }
+      },
+      {
+        "data": {
+          "source": "G09_001",
+          "target": "G09_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G09_002",
+          "target": "G09_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G09_001",
+          "target": "G09_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G09_002",
+          "target": "G09_006"
+        }
+      },
+      {
+        "data": {
+          "source": "G09_001",
+          "target": "G09_007"
+        }
+      },
+      {
+        "data": {
+          "source": "G09_002",
+          "target": "G09_007"
+        }
+      },
+      {
+        "data": {
+          "source": "G09_001",
+          "target": "G09B_002"
+        }
+      },
+      {
+        "data": {
+          "source": "G09_002",
+          "target": "G09B_002"
+        }
+      },
+      {
+        "data": {
+          "source": "G09B_001",
+          "target": "G09B_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G09B_002",
+          "target": "G09B_003"
+        }
+      },
+      {
+        "data": {
+          "source": "G09B_003",
+          "target": "G09B_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G09B_004",
+          "target": "G09B_005"
+        }
+      },
+      {
+        "data": {
+          "source": "G09B_001",
+          "target": "G09B_007"
+        }
+      },
+      {
+        "data": {
+          "source": "G09B_002",
+          "target": "G09B_007"
+        }
+      },
+      {
+        "data": {
+          "source": "G09B_006",
+          "target": "G09B_008"
+        }
+      },
+      {
+        "data": {
+          "source": "G09B_007",
+          "target": "G09B_008"
+        }
+      },
+      {
+        "data": {
+          "source": "G09_001",
+          "target": "G09C_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G09_002",
+          "target": "G09C_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G09C_001",
+          "target": "G09C_002"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18C_006",
+          "target": "G09C_002"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18D_001",
+          "target": "G09D_001"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18D_002",
+          "target": "G09D_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G09D_001",
+          "target": "G09D_00X"
+        }
+      },
+      {
+        "data": {
+          "source": "G09D_002",
+          "target": "G09D_00X"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18D_001",
+          "target": "G09E_002"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18D_002",
+          "target": "G09E_002"
+        }
+      },
+      {
+        "data": {
+          "source": "G09E_001",
+          "target": "G09E_00x"
+        }
+      },
+      {
+        "data": {
+          "source": "G09E_002",
+          "target": "G09E_00x"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18D_001",
+          "target": "G09F_001"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18D_002",
+          "target": "G09F_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G09F_001",
+          "target": "G09F_00X"
+        }
+      },
+      {
+        "data": {
+          "source": "G09F_002",
+          "target": "G09F_00X"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18D_001",
+          "target": "G09G_001"
+        }
+      },
+      {
+        "data": {
+          "source": "cr18D_002",
+          "target": "G09G_001"
+        }
+      },
+      {
+        "data": {
+          "source": "G09G_001",
+          "target": "G09G_00X"
+        }
+      },
+      {
+        "data": {
+          "source": "G09G_002",
+          "target": "G09G_00X"
+        }
+      }
+    ]
+  }
+}

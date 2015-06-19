@@ -31,12 +31,11 @@ public class VcfFileTest {
 
     private static final File s002 = new File("test/s002.vcf");
     private static final File test = new File("test/test.vcf");
-    final VcfFile vcfFile = new VcfFile();
 
     @Test
     public void size() {
         // Given
-        vcfFile.setFile(s002);
+        VcfFile vcfFile = new VcfFile(s002);
         // Then
         Assert.assertEquals(18, vcfFile.getVariants().size());
     }
@@ -44,7 +43,7 @@ public class VcfFileTest {
     @Test
     public void size2() {
         // Given
-        vcfFile.setFile(test);
+        VcfFile vcfFile = new VcfFile(test);
         // Then
         Assert.assertEquals(21956, vcfFile.getVariants().size());
     }
@@ -52,7 +51,7 @@ public class VcfFileTest {
     @Test
     public void infos() {
         // Given
-        vcfFile.setFile(test);
+        VcfFile vcfFile = new VcfFile(test);
         // Then
         Assert.assertEquals(3, vcfFile.getInfos().size());
     }
@@ -60,7 +59,7 @@ public class VcfFileTest {
     @Test
     public void infos2() {
         // Given
-        vcfFile.setFile(s002);
+        VcfFile vcfFile = new VcfFile(s002);
         // Then
         Assert.assertEquals(6, vcfFile.getInfos().size());
     }
@@ -69,7 +68,7 @@ public class VcfFileTest {
     public void testGetInfos() {
         File testFile = new File("test/s002.vcf");
 
-        vcfFile.setFile(testFile);
+        VcfFile vcfFile = new VcfFile(testFile);
 
         /*
          ##INFO=<ID=AC,Number=A,Type=Integer,Description="Allele count in genotypes, for each ALT allele, in the same order as listed">

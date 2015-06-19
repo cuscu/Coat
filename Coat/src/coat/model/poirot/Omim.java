@@ -1,6 +1,9 @@
 package coat.model.poirot;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,7 +13,7 @@ import java.util.List;
  */
 public class Omim {
 
-    private final static File genemap = new File("Coat/omim/genemap");
+    private final static File genemap = new File("omim/genemap");
     private final static int GENE = 5;
     private final static int PHENOTYPE = 13;
     private final static int DISEASE = 15;

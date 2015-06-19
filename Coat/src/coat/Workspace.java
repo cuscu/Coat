@@ -16,9 +16,10 @@
  */
 package coat;
 
-import java.io.File;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+
+import java.io.File;
 
 /**
  *

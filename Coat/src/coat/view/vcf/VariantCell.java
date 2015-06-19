@@ -1,7 +1,7 @@
 package coat.view.vcf;
 
-import coat.view.graphic.NaturalCell;
 import coat.model.vcf.Variant;
+import coat.view.graphic.NaturalCell;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)

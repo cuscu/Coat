@@ -16,15 +16,13 @@ public class PearlDatabase {
 
     private HashMap<String, HashMap<String, Pearl>> types = new HashMap<>();
 
-    private final List<String> blackList = Arrays.asList("UBC");
-
-    public int nodes() {
+    public int pearls() {
         final int[] count = {0};
         types.forEach((type, typeMap) -> count[0] += typeMap.size());
         return count[0];
     }
 
-    public int nodes(String type) {
+    public int pearls(String type) {
         return types.get(type).size();
     }
 
@@ -41,7 +39,7 @@ public class PearlDatabase {
             nodes[0] += "{\"id\": \"" + name + "\", \"type\":\"" + type + "\", \"cluster\": " + cluster + "},\n";
             pearl.getOutRelationships().forEach(pearlRelationship -> {
                 final String target = pearlRelationship.getTarget().getName();
-                final String caption = String.valueOf(pearlRelationship.getProperty("count"));
+                final String caption = String.valueOf(pearlRelationship.getProperty("total"));
                 edges[0] += "{\"source\":\"" + name + "\", \"target\": \"" + target + "\", \"caption\": \"" + caption + "\"},\n";
             });
         }));
@@ -53,7 +51,7 @@ public class PearlDatabase {
 
     @Override
     public String toString() {
-        return String.format("Nodes: %d, edges: %d", nodes(), edges());
+        return String.format("Nodes: %d, edges: %d", pearls(), edges());
     }
 
     private int edges() {
@@ -68,11 +66,9 @@ public class PearlDatabase {
     }
 
     public synchronized Pearl getOrCreate(String name, String type) {
-//        if (blackList.contains(name)) return null;
         HashMap<String, Pearl> typeMap = types.get(type);
-        Pearl pearl;
         if (typeMap != null) {
-            pearl = typeMap.get(name);
+            Pearl pearl = typeMap.get(name);
             if (pearl == null) {
                 pearl = new Pearl(name, type);
                 typeMap.put(name, pearl);
@@ -81,7 +77,7 @@ public class PearlDatabase {
         } else {
             typeMap = new HashMap<>();
             types.put(type, typeMap);
-            pearl = new Pearl(name, type);
+            Pearl pearl = new Pearl(name, type);
             typeMap.put(name, pearl);
             return pearl;
         }
@@ -121,35 +117,66 @@ public class PearlDatabase {
                 pearl.getName(), pearl.getType(), pearl.getWeight() + 1));
         final String[] edges = {"\"edges\":["};
         relationshipEdges.forEach(relationship -> edges[0] += String.format("{\"source\": \"%s\", \"target\": \"%s\", \"interactions\": %d, \"caption\": \"%s\"},",
-                relationship.getSource().getName(), relationship.getTarget().getName(), (int) relationship.getProperty("count"), getCaption(relationship)));
+                relationship.getSource().getName(), relationship.getTarget().getName(), (int) relationship.getProperty("total"), getCaption(relationship)));
         nodes[0] = nodes[0].substring(0, nodes[0].length() - 1);
         edges[0] = edges[0].substring(0, edges[0].length() - 1);
         final String json = "{\n" + nodes[0] + "],\n" + edges[0] + "\n]}";
         save(graphFile, json);
     }
 
+    public void subgraphCyto(File outputFile, ObservableList<Pearl> originGenes) {
+        List<Pearl> pearlNodes = new ArrayList<>();
+        List<PearlRelationship> relationshipEdges = new ArrayList<>();
+        originGenes.forEach(gene -> {
+            List<List<PearlRelationship>> paths = getShortestPaths(gene);
+            paths.forEach(path -> path.forEach(relationship -> {
+                if (!pearlNodes.contains(relationship.getSource())) pearlNodes.add(relationship.getSource());
+                if (!pearlNodes.contains(relationship.getTarget())) pearlNodes.add(relationship.getTarget());
+                if (!relationshipEdges.contains(relationship)) relationshipEdges.add(relationship);
+            }));
+        });
+        createJsFile(outputFile, pearlNodes, relationshipEdges);
+    }
+
+    private void createJsFile(File outputFile, List<Pearl> pearlNodes, List<PearlRelationship> relationshipEdges) {
+        final String header = "var cy3json = {\nelements: {\n";
+        String nodes = nodesToJson(pearlNodes);
+        String edges = edgesToJson(relationshipEdges);
+        final String closing = "}\n};\n";
+        final String json = header + "nodes: [\n" + nodes + "\n],\nedges: [\n" + edges + "\n]\n" + closing;
+        save(outputFile, json);
+    }
+
+    private String edgesToJson(List<PearlRelationship> relationshipEdges) {
+        String edges = "";
+        if (!relationshipEdges.isEmpty()) {
+            edges += toCytoJson(relationshipEdges.get(0));
+            for (int i = 1; i < relationshipEdges.size(); i++) edges += ",\n" + toCytoJson(relationshipEdges.get(i));
+        }
+        return edges;
+    }
+
+    private String nodesToJson(List<Pearl> pearlNodes) {
+        String nodes = "";
+        if (!pearlNodes.isEmpty()) {
+            nodes = toCytoJson(pearlNodes.get(0));
+            for (int i = 1; i < pearlNodes.size(); i++) nodes += ",\n" + toCytoJson(pearlNodes.get(i));
+        }
+        return nodes;
+    }
+
+    private String toCytoJson(PearlRelationship relationship) {
+        return String.format("{data:{source: \"%s\", target: \"%s\"}}", relationship.getSource().getName(), relationship.getTarget().getName());
+    }
+
+    private String toCytoJson(Pearl node) {
+        return String.format("{data:{id: \"%s\", score: \"%d\"}}", node.getName(), node.getWeight());
+    }
+
     private String getCaption(PearlRelationship relationship) {
         final String[] ret = {"["};
         relationship.getProperties().forEach((key, value) -> ret[0] += String.format("%d %s,", (int) value, key));
         return ret[0].substring(0, ret[0].length() - 1) + "]";
-//        int physical = (int) relationship.getOrDefaultProperty("physical", 0);
-//        int genetic = (int) relationship.getOrDefaultProperty("genetic", 0);
-//        return String.format("[%d physical, %d genetic]", physical, genetic);
-
-/*        Map<String, Integer> map = new HashMap<>();
-        List<String> types = (List<String>) relationship.getProperty("types");
-        return types == null ? "" : getCounts(map, types);*/
-    }
-
-    private String getCounts(Map<String, Integer> map, List<String> types) {
-        types.forEach(s -> {
-            int count = map.getOrDefault(s, 0);
-            map.put(s, count + 1);
-        });
-        final String[] ret = {"["};
-        map.forEach((s, integer) -> ret[0] += integer + " " + s + ",");
-        ret[0] = ret[0].substring(0, ret[0].length() - 1) + "]";
-        return ret[0];
     }
 
     private List<List<PearlRelationship>> getShortestPaths(Pearl pearl) {

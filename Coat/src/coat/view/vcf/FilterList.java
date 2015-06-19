@@ -1,9 +1,9 @@
 package coat.view.vcf;
 
-import coat.view.graphic.ThresholdDialog;
-import coat.utils.OS;
 import coat.model.vcf.Variant;
 import coat.model.vcf.VcfFilter;
+import coat.utils.OS;
+import coat.view.graphic.ThresholdDialog;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -11,9 +11,12 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.util.Arrays;
@@ -33,8 +36,14 @@ public class FilterList extends VBox {
     private final Button addFilter = new Button(OS.getResources().getString("add.filter"));
 
     private final Button addFrequencyFilters = new Button(OS.getResources().getString("add.frequency.filters"));
-    private final HBox buttons = new HBox(5, addFilter, addFrequencyFilters);
     private final ChangeListener<Object> applyFilters = (observable, oldValue, newValue) -> applyFilters();
+
+    private final Label infoLabel = new Label();
+    private final ProgressBar progressBar = new ProgressBar(0);
+    private final Label progressLabel = new Label("0/0");
+    private final StackPane stackPane = new StackPane(progressBar, progressLabel);
+
+    private final HBox buttons = new HBox(5, addFilter, addFrequencyFilters, infoLabel, stackPane);
 
     private final ObservableList<Map<String, String>> infos = FXCollections.observableArrayList();
     private final ListChangeListener<Variant> variantsChangedListener = (ListChangeListener<Variant>) c -> applyFilters();
@@ -94,6 +103,8 @@ public class FilterList extends VBox {
         buttons.setAlignment(Pos.CENTER);
         buttons.setPadding(new Insets(5));
         VBox.setVgrow(filters, Priority.ALWAYS);
+        HBox.setHgrow(stackPane, Priority.ALWAYS);
+        progressBar.setMaxWidth(9999);
     }
 
     public void setInputVariants(ObservableList<Variant> inputVariants) {
@@ -132,6 +143,14 @@ public class FilterList extends VBox {
 
     private void applyFilters() {
         outputVariants.setAll(inputVariants.stream().filter(this::pass).collect(Collectors.toList()));
+        setProgress(outputVariants.size(), inputVariants.size());
+    }
+
+    private void setProgress(int filtered, int total) {
+        double progress = (double) filtered / total;
+        infoLabel.setText(String.format("%,d / %,d", filtered, total));
+        progressLabel.setText(String.format("%.2f%%", progress * 100.0));
+        progressBar.setProgress(progress);
     }
 
     private boolean pass(Variant variant) {

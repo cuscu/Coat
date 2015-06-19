@@ -13,7 +13,7 @@ public class BigPearlDatabaseTest {
 
     private final static PearlDatabase database = new PearlDatabase();
     private final static File genes = new File("omim", "allGenes");
-    private final static File databaseFile = new File("omim", "biogrid-database.txt");
+    private final static File databaseFile = new File("omim", "coat/model/poirot/biogrid-database.txt");
     private final static AtomicInteger processed = new AtomicInteger();
 
     private final List<String> buffer = new ArrayList<>();

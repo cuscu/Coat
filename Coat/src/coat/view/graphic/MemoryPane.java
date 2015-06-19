@@ -31,7 +31,7 @@ public class MemoryPane extends StackPane {
                 }
             }
         }, 1000, 2000);
-        setOnMouseClicked(event -> Runtime.getRuntime().gc());
+        setOnMouseClicked(event -> System.gc());
     }
 
     private void updateRamUsage() {

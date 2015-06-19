@@ -32,7 +32,6 @@ public class FileList extends StackPane {
     private final ContextMenu contextMenu = new ContextMenu(deleteFile);
     private FileChooser.ExtensionFilter[] filters = {FileManager.ALL_FILTER};
 
-
     public FileList() {
         allowDragAndDrop();
         initializeContextMenu();

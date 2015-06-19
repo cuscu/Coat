@@ -49,8 +49,7 @@ public class CombineVCF {
         if (file != null) {
             if (Combinator.combine(includes.getFiles(), excludes.getFiles(), file))
                 CoatView.printMessage("Intersection finished, output file: " + file, "success");
-            else
-                CoatView.printMessage("Error with intersection", "error");
+            else CoatView.printMessage("Error with intersection", "error");
         }
 
     }

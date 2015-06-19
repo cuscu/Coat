@@ -1,12 +1,6 @@
 package coat.model.vcf;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.HashMap;
 
 /**
@@ -39,9 +33,9 @@ public class CombinatorVcf {
     // Vector de string que representa los cromosomas y que nos servirá para buscar y comparar
     // posiciones cuando se recorran los ficheros:
     public static final String[] chromosomes = {
-        "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
-        "11", "12", "13", "14", "15", "16", "17", "18", "19",
-        "20", "21", "22", "X", "Y", "MT"};
+            "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+            "11", "12", "13", "14", "15", "16", "17", "18", "19",
+            "20", "21", "22", "X", "Y", "MT"};
 
     //----- Añadido el 22/10/2014:
     // Vector para guardar las líneas coincidentes respecto a cromosoma (CHROM) y posición (POS)
@@ -70,7 +64,7 @@ public class CombinatorVcf {
      *
      * @param include : Vector con los ficheros de entrada del grupo include.
      * @param exclude : Vector con los ficheros de entrada del grupo exclude.
-     * @param output : Fichero de salida en el que se guardarán los resultados de la ejecución.
+     * @param output  : Fichero de salida en el que se guardarán los resultados de la ejecución.
      * @throws IOException
      * @throws FileNotFoundException
      */
@@ -134,10 +128,10 @@ public class CombinatorVcf {
                         // una posición en el fichero de referencia (es decir, se lee la siguiente línea del fichero de referencia).
                         if ((Integer.parseInt(vcf_fields2[1])) > (Integer.parseInt(vcf_fields1[1])))
                             break; // Caso 1.2: Si la posición (POS) del fichero a comprobar es menor que la del fichero de referencia, avanzamos
-                        // una posición en el fichero a comparar (es decir, se lee la siguiente línea del fichero a comparar).
+                            // una posición en el fichero a comparar (es decir, se lee la siguiente línea del fichero a comparar).
                         else if ((Integer.parseInt(vcf_fields2[1])) < (Integer.parseInt(vcf_fields1[1])))
                             vcf_lines[i] = vcf_buffreader[i].readLine(); // Caso 1.3: Si las posiciones (POS) coinciden, almacenamos la línea del fichero de referencia y la del fichero
-                        // a comparar en el vector matches.
+                            // a comparar en el vector matches.
                         else {
                             matches[0] = vcf_lines[0];
                             matches[i] = vcf_lines[i];
@@ -150,7 +144,7 @@ public class CombinatorVcf {
                         // en el fichero de referencia (se lee la siguiente línea del fichero de referencia).
                         if (posOfChrom(vcf_fields1[0]) < posOfChrom(vcf_fields2[0]))
                             break; // Caso 2.2: Si el cromosoma (CHROM) del fichero de referencia es mayor que el del fichero a comparar, avanzamos
-                        // en el fichero a comparar (se lee la siguiente línea del fichero a comparar).
+                            // en el fichero a comparar (se lee la siguiente línea del fichero a comparar).
                         else if (posOfChrom(vcf_fields1[0]) > posOfChrom(vcf_fields2[0]))
                             vcf_lines[i] = vcf_buffreader[i].readLine();
                 }
@@ -247,7 +241,7 @@ public class CombinatorVcf {
                 while (vcf_lines[i] != null)
                     if (vcf_lines[i].startsWith("#"))
                         vcf_lines[i] = vcf_buffreader[i].readLine(); // La función termina una vez que se encuentra con la primera línea que no sea de cabecera
-                    // (es decir, una línea que no empiece por "#"):
+                        // (es decir, una línea que no empiece por "#"):
                     else
                         break;
         } catch (FileNotFoundException e) {
@@ -282,15 +276,15 @@ public class CombinatorVcf {
      * referencia (primer fichero de include) después de haberla tratado para quedarnos con la
      * información que nos interesa.
      *
-     * @param matches : En este parámetro de entrada se encuentran almacenadas las líneas de los
-     * distintos ficheros (include y exclude) en las que se han encontrado coincidencias (respecto
-     * al cromosoma (CHROM) y la posición (POS)) con el fichero de referencia (primer fichero del
-     * grupo include). Si no se ha encontrado una coincidencia para un determinado fichero, su
-     * elemento correspondiente en el vector matches tendrá el valor "null".
+     * @param matches       : En este parámetro de entrada se encuentran almacenadas las líneas de los
+     *                      distintos ficheros (include y exclude) en las que se han encontrado coincidencias (respecto
+     *                      al cromosoma (CHROM) y la posición (POS)) con el fichero de referencia (primer fichero del
+     *                      grupo include). Si no se ha encontrado una coincidencia para un determinado fichero, su
+     *                      elemento correspondiente en el vector matches tendrá el valor "null".
      * @param start_exclude : Este parámetro se emplea como delimitador para conocer la posición del
-     * vector de string matches a partir de la que se encuentran las líneas de los ficheros exclude.
-     * @param print_out : Fichero de salida en el que se escribirán los resultados finales de las
-     * comparaciones.
+     *                      vector de string matches a partir de la que se encuentran las líneas de los ficheros exclude.
+     * @param print_out     : Fichero de salida en el que se escribirán los resultados finales de las
+     *                      comparaciones.
      */
     private void checkMatches(String[] matches, int start_exclude, PrintWriter print_out) {
         // Variable auxiliar cuyo valor será verdadero (true) cuando exista una coincidencia respecto a cromosoma (CHROM) y
@@ -430,8 +424,8 @@ public class CombinatorVcf {
      * ----- Añadido el 28/11/2014 (Modificado el 3/12/2014) ----- Función que se encarga de
      * escribir las líneas de cabecera del fichero de salida (fichero en formato .vcf).
      *
-     * @param include : Ficheros de entrada include.
-     * @param exclude : Fichero de entrada exclude.
+     * @param include   : Ficheros de entrada include.
+     * @param exclude   : Fichero de entrada exclude.
      * @param print_out : Fichero de salida.
      * @throws IOException
      * @throws FileNotFoundException

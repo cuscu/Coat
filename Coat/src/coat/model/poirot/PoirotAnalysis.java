@@ -1,13 +1,15 @@
 package coat.model.poirot;
 
+import coat.CoatView;
 import javafx.concurrent.Task;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
@@ -17,7 +19,7 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
     private final List<String> phenotypes;
     private final PearlDatabase pearlDatabase = new PearlDatabase();
     private final Map<String, List<String>> phenotypeGenes = new HashMap<>();
-    private final static File localRelationships = new File(System.getProperty("user.dir"), "Coat/omim/biogrid-database.txt");
+    private final static File localRelationships = new File("biogrid-database.txt");
     private final List<MyRelationship> relationships = new ArrayList<>();
     private String[] headers;
 
@@ -54,7 +56,22 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
     }
 
     private void loadRelationships() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(localRelationships))) {
+        System.out.println("Loading biogrid");
+        loadBioGrid();
+        System.out.println("Loading mentha");
+        loadMentha();
+    }
+
+    private void loadMentha() {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(PoirotAnalysis.class.getResourceAsStream("mentha.txt.gz"))))) {
+            System.out.println(reader.lines().count());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadBioGrid() {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(PoirotAnalysis.class.getResourceAsStream("biogrid-database.txt")))) {
             headers = reader.readLine().split(",");
             headers = Arrays.copyOfRange(headers, 2, headers.length);
             reader.lines().forEach(line -> {
@@ -69,6 +86,7 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
                 }
             });
         } catch (IOException e) {
+            CoatView.printMessage(localRelationships.getAbsolutePath(), "error");
             e.printStackTrace();
         }
     }
@@ -120,11 +138,11 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
             for (int i = 0; i < headers.length; i++)
                 if (myRelationship.getRelations()[i] > 0)
                     relationship.setProperty(headers[i], myRelationship.getRelations()[i]);
-            relationship.setProperty("count", Arrays.stream(myRelationship.getRelations()).sum());
+            relationship.setProperty("total", Arrays.stream(myRelationship.getRelations()).sum());
         }
     }
 
-        private void connectWithPhenotypes(List<String> genes) {
+    private void connectWithPhenotypes(List<String> genes) {
         for (String phenotype : phenotypes)
             for (String gene : genes)
                 if (phenotypeGenes.get(phenotype).contains(gene))
@@ -137,17 +155,17 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
         if (phenotypePearl == null || genePearl == null) return;
         PearlRelationship relationship = findRelationship(genePearl, phenotypePearl);
         if (relationship != null) {
-            int count = (int) relationship.getProperty("count");
-            relationship.setProperty("count", count + 1);
+            int total = (int) relationship.getProperty("total");
+            relationship.setProperty("total", total + 1);
         } else {
             relationship = genePearl.createRelationshipTo(phenotypePearl);
-            relationship.setProperty("count", 1);
+            relationship.setProperty("total", 1);
         }
     }
 
-    private PearlRelationship findRelationship(Pearl genePearl, Pearl phenotypePearl) {
-        for (PearlRelationship relationship : genePearl.getOutRelationships())
-            if (relationship.getTarget().equals(phenotypePearl)) return relationship;
+    private PearlRelationship findRelationship(Pearl source, Pearl target) {
+        for (PearlRelationship relationship : source.getOutRelationships())
+            if (relationship.getTarget().equals(target)) return relationship;
         return null;
     }
 

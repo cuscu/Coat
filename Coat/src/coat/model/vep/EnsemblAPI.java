@@ -312,7 +312,7 @@ public class EnsemblAPI {
             findAndPut(first, "biotype", variant, "BIO", String.class);
             findAndPut(first, "transcript_id", variant, "FEAT", String.class);
             findAndPut(first, "codons", variant, "COD", String.class);
-            findAndPut(first, "amino_acids", variant, "AA", String.class);
+            findAndPut(first, "amino_acids", variant, "AMINO", String.class);
             // Unnecesary
 //            findAndPut(first, "protein_start", v, "PROTS", Integer.class);
 //            findAndPut(first, "protein_end", v, "PROTE", Integer.class);

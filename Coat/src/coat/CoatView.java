@@ -17,23 +17,29 @@
 package coat;
 
 import coat.model.reader.Reader;
+import coat.model.vcf.VcfFile;
 import coat.utils.FileManager;
 import coat.utils.OS;
-import coat.view.poirot.PoirotView;
 import coat.view.graphic.MemoryPane;
 import coat.view.graphic.SizableImage;
 import coat.view.mist.CombineMIST;
+import coat.view.vcf.CompleteAnalysis;
+import coat.view.poirot.PoirotView;
 import coat.view.tsv.TsvFileReader;
 import coat.view.vcf.CombineVCF;
 import coat.view.vcf.VcfReader;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +47,9 @@ import java.net.URI;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -69,23 +77,25 @@ public class CoatView {
     @FXML
     private Label info;
 
+    private static VBox bigConsole = new VBox();
+
     private WebView webView = new WebView();
 
     private Menu customMenu;
 
     private static Label staticInfo;
-    //    private static HBox staticInfoBox;
+
     private final static DateFormat df = new SimpleDateFormat("HH:mm:ss");
 
     private final TabPane workspace = new TabPane();
 
+    private final static List<String> AVAILABLE_MESSAGE_TYPES = Arrays.asList("info", "error", "success", "warning");
+
     public void initialize() {
         root.setCenter(workspace);
         staticInfo = info;
-        //startWeb();
-
-
-//        staticInfoBox = infoBox;
+        staticInfo.setOnMouseClicked(event -> showBigConsole());
+        workspace.getTabs().add(new Tab("Test", new CompleteAnalysis()));
         // Listen whe user clicks on a tab, or opens a file
         workspace.getSelectionModel().selectedItemProperty().addListener((obs, old, current) -> {
             // Remove custom tab if it exists
@@ -188,26 +198,28 @@ public class CoatView {
     }
 
     public static void printMessage(String message, String level) {
-        String date = df.format(new Date());
+        final String date = df.format(new Date());
+        final Label label = new Label();
+        final String type = level.toLowerCase();
         staticInfo.getStyleClass().clear();
-        //staticInfoBox.getStyleClass().clear();
-        String type = level.toLowerCase();
-        if (type.equals("info") || type.equals("success") || type.equals("warning")
-                || type.equals("error")) {
-            staticInfo.setText(date + ": " + message);
-            staticInfo.getStyleClass().add(type + "-label");
-//            staticInfoBox.getStyleClass().add(type + "-box");
-            staticInfo.setGraphic(new SizableImage("coat/img/" + type + ".png",
-                    SizableImage.SMALL_SIZE));
-        } else
-            staticInfo.setText(date + " (" + level + "): " + message);
+        setMessageLabel(message, date, staticInfo, type);
+        setMessageLabel(message, date, label, type);
+        bigConsole.getChildren().add(label);
+    }
+
+    private static void setMessageLabel(String message, String date, Label label, String type) {
+        if (AVAILABLE_MESSAGE_TYPES.contains(type)) {
+            label.setText(date + ": " + message);
+            label.setGraphic(new SizableImage("coat/img/" + type + ".png", SizableImage.SMALL_SIZE));
+            label.getStyleClass().add(type + "-label");
+        } else {
+            label.setText(date + " (" + type + "): " + message);
+        }
     }
 
     private void openFileInWorkspace(File f) {
-        if (isOpenInWorkspace(f))
-            selectTabInWorkspace(f);
-        else
-            addFileTabToWorkspace(f);
+        if (isOpenInWorkspace(f)) selectTabInWorkspace(f);
+        else addFileTabToWorkspace(f);
 
     }
 
@@ -221,10 +233,8 @@ public class CoatView {
     }
 
     private void addFileTabToWorkspace(File f) {
-        if (isVCF(f))
-            openVCFInWorkspace(f);
-        else if (isTSV(f))
-            openTSVInWorkspace(f);
+        if (isVCF(f)) openVCFInWorkspace(f);
+        else if (isTSV(f)) openTSVInWorkspace(f);
     }
 
     private boolean isVCF(File f) {
@@ -252,9 +262,20 @@ public class CoatView {
     }
 
     private void addVCFReaderToWorkspace(File f) throws IOException {
-        VcfReader vcfReader = new VcfReader(f);
-        addReaderToWorkspace(vcfReader, vcfReader);
-
+        printMessage("Loading " + f, "info");
+        Task<VcfFile> vcfLoader = new Task<VcfFile>() {
+            @Override
+            protected VcfFile call() throws Exception {
+                return new VcfFile(f);
+            }
+        };
+        vcfLoader.setOnSucceeded(event -> {
+            VcfFile vcfFile = vcfLoader.getValue();
+            VcfReader vcfReader = new VcfReader(vcfFile);
+            addReaderToWorkspace(vcfReader, vcfReader);
+            printMessage(f + " loaded", "success");
+        });
+        new Thread(vcfLoader).start();
     }
 
     private void addTSVReaderToWorkspace(File f) throws IOException {
@@ -277,5 +298,18 @@ public class CoatView {
         Tab tab = new Tab("Poirot", poirotView);
         workspace.getTabs().add(tab);
         workspace.getSelectionModel().select(tab);
+    }
+
+    private void showBigConsole() {
+        final ScrollPane pane = new ScrollPane(bigConsole);
+        Scene scene = new Scene(pane);
+        Stage stage = new Stage();
+        stage.setWidth(600);
+        stage.setHeight(600);
+        stage.setTitle("Messages");
+        stage.centerOnScreen();
+        scene.getStylesheets().addAll("coat/main.css");
+        stage.setScene(scene);
+        stage.show();
     }
 }
