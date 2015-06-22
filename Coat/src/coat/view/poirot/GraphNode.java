@@ -32,23 +32,6 @@ public class GraphNode {
         return relationships;
     }
 
-
-    public boolean updateCoordinates(double speed, double width, double height, double margin) {
-        if (direction.getX() >  speed) direction.setX(speed);
-        if (direction.getY() >  speed) direction.setY(speed);
-        if (direction.getX() < -speed) direction.setX(-speed);
-        if (direction.getY() < -speed) direction.setY(-speed);
-        position.moveX(direction.getX());
-        position.moveY(direction.getY());
-        if (position.getX() < margin) position.setX(margin);
-        if (position.getX() > width - margin) position.setX(width - margin);
-        if (position.getY() < margin) position.setY(margin);
-        if (position.getY() > height - margin) position.setY(height - margin);
-        System.out.print(position + " ");
-        direction.set(0, 0);
-        return true;
-    }
-
     public double distance(GraphNode node) {
         return position.distance(node.position);
     }

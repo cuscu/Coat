@@ -33,14 +33,14 @@ public class Omim {
     }
 
     public static List<String> getRelatedGenes(String phenotype) {
-        final String lowerCases = phenotype.toLowerCase();
+        final String lowerCased = phenotype.toLowerCase();
         List<String> related = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(genemap))) {
             reader.lines().forEach(line -> {
                 final String[] row = line.split("\t");
-                if (row[PHENOTYPE].toLowerCase().contains(lowerCases))
+                if (row[PHENOTYPE].toLowerCase().contains(lowerCased))
                     if (!row[GENE].equals(".")) related.addAll(Arrays.asList(row[GENE].split(", ")));
-                if (row[DISEASE].toLowerCase().contains(lowerCases))
+                if (row[DISEASE].toLowerCase().contains(lowerCased))
                     if (!row[GENE].equals(".")) related.addAll(Arrays.asList(row[GENE].split(", ")));
             });
         } catch (IOException e) {

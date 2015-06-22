@@ -5,6 +5,8 @@ import coat.model.poirot.Pearl;
 import coat.model.poirot.PearlRelationship;
 import coat.model.poirot.ShortestPath;
 import javafx.application.Platform;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.VPos;
@@ -29,6 +31,7 @@ public class GraphView extends Canvas {
     private final AtomicBoolean updating = new AtomicBoolean(false);
 
     private final ObservableList<Pearl> sourceNodes = FXCollections.observableArrayList();
+    private final Property<Pearl> selectedPearl = new SimpleObjectProperty<>();
 
     private Timer timer;
     private double diameter;
@@ -38,9 +41,15 @@ public class GraphView extends Canvas {
     private double maxWeight;
     private double effectiveWidth;
     private double effectiveHeight;
-    private double speed;
+    private double maxSpeed;
     private long startTime;
     private double nodeDistance;
+    private Vector lastMousePosition = new Vector();
+
+    private final long GLOWING_TIME = 2000;
+    private final long HALF_GLOWING_TIME = GLOWING_TIME / 2;
+    private final double OPACITY_FACTOR = 0.8 / HALF_GLOWING_TIME;
+
 
     private final Random random = new Random();
 
@@ -59,16 +68,41 @@ public class GraphView extends Canvas {
         Platform.setImplicitExit(true);
     }
 
+    public Property<Pearl> getSelectedPearlProperty() {
+        return selectedPearl;
+    }
+
     private void setMouseEvents() {
         setOnMouseClicked(this::clicked);
         setOnMousePressed(this::startMove);
         setOnMouseReleased(this::endMove);
-        setOnMouseDragged(this::moveNode);
+        setOnMouseDragged(this::mouseDragging);
         setOnScroll(this::zoom);
     }
 
-    private void moveNode(MouseEvent event) {
+    private void clicked(MouseEvent event) {
+        final Vector click = new Vector(event.getX(), event.getY());
+        boolean selected = false;
+        for (GraphNode node : nodes) {
+            node.setSelected(click.distance(node.getPosition()) < radius);
+            if (node.isSelected()) {
+                selectedPearl.setValue(node.getPearl());
+                selected = true;
+            }
+        }
+        if (!selected) lastMousePosition.set(event.getX(), event.getY());
+    }
+
+    private void mouseDragging(MouseEvent event) {
         if (movingNode != null) movingNode.getPosition().set(event.getX(), event.getY());
+        else {
+            final Vector mousePosition = new Vector(event.getX(), event.getY());
+            final Vector direction = new Vector(lastMousePosition, mousePosition);
+            synchronized (nodes) {
+                for (GraphNode node : nodes) node.getPosition().add(direction);
+            }
+            lastMousePosition = mousePosition;
+        }
     }
 
     private void endMove(MouseEvent event) {
@@ -79,46 +113,42 @@ public class GraphView extends Canvas {
     }
 
     private void startMove(MouseEvent event) {
-        final Vector click = new Vector(event.getX(), event.getY());
+        lastMousePosition = new Vector(event.getX(), event.getY());
         for (GraphNode node : nodes)
-            if (node.getPosition().distance(click) < radius) {
+            if (node.getPosition().distance(lastMousePosition) < radius) {
                 movingNode = node;
                 node.setMouseMoving(true);
                 break;
             }
     }
 
-    private void clicked(MouseEvent event) {
-        final Vector click = new Vector(event.getX(), event.getY());
-        for (GraphNode node : nodes) node.setSelected(click.distance(node.getPosition()) < radius);
-    }
-
     private void zoom(ScrollEvent event) {
         updating.set(true);
         double scale = event.getDeltaY() > 0 ? 1.25 : 0.8;
         setRadius(radius * scale);
-        updating.set(false);
-/*
-        Vector center = new Vector(getWidth() * 0.5, getHeight() * 0.5);
-        synchronized (nodes){
-            nodes.forEach(graphNode -> graphNode.getPosition().scale(graphNode.getPosition().distance(center)));
+        final Vector mouse = new Vector(event.getX(), event.getY());
+        synchronized (nodes) {
+            nodes.forEach(graphNode -> {
+                graphNode.getPosition().substract(mouse);
+                graphNode.getPosition().scale(scale);
+                graphNode.getPosition().add(mouse);
+            });
         }
-*/
+        updating.set(false);
     }
 
     private void setRadius(double radius) {
         this.radius = radius;
         diameter = 2 * radius;
-        speed = 0.5 * radius;
+        maxSpeed = 0.5 * radius;
         margin = 1.1 * radius;
         nodeDistance = 2 * diameter;
         // Nodes will share half of the area
         effectiveWidth = getWidth() - 2 * margin;
         effectiveHeight = getHeight() - 2 * margin;
-        System.out.printf("m=%f,w=%f,h=%f,r=%f\n", margin, getWidth(), getHeight(), radius);
     }
 
-    public void setCandidates(ObservableList<Pearl> originGenes) {
+    public void setCandidates(List<Pearl> originGenes) {
         updating.set(true);
         this.sourceNodes.setAll(originGenes);
         findNodes();
@@ -206,6 +236,7 @@ public class GraphView extends Canvas {
         if (updating.get()) return;
         if (Coat.getStage() != null && !Coat.getStage().isShowing()) timer.cancel();
         interactNodes();
+        updateNodePositions();
         Platform.runLater(this::paint);
     }
 
@@ -217,8 +248,8 @@ public class GraphView extends Canvas {
                     if ((System.currentTimeMillis() - startTime < 30000)) {
                         closeRelated(node);
                         moveRandomly(node);
+                        floatInAir(node);
                     }
-//                floatInAir(node);
                 }
             });
         }
@@ -248,53 +279,58 @@ public class GraphView extends Canvas {
             final Vector v = new Vector(node.getPosition(), target.getPosition());
             v.scale(t * (dist - nodeDistance) / dist);
             node.push(v);
-//            final double desirableDistance = (diameter);
-//            if (dist - desirableDistance > safetyDistance) {
-//                final Vector vector = new Vector(node.getPosition(), target.getPosition());
-//                vector.scale((dist - desirableDistance) / dist);
-//                target.pull(vector);
-//            } else if (desirableDistance - dist > safetyDistance) {
-//                final Vector vector = new Vector(node.getPosition(), target.getPosition());
-//                vector.scale((desirableDistance - dist) / dist);
-//                target.push(vector);
-//            }
         });
     }
 
     private void floatInAir(GraphNode graphNode) {
-        double prefHeight = getHeight() * (graphNode.getPearl().getWeight()) / maxWeight;
+        double prefHeight = margin + effectiveHeight * (graphNode.getPearl().getWeight()) / maxWeight;
         double height = graphNode.getPosition().getY();
-        if (height - prefHeight > diameter || prefHeight - height > diameter) {
-            Vector vector = new Vector(graphNode.getPosition(), new Vector(graphNode.getPosition().getX(), prefHeight));
+        if (height - prefHeight > 2*diameter || prefHeight - height > 2*diameter) {
+            final Vector vector = new Vector(graphNode.getPosition(), new Vector(graphNode.getPosition().getX(), prefHeight));
             vector.scale(0.2);
             graphNode.push(vector);
         }
 
     }
 
-    private void paint() {
-        nodes.forEach((node) -> {
-            final Vector direction = node.getDirection();
-            final Vector position = node.getPosition();
-            if (direction.getX() >  speed) direction.setX(speed);
-            if (direction.getY() >  speed) direction.setY(speed);
-            if (direction.getX() < -speed) direction.setX(-speed);
-            if (direction.getY() < -speed) direction.setY(-speed);
-            position.add(direction);
-            if (position.getX() < margin) position.setX(margin);
-            if (position.getX() > margin + effectiveWidth) position.setX(margin + effectiveWidth);
-            if (position.getY() < margin) position.setY(margin);
-            if (position.getY() > effectiveHeight + margin) position.setY(effectiveHeight + margin);
-            System.out.print(position + " ");
-            direction.set(0, 0);
+    private void updateNodePositions() {
+        nodes.forEach(node -> {
+            limitSpeed(node);
+            move(node);
+            stayInSafeArea(node);
+            stop(node);
         });
+    }
+
+    private void limitSpeed(GraphNode node) {
+        if (node.getDirection().getX() > maxSpeed) node.getDirection().setX(maxSpeed);
+        if (node.getDirection().getY() > maxSpeed) node.getDirection().setY(maxSpeed);
+        if (node.getDirection().getX() < -maxSpeed) node.getDirection().setX(-maxSpeed);
+        if (node.getDirection().getY() < -maxSpeed) node.getDirection().setY(-maxSpeed);
+    }
+
+    private void move(GraphNode node) {
+        node.getPosition().add(node.getDirection());
+    }
+
+    private void stayInSafeArea(GraphNode node) {
+        if (node.getPosition().getX() < margin) node.getPosition().setX(margin);
+        if (node.getPosition().getX() > margin + effectiveWidth) node.getPosition().setX(margin + effectiveWidth);
+        if (node.getPosition().getY() < margin) node.getPosition().setY(margin);
+        if (node.getPosition().getY() > effectiveHeight + margin) node.getPosition().setY(effectiveHeight + margin);
+    }
+
+    private void stop(GraphNode node) {
+        node.getDirection().set(0, 0);
+    }
+
+    private void paint() {
         screen.clearRect(0, 0, getWidth(), getHeight());
         paintRelationships();
         paintNodes();
     }
 
     private void paintNodes() {
-        System.out.println();
         synchronized (nodes) {
             nodes.forEach(graphNode -> {
                 drawCircle(graphNode);
@@ -359,17 +395,21 @@ public class GraphView extends Canvas {
 
     private void drawSelectionCircle(GraphNode graphNode) {
         if (graphNode.isSelected()) {
-            screen.setStroke(new Color(1, 1, 0, 0.8));
+            screen.setStroke(new Color(1, 1, 0, getSelectionOpacity()));
             screen.setLineWidth(4);
             screen.strokeOval(graphNode.getPosition().getX() - radius + 4, graphNode.getPosition().getY() - radius + 4, diameter - 8, diameter - 8);
             screen.setLineWidth(1);
         }
     }
 
+    private double getSelectionOpacity() {
+        long period = (System.currentTimeMillis() - startTime) % GLOWING_TIME;
+        long step = Math.abs(HALF_GLOWING_TIME - period);
+        return step * OPACITY_FACTOR + 0.2;
+    }
+
     private void writeText(GraphNode graphNode) {
         screen.setFill(Color.WHITE);
         screen.fillText(graphNode.getPearl().getName(), graphNode.getPosition().getX(), graphNode.getPosition().getY());
     }
-
-
 }

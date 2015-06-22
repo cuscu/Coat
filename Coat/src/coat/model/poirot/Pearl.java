@@ -1,7 +1,9 @@
 package coat.model.poirot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
@@ -13,6 +15,7 @@ public class Pearl {
     private int weight = -1;
     private List<PearlRelationship> outRelationships = new ArrayList<>();
     private List<PearlRelationship> inRelationships = new ArrayList<>();
+    private Map<String, Object> properties = new HashMap<>();
 
     public Pearl(String name, String type) {
         this.name = name;
@@ -65,4 +68,7 @@ public class Pearl {
         return inRelationships;
     }
 
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
 }

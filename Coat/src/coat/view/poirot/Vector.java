@@ -81,4 +81,9 @@ class Vector {
         y += direction.y;
 
     }
+
+    public void substract(Vector direction) {
+        x -= direction.x;
+        y -= direction.y;
+    }
 }
