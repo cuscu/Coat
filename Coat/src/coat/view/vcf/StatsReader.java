@@ -70,7 +70,7 @@ public class StatsReader extends HBox {
         if (counts.isEmpty()) {
             editPane.getChildren().setAll(noData);
         } else {
-            List<String> names = new ArrayList<>();
+            final List<String> names = new ArrayList<>();
             counts.keySet().forEach(names::add);
             Collections.sort(names, (key1, key2) -> counts.get(key2).compareTo(counts.get(key1)));
             if (counts.get(names.get(0)) > 1) {

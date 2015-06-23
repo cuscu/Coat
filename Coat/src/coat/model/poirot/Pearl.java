@@ -41,7 +41,7 @@ public class Pearl {
 
     @Override
     public String toString() {
-        return String.format("[%s] %d, %s", type, weight, name);
+        return String.format("[%s] %d, %s (%s)", type, weight, name, properties.get("description"));
     }
 
     public int getWeight() {

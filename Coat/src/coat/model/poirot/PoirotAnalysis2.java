@@ -124,7 +124,9 @@ public class PoirotAnalysis2 extends Task<PearlDatabase> {
     }
 
     private void addInitialPhenotypes() {
-        phenotypes.forEach(phenotype -> pearlDatabase.getOrCreate(phenotype, "phenotype"));
+        phenotypes.forEach(phenotype -> {
+            final Pearl pearl = pearlDatabase.getOrCreate(phenotype, "phenotype");
+        });
     }
 
     private void expandGraph() {
@@ -151,7 +153,8 @@ public class PoirotAnalysis2 extends Task<PearlDatabase> {
     private void connectWithLocalGenes(List<String> genes) {
         AtomicInteger counter = new AtomicInteger();
         genes.forEach(geneName -> {
-            if (counter.incrementAndGet() % 100 == 0) updateMessage(String.format("%d/%d", counter.get(), genes.size()));
+            if (counter.incrementAndGet() % 100 == 0)
+                updateMessage(String.format("%d/%d", counter.get(), genes.size()));
             relationships.stream().
                     filter(relationship -> relationship.getSource().equals(geneName) || relationship.getTarget().equals(geneName)).
                     forEach(relationship -> {

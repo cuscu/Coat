@@ -17,6 +17,7 @@ public class Omim {
     private final static int GENE = 5;
     private final static int PHENOTYPE = 13;
     private final static int DISEASE = 15;
+    private final static int DESCRIPTION = 7;
 
     public static List<String> getRelatedPhenotyes(String gene) {
         try (BufferedReader reader = new BufferedReader(new FileReader(genemap))) {
@@ -47,5 +48,24 @@ public class Omim {
             e.printStackTrace();
         }
         return related;
+    }
+
+    public static String getGeneDescription(String gene) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(genemap))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                final String[] row = line.split("\t");
+                if (row[GENE].toLowerCase().contains(gene.toLowerCase())) return row[DESCRIPTION];
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static List<Phenotype> getPhenotypes(String name) {
+        List<Phenotype> list = new ArrayList<>();
+
+        return list;
     }
 }

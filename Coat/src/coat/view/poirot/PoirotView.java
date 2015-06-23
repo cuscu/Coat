@@ -1,22 +1,30 @@
 package coat.view.poirot;
 
 import coat.model.poirot.*;
+import coat.model.vcf.Variant;
 import coat.model.vcf.VcfFile;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
+import java.awt.*;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,16 +42,17 @@ public class PoirotView extends HBox {
     private final Button start = new Button(OS.getResources().getString("start"));
     private final Label message = new Label();
     private final TextField file = new TextField();
-    private final Button browse = new Button(OS.getResources().getString("browse"));
-    private final HBox fileBox = new HBox(5,file, browse);
+    private final Button browse = new Button("Select file");
+//    private final HBox fileBox = new HBox(5, file, browse);
 
-    private final VBox inputPane = new VBox(5, fileBox, geneList, phenotypeList, start, message);
+    private final VBox inputPane = new VBox(5, file, browse, geneList, phenotypeList, start, message);
 
     private final GraphView graphView = new GraphView();
 
     private final VBox graphVBox = new VBox(graphView);
     private final Label info = new Label();
-    private final StackPane stackPane = new StackPane(graphVBox, info);
+    private final VBox infoBox = new VBox();
+    private final StackPane stackPane = new StackPane(graphVBox, infoBox);
 
     private final ListView<Pearl> pearlListView = new ListView<>();
     private final Button reload = new Button("Reload graph");
@@ -55,6 +64,8 @@ public class PoirotView extends HBox {
 
 
     public PoirotView() {
+        file.setText("/home/unidad03/Copy/Proyectos/SQZ/sqz_20150420_VEP_f001_DP9_protcoding.vcf");
+        phenotypeList.setText("schizophrenia");
         initializeThis();
         initializeInputPane();
         initializeListPane();
@@ -75,8 +86,8 @@ public class PoirotView extends HBox {
     }
 
     private void initializeFileInput() {
-        HBox.setHgrow(file, Priority.ALWAYS);
         file.setEditable(false);
+        browse.setMaxWidth(9999);
         browse.setOnAction(event -> FileManager.openFile(file, "Select file", FileManager.VCF_FILTER));
     }
 
@@ -129,15 +140,44 @@ public class PoirotView extends HBox {
         graphVBox.heightProperty().addListener((observable, oldValue, newValue) -> graphView.setHeight(newValue.doubleValue()));
         graphView.setManaged(false);
         graphView.getSelectedPearlProperty().addListener((observable, oldValue, pearl) -> selected(pearl));
-        StackPane.setAlignment(info, Pos.BOTTOM_LEFT);
+        StackPane.setAlignment(infoBox, Pos.BOTTOM_LEFT);
+        infoBox.setMaxWidth(USE_PREF_SIZE);
+        infoBox.setMaxHeight(USE_PREF_SIZE);
+        infoBox.getStyleClass().add("graph-info-box");
     }
 
     private void selected(Pearl pearl) {
-        String text = String.valueOf(pearl);
-        for (String key : pearl.getProperties().keySet()) {
-            text += String.format(";%s=%s", key, pearl.getProperties().getOrDefault(key, ""));
+        infoBox.getChildren().clear();
+        if (pearl != null) {
+            final String name = pearl.getName();
+            final String description = Omim.getGeneDescription(name);
+            infoBox.getChildren().add(new Label(name + "(" + description + ")"));
+            if (pearl.getType().equals("gene")) {
+                final String url = "http://v4.genecards.org/cgi-bin/carddisp.pl?gene=" + pearl.getName();
+                final Hyperlink hyperlink = new Hyperlink("GeneCards");
+                hyperlink.setOnAction(event -> new Thread(() -> {
+                    try {
+                        Desktop.getDesktop().browse(new URI(url));
+                    } catch (IOException | URISyntaxException e1) {
+                        e1.printStackTrace();
+                    }
+                }).start());
+                infoBox.getChildren().add(hyperlink);
+            }
+            final List<Variant> variants = (List<Variant>) pearl.getProperties().get("variants");
+            if (variants != null)
+                for (Variant variant : variants) infoBox.getChildren().add(new Label(simplified(variant)));
         }
-        info.setText(text);
+    }
+
+    private String simplified(Variant variant) {
+        double af = Double.valueOf((String) variant.getInfos().get("AF"));
+        String value = String.format("%s:%d %s/%s AF=%.1f", variant.getChrom(), variant.getPos(), variant.getRef(), variant.getAlt(), af);
+        final String bio = (String) variant.getInfos().get("BIO");
+        if (bio != null) value += " BIO=" + bio;
+        final String cons = (String) variant.getInfos().get("CONS");
+        if (cons != null) value += " CONS=" + cons;
+        return value;
     }
 
     private void start() {
@@ -151,7 +191,7 @@ public class PoirotView extends HBox {
             start.setDisable(true);
             new Thread(task).start();
             task.setOnSucceeded(event -> end(task.getValue()));
-        }else {
+        } else {
             genes = Arrays.asList(geneList.getText().split("\n"));
             final Task<PearlDatabase> task = new PoirotAnalysis(genes, phenotypes);
             message.textProperty().bind(task.messageProperty());

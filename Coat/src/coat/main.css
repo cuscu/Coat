@@ -243,7 +243,7 @@
 }
 
 .drop-entered {
-/*    -fx-background-color: whitesmoke;*/
+    /*    -fx-background-color: whitesmoke;*/
     -fx-border-width: 2;
     -fx-border-color: darkgrey;
 }
@@ -260,4 +260,8 @@
 
 .table-view .column-header-background {
     -fx-background-color: transparent;
+}
+
+.graph-info-box {
+    -fx-background-color: rgba(100, 100, 100, 0.1);
 }

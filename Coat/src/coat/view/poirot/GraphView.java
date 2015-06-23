@@ -4,6 +4,7 @@ import coat.Coat;
 import coat.model.poirot.Pearl;
 import coat.model.poirot.PearlRelationship;
 import coat.model.poirot.ShortestPath;
+import coat.model.vcf.Variant;
 import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
@@ -15,11 +16,14 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.ArcType;
 import javafx.scene.text.FontSmoothingType;
 import javafx.scene.text.TextAlignment;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
@@ -44,12 +48,31 @@ public class GraphView extends Canvas {
     private double maxSpeed;
     private long startTime;
     private double nodeDistance;
+    private double levelHeight;
     private Vector lastMousePosition = new Vector();
 
     private final long GLOWING_TIME = 2000;
     private final long HALF_GLOWING_TIME = GLOWING_TIME / 2;
     private final double OPACITY_FACTOR = 0.8 / HALF_GLOWING_TIME;
 
+    private final static Map<String, Paint> BIO_COLORS = new HashMap<>();
+    private final static Map<String, Paint> CONS_COLORS = new HashMap<>();
+
+    static {
+        BIO_COLORS.put("protein_coding", Color.LIMEGREEN);
+        BIO_COLORS.put("processed_transcript", Color.CYAN);
+        BIO_COLORS.put("retained_intron", Color.BLUE);
+        BIO_COLORS.put("nonsense_mediated_decay", Color.DARKBLUE);
+        BIO_COLORS.put("lincRNA", Color.MAGENTA);
+        CONS_COLORS.put("intron_variant", Color.DARKBLUE);
+        CONS_COLORS.put("downstream_gene_variant", Color.LIMEGREEN);
+        CONS_COLORS.put("upstream_gene_variant", Color.LIMEGREEN);
+        CONS_COLORS.put("non_coding_trasncript_variant", Color.CYAN);
+        CONS_COLORS.put("NMD_transcript_variant", Color.CYAN);
+        CONS_COLORS.put("non_coding_transcript_exon_variant", Color.CYAN);
+        CONS_COLORS.put("regulatory_region_variant", Color.CYAN);
+
+    }
 
     private final Random random = new Random();
 
@@ -81,16 +104,31 @@ public class GraphView extends Canvas {
     }
 
     private void clicked(MouseEvent event) {
-        final Vector click = new Vector(event.getX(), event.getY());
-        boolean selected = false;
-        for (GraphNode node : nodes) {
-            node.setSelected(click.distance(node.getPosition()) < radius);
-            if (node.isSelected()) {
-                selectedPearl.setValue(node.getPearl());
-                selected = true;
+        if (movingNode == null) {
+            final Vector click = new Vector(event.getX(), event.getY());
+            boolean selected = false;
+            for (GraphNode node : nodes) {
+                node.setSelected(click.distance(node.getPosition()) < radius);
+                if (node.isSelected()) {
+                    selectedPearl.setValue(node.getPearl());
+                    selected = true;
+                }
+            }
+            if (!selected) {
+                lastMousePosition.set(event.getX(), event.getY());
+                selectedPearl.setValue(null);
             }
         }
-        if (!selected) lastMousePosition.set(event.getX(), event.getY());
+    }
+
+    private void startMove(MouseEvent event) {
+        lastMousePosition = new Vector(event.getX(), event.getY());
+        for (GraphNode node : nodes)
+            if (node.getPosition().distance(lastMousePosition) < radius) {
+                movingNode = node;
+                node.setMouseMoving(true);
+                break;
+            }
     }
 
     private void mouseDragging(MouseEvent event) {
@@ -112,16 +150,6 @@ public class GraphView extends Canvas {
         }
     }
 
-    private void startMove(MouseEvent event) {
-        lastMousePosition = new Vector(event.getX(), event.getY());
-        for (GraphNode node : nodes)
-            if (node.getPosition().distance(lastMousePosition) < radius) {
-                movingNode = node;
-                node.setMouseMoving(true);
-                break;
-            }
-    }
-
     private void zoom(ScrollEvent event) {
         updating.set(true);
         double scale = event.getDeltaY() > 0 ? 1.25 : 0.8;
@@ -140,9 +168,10 @@ public class GraphView extends Canvas {
     private void setRadius(double radius) {
         this.radius = radius;
         diameter = 2 * radius;
-        maxSpeed = 0.5 * radius;
+        maxSpeed = 0.25 * radius;
         margin = 1.1 * radius;
         nodeDistance = 2 * diameter;
+        levelHeight = 2 * diameter;
         // Nodes will share half of the area
         effectiveWidth = getWidth() - 2 * margin;
         effectiveHeight = getHeight() - 2 * margin;
@@ -213,8 +242,8 @@ public class GraphView extends Canvas {
     private void initialDistribution() {
         setRadius(0.5 * Math.sqrt(0.25 * effectiveWidth * effectiveHeight / nodes.size()));
         nodes.forEach(node -> node.getPosition().set(
-                random.nextDouble() * effectiveWidth + margin,
-                random.nextDouble() * effectiveHeight + margin));
+                margin + effectiveWidth * random.nextDouble(),
+                margin + effectiveHeight * (node.getPearl().getWeight()) / maxWeight));
     }
 
     private void startDrawer() {
@@ -271,13 +300,13 @@ public class GraphView extends Canvas {
     }
 
     private void closeRelated(GraphNode node) {
-//        double safetyDistance = diameter;
         node.getRelationships().stream().filter(relationship -> relationship.getSource().equals(node)).forEach(relationship -> {
             final GraphNode target = relationship.getTarget();
-            final double dist = node.distance(target);
+//            final double dist = node.distance(target); // Euclidean distance
+            final double dist = node.getPosition().getX() - target.getPosition().getX();
             final int t = (int) relationship.getProperties().get("total");
-            final Vector v = new Vector(node.getPosition(), target.getPosition());
-            v.scale(t * (dist - nodeDistance) / dist);
+            final Vector v = new Vector(dist, 0.0);
+            v.scale(t * (Math.abs(dist) - nodeDistance) / dist);
             node.push(v);
         });
     }
@@ -285,9 +314,8 @@ public class GraphView extends Canvas {
     private void floatInAir(GraphNode graphNode) {
         double prefHeight = margin + effectiveHeight * (graphNode.getPearl().getWeight()) / maxWeight;
         double height = graphNode.getPosition().getY();
-        if (height - prefHeight > 2*diameter || prefHeight - height > 2*diameter) {
+        if (height - prefHeight > levelHeight || prefHeight - height > levelHeight) {
             final Vector vector = new Vector(graphNode.getPosition(), new Vector(graphNode.getPosition().getX(), prefHeight));
-            vector.scale(0.2);
             graphNode.push(vector);
         }
 
@@ -341,6 +369,8 @@ public class GraphView extends Canvas {
 
     private void paintRelationships() {
         nodes.forEach(graphNode -> graphNode.getRelationships().stream().filter(relationship -> relationship.getSource().equals(graphNode)).forEach(relationship -> {
+            final int total = (int) relationship.getProperties().get("total");
+            screen.setLineWidth(total);
             drawLine(graphNode.getPosition(), relationship.getTarget().getPosition());
             Vector center = new Vector(
                     (graphNode.getPosition().getX() + relationship.getTarget().getPosition().getX()) * 0.5,
@@ -367,16 +397,22 @@ public class GraphView extends Canvas {
     }
 
     private void drawCircle(GraphNode graphNode) {
+        drawBackgroundCircle(graphNode);
+        screen.setLineWidth(4);
+        drawSelectionCircle(graphNode);
+        drawBiotypeCircle(graphNode);
+        drawConsequenceCircle(graphNode);
+    }
+
+    private void drawBackgroundCircle(GraphNode graphNode) {
         setColor(graphNode);
         screen.fillOval(graphNode.getPosition().getX() - radius, graphNode.getPosition().getY() - radius, diameter, diameter);
-        drawSourceNodeCircle(graphNode);
-        drawSelectionCircle(graphNode);
     }
 
     private void setColor(GraphNode graphNode) {
         switch (graphNode.getPearl().getType()) {
             case "phenotype":
-                screen.setFill(Color.CHARTREUSE);
+                screen.setFill(Color.ORANGE);
                 break;
             case "gene":
                 screen.setFill(new Color(1.0 - graphNode.getPearl().getWeight() / maxWeight, 0, 0, 1));
@@ -384,22 +420,74 @@ public class GraphView extends Canvas {
         }
     }
 
-    private void drawSourceNodeCircle(GraphNode graphNode) {
-        if (sourceNodes.contains(graphNode.getPearl())) {
-            screen.setStroke(Color.CYAN);
-            screen.setLineWidth(4);
-            screen.strokeOval(graphNode.getPosition().getX() - radius, graphNode.getPosition().getY() - radius, diameter, diameter);
-            screen.setLineWidth(1);
-        }
-    }
-
     private void drawSelectionCircle(GraphNode graphNode) {
         if (graphNode.isSelected()) {
             screen.setStroke(new Color(1, 1, 0, getSelectionOpacity()));
-            screen.setLineWidth(4);
-            screen.strokeOval(graphNode.getPosition().getX() - radius + 4, graphNode.getPosition().getY() - radius + 4, diameter - 8, diameter - 8);
-            screen.setLineWidth(1);
+            screen.strokeOval(graphNode.getPosition().getX() - radius, graphNode.getPosition().getY() - radius, diameter, diameter);
         }
+    }
+
+    private void drawBiotypeCircle(GraphNode graphNode) {
+        final List<Variant> variants = (List<Variant>) graphNode.getPearl().getProperties().get("variants");
+        if (variants != null && !variants.isEmpty()) {
+            final List<String> biotypes = getBiotypes(variants);
+            final List<String> uniques = biotypes.stream().distinct().collect(Collectors.toList());
+            Collections.sort(uniques, (o1, o2) -> Long.compare(count(biotypes, o1), count(biotypes, o2)));
+            final int total = biotypes.size();
+            double x = graphNode.getPosition().getX() - radius + 4;
+            double y = graphNode.getPosition().getY() - radius + 4;
+            double width = diameter - 8;
+            double height = diameter - 8;
+            double startAngle = 90;
+            for (String value : uniques) {
+                final long count = count(biotypes, value);
+                double angle = (double) count / total * 360;
+                screen.setStroke(BIO_COLORS.getOrDefault(value, Color.GRAY));
+                screen.strokeArc(x, y, width, height, startAngle, angle, ArcType.OPEN);
+                startAngle += angle;
+            }
+        }
+    }
+
+    private long count(List<String> biotypes, String value) {
+        return biotypes.stream().filter(s -> s.equals(value)).count();
+    }
+
+    private List<String> getBiotypes(List<Variant> variants) {
+        return variants.stream().
+                map(variant -> (String) variant.getInfos().get("BIO")).
+                filter(biotype -> biotype != null).collect(Collectors.toList());
+    }
+
+    private void drawConsequenceCircle(GraphNode graphNode) {
+        final List<Variant> variants = (List<Variant>) graphNode.getPearl().getProperties().get("variants");
+        if (variants != null && !variants.isEmpty()) {
+            final List<String> consequences = getConsequences(variants);
+            final List<String> uniques = consequences.stream().distinct().collect(Collectors.toList());
+            Collections.sort(uniques, (o1, o2) -> Long.compare(count(consequences, o1), count(consequences, o2)));
+            final int total = consequences.size();
+            double x = graphNode.getPosition().getX() - radius + 8;
+            double y = graphNode.getPosition().getY() - radius + 8;
+            double width = diameter - 16;
+            double height = diameter - 16;
+            double startAngle = 90;
+            for (String value : uniques) {
+                final long count = count(consequences, value);
+                double angle = (double) count / total * 360;
+                screen.setStroke(CONS_COLORS.getOrDefault(value, Color.GRAY));
+                screen.strokeArc(x, y, width, height, startAngle, angle, ArcType.OPEN);
+                startAngle += angle;
+            }
+        }
+    }
+
+    private List<String> getConsequences(List<Variant> variants) {
+        List<String> consequences = new ArrayList<>();
+        variants.forEach(variant -> {
+            final String cons = (String) variant.getInfos().get("CONS");
+            if (cons != null) Collections.addAll(consequences, cons.split(","));
+        });
+        return consequences;
     }
 
     private double getSelectionOpacity() {
