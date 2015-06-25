@@ -302,11 +302,11 @@ public class GraphView extends Canvas {
     private void closeRelated(GraphNode node) {
         node.getRelationships().stream().filter(relationship -> relationship.getSource().equals(node)).forEach(relationship -> {
             final GraphNode target = relationship.getTarget();
-//            final double dist = node.distance(target); // Euclidean distance
-            final double dist = node.getPosition().getX() - target.getPosition().getX();
+//            final double dist = node.distance(target);
+            final double dist = Math.abs(node.getPosition().getX() - target.getPosition().getX());
             final int t = (int) relationship.getProperties().get("total");
-            final Vector v = new Vector(dist, 0.0);
-            v.scale(t * (Math.abs(dist) - nodeDistance) / dist);
+            final Vector v = new Vector(target.getPosition().getX() - node.getPosition().getX(), 0.0);
+            v.scale(t * (dist - nodeDistance) / dist);
             node.push(v);
         });
     }
