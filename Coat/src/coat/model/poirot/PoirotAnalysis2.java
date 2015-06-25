@@ -30,6 +30,8 @@ public class PoirotAnalysis2 extends Task<PearlDatabase> {
     private String[] headers;
     private Map<String, List<Variant>> geneMap = new HashMap<>();
 
+    private AtomicInteger round = new AtomicInteger();
+
 
     public PoirotAnalysis2(List<Variant> variants, List<String> phenotypes) {
         this.variants = variants;
@@ -39,8 +41,10 @@ public class PoirotAnalysis2 extends Task<PearlDatabase> {
     @Override
     protected PearlDatabase call() throws Exception {
         mapVariantsToGenes();
-        upperCase();
-        phenotypes.forEach(phenotype -> phenotypeGenes.put(phenotype, Omim.getRelatedGenes(phenotype)));
+        phenotypes.forEach(phenotype -> {
+            final List<String> realPhenotyes = Omim.getPhenotypes(phenotype);
+            realPhenotyes.forEach(name -> phenotypeGenes.put(name, Omim.getRelatedGenes(name)));
+        });
         return secondTry();
     }
 
@@ -59,11 +63,6 @@ public class PoirotAnalysis2 extends Task<PearlDatabase> {
 
             }
         }
-    }
-
-    private void upperCase() {
-//        for (int i = 0; i < genes.size(); i++) genes.set(i, genes.get(i).toUpperCase());
-        for (int i = 0; i < phenotypes.size(); i++) phenotypes.set(i, phenotypes.get(i).toUpperCase());
     }
 
     private PearlDatabase secondTry() {
@@ -124,15 +123,16 @@ public class PoirotAnalysis2 extends Task<PearlDatabase> {
     }
 
     private void addInitialPhenotypes() {
-        phenotypes.forEach(phenotype -> {
+        phenotypeGenes.keySet().forEach(phenotype -> {
             final Pearl pearl = pearlDatabase.getOrCreate(phenotype, "phenotype");
         });
     }
 
     private void expandGraph() {
         for (int i = 0; i < 2; i++) {
+            round.set(i + 1);
             final List<String> leafGenes = getLeafGenes();
-            updateMessage(String.format("Round %d: %d nodes to expand", i, leafGenes.size()));
+//            updateMessage(String.format("Round %d: %d nodes to expand", i, leafGenes.size()));
             expandGenes(leafGenes);
         }
     }
@@ -154,7 +154,7 @@ public class PoirotAnalysis2 extends Task<PearlDatabase> {
         AtomicInteger counter = new AtomicInteger();
         genes.forEach(geneName -> {
             if (counter.incrementAndGet() % 100 == 0)
-                updateMessage(String.format("%d/%d", counter.get(), genes.size()));
+                updateMessage(String.format("Round %d/%d, %d/%d genes", round.get(), 2, counter.get(), genes.size()));
             relationships.stream().
                     filter(relationship -> relationship.getSource().equals(geneName) || relationship.getTarget().equals(geneName)).
                     forEach(relationship -> {
@@ -177,7 +177,7 @@ public class PoirotAnalysis2 extends Task<PearlDatabase> {
     }
 
     private void connectWithPhenotypes(List<String> genes) {
-        for (String phenotype : phenotypes)
+        for (String phenotype : phenotypeGenes.keySet())
             genes.stream().filter(gene -> phenotypeGenes.get(phenotype).contains(gene)).forEach(gene -> connect(gene, phenotype));
     }
 

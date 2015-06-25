@@ -19,9 +19,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.awt.*;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -37,15 +35,14 @@ import java.util.stream.Collectors;
 public class PoirotView extends HBox {
 
 
-    private final TextArea geneList = new TextArea();
+    //    private final TextArea geneList = new TextArea();
     private final TextArea phenotypeList = new TextArea();
     private final Button start = new Button(OS.getResources().getString("start"));
     private final Label message = new Label();
     private final TextField file = new TextField();
     private final Button browse = new Button("Select file");
-//    private final HBox fileBox = new HBox(5, file, browse);
 
-    private final VBox inputPane = new VBox(5, file, browse, geneList, phenotypeList, start, message);
+    private final VBox inputPane = new VBox(5, file, browse, phenotypeList, start, message);
 
     private final GraphView graphView = new GraphView();
 
@@ -79,7 +76,6 @@ public class PoirotView extends HBox {
     }
 
     private void initializeInputPane() {
-        initializeGeneList();
         initializePhenotypeList();
         initializeStartButton();
         initializeFileInput();
@@ -99,11 +95,6 @@ public class PoirotView extends HBox {
 
     private void initializePhenotypeList() {
         phenotypeList.setPromptText("Phenotypes: one per line");
-    }
-
-    private void initializeGeneList() {
-        VBox.setVgrow(geneList, Priority.ALWAYS);
-        geneList.setPromptText("Genes: one per line");
     }
 
     private void initializeStartButton() {
@@ -140,7 +131,7 @@ public class PoirotView extends HBox {
         graphVBox.heightProperty().addListener((observable, oldValue, newValue) -> graphView.setHeight(newValue.doubleValue()));
         graphView.setManaged(false);
         graphView.getSelectedPearlProperty().addListener((observable, oldValue, pearl) -> selected(pearl));
-        StackPane.setAlignment(infoBox, Pos.BOTTOM_LEFT);
+        StackPane.setAlignment(infoBox, Pos.TOP_LEFT);
         infoBox.setMaxWidth(USE_PREF_SIZE);
         infoBox.setMaxHeight(USE_PREF_SIZE);
         infoBox.getStyleClass().add("graph-info-box");
@@ -149,25 +140,34 @@ public class PoirotView extends HBox {
     private void selected(Pearl pearl) {
         infoBox.getChildren().clear();
         if (pearl != null) {
-            final String name = pearl.getName();
-            final String description = Omim.getGeneDescription(name);
-            infoBox.getChildren().add(new Label(name + "(" + description + ")"));
-            if (pearl.getType().equals("gene")) {
-                final String url = "http://v4.genecards.org/cgi-bin/carddisp.pl?gene=" + pearl.getName();
-                final Hyperlink hyperlink = new Hyperlink("GeneCards");
-                hyperlink.setOnAction(event -> new Thread(() -> {
-                    try {
-                        Desktop.getDesktop().browse(new URI(url));
-                    } catch (IOException | URISyntaxException e1) {
-                        e1.printStackTrace();
-                    }
-                }).start());
-                infoBox.getChildren().add(hyperlink);
-            }
-            final List<Variant> variants = (List<Variant>) pearl.getProperties().get("variants");
-            if (variants != null)
-                for (Variant variant : variants) infoBox.getChildren().add(new Label(simplified(variant)));
+            if (pearl.getType().equals("gene")) showGeneDescription(pearl);
+            else showNonGeneDescription(pearl);
         }
+    }
+
+    private void showNonGeneDescription(Pearl pearl) {
+        infoBox.getChildren().add(new Label(pearl.getName()));
+    }
+
+    private void showGeneDescription(Pearl pearl) {
+        final String name = pearl.getName();
+        final String description = Omim.getGeneDescription(name);
+        infoBox.getChildren().add(new Label(name + "(" + description + ")"));
+        if (pearl.getType().equals("gene")) {
+            final String url = "http://v4.genecards.org/cgi-bin/carddisp.pl?gene=" + pearl.getName();
+            final Hyperlink hyperlink = new Hyperlink("GeneCards");
+            hyperlink.setOnAction(event -> new Thread(() -> {
+                try {
+                    Desktop.getDesktop().browse(new URI(url));
+                } catch (IOException | URISyntaxException e1) {
+                    e1.printStackTrace();
+                }
+            }).start());
+            infoBox.getChildren().add(hyperlink);
+        }
+        final List<Variant> variants = (List<Variant>) pearl.getProperties().get("variants");
+        if (variants != null)
+            for (Variant variant : variants) infoBox.getChildren().add(new Label(simplified(variant)));
     }
 
     private String simplified(Variant variant) {
@@ -187,13 +187,6 @@ public class PoirotView extends HBox {
             genes.clear();
             vcfFile.getVariants().stream().map(variant -> (String) variant.getInfos().get("GNAME")).filter(name -> name != null).distinct().forEach(genes::add);
             final Task<PearlDatabase> task = new PoirotAnalysis2(vcfFile.getVariants(), phenotypes);
-            message.textProperty().bind(task.messageProperty());
-            start.setDisable(true);
-            new Thread(task).start();
-            task.setOnSucceeded(event -> end(task.getValue()));
-        } else {
-            genes = Arrays.asList(geneList.getText().split("\n"));
-            final Task<PearlDatabase> task = new PoirotAnalysis(genes, phenotypes);
             message.textProperty().bind(task.messageProperty());
             start.setDisable(true);
             new Thread(task).start();
@@ -230,14 +223,6 @@ public class PoirotView extends HBox {
         return genes.stream().map(gene -> database.getPearl(gene, "gene")).
                 filter(pearl -> pearl != null).
                 collect(Collectors.toList());
-    }
-
-    private void save(File output, PearlDatabase database) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(output))) {
-            writer.write(database.toJson());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     private void reload() {
