@@ -8,8 +8,8 @@ import java.util.Map;
  */
 public class PearlRelationship {
     private final Pearl source;
-    private Pearl target;
-    private Map<String, Object> properties = new HashMap<>();
+    private final Pearl target;
+    private final Map<String, Object> properties = new HashMap<>();
 
     public PearlRelationship(Pearl source, Pearl target) {
         this.source = source;

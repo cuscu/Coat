@@ -64,4 +64,5 @@ public class GraphNode {
     public Vector getDirection() {
         return direction;
     }
+
 }

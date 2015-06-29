@@ -13,9 +13,9 @@ public class Pearl {
     private String type;
     private String name;
     private int weight = -1;
-    private List<PearlRelationship> outRelationships = new ArrayList<>();
-    private List<PearlRelationship> inRelationships = new ArrayList<>();
     private Map<String, Object> properties = new HashMap<>();
+
+    private Map<Pearl, List<PearlRelationship>> relationships = new HashMap<>();
 
     public Pearl(String name, String type) {
         this.name = name;
@@ -41,7 +41,7 @@ public class Pearl {
 
     @Override
     public String toString() {
-        return String.format("[%s] %d, %s (%s)", type, weight, name, properties.get("description"));
+        return String.format("[%s] %d, %s", type, weight, name);
     }
 
     public int getWeight() {
@@ -53,22 +53,46 @@ public class Pearl {
     }
 
 
-    public List<PearlRelationship> getOutRelationships() {
-        return outRelationships;
+//    public List<PearlRelationship> getOutRelationships() {
+//        return outRelationships;
+//    }
+
+//    public PearlRelationship createRelationshipTo(Pearl target) {
+//        final PearlRelationship relationship = new PearlRelationship(this, target);
+//        this.outRelationships.add(relationship);
+//        target.inRelationships.add(relationship);
+//        return relationship;
+//    }
+
+//    public List<PearlRelationship> getInRelationships() {
+//        return inRelationships;
+//    }
+
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+
+    public Map<Pearl, List<PearlRelationship>> getRelationships() {
+        return relationships;
     }
 
     public PearlRelationship createRelationshipTo(Pearl target) {
         final PearlRelationship relationship = new PearlRelationship(this, target);
-        this.outRelationships.add(relationship);
-        target.inRelationships.add(relationship);
+        List<PearlRelationship> relationshipsTo = this.relationships.get(target);
+        if (relationshipsTo == null) {
+            relationshipsTo = new ArrayList<>();
+            relationships.put(target, relationshipsTo);
+        }
+        relationshipsTo.add(relationship);
         return relationship;
     }
 
-    public List<PearlRelationship> getInRelationships() {
-        return inRelationships;
-    }
-
-    public Map<String, Object> getProperties() {
-        return properties;
+    public void addRelationship(Pearl pearl, PearlRelationship relationship) {
+        List<PearlRelationship> rs = this.relationships.get(pearl);
+        if (rs == null) {
+            rs = new ArrayList<>();
+            relationships.put(pearl, rs);
+        }
+        if (!rs.contains(relationship)) rs.add(relationship);
     }
 }

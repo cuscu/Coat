@@ -22,6 +22,7 @@ import javafx.scene.text.TextAlignment;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -222,23 +223,26 @@ public class GraphView extends Canvas {
     }
 
     private void addRelationship(GraphNode source, GraphNode target, PearlRelationship relationship) {
-        if (!relationshipExists(source, target)) {
-            final GraphRelationship graphRelationship = new GraphRelationship(source, target, relationship.getProperties());
-            int total = (int) relationship.getProperty("total");
-            if (total > maxTotal) maxTotal = total;
+        GraphRelationship graphRelationship = getGraphRelationship(source, target);
+        if (graphRelationship == null) {
+            graphRelationship = new GraphRelationship(source, target);
             source.getRelationships().add(graphRelationship);
             target.getRelationships().add(graphRelationship);
         }
+        if (!graphRelationship.getRelationships().contains(relationship))
+            graphRelationship.getRelationships().add(relationship);
+//        target.getRelationships().add(graphRelationship);
     }
 
-    private boolean relationshipExists(GraphNode source, GraphNode target) {
-        for (GraphRelationship graphRelationship : source.getRelationships())
-            if (graphRelationship.getTarget().equals(target)) return true;
-        return false;
+    private GraphRelationship getGraphRelationship(GraphNode source, GraphNode target) {
+        for (GraphRelationship relationship : source.getRelationships())
+            if (relationship.getTarget().equals(target)) return relationship;
+        return null;
     }
 
     private void initialDistribution() {
         hierarchyDistribution();
+        printGraphSize();
     }
 
     private void hierarchyDistribution() {
@@ -330,7 +334,6 @@ public class GraphView extends Canvas {
         node.push(new Vector(random.nextDouble() - 0.5, random.nextDouble() - 0.5));
     }
 
-
     private void updateNodePositions() {
         nodes.forEach(node -> {
             limitSpeed(node);
@@ -339,6 +342,7 @@ public class GraphView extends Canvas {
             stop(node);
         });
     }
+
 
     private void limitSpeed(GraphNode node) {
         if (node.getDirection().getX() > maxSpeed) node.getDirection().setX(maxSpeed);
@@ -368,18 +372,9 @@ public class GraphView extends Canvas {
         paintNodes();
     }
 
-    private void paintNodes() {
-        synchronized (nodes) {
-            nodes.forEach(graphNode -> {
-                drawCircle(graphNode);
-                writeText(graphNode);
-            });
-        }
-    }
-
     private void paintRelationships() {
         nodes.forEach(graphNode -> graphNode.getRelationships().stream().filter(relationship -> relationship.getSource().equals(graphNode)).forEach(relationship -> {
-            final int total = (int) relationship.getProperties().get("total");
+            final int total = relationship.getRelationships().size();
             screen.setLineWidth(total);
             drawLine(graphNode.getPosition(), relationship.getTarget().getPosition());
             Vector center = new Vector(
@@ -387,7 +382,7 @@ public class GraphView extends Canvas {
                     (graphNode.getPosition().getY() + relationship.getTarget().getPosition().getY()) * 0.5
             );
             drawBox(center);
-            writeText((int) relationship.getProperties().get("total") + "", center);
+            writeText(total + "", center);
         }));
     }
 
@@ -404,6 +399,15 @@ public class GraphView extends Canvas {
     private void writeText(String text, Vector position) {
         screen.setFill(Color.BLACK);
         screen.fillText(text, position.getX(), position.getY());
+    }
+
+    private void paintNodes() {
+        synchronized (nodes) {
+            nodes.forEach(graphNode -> {
+                drawCircle(graphNode);
+                writeNodeText(graphNode);
+            });
+        }
     }
 
     private void drawCircle(GraphNode graphNode) {
@@ -468,16 +472,27 @@ public class GraphView extends Canvas {
         return step * OPACITY_FACTOR + 0.2;
     }
 
-    private void writeText(GraphNode graphNode) {
+    private void writeNodeText(GraphNode graphNode) {
         String name;
         if (graphNode.getPearl().getType().equals("phenotype")) {
             screen.setFill(Color.BLACK);
             name = graphNode.getPearl().getName().substring(0, graphNode.getPearl().getName().indexOf(",")).replace("{", "");
-        }
-        else {
+        } else {
             screen.setFill(Color.WHITE);
             name = graphNode.getPearl().getName();
         }
         screen.fillText(name, graphNode.getPosition().getX(), graphNode.getPosition().getY());
+    }
+
+    private void printGraphSize() {
+        AtomicInteger edges = new AtomicInteger();
+        nodes.forEach(node -> node.getRelationships().forEach(graphRelationship -> edges.incrementAndGet()));
+        System.out.println(String.format("Nodes: %d, edges: %d", nodes.size(), edges.get()));
+        nodes.forEach(node -> {
+            System.out.println(node.getPearl().getName() + " " + node.getPosition() + " " + node.getPearl().getWeight());
+            node.getRelationships().forEach(graphRelationship -> {
+                System.out.println("->" + graphRelationship.getOtherNode(node).getPearl().getName() + " " + graphRelationship.getRelationships().size());
+            });
+        });
     }
 }

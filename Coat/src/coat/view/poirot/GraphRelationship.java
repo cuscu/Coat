@@ -1,5 +1,10 @@
 package coat.view.poirot;
 
+import coat.model.poirot.PearlRelationship;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -7,14 +12,14 @@ import java.util.Map;
  */
 public class GraphRelationship {
     private final GraphNode source;
-    private GraphNode target;
+    private final GraphNode target;
     private final Map<String, Object> properties;
+    private List<PearlRelationship> relationships = new ArrayList<>();
 
-    public GraphRelationship(GraphNode source, GraphNode target, Map<String, Object> properties) {
-
+    public GraphRelationship(GraphNode source, GraphNode target) {
         this.source = source;
         this.target = target;
-        this.properties = properties;
+        this.properties = new HashMap<>();
     }
 
     public GraphNode getTarget() {
@@ -31,5 +36,9 @@ public class GraphRelationship {
 
     public GraphNode getSource() {
         return source;
+    }
+
+    public List<PearlRelationship> getRelationships() {
+        return relationships;
     }
 }

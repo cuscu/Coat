@@ -234,8 +234,8 @@ public class BigPearlDatabaseTest {
     }
 
     private PearlRelationship findRelationship(Pearl genePearl, Pearl phenotypePearl) {
-        for (PearlRelationship relationship : genePearl.getOutRelationships())
-            if (relationship.getTarget().equals(phenotypePearl)) return relationship;
+//        for (PearlRelationship relationship : genePearl.getOutRelationships())
+//            if (relationship.getTarget().equals(phenotypePearl)) return relationship;
         return null;
     }
 
@@ -249,8 +249,8 @@ public class BigPearlDatabaseTest {
             writer.newLine();
             for (Pearl pearl : pearls) {
                 if (processed.incrementAndGet() % 10000 == 0) System.out.println(processed.get() + " genes saved");
-                for (PearlRelationship relationship : pearl.getOutRelationships())
-                    writeRelationship(writer, relationship);
+//                for (PearlRelationship relationship : pearl.getOutRelationships())
+//                    writeRelationship(writer, relationship);
             }
         } catch (IOException e) {
             e.printStackTrace();
