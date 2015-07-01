@@ -3,10 +3,7 @@ package coat.model.poirot;
 import coat.model.vcf.Variant;
 import javafx.concurrent.Task;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -27,9 +24,54 @@ public class PoirotAnalysis2 extends Task<PearlDatabase> {
     private AtomicInteger round = new AtomicInteger();
 
     private final static List<String> BLACKLIST = new ArrayList<>();
+    public static final Map<String, Double> CONSEQUENCE_SCORE = new HashMap<>();
+    public static final Map<String, Double> RELATIONSHIP_SCORE = new HashMap<>();
 
     static {
         BLACKLIST.add("UBC");
+        CONSEQUENCE_SCORE.put("transcript_ablation", 5.0);
+        CONSEQUENCE_SCORE.put("splice_acceptor_variant", 5.0);
+        CONSEQUENCE_SCORE.put("splice_donor_variant", 5.0);
+        CONSEQUENCE_SCORE.put("stop_gained", 5.0);
+        CONSEQUENCE_SCORE.put("frameshift_variant", 5.0);
+        CONSEQUENCE_SCORE.put("stop_lost", 5.0);
+        CONSEQUENCE_SCORE.put("transcript_amplification", 5.0);
+        CONSEQUENCE_SCORE.put("inframe_insertion", 4.0);
+        CONSEQUENCE_SCORE.put("inframe_deletion", 4.0);
+        CONSEQUENCE_SCORE.put("missense_variant", 4.0);
+        CONSEQUENCE_SCORE.put("protein_altering_variant", 4.0);
+        CONSEQUENCE_SCORE.put("TFBS_ablation", 4.0);
+        CONSEQUENCE_SCORE.put("regulatory_region_ablation", 4.0);
+        CONSEQUENCE_SCORE.put("splice_region_variant", 2.0);
+        CONSEQUENCE_SCORE.put("start_lost", 2.0);
+        CONSEQUENCE_SCORE.put("incomplete_terminal_codon_variant", 2.0);
+        CONSEQUENCE_SCORE.put("stop_retained_variant", 2.0);
+        CONSEQUENCE_SCORE.put("synonymous_variant", 2.0);
+        CONSEQUENCE_SCORE.put("coding_sequence_variant", 1.0);
+        CONSEQUENCE_SCORE.put("mature_miRNA_variant", 1.0);
+        CONSEQUENCE_SCORE.put("5_prime_UTR_variant", 1.0);
+        CONSEQUENCE_SCORE.put("3_prime_UTR_variant", 1.0);
+        CONSEQUENCE_SCORE.put("non_coding_transcript_exon_variant", 1.0);
+        CONSEQUENCE_SCORE.put("intron_variant", 1.0);
+        CONSEQUENCE_SCORE.put("NMD_transcript_variant", 1.0);
+        CONSEQUENCE_SCORE.put("non_coding_transcript_variant", 1.0);
+        CONSEQUENCE_SCORE.put("upstream_gene_variant", 1.0);
+        CONSEQUENCE_SCORE.put("downstream_gene_variant", 1.0);
+        CONSEQUENCE_SCORE.put("TFBS_amplification", 1.0);
+        CONSEQUENCE_SCORE.put("TF_binding_site_variant", 1.0);
+        CONSEQUENCE_SCORE.put("regulatory_region_amplification", 1.0);
+        CONSEQUENCE_SCORE.put("feature_elongation", 1.0);
+        CONSEQUENCE_SCORE.put("regulatory_region_variant", 1.0);
+        CONSEQUENCE_SCORE.put("feature_truncation", 1.0);
+        CONSEQUENCE_SCORE.put("intergenic_variant", 1.0);
+
+        RELATIONSHIP_SCORE.put("direct interaction", 5.0);
+        RELATIONSHIP_SCORE.put("physical association", 2.0);
+        RELATIONSHIP_SCORE.put("additive genetic interaction defined by inequality", 2.0);
+        RELATIONSHIP_SCORE.put("suppressive genetic interaction defined by inequality", 2.0);
+        RELATIONSHIP_SCORE.put("synthetic genetic interaction defined by inequality", 2.0);
+        RELATIONSHIP_SCORE.put("colocalization", 1.0);
+        RELATIONSHIP_SCORE.put("association", 1.0);
     }
 
     public PoirotAnalysis2(List<Variant> variants, List<String> phenotypes) {
@@ -40,7 +82,6 @@ public class PoirotAnalysis2 extends Task<PearlDatabase> {
     @Override
     protected PearlDatabase call() throws Exception {
         try {
-
             mapVariantsToGenes();
             phenotypes.forEach(phenotype -> {
                 final List<String> realPhenotyes = Omim.getPhenotypes(phenotype);
@@ -64,7 +105,7 @@ public class PoirotAnalysis2 extends Task<PearlDatabase> {
 
     private void mapVariantsToGenes() {
         for (Variant variant : variants) {
-            String gene = (String) variant.getInfos().get("GNAME");
+            final String gene = (String) variant.getInfos().get("GNAME");
             if (gene != null) {
                 final String GENE = gene.toUpperCase();
                 List<Variant> vs = geneMap.get(GENE);
@@ -74,7 +115,6 @@ public class PoirotAnalysis2 extends Task<PearlDatabase> {
                 }
                 vs.add(variant);
                 if (!genes.contains(GENE)) genes.add(GENE);
-
             }
         }
     }
@@ -84,6 +124,7 @@ public class PoirotAnalysis2 extends Task<PearlDatabase> {
         expandGraph();
         setWeights();
         cleanDatabase();
+        setScores();
         return pearlDatabase;
     }
 
@@ -154,8 +195,6 @@ public class PoirotAnalysis2 extends Task<PearlDatabase> {
             cloneProperties(myRelationship, relationship);
             source.addRelationship(target, relationship);
             target.addRelationship(source, relationship);
-//        source.getOutRelationships().add(relationship);
-//        target.getInRelationships().add(relationship);
         }
     }
 
@@ -208,28 +247,63 @@ public class PoirotAnalysis2 extends Task<PearlDatabase> {
 
     private void setWeights() {
         pearlDatabase.getPearls("phenotype").forEach(pearl -> {
-            pearl.setWeight(0);
-            pearl.getRelationships().keySet().forEach(otherPearl -> otherPearl.setWeight(1));
-//            pearl.getInRelationships().stream().map(PearlRelationship::getSource).forEach(source -> source.setWeight(1));
+            pearl.setDistanceToPhenotype(0);
+            pearl.getRelationships().keySet().forEach(otherPearl -> otherPearl.setDistanceToPhenotype(1));
         });
         final int[] weight = {2};
         for (int i = 0; i < 3; i++) {
-            final List<Pearl> wave = pearlDatabase.getPearls("gene").stream().filter(gene -> gene.getWeight() > 0).collect(Collectors.toList());
-            wave.forEach(pearl -> {
-                pearl.getRelationships().forEach((otherPearl, relationships) -> {
-                    if (otherPearl.getWeight() < 0) otherPearl.setWeight(weight[0]);
-                });
-//                pearl.getInRelationships().stream().map(PearlRelationship::getSource).filter(source -> source.getWeight() < 0).forEach(source -> source.setWeight(weight[0]));
-//                pearl.getOutRelationships().stream().map(PearlRelationship::getTarget).filter(target -> target.getWeight() < 0).forEach(target -> target.setWeight(weight[0]));
-            });
+            final List<Pearl> wave = pearlDatabase.getPearls("gene").stream().filter(gene -> gene.getDistanceToPhenotype() > 0).collect(Collectors.toList());
+            wave.forEach(pearl -> pearl.getRelationships().forEach((otherPearl, relationships) -> {
+                if (otherPearl.getDistanceToPhenotype() < 0) otherPearl.setDistanceToPhenotype(weight[0]);
+            }));
             weight[0]++;
         }
     }
 
     private void cleanDatabase() {
-        System.out.println("Cleaning");
-//        printDatabase();
-        pearlDatabase.getPearls("gene").stream().filter(pearl -> pearl.getWeight() < 0).forEach(pearlDatabase::remove);
+        pearlDatabase.getPearls("gene").stream().filter(pearl -> pearl.getDistanceToPhenotype() < 0).forEach(pearlDatabase::remove);
+    }
+
+    private void setScores() {
+        pearlDatabase.getPearls("gene").forEach(this::setScore);
+    }
+
+    private void setScore(Pearl pearl) {
+        double variantScore = getVariantScore(pearl);
+        double pathScore = getPathScore(pearl);
+        pearl.setScore((variantScore + (1.0 + pathScore) / (pearl.getDistanceToPhenotype() * pearl.getDistanceToPhenotype())));
+    }
+
+    private double getVariantScore(Pearl pearl) {
+        final List<Variant> variants = (List<Variant>) pearl.getProperties().get("variants");
+        return variants != null ? consequenceScore(variants) : 0.0;
+    }
+
+    private double consequenceScore(List<Variant> variants) {
+        final List<String> consequences = getConsequences(variants);
+        return consequences.stream().map(cons -> CONSEQUENCE_SCORE.getOrDefault(cons, 0.0)).max(Double::compare).get();
+    }
+
+    private List<String> getConsequences(List<Variant> variants) {
+        final List<String> consequences = new ArrayList<>();
+        for (Variant variant : variants) {
+            final String cons = (String) variant.getInfos().get("CONS");
+            if (cons != null) Collections.addAll(consequences, cons.split(", "));
+        }
+        return consequences;
+    }
+
+    private double getPathScore(Pearl pearl) {
+        final List<List<PearlRelationship>> paths = ShortestPath.getShortestPaths(pearl);
+        return paths.stream().map(this::computePathScore).max(Double::compare).get();
+    }
+
+    private double computePathScore(List<PearlRelationship> path) {
+        return path.stream().
+                map(relationship -> (String) relationship.getProperties().get("type")).
+                filter(type -> type != null).
+                map(type -> RELATIONSHIP_SCORE.getOrDefault(type, 0.0)).
+                reduce(0.0, Double::sum);
     }
 
 }

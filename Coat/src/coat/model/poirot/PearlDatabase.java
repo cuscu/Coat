@@ -31,7 +31,7 @@ public class PearlDatabase {
 //        final String[] nodes = {"\"nodes\":["};
 //        final String[] edges = {"\"edges\":["};
 //        types.forEach((type, typeMap) -> typeMap.forEach((name, pearl) -> {
-//            final int cluster = pearl.getWeight() + 1;
+//            final int cluster = pearl.getDistanceToPhenotype() + 1;
 //            nodes[0] += "{\"id\": \"" + name + "\", \"type\":\"" + type + "\", \"cluster\": " + cluster + "},\n";
 //            pearl.getOutRelationships().forEach(pearlRelationship -> {
 //                final String target = pearlRelationship.getTarget().getName();
@@ -105,7 +105,7 @@ public class PearlDatabase {
 //        });
 //        final String[] nodes = {"\"nodes\":["};
 //        pearlNodes.forEach(pearl -> nodes[0] += String.format("{\"id\": \"%s\",\"type\": \"%s\", \"cluster\": %d},",
-//                pearl.getName(), pearl.getType(), pearl.getWeight() + 1));
+//                pearl.getName(), pearl.getType(), pearl.getDistanceToPhenotype() + 1));
 //        final String[] edges = {"\"edges\":["};
 //        relationshipEdges.forEach(relationship -> edges[0] += String.format("{\"source\": \"%s\", \"target\": \"%s\", \"interactions\": %d, \"caption\": \"%s\"},",
 //                relationship.getSource().getName(), relationship.getTarget().getName(), (int) relationship.getProperty("total"), getCaption(relationship)));
@@ -161,7 +161,7 @@ public class PearlDatabase {
 //    }
 
 //    private String toCytoJson(Pearl node) {
-//        return String.format("{data:{id: \"%s\", score: \"%d\"}}", node.getName(), node.getWeight());
+//        return String.format("{data:{id: \"%s\", score: \"%d\"}}", node.getName(), node.getDistanceToPhenotype());
 //    }
 //
 //    private String getCaption(PearlRelationship relationship) {
@@ -186,25 +186,25 @@ public class PearlDatabase {
 //        final int outMin = gene.getOutRelationships().isEmpty() ? Integer.MAX_VALUE :
 //                gene.getOutRelationships().stream().
 //                        map(PearlRelationship::getTarget).
-//                        map(Pearl::getWeight).
+//                        map(Pearl::getDistanceToPhenotype).
 //                        min(Integer::compare).get();
 //        final int inMin = gene.getInRelationships().isEmpty() ? Integer.MAX_VALUE :
 //                gene.getInRelationships().stream().
 //                        map(PearlRelationship::getSource).
-//                        map(Pearl::getWeight).
+//                        map(Pearl::getDistanceToPhenotype).
 //                        min(Integer::compare).get();
 //        return Math.min(inMin, outMin);
 //    }
 //
 //    private void genearateOutSubPaths(Pearl pearl, List<List<PearlRelationship>> paths, int min) {
 //        pearl.getOutRelationships().stream().
-//                filter(relationship -> relationship.getTarget().getWeight() == min).
+//                filter(relationship -> relationship.getTarget().getDistanceToPhenotype() == min).
 //                forEach(relationship -> addOutSubPaths(paths, relationship));
 //    }
 //
 //    private void genearateInSubPaths(Pearl pearl, List<List<PearlRelationship>> paths, int min) {
 //        pearl.getInRelationships().stream().
-//                filter(relationship -> relationship.getSource().getWeight() == min).
+//                filter(relationship -> relationship.getSource().getDistanceToPhenotype() == min).
 //                forEach(relationship -> addInSubPaths(paths, relationship));
 //    }
 //

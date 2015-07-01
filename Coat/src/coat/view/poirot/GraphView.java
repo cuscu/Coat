@@ -3,10 +3,13 @@ package coat.view.poirot;
 import coat.Coat;
 import coat.model.poirot.Pearl;
 import coat.model.poirot.PearlRelationship;
+import coat.model.poirot.PoirotAnalysis2;
 import coat.model.poirot.ShortestPath;
 import coat.model.vcf.Variant;
 import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.Property;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,13 +19,11 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.FontSmoothingType;
 import javafx.scene.text.TextAlignment;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -30,16 +31,20 @@ import java.util.stream.Collectors;
  */
 public class GraphView extends Canvas {
 
+    public static final int RELATIONSHIP_RADIUS = 10;
     private final GraphicsContext screen;
     private final List<GraphNode> nodes = new ArrayList<>();
     private final AtomicBoolean updating = new AtomicBoolean(false);
 
     private final ObservableList<Pearl> sourceNodes = FXCollections.observableArrayList();
     private final Property<Pearl> selectedPearl = new SimpleObjectProperty<>();
+    private final Property<GraphRelationship> selectedRelationship = new SimpleObjectProperty<>();
 
     private Timer timer;
     private double diameter;
-    private double radius;
+
+
+    private final DoubleProperty radiusProperty = new SimpleDoubleProperty();
     private double margin;
     private int maxTotal;
     private double maxWeight;
@@ -48,33 +53,27 @@ public class GraphView extends Canvas {
     private double maxSpeed;
     private double nodeDistance;
     private long startTime;
+
     private Vector lastMousePosition = new Vector();
+    private final static long GLOWING_TIME = 2000;
+    private final static long HALF_GLOWING_TIME = GLOWING_TIME / 2;
+    private final static double OPACITY_FACTOR = 0.8 / HALF_GLOWING_TIME;
+    private final static double MAX_RADIUS = 40;
 
-    private final long GLOWING_TIME = 2000;
-    private final long HALF_GLOWING_TIME = GLOWING_TIME / 2;
-    private final double OPACITY_FACTOR = 0.8 / HALF_GLOWING_TIME;
+    private final static double MIN_RADIUS = 15;
 
-    private final static Map<String, Paint> BIO_COLORS = new HashMap<>();
-    private final static Map<String, Paint> CONS_COLORS = new HashMap<>();
-
-    static {
-        BIO_COLORS.put("protein_coding", Color.LIMEGREEN);
-        BIO_COLORS.put("processed_transcript", Color.CYAN);
-        BIO_COLORS.put("retained_intron", Color.BLUE);
-        BIO_COLORS.put("nonsense_mediated_decay", Color.DARKBLUE);
-        BIO_COLORS.put("lincRNA", Color.MAGENTA);
-        CONS_COLORS.put("intron_variant", Color.BLUE);
-        CONS_COLORS.put("downstream_gene_variant", Color.LIMEGREEN);
-        CONS_COLORS.put("upstream_gene_variant", Color.LIMEGREEN);
-        CONS_COLORS.put("non_coding_trasncript_variant", Color.CYAN);
-        CONS_COLORS.put("NMD_transcript_variant", Color.CYAN);
-        CONS_COLORS.put("non_coding_transcript_exon_variant", Color.CYAN);
-        CONS_COLORS.put("regulatory_region_variant", Color.CYAN);
-
-    }
+    private final Map<NodePairKey, GraphRelationship> relationships = new HashMap<>();
+//    private final static Map<String, Paint> BIO_COLORS = new HashMap<>();
+//
+//    static {
+//        BIO_COLORS.put("protein_coding", Color.LIMEGREEN);
+//        BIO_COLORS.put("processed_transcript", Color.CYAN);
+//        BIO_COLORS.put("retained_intron", Color.BLUE);
+//        BIO_COLORS.put("nonsense_mediated_decay", Color.DARKBLUE);
+//        BIO_COLORS.put("lincRNA", Color.MAGENTA);
+//    }
 
     private final Random random = new Random();
-
     private GraphNode movingNode;
 
     public GraphView() {
@@ -88,10 +87,16 @@ public class GraphView extends Canvas {
         setWidth(400);
         setHeight(400);
         Platform.setImplicitExit(true);
+        radiusProperty.addListener((observable, oldValue, newRadius) -> setRadius(newRadius.doubleValue()));
+
     }
 
     public Property<Pearl> getSelectedPearlProperty() {
         return selectedPearl;
+    }
+
+    public Property<GraphRelationship> getSelectedRelationship() {
+        return selectedRelationship;
     }
 
     private void setMouseEvents() {
@@ -99,31 +104,40 @@ public class GraphView extends Canvas {
         setOnMousePressed(this::startMove);
         setOnMouseReleased(this::endMove);
         setOnMouseDragged(this::mouseDragging);
+        setOnMouseMoved(this::mouseMoving);
         setOnScroll(this::zoom);
     }
 
     private void clicked(MouseEvent event) {
         if (movingNode == null) {
             final Vector click = new Vector(event.getX(), event.getY());
-            boolean selected = false;
-            for (GraphNode node : nodes) {
-                node.setSelected(click.distance(node.getPosition()) < radius);
-                if (node.isSelected()) {
-                    selectedPearl.setValue(node.getPearl());
-                    selected = true;
-                }
-            }
-            if (!selected) {
+            selectNode(click);
+            selectRelationship(click);
+            if (selectedRelationship.getValue() == null && selectedPearl.getValue() == null)
                 lastMousePosition.set(event.getX(), event.getY());
-                selectedPearl.setValue(null);
-            }
+        }
+    }
+
+    private void selectRelationship(Vector clickPosition) {
+        selectedRelationship.setValue(null);
+        for (Map.Entry<NodePairKey, GraphRelationship> entry : relationships.entrySet()) {
+            entry.getValue().setSelected(clickPosition.distance(entry.getValue().getPosition()) < RELATIONSHIP_RADIUS);
+            if (entry.getValue().isSelected()) selectedRelationship.setValue(entry.getValue());
+        }
+    }
+
+    private void selectNode(Vector clickPosition) {
+        selectedPearl.setValue(null);
+        for (GraphNode node : nodes) {
+            node.setSelected(clickPosition.distance(node.getPosition()) < radiusProperty.getValue());
+            if (node.isSelected()) selectedPearl.setValue(node.getPearl());
         }
     }
 
     private void startMove(MouseEvent event) {
         lastMousePosition = new Vector(event.getX(), event.getY());
         for (GraphNode node : nodes)
-            if (node.getPosition().distance(lastMousePosition) < radius) {
+            if (node.getPosition().distance(lastMousePosition) < radiusProperty.getValue()) {
                 movingNode = node;
                 node.setMouseMoving(true);
                 break;
@@ -152,7 +166,7 @@ public class GraphView extends Canvas {
     private void zoom(ScrollEvent event) {
         updating.set(true);
         double scale = event.getDeltaY() > 0 ? 1.25 : 0.8;
-        setRadius(radius * scale);
+        radiusProperty.setValue(radiusProperty.get() * scale);
         final Vector mouse = new Vector(event.getX(), event.getY());
         synchronized (nodes) {
             nodes.forEach(graphNode -> {
@@ -164,22 +178,35 @@ public class GraphView extends Canvas {
         updating.set(false);
     }
 
+    private void mouseMoving(MouseEvent event) {
+        final Vector mousePosition = new Vector(event.getX(), event.getY());
+        synchronized (nodes) {
+            nodes.forEach(node -> node.setMouseOver(node.getPosition().distance(mousePosition) < radiusProperty.get()));
+        }
+        synchronized (relationships) {
+            relationships.forEach((nodePairKey, graphRelationship) -> graphRelationship.setMouseOver(graphRelationship.getPosition().distance(mousePosition) < RELATIONSHIP_RADIUS));
+        }
+    }
+
     private void setRadius(double radius) {
-        this.radius = radius;
-        diameter = 2 * radius;
-        maxSpeed = 0.25 * radius;
-        margin = 1.1 * radius;
-        nodeDistance = radius;
-        // Nodes will share half of the area
-        effectiveWidth = getWidth() - 2 * margin;
-        effectiveHeight = getHeight() - 2 * margin;
+        if (radius > MAX_RADIUS) this.radiusProperty.setValue(MAX_RADIUS);
+        else if (radius < MIN_RADIUS) this.radiusProperty.setValue(MIN_RADIUS);
+        else {
+            diameter = 2 * radius;
+            maxSpeed = 0.25 * radius;
+            margin = 1.1 * radius;
+            nodeDistance = radius;
+            // Nodes will share half of the area
+            effectiveWidth = getWidth() - 2 * margin;
+            effectiveHeight = getHeight() - 2 * margin;
+        }
     }
 
     public void setCandidates(List<Pearl> originGenes) {
         updating.set(true);
         this.sourceNodes.setAll(originGenes);
         findNodes();
-        setRadius(0.4 * Math.sqrt(0.25 * effectiveWidth * effectiveHeight / nodes.size()));
+        radiusProperty.setValue(0.4 * Math.sqrt(0.25 * effectiveWidth * effectiveHeight / nodes.size()));
         initialDistribution();
         startTime = System.currentTimeMillis();
         startDrawer();
@@ -188,15 +215,16 @@ public class GraphView extends Canvas {
 
     private void findNodes() {
         nodes.clear();
+        relationships.clear();
+        maxTotal = 0;
+        maxWeight = 0;
         sourceNodes.forEach(gene -> {
             final List<List<PearlRelationship>> paths = ShortestPath.getShortestPaths(gene);
-            createGraphicGraph(paths);
+            addToGraph(paths);
         });
     }
 
-    private void createGraphicGraph(List<List<PearlRelationship>> paths) {
-        maxTotal = 0;
-        maxWeight = 0;
+    private void addToGraph(List<List<PearlRelationship>> paths) {
         paths.forEach(path -> path.forEach(relationship -> {
             final GraphNode target = addOrGetNode(relationship.getTarget());
             final GraphNode source = addOrGetNode(relationship.getSource());
@@ -218,36 +246,30 @@ public class GraphView extends Canvas {
     private GraphNode createGraphNode(Pearl node) {
         final GraphNode graphNode = new GraphNode(node);
         nodes.add(graphNode);
-        if (graphNode.getPearl().getWeight() > maxWeight) maxWeight = graphNode.getPearl().getWeight();
+        if (graphNode.getPearl().getDistanceToPhenotype() > maxWeight)
+            maxWeight = graphNode.getPearl().getDistanceToPhenotype();
         return graphNode;
     }
 
     private void addRelationship(GraphNode source, GraphNode target, PearlRelationship relationship) {
-        GraphRelationship graphRelationship = getGraphRelationship(source, target);
+        NodePairKey key = new NodePairKey(source, target);
+        GraphRelationship graphRelationship = relationships.get(key);
         if (graphRelationship == null) {
-            graphRelationship = new GraphRelationship(source, target);
-            source.getRelationships().add(graphRelationship);
-            target.getRelationships().add(graphRelationship);
+            graphRelationship = new GraphRelationship();
+            relationships.put(key, graphRelationship);
         }
         if (!graphRelationship.getRelationships().contains(relationship))
             graphRelationship.getRelationships().add(relationship);
-//        target.getRelationships().add(graphRelationship);
-    }
-
-    private GraphRelationship getGraphRelationship(GraphNode source, GraphNode target) {
-        for (GraphRelationship relationship : source.getRelationships())
-            if (relationship.getTarget().equals(target)) return relationship;
-        return null;
     }
 
     private void initialDistribution() {
         hierarchyDistribution();
-        printGraphSize();
+//        printGraphSize();
     }
 
     private void hierarchyDistribution() {
         final List<GraphNode> rootNodes = nodes.stream().
-                filter(graphNode -> graphNode.getPearl().getWeight() == 0).collect(Collectors.toList());
+                filter(graphNode -> graphNode.getPearl().getDistanceToPhenotype() == 0).collect(Collectors.toList());
         final double y = margin;
         final double nodeWidth = effectiveWidth / rootNodes.size();
         for (int i = 0; i < rootNodes.size(); i++) {
@@ -261,7 +283,7 @@ public class GraphView extends Canvas {
     private void setSubHierarchy(List<GraphNode> parentNodes, int weight) {
         if (weight > maxWeight) return;
         final List<GraphNode> subNodes = nodes.stream().
-                filter(graphNode -> graphNode.getPearl().getWeight() == weight).collect(Collectors.toList());
+                filter(graphNode -> graphNode.getPearl().getDistanceToPhenotype() == weight).collect(Collectors.toList());
         final double y = margin + weight / maxWeight * effectiveHeight;
         final double nodeWidth = effectiveWidth / subNodes.size();
         int j = 0;
@@ -281,9 +303,7 @@ public class GraphView extends Canvas {
     }
 
     private List<GraphNode> extractNodeChildren(List<GraphNode> subNodes, GraphNode parentNode) {
-        return subNodes.stream().
-                filter(graphNode -> graphNode.getRelationships().stream().
-                        anyMatch(graphRelationship -> graphRelationship.getOtherNode(graphNode).equals(parentNode))).collect(Collectors.toList());
+        return subNodes.stream().filter(graphNode -> relationships.containsKey(new NodePairKey(parentNode, graphNode))).collect(Collectors.toList());
     }
 
     private void startDrawer() {
@@ -343,7 +363,6 @@ public class GraphView extends Canvas {
         });
     }
 
-
     private void limitSpeed(GraphNode node) {
         if (node.getDirection().getX() > maxSpeed) node.getDirection().setX(maxSpeed);
         if (node.getDirection().getY() > maxSpeed) node.getDirection().setY(maxSpeed);
@@ -359,7 +378,7 @@ public class GraphView extends Canvas {
         if (node.getPosition().getX() < margin) node.getPosition().setX(margin);
         if (node.getPosition().getX() > margin + effectiveWidth) node.getPosition().setX(margin + effectiveWidth);
         if (node.getPosition().getY() < margin) node.getPosition().setY(margin);
-        if (node.getPosition().getY() > effectiveHeight + margin) node.getPosition().setY(effectiveHeight + margin);
+        if (node.getPosition().getY() > margin + effectiveHeight) node.getPosition().setY(margin + effectiveHeight);
     }
 
     private void stop(GraphNode node) {
@@ -373,31 +392,52 @@ public class GraphView extends Canvas {
     }
 
     private void paintRelationships() {
-        nodes.forEach(graphNode -> graphNode.getRelationships().stream().filter(relationship -> relationship.getSource().equals(graphNode)).forEach(relationship -> {
-            final int total = relationship.getRelationships().size();
-            screen.setLineWidth(total);
-            drawLine(graphNode.getPosition(), relationship.getTarget().getPosition());
-            Vector center = new Vector(
-                    (graphNode.getPosition().getX() + relationship.getTarget().getPosition().getX()) * 0.5,
-                    (graphNode.getPosition().getY() + relationship.getTarget().getPosition().getY()) * 0.5
-            );
-            drawBox(center);
-            writeText(total + "", center);
-        }));
+        relationships.forEach((nodePairKey, graphRelationship) -> {
+            final int size = graphRelationship.getRelationships().size();
+            final Vector center = getCenter(nodePairKey);
+            graphRelationship.getPosition().set(center.getX(), center.getY());
+            drawRelationshipLine(nodePairKey, size);
+            drawRelationshipCircle(graphRelationship);
+            drawSelection(graphRelationship);
+            writeText(size + "", center);
+
+        });
     }
 
-    private void drawLine(Vector source, Vector target) {
+    private Vector getCenter(NodePairKey nodePairKey) {
+        return new Vector(
+                (nodePairKey.getSource().getPosition().getX() + nodePairKey.getTarget().getPosition().getX()) * 0.5,
+                (nodePairKey.getSource().getPosition().getY() + nodePairKey.getTarget().getPosition().getY()) * 0.5);
+    }
+
+    private void drawRelationshipLine(NodePairKey nodePairKey, int size) {
         screen.setStroke(Color.BLACK);
-        screen.strokeLine(source.getX(), source.getY(), target.getX(), target.getY());
+        screen.setLineWidth(size);
+        screen.strokeLine(nodePairKey.getSource().getPosition().getX(), nodePairKey.getSource().getPosition().getY(),
+                nodePairKey.getTarget().getPosition().getX(), nodePairKey.getTarget().getPosition().getY());
     }
 
-    private void drawBox(Vector position) {
-        screen.setFill(Color.GRAY);
-        screen.fillRoundRect(position.getX() - 6, position.getY() - 6, 12, 12, 1, 1);
+    private void drawSelection(GraphRelationship graphRelationship) {
+        if (graphRelationship.isSelected()) {
+            screen.setLineWidth(4);
+            screen.setStroke(new Color(1, 1, 0, getSelectionOpacity()));
+            screen.strokeOval(graphRelationship.getPosition().getX() - RELATIONSHIP_RADIUS, graphRelationship.getPosition().getY() - RELATIONSHIP_RADIUS, RELATIONSHIP_RADIUS * 2, RELATIONSHIP_RADIUS * 2);
+        }
+    }
+
+    private void drawRelationshipCircle(GraphRelationship graphRelationship) {
+        final double score = graphRelationship.getRelationships().stream().
+                map(pearlRelationship -> (String) pearlRelationship.getProperties().getOrDefault("type", null)).
+                map(type -> PoirotAnalysis2.RELATIONSHIP_SCORE.getOrDefault(type, 0.0)).
+                max(Double::compare).get();
+        Color baseColor = Color.BLACK.interpolate(Color.GREEN, score * 0.2);
+        if (graphRelationship.isMouseOver()) baseColor = baseColor.interpolate(Color.WHITE, 0.5);
+        screen.setFill(baseColor);
+        screen.fillOval(graphRelationship.getPosition().getX() - RELATIONSHIP_RADIUS, graphRelationship.getPosition().getY() - RELATIONSHIP_RADIUS, RELATIONSHIP_RADIUS * 2, RELATIONSHIP_RADIUS * 2);
     }
 
     private void writeText(String text, Vector position) {
-        screen.setFill(Color.BLACK);
+        screen.setFill(Color.WHITE);
         screen.fillText(text, position.getX(), position.getY());
     }
 
@@ -411,49 +451,55 @@ public class GraphView extends Canvas {
     }
 
     private void drawCircle(GraphNode graphNode) {
-        drawBackgroundCircle(graphNode);
+        drawRelationshipCircle(graphNode);
         screen.setLineWidth(4);
-        drawVariants(graphNode);
+        drawConsequences(graphNode);
         drawSelectionCircle(graphNode);
     }
 
-    private void drawVariants(GraphNode graphNode) {
+    private void drawRelationshipCircle(GraphNode graphNode) {
+        setBackgroundColor(graphNode);
+        screen.fillOval(graphNode.getPosition().getX() - radiusProperty.get(), graphNode.getPosition().getY() - radiusProperty.get(), diameter, diameter);
+    }
+
+    private void setBackgroundColor(GraphNode graphNode) {
+        Color color;
+        switch (graphNode.getPearl().getType()) {
+            case "phenotype":
+                color = Color.ORANGE;
+                break;
+            case "gene":
+                color = new Color(1.0 - graphNode.getPearl().getDistanceToPhenotype() / maxWeight, 0, 0, 1);
+                break;
+            default:
+                color = Color.GRAY;
+        }
+        screen.setFill(graphNode.isMouseOver() ? color.interpolate(Color.WHITE, 0.5) : color);
+    }
+
+    private void drawConsequences(GraphNode graphNode) {
         final List<Variant> variants = (List<Variant>) graphNode.getPearl().getProperties().get("variants");
-        final double VARIANT_RADIUS = radius * 0.25;
-        final double VARIANT_DIAMETER = 2 * VARIANT_RADIUS;
         if (variants != null) {
             final List<String> consequences = getConsequences(variants);
+            final double VARIANT_RADIUS = radiusProperty.get() * 0.15;
+            final double VARIANT_DIAMETER = 2 * VARIANT_RADIUS;
             for (int i = 0; i < consequences.size(); i++) {
                 final double angle = 6.28318 * i / consequences.size() + 1.570795; // radians
-                final double x = graphNode.getPosition().getX() + Math.cos(angle) * (radius - VARIANT_RADIUS) - VARIANT_RADIUS;
-                final double y = graphNode.getPosition().getY() - Math.sin(angle) * (radius - VARIANT_RADIUS) - VARIANT_RADIUS;
-                screen.setFill(CONS_COLORS.getOrDefault(consequences.get(i), Color.GRAY));
+                final double x = graphNode.getPosition().getX() + Math.cos(angle) * (radiusProperty.get() - VARIANT_DIAMETER) - VARIANT_RADIUS;
+                final double y = graphNode.getPosition().getY() - Math.sin(angle) * (radiusProperty.get() - VARIANT_DIAMETER) - VARIANT_RADIUS;
+                final double score = PoirotAnalysis2.CONSEQUENCE_SCORE.getOrDefault(consequences.get(i), 0.0);
+                Color color = Color.WHITE.interpolate(Color.RED, score * 0.2);
+                screen.setFill(color);
                 screen.fillOval(x, y, VARIANT_DIAMETER, VARIANT_DIAMETER);
             }
         }
 
     }
 
-    private void drawBackgroundCircle(GraphNode graphNode) {
-        setColor(graphNode);
-        screen.fillOval(graphNode.getPosition().getX() - radius, graphNode.getPosition().getY() - radius, diameter, diameter);
-    }
-
-    private void setColor(GraphNode graphNode) {
-        switch (graphNode.getPearl().getType()) {
-            case "phenotype":
-                screen.setFill(Color.ORANGE);
-                break;
-            case "gene":
-                screen.setFill(new Color(1.0 - graphNode.getPearl().getWeight() / maxWeight, 0, 0, 1));
-                break;
-        }
-    }
-
     private void drawSelectionCircle(GraphNode graphNode) {
         if (graphNode.isSelected()) {
             screen.setStroke(new Color(1, 1, 0, getSelectionOpacity()));
-            screen.strokeOval(graphNode.getPosition().getX() - radius, graphNode.getPosition().getY() - radius, diameter, diameter);
+            screen.strokeOval(graphNode.getPosition().getX() - radiusProperty.get(), graphNode.getPosition().getY() - radiusProperty.get(), diameter, diameter);
         }
     }
 
@@ -467,8 +513,8 @@ public class GraphView extends Canvas {
     }
 
     private double getSelectionOpacity() {
-        long period = (System.currentTimeMillis() - startTime) % GLOWING_TIME;
-        long step = Math.abs(HALF_GLOWING_TIME - period);
+        final long period = (System.currentTimeMillis() - startTime) % GLOWING_TIME;
+        final long step = Math.abs(HALF_GLOWING_TIME - period);
         return step * OPACITY_FACTOR + 0.2;
     }
 
@@ -476,7 +522,7 @@ public class GraphView extends Canvas {
         String name;
         if (graphNode.getPearl().getType().equals("phenotype")) {
             screen.setFill(Color.BLACK);
-            name = graphNode.getPearl().getName().substring(0, graphNode.getPearl().getName().indexOf(",")).replace("{", "");
+            name = simplifyName(graphNode);
         } else {
             screen.setFill(Color.WHITE);
             name = graphNode.getPearl().getName();
@@ -484,15 +530,17 @@ public class GraphView extends Canvas {
         screen.fillText(name, graphNode.getPosition().getX(), graphNode.getPosition().getY());
     }
 
+    private String simplifyName(GraphNode graphNode) {
+        String name = graphNode.getPearl().getName();
+        String [] words = name.split(" ");
+        return words[0];
+//        final int nextQuote = name.indexOf(",");
+//        if (nextQuote > 0) name = name.substring(0, nextQuote).replace("{", "");
+//        return name;
+    }
+
     private void printGraphSize() {
-        AtomicInteger edges = new AtomicInteger();
-        nodes.forEach(node -> node.getRelationships().forEach(graphRelationship -> edges.incrementAndGet()));
-        System.out.println(String.format("Nodes: %d, edges: %d", nodes.size(), edges.get()));
-        nodes.forEach(node -> {
-            System.out.println(node.getPearl().getName() + " " + node.getPosition() + " " + node.getPearl().getWeight());
-            node.getRelationships().forEach(graphRelationship -> {
-                System.out.println("->" + graphRelationship.getOtherNode(node).getPearl().getName() + " " + graphRelationship.getRelationships().size());
-            });
-        });
+        System.out.println(String.format("Nodes: %d, edges: %d", nodes.size(), relationships.size()));
+        relationships.forEach((nodePairKey, graphRelationship) -> System.out.println(nodePairKey.getKey() + " " + graphRelationship.getRelationships().size()));
     }
 }

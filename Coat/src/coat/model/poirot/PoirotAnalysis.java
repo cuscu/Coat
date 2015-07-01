@@ -167,22 +167,22 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
 //
 //    private void setWeights() {
 //        pearlDatabase.getPearls("phenotype").forEach(pearl -> {
-//            pearl.setWeight(0);
-//            pearl.getInRelationships().stream().map(PearlRelationship::getSource).forEach(source -> source.setWeight(1));
+//            pearl.setDistanceToPhenotype(0);
+//            pearl.getInRelationships().stream().map(PearlRelationship::getSource).forEach(source -> source.setDistanceToPhenotype(1));
 //        });
 //        final int[] weight = {2};
 //        for (int i = 0; i < 3; i++) {
-//            final List<Pearl> wave = pearlDatabase.getPearls("gene").stream().filter(gene -> gene.getWeight() > 0).collect(Collectors.toList());
+//            final List<Pearl> wave = pearlDatabase.getPearls("gene").stream().filter(gene -> gene.getDistanceToPhenotype() > 0).collect(Collectors.toList());
 //            wave.forEach(pearl -> {
-//                pearl.getInRelationships().stream().map(PearlRelationship::getSource).filter(source -> source.getWeight() < 0).forEach(source -> source.setWeight(weight[0]));
-//                pearl.getOutRelationships().stream().map(PearlRelationship::getTarget).filter(target -> target.getWeight() < 0).forEach(target -> target.setWeight(weight[0]));
+//                pearl.getInRelationships().stream().map(PearlRelationship::getSource).filter(source -> source.getDistanceToPhenotype() < 0).forEach(source -> source.setDistanceToPhenotype(weight[0]));
+//                pearl.getOutRelationships().stream().map(PearlRelationship::getTarget).filter(target -> target.getDistanceToPhenotype() < 0).forEach(target -> target.setDistanceToPhenotype(weight[0]));
 //            });
 //            weight[0]++;
 //        }
 //    }
 //
 //    private void cleanDatabase() {
-//        pearlDatabase.getPearls("gene").stream().filter(pearl -> pearl.getWeight() < 0).forEach(pearlDatabase::remove);
+//        pearlDatabase.getPearls("gene").stream().filter(pearl -> pearl.getDistanceToPhenotype() < 0).forEach(pearlDatabase::remove);
 //    }
 //
 //    private class MyRelationship {

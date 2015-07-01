@@ -38,26 +38,26 @@ public class PoirotTest {
         if (pearlsWithPhenotypes == 0) {
             System.out.println("No evidence found");
         } else {
-            database.getPearls().stream().filter(pearl -> !pearl.getPhenotypes().isEmpty()).forEach(pearl -> pearl.setWeight(0));
+            database.getPearls().stream().filter(pearl -> !pearl.getPhenotypes().isEmpty()).forEach(pearl -> pearl.setDistanceToPhenotype(0));
 
-            List<Pearl> weighted = database.getPearls().stream().filter(pearl -> pearl.getWeight() >= 0).collect(Collectors.toList());
+            List<Pearl> weighted = database.getPearls().stream().filter(pearl -> pearl.getDistanceToPhenotype() >= 0).collect(Collectors.toList());
             int[] weight = new int[]{1};
 
             int i = 0;
             while (weighted.size() < database.size() && i < 4) {
                 for (Pearl pearl : weighted) {
                     pearl.getRelationships().forEach(relatedPearl -> {
-                        if (relatedPearl.getWeight() < 0) relatedPearl.setWeight(weight[0]);
+                        if (relatedPearl.getDistanceToPhenotype() < 0) relatedPearl.setDistanceToPhenotype(weight[0]);
                     });
                 }
                 weight[0]++;
                 i++;
-                weighted = database.getPearls().stream().filter(pearl -> pearl.getWeight() >= 0).collect(Collectors.toList());
+                weighted = database.getPearls().stream().filter(pearl -> pearl.getDistanceToPhenotype() >= 0).collect(Collectors.toList());
             }
             int total = 0;
             for (String gene : genes) {
                 Pearl pearl = database.getPearl(gene);
-                if (pearl != null && pearl.getWeight() >= 0) {
+                if (pearl != null && pearl.getDistanceToPhenotype() >= 0) {
                     total++;
                     List<List<Pearl>> paths = database.findShortestPaths(pearl);
                     for (List<Pearl> p : paths)

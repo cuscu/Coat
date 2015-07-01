@@ -17,7 +17,7 @@ public class ShortestPath {
         final List<List<PearlRelationship>> paths = new ArrayList<>();
         int min = getMinWeight(pearl);
         for (Pearl neighbour : pearl.getRelationships().keySet()){
-            if (neighbour.getWeight() == min) {
+            if (neighbour.getDistanceToPhenotype() == min) {
                 final List<List<PearlRelationship>> subPaths = getShortestPaths(neighbour);
                 for (List<PearlRelationship> path : subPaths) {
                     for (PearlRelationship relationship : pearl.getRelationships().get(neighbour)){
@@ -32,7 +32,7 @@ public class ShortestPath {
     }
 
     private static int getMinWeight(Pearl gene) {
-        return gene.getRelationships().keySet().stream().map(Pearl::getWeight).min(Integer::compare).get();
+        return gene.getRelationships().keySet().stream().map(Pearl::getDistanceToPhenotype).min(Integer::compare).get();
     }
 
 

@@ -2,15 +2,12 @@ package coat.view.poirot;
 
 import coat.model.poirot.Pearl;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class GraphNode {
 
-    private List<GraphRelationship> relationships = new ArrayList<>();
+//    private List<GraphRelationship> relationships = new ArrayList<>();
 
     private final Pearl pearl;
 
@@ -19,6 +16,7 @@ public class GraphNode {
     private boolean selected;
     private boolean mouseMoving;
     private double speed = 0;
+    private boolean mouseOver;
 
     public GraphNode(Pearl pearl) {
         this.pearl = pearl;
@@ -28,9 +26,9 @@ public class GraphNode {
         return pearl;
     }
 
-    public List<GraphRelationship> getRelationships() {
-        return relationships;
-    }
+//    public List<GraphRelationship> getRelationships() {
+//        return relationships;
+//    }
 
     public double distance(GraphNode node) {
         return position.distance(node.position);
@@ -65,4 +63,11 @@ public class GraphNode {
         return direction;
     }
 
+    public void setMouseOver(boolean mouseOver) {
+        this.mouseOver = mouseOver;
+    }
+
+    public boolean isMouseOver() {
+        return mouseOver;
+    }
 }

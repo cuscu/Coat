@@ -5,6 +5,8 @@ import coat.model.vcf.Variant;
 import coat.model.vcf.VcfFile;
 import coat.utils.FileManager;
 import coat.utils.OS;
+import coat.view.graphic.IndexCell;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -51,11 +53,18 @@ public class PoirotView extends HBox {
     private final VBox infoBox = new VBox();
     private final StackPane stackPane = new StackPane(graphVBox, infoBox);
 
-    private final ListView<Pearl> pearlListView = new ListView<>();
+//    private final ListView<Pearl> pearlTableView = new ListView<>();
+    private final TableView<Pearl> pearlTableView = new TableView<>();
+    private final TableColumn<Pearl, String> scoreColumn = new TableColumn<>("Score");
+    private final TableColumn<Pearl, Integer> indexColumn = new TableColumn<>("*");
+    private final TableColumn<Pearl, Integer> distanceColumn = new TableColumn<>("Dist");
+    private final TableColumn<Pearl, String> nameColumn = new TableColumn<>("Name");
+
+
     private final Button reload = new Button("Reload graph");
     private final ToggleButton repeat = new ToggleButton("Show panel");
 
-    private final VBox listPane = new VBox(5, pearlListView, reload, repeat);
+    private final VBox listPane = new VBox(5, pearlTableView, reload, repeat);
 
     private List<String> genes = new ArrayList<>();
 
@@ -120,9 +129,15 @@ public class PoirotView extends HBox {
     }
 
     private void initializePearlListView() {
-        VBox.setVgrow(pearlListView, Priority.ALWAYS);
-        pearlListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        pearlListView.setCellFactory(param1 -> new PearlListCell());
+        VBox.setVgrow(pearlTableView, Priority.ALWAYS);
+        pearlTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+//        pearlListView.setCellFactory(param1 -> new PearlListCell());
+        pearlTableView.getColumns().addAll(indexColumn, distanceColumn, scoreColumn, nameColumn);
+        pearlTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        distanceColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getDistanceToPhenotype()));
+        scoreColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(String.format("%.2f",param.getValue().getScore())));
+        nameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getName()));
+        indexColumn.setCellFactory(param -> new IndexCell());
     }
 
     private void initializeGraphView() {
@@ -131,10 +146,19 @@ public class PoirotView extends HBox {
         graphVBox.heightProperty().addListener((observable, oldValue, newValue) -> graphView.setHeight(newValue.doubleValue()));
         graphView.setManaged(false);
         graphView.getSelectedPearlProperty().addListener((observable, oldValue, pearl) -> selected(pearl));
-        StackPane.setAlignment(infoBox, Pos.TOP_LEFT);
+        graphView.getSelectedRelationship().addListener((observable, oldValue, relationship) -> selected(relationship));
+        StackPane.setAlignment(infoBox, Pos.BOTTOM_LEFT);
         infoBox.setMaxWidth(USE_PREF_SIZE);
         infoBox.setMaxHeight(USE_PREF_SIZE);
         infoBox.getStyleClass().add("graph-info-box");
+    }
+
+    private void selected(GraphRelationship relationship) {
+        if (relationship != null) {
+            for (PearlRelationship pearlRelationship : relationship.getRelationships()) {
+                infoBox.getChildren().add(new Label(pearlRelationship.getProperties().toString()));
+            }
+        } else if (graphView.getSelectedPearlProperty().getValue() == null) infoBox.getChildren().clear();
     }
 
     private void selected(Pearl pearl) {
@@ -211,9 +235,10 @@ public class PoirotView extends HBox {
     private void createGraph(PearlDatabase database) {
         if (database != null) {
             final List<Pearl> candidates = getCandidates(database);
-            pearlListView.getItems().setAll(candidates);
-            Collections.sort(pearlListView.getItems(), (p1, p2) -> {
-                final int compare = Integer.compare(p1.getWeight(), p2.getWeight());
+            pearlTableView.getItems().setAll(candidates);
+            Collections.sort(pearlTableView.getItems(), (p1, p2) -> {
+//                final int compare = Integer.compare(p1.getDistanceToPhenotype(), p2.getDistanceToPhenotype());
+                final int compare = Double.compare(p2.getScore(), p1.getScore());
                 return (compare != 0) ? compare : p1.getName().compareTo(p2.getName());
             });
         }
@@ -226,7 +251,7 @@ public class PoirotView extends HBox {
     }
 
     private void reload() {
-        graphView.setCandidates(pearlListView.getSelectionModel().getSelectedItems());
+        graphView.setCandidates(pearlTableView.getSelectionModel().getSelectedItems());
 
     }
 }

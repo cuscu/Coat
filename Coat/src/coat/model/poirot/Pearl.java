@@ -12,10 +12,11 @@ public class Pearl {
     private boolean leaf = true;
     private String type;
     private String name;
-    private int weight = -1;
+    private int distanceToPhenotype = -1;
     private Map<String, Object> properties = new HashMap<>();
 
     private Map<Pearl, List<PearlRelationship>> relationships = new HashMap<>();
+    private Double score;
 
     public Pearl(String name, String type) {
         this.name = name;
@@ -41,15 +42,15 @@ public class Pearl {
 
     @Override
     public String toString() {
-        return String.format("[%s] %d, %s", type, weight, name);
+        return String.format("[%s] %d, %s", type, distanceToPhenotype, name);
     }
 
-    public int getWeight() {
-        return weight;
+    public int getDistanceToPhenotype() {
+        return distanceToPhenotype;
     }
 
-    public void setWeight(int weight) {
-        this.weight = weight;
+    public void setDistanceToPhenotype(int distanceToPhenotype) {
+        this.distanceToPhenotype = distanceToPhenotype;
     }
 
 
@@ -94,5 +95,13 @@ public class Pearl {
             relationships.put(pearl, rs);
         }
         if (!rs.contains(relationship)) rs.add(relationship);
+    }
+
+    public void setScore(Double score) {
+        this.score = score;
+    }
+
+    public double getScore() {
+        return score;
     }
 }
