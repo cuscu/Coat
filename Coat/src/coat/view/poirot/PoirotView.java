@@ -1,12 +1,15 @@
 package coat.view.poirot;
 
 import coat.model.poirot.*;
-import coat.model.vcf.Variant;
-import coat.model.vcf.VcfFile;
+import coat.model.tool.Tool;
+import coat.model.vcfreader.Variant;
+import coat.model.vcfreader.VcfFile;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.IndexCell;
+import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -34,10 +37,9 @@ import java.util.stream.Collectors;
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class PoirotView extends HBox {
+public class PoirotView extends Tool {
 
-
-    //    private final TextArea geneList = new TextArea();
+    private HBox content = new HBox();
     private final TextArea phenotypeList = new TextArea();
     private final Button start = new Button(OS.getResources().getString("start"));
     private final Label message = new Label();
@@ -53,7 +55,7 @@ public class PoirotView extends HBox {
     private final VBox infoBox = new VBox();
     private final StackPane stackPane = new StackPane(graphVBox, infoBox);
 
-//    private final ListView<Pearl> pearlTableView = new ListView<>();
+    //    private final ListView<Pearl> pearlTableView = new ListView<>();
     private final TableView<Pearl> pearlTableView = new TableView<>();
     private final TableColumn<Pearl, String> scoreColumn = new TableColumn<>("Score");
     private final TableColumn<Pearl, Integer> indexColumn = new TableColumn<>("*");
@@ -67,6 +69,7 @@ public class PoirotView extends HBox {
     private final VBox listPane = new VBox(5, pearlTableView, reload, repeat);
 
     private List<String> genes = new ArrayList<>();
+    private Property<String> title = new SimpleStringProperty("Poirot");
 
 
     public PoirotView() {
@@ -79,9 +82,10 @@ public class PoirotView extends HBox {
     }
 
     private void initializeThis() {
-        setSpacing(5);
-        setPadding(new Insets(5, 5, 0, 5));
-        getChildren().addAll(inputPane);
+        getChildren().add(content);
+        content.setSpacing(5);
+        content.setPadding(new Insets(5, 5, 0, 5));
+        content.getChildren().addAll(inputPane);
     }
 
     private void initializeInputPane() {
@@ -135,7 +139,7 @@ public class PoirotView extends HBox {
         pearlTableView.getColumns().addAll(indexColumn, distanceColumn, scoreColumn, nameColumn);
         pearlTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         distanceColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getDistanceToPhenotype()));
-        scoreColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(String.format("%.2f",param.getValue().getScore())));
+        scoreColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(String.format("%.2f", param.getValue().getScore())));
         nameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getName()));
         indexColumn.setCellFactory(param -> new IndexCell());
     }
@@ -228,8 +232,8 @@ public class PoirotView extends HBox {
         repeat.setSelected(false);
         message.textProperty().unbind();
         message.setText("Done");
-        getChildren().remove(inputPane);
-        if (!getChildren().contains(listPane)) getChildren().addAll(listPane, stackPane);
+        content.getChildren().remove(inputPane);
+        if (!content.getChildren().contains(listPane)) content.getChildren().addAll(listPane, stackPane);
     }
 
     private void createGraph(PearlDatabase database) {
@@ -252,6 +256,11 @@ public class PoirotView extends HBox {
 
     private void reload() {
         graphView.setCandidates(pearlTableView.getSelectionModel().getSelectedItems());
-
     }
+
+    @Override
+    public Property<String> getTitleProperty() {
+        return title;
+    }
+
 }

@@ -8,7 +8,7 @@ package coat.model.vep;
 import coat.json.JSONArray;
 import coat.json.JSONException;
 import coat.json.JSONObject;
-import coat.model.vcf.Variant;
+import coat.model.vcfreader.Variant;
 import javafx.concurrent.Task;
 
 import java.net.MalformedURLException;

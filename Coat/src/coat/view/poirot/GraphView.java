@@ -5,7 +5,7 @@ import coat.model.poirot.Pearl;
 import coat.model.poirot.PearlRelationship;
 import coat.model.poirot.PoirotAnalysis2;
 import coat.model.poirot.ShortestPath;
-import coat.model.vcf.Variant;
+import coat.model.vcfreader.Variant;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.Property;

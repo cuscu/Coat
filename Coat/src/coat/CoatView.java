@@ -17,21 +17,22 @@
 package coat;
 
 import coat.model.reader.Reader;
-import coat.model.vcf.VcfFile;
+import coat.model.tool.Tool;
+import coat.model.tool.ToolMenu;
+import coat.model.vcfreader.VcfFile;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.MemoryPane;
 import coat.view.graphic.SizableImage;
-import coat.view.mist.CombineMIST;
-import coat.view.vcf.CompleteAnalysis;
-import coat.view.poirot.PoirotView;
+import coat.view.mist.CombineMistMenu;
+import coat.view.poirot.PoirotMenu;
 import coat.view.tsv.TsvFileReader;
-import coat.view.vcf.CombineVCF;
-import coat.view.vcf.VcfReader;
+import coat.view.vcfcombiner.CombineVcfMenu;
+import coat.view.vcfcombiner.CompleteAnalysisMenu;
+import coat.view.vcfreader.VcfReader;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -47,6 +48,7 @@ import java.net.URI;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -59,13 +61,9 @@ import java.util.logging.Logger;
 public class CoatView {
 
     @FXML
+    private Menu toolsMenu;
+    @FXML
     private MemoryPane memoryPane;
-    @FXML
-    private MenuItem poirotMenu;
-    @FXML
-    private MenuItem combineMistMenu;
-    @FXML
-    private MenuItem combineVcfMenu;
     @FXML
     private MenuItem openFileMenu;
     @FXML
@@ -76,6 +74,15 @@ public class CoatView {
     private MenuBar menu;
     @FXML
     private Label info;
+
+    private final List<ToolMenu> toolsMenuClasses = new ArrayList<>();
+
+    {
+        toolsMenuClasses.add(new CombineMistMenu());
+        toolsMenuClasses.add(new CombineVcfMenu());
+        toolsMenuClasses.add(new CompleteAnalysisMenu());
+        toolsMenuClasses.add(new PoirotMenu());
+    }
 
     private static VBox bigConsole = new VBox();
 
@@ -92,40 +99,58 @@ public class CoatView {
     private final static List<String> AVAILABLE_MESSAGE_TYPES = Arrays.asList("info", "error", "success", "warning");
 
     public void initialize() {
+        createToolsMenu();
         root.setCenter(workspace);
         staticInfo = info;
         staticInfo.setOnMouseClicked(event -> showBigConsole());
-        workspace.getTabs().add(new Tab("Test", new CompleteAnalysis()));
         // Listen whe user clicks on a tab, or opens a file
-        workspace.getSelectionModel().selectedItemProperty().addListener((obs, old, current) -> {
-            // Remove custom tab if it exists
-            menu.getMenus().remove(customMenu);
-            if (current != null) {
-                // Try to load custom tab
-                Reader reader = (Reader) current.getUserData();
-                if (reader == null) return;
-
-                if (reader.getActions() != null) {
-                    // Load buttons in the custom tab
-                    FlowPane pane = new FlowPane();
-                    pane.getChildren().setAll(reader.getActions());
-                    customMenu = new Menu(reader.getActionsName());
-                    reader.getActions().forEach(button -> customMenu.getItems().add(getMenuItem(button)));
-                    menu.getMenus().add(customMenu);
-                }
-                // Activate save file
-                saveFileMenu.setDisable(false);
-//                saveFile.setOnAction(event -> reader.saveAs());
-
-                Coat.setTitle(reader.getTitle().getValue());
-            } else
-                // If no tab is selected, save button should be disabled
-                saveFileMenu.setDisable(true);
-        });
+        workspace.getSelectionModel().selectedItemProperty().addListener((obs, old, current) -> tabSelected(current));
         // By default is disabled
         saveFileMenu.setDisable(true);
         assignMenuIcons();
         printMessage(System.getProperty("user.dir"), "info");
+    }
+
+    private void createToolsMenu() {
+        toolsMenuClasses.forEach(toolMenu -> {
+            final MenuItem menuItem = new MenuItem(toolMenu.getName(), new SizableImage(toolMenu.getIconPath(), SizableImage.SMALL_SIZE));
+            toolsMenu.getItems().add(menuItem);
+            menuItem.setOnAction(event -> show(toolMenu));
+        });
+    }
+
+    private void tabSelected(Tab current) {
+        // Remove custom menu if it exists
+        menu.getMenus().remove(customMenu);
+        if (current != null) {
+            // Try to load custom tab
+            Reader reader = (Reader) current.getUserData();
+            if (reader == null) return;
+
+            if (reader.getActions() != null) {
+                // Load buttons in the custom tab
+                final FlowPane pane = new FlowPane();
+                pane.getChildren().setAll(reader.getActions());
+                customMenu = new Menu(reader.getActionsName());
+                reader.getActions().forEach(button -> customMenu.getItems().add(getMenuItem(button)));
+                menu.getMenus().add(customMenu);
+            }
+            // Activate save file
+            saveFileMenu.setDisable(false);
+
+            Coat.setTitle(reader.getTitle().getValue());
+        } else
+            // If no tab is selected, save button should be disabled
+            saveFileMenu.setDisable(true);
+    }
+
+    private void show(ToolMenu toolMenu) {
+        final Tool tool = toolMenu.getTool();
+        final Tab tab = new Tab();
+        tab.setContent(tool);
+        tab.textProperty().bind(tool.getTitleProperty());
+        workspace.getTabs().add(tab);
+        workspace.getSelectionModel().select(tab);
     }
 
     private void startWeb() {
@@ -135,7 +160,6 @@ public class CoatView {
         final URI uri = Paths.get(html).toAbsolutePath().toUri();
 
         webView.getEngine().load(uri.toString());
-
 
     }
 
@@ -149,8 +173,6 @@ public class CoatView {
     private void assignMenuIcons() {
         openFileMenu.setGraphic(new SizableImage("coat/img/open.png", SizableImage.SMALL_SIZE));
         saveFileMenu.setGraphic(new SizableImage("coat/img/save.png", SizableImage.SMALL_SIZE));
-        combineVcfMenu.setGraphic(new SizableImage("coat/img/documents_vcf.png", SizableImage.SMALL_SIZE));
-        combineMistMenu.setGraphic(new SizableImage("coat/img/documents_mist.png", SizableImage.SMALL_SIZE));
     }
 
     @FXML
@@ -170,33 +192,6 @@ public class CoatView {
         }
     }
 
-    @FXML
-    private void combineVCF(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(CombineVCF.class.getResource("CombineVCF.fxml"), OS.getResources());
-            Tab t = new Tab(OS.getResources().getString("combine.vcf"));
-            t.setContent(loader.load());
-            workspace.getTabs().add(t);
-            workspace.getSelectionModel().select(t);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void combineMIST(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(CombineMIST.class
-                    .getResource("CombineMIST.fxml"), OS.getResources());
-            Tab t = new Tab(OS.getResources().getString("combine.mist"));
-            t.setContent(loader.load());
-            workspace.getTabs().add(t);
-            workspace.getSelectionModel().select(t);
-        } catch (IOException ex) {
-            Logger.getLogger(CoatView.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
     public static void printMessage(String message, String level) {
         final String date = df.format(new Date());
         final Label label = new Label();
@@ -212,15 +207,12 @@ public class CoatView {
             label.setText(date + ": " + message);
             label.setGraphic(new SizableImage("coat/img/" + type + ".png", SizableImage.SMALL_SIZE));
             label.getStyleClass().add(type + "-label");
-        } else {
-            label.setText(date + " (" + type + "): " + message);
-        }
+        } else label.setText(date + " (" + type + "): " + message);
     }
 
     private void openFileInWorkspace(File f) {
         if (isOpenInWorkspace(f)) selectTabInWorkspace(f);
         else addFileTabToWorkspace(f);
-
     }
 
     private boolean isOpenInWorkspace(File f) {
@@ -291,13 +283,6 @@ public class CoatView {
         // Add and select tab
         workspace.getTabs().add(t);
         workspace.getSelectionModel().select(t);
-    }
-
-    public void startPoirot(ActionEvent event) {
-        PoirotView poirotView = new PoirotView();
-        Tab tab = new Tab("Poirot", poirotView);
-        workspace.getTabs().add(tab);
-        workspace.getSelectionModel().select(tab);
     }
 
     private void showBigConsole() {

@@ -33,11 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 <MenuItem fx:id="openFileMenu" text="%open" onAction="#openAFile"/>
                 <MenuItem fx:id="saveFileMenu" text="%save" onAction="#saveAs"/>
             </Menu>
-            <Menu text="%tools">
-                <MenuItem fx:id="combineVcfMenu" onAction="#combineVCF" text="%combine.vcf"/>
-                <MenuItem fx:id="combineMistMenu" onAction="#combineMIST" text="%combine.mist"/>
-                <MenuItem fx:id="poirotMenu" onAction="#startPoirot" text="%start.poirot"/>
-            </Menu>
+            <Menu fx:id="toolsMenu" text="%tools"/>
         </MenuBar>
     </top>
     <bottom>

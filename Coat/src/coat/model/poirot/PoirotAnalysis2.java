@@ -1,6 +1,6 @@
 package coat.model.poirot;
 
-import coat.model.vcf.Variant;
+import coat.model.vcfreader.Variant;
 import javafx.concurrent.Task;
 
 import java.util.*;

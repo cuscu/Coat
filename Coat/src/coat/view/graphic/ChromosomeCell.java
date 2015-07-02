@@ -16,7 +16,7 @@
  */
 package coat.view.graphic;
 
-import coat.model.vcf.Variant;
+import coat.model.vcfreader.Variant;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import com.sun.javafx.scene.control.skin.VirtualFlow;
 import javafx.collections.ObservableList;
