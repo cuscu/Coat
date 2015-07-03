@@ -83,6 +83,7 @@ public class PoirotView extends Tool {
 
     private void initializeThis() {
         getChildren().add(content);
+        VBox.setVgrow(content, Priority.ALWAYS);
         content.setSpacing(5);
         content.setPadding(new Insets(5, 5, 0, 5));
         content.getChildren().addAll(inputPane);
@@ -127,8 +128,8 @@ public class PoirotView extends Tool {
         repeat.setPadding(new Insets(10));
         repeat.selectedProperty().addListener((observable, oldValue, selected) -> repeat.setText((selected) ? "Hide panel" : "Show panel"));
         repeat.selectedProperty().addListener((observable, oldValue, selected) -> {
-            if (!selected) getChildren().remove(inputPane);
-            else if (!getChildren().contains(inputPane)) getChildren().add(0, inputPane);
+            if (!selected) content.getChildren().remove(inputPane);
+            else if (!content.getChildren().contains(inputPane)) content.getChildren().add(0, inputPane);
         });
     }
 
@@ -255,6 +256,7 @@ public class PoirotView extends Tool {
     }
 
     private void reload() {
+        infoBox.getChildren().clear();
         graphView.setCandidates(pearlTableView.getSelectionModel().getSelectedItems());
     }
 

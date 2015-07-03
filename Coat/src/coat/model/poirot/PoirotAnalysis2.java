@@ -280,8 +280,12 @@ public class PoirotAnalysis2 extends Task<PearlDatabase> {
     }
 
     private double consequenceScore(List<Variant> variants) {
-        final List<String> consequences = getConsequences(variants);
-        return consequences.stream().map(cons -> CONSEQUENCE_SCORE.getOrDefault(cons, 0.0)).max(Double::compare).get();
+        try {
+            final List<String> consequences = getConsequences(variants);
+            return consequences.stream().map(cons -> CONSEQUENCE_SCORE.getOrDefault(cons, 0.0)).max(Double::compare).get();
+        } catch (NoSuchElementException ex) {
+            return 0.0;
+        }
     }
 
     private List<String> getConsequences(List<Variant> variants) {

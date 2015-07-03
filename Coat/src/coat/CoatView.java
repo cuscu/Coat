@@ -39,13 +39,10 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -86,8 +83,6 @@ public class CoatView {
 
     private static VBox bigConsole = new VBox();
 
-    private WebView webView = new WebView();
-
     private Menu customMenu;
 
     private static Label staticInfo;
@@ -113,35 +108,53 @@ public class CoatView {
 
     private void createToolsMenu() {
         toolsMenuClasses.forEach(toolMenu -> {
-            final MenuItem menuItem = new MenuItem(toolMenu.getName(), new SizableImage(toolMenu.getIconPath(), SizableImage.SMALL_SIZE));
+            final MenuItem menuItem = new MenuItem(toolMenu.getName(), new SizableImage(toolMenu.getIconPath(), SizableImage.MEDIUM_SIZE));
             toolsMenu.getItems().add(menuItem);
             menuItem.setOnAction(event -> show(toolMenu));
         });
     }
 
     private void tabSelected(Tab current) {
-        // Remove custom menu if it exists
         menu.getMenus().remove(customMenu);
-        if (current != null) {
-            // Try to load custom tab
-            Reader reader = (Reader) current.getUserData();
-            if (reader == null) return;
+        // If no tab is selected, save button should be disabled
+        if (current == null) saveFileMenu.setDisable(true);
+        else {
+            // TODO: Join somehow Reader and Tool.
+            // Reader or Tool?
+            if (current.getUserData() != null) readerSelected(current);
+            else if (current.getContent() != null) toolSelected(current);
+        }
 
-            if (reader.getActions() != null) {
-                // Load buttons in the custom tab
-                final FlowPane pane = new FlowPane();
-                pane.getChildren().setAll(reader.getActions());
-                customMenu = new Menu(reader.getActionsName());
-                reader.getActions().forEach(button -> customMenu.getItems().add(getMenuItem(button)));
-                menu.getMenus().add(customMenu);
-            }
-            // Activate save file
+    }
+
+    private void readerSelected(Tab current) {
+        // Try to load custom tab
+        final Reader reader = (Reader) current.getUserData();
+        createCustomMenu(reader);
+        saveFileMenu.setDisable(false);
+        Coat.setTitle(reader.getTitle().getValue());
+    }
+
+    private void createCustomMenu(Reader reader) {
+        if (reader.getActions() != null) {
+            // Load buttons in the custom tab
+            final FlowPane pane = new FlowPane();
+            pane.getChildren().setAll(reader.getActions());
+            customMenu = new Menu(reader.getActionsName());
+            reader.getActions().forEach(button -> customMenu.getItems().add(getMenuItem(button)));
+            menu.getMenus().add(customMenu);
+        }
+    }
+
+    private void toolSelected(Tab current) {
+        Tool tool = (Tool) current.getContent();
+        Coat.setTitle(tool.getTitleProperty().getValue());
+        try {
+            tool.getClass().getDeclaredMethod("saveAs").getDeclaringClass();
             saveFileMenu.setDisable(false);
-
-            Coat.setTitle(reader.getTitle().getValue());
-        } else
-            // If no tab is selected, save button should be disabled
+        } catch (NoSuchMethodException e) {
             saveFileMenu.setDisable(true);
+        }
     }
 
     private void show(ToolMenu toolMenu) {
@@ -153,16 +166,6 @@ public class CoatView {
         workspace.getSelectionModel().select(tab);
     }
 
-    private void startWeb() {
-        workspace.getTabs().add(new Tab("HTML", webView));
-        // path in current directory for WebEngine.load()
-        final String html = "Coat/graph/index.html";
-        final URI uri = Paths.get(html).toAbsolutePath().toUri();
-
-        webView.getEngine().load(uri.toString());
-
-    }
-
     private MenuItem getMenuItem(Button button) {
         MenuItem menuItem = new MenuItem(button.getText());
         menuItem.setOnAction(button.getOnAction());
@@ -171,8 +174,8 @@ public class CoatView {
     }
 
     private void assignMenuIcons() {
-        openFileMenu.setGraphic(new SizableImage("coat/img/open.png", SizableImage.SMALL_SIZE));
-        saveFileMenu.setGraphic(new SizableImage("coat/img/save.png", SizableImage.SMALL_SIZE));
+        openFileMenu.setGraphic(new SizableImage("coat/img/open.png", SizableImage.MEDIUM_SIZE));
+        saveFileMenu.setGraphic(new SizableImage("coat/img/save.png", SizableImage.MEDIUM_SIZE));
     }
 
     @FXML
@@ -185,10 +188,9 @@ public class CoatView {
     @FXML
     private void saveAs(ActionEvent event) {
         if (!workspace.getSelectionModel().isEmpty()) {
-            // workspace.getSelectionModel.getSelectedItem is a Tab
-            // tab.getUserData is a VCFReader controller
-            Reader reader = (Reader) workspace.getSelectionModel().getSelectedItem().getUserData();
-            if (reader != null) reader.saveAs();
+            final Tab tab = workspace.getSelectionModel().getSelectedItem();
+            if (tab.getUserData() != null) ((Reader) tab.getUserData()).saveAs();
+            else if (tab.getContent() != null) ((Tool) tab.getContent()).saveAs();
         }
     }
 

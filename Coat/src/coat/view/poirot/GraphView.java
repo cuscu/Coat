@@ -46,7 +46,6 @@ public class GraphView extends Canvas {
 
     private final DoubleProperty radiusProperty = new SimpleDoubleProperty();
     private double margin;
-    private int maxTotal;
     private double maxWeight;
     private double effectiveWidth;
     private double effectiveHeight;
@@ -63,15 +62,6 @@ public class GraphView extends Canvas {
     private final static double MIN_RADIUS = 15;
 
     private final Map<NodePairKey, GraphRelationship> relationships = new HashMap<>();
-//    private final static Map<String, Paint> BIO_COLORS = new HashMap<>();
-//
-//    static {
-//        BIO_COLORS.put("protein_coding", Color.LIMEGREEN);
-//        BIO_COLORS.put("processed_transcript", Color.CYAN);
-//        BIO_COLORS.put("retained_intron", Color.BLUE);
-//        BIO_COLORS.put("nonsense_mediated_decay", Color.DARKBLUE);
-//        BIO_COLORS.put("lincRNA", Color.MAGENTA);
-//    }
 
     private final Random random = new Random();
     private GraphNode movingNode;
@@ -216,7 +206,6 @@ public class GraphView extends Canvas {
     private void findNodes() {
         nodes.clear();
         relationships.clear();
-        maxTotal = 0;
         maxWeight = 0;
         sourceNodes.forEach(gene -> {
             final List<List<PearlRelationship>> paths = ShortestPath.getShortestPaths(gene);
@@ -331,9 +320,7 @@ public class GraphView extends Canvas {
 
     private void interactNodes() {
         synchronized (nodes) {
-            nodes.forEach(node -> {
-                if (!node.isMouseMoving()) avoidCollisions(node);
-            });
+            nodes.stream().filter(graphNode -> !graphNode.isMouseMoving()).forEach(this::avoidCollisions);
         }
     }
 
@@ -358,7 +345,6 @@ public class GraphView extends Canvas {
         nodes.forEach(node -> {
             limitSpeed(node);
             move(node);
-            stayInSafeArea(node);
             stop(node);
         });
     }
@@ -372,13 +358,6 @@ public class GraphView extends Canvas {
 
     private void move(GraphNode node) {
         node.getPosition().add(node.getDirection());
-    }
-
-    private void stayInSafeArea(GraphNode node) {
-        if (node.getPosition().getX() < margin) node.getPosition().setX(margin);
-        if (node.getPosition().getX() > margin + effectiveWidth) node.getPosition().setX(margin + effectiveWidth);
-        if (node.getPosition().getY() < margin) node.getPosition().setY(margin);
-        if (node.getPosition().getY() > margin + effectiveHeight) node.getPosition().setY(margin + effectiveHeight);
     }
 
     private void stop(GraphNode node) {
@@ -400,7 +379,6 @@ public class GraphView extends Canvas {
             drawRelationshipCircle(graphRelationship);
             drawSelection(graphRelationship);
             writeText(size + "", center);
-
         });
     }
 
@@ -532,8 +510,8 @@ public class GraphView extends Canvas {
 
     private String simplifyName(GraphNode graphNode) {
         String name = graphNode.getPearl().getName();
-        String [] words = name.split(" ");
-        return words[0];
+        String[] words = name.split(" ");
+        return words[0].replaceAll("\\p{Punct}", "");
 //        final int nextQuote = name.indexOf(",");
 //        if (nextQuote > 0) name = name.substring(0, nextQuote).replace("{", "");
 //        return name;
