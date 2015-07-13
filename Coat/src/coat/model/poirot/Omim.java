@@ -18,18 +18,7 @@ public class Omim {
     private final static int DESCRIPTION = 7;
     private final static int DISEASE = 11;
 
-    public static List<String> getRelatedPhenotypes(String gene) {
-        final List<String> related = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(genemap))) {
-            reader.lines().forEach(line -> {
-                final String[] row = line.split("\\|");
-                if (row[GENE].contains(gene)) if (!row[DESCRIPTION].equals(".")) related.add(row[DESCRIPTION]);
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return related;
-    }
+    private static List<StringRelationship> relationships;
 
     public static List<String> getRelatedGenes(String phenotype) {
         final String lowerCased = phenotype.toLowerCase();
@@ -77,5 +66,39 @@ public class Omim {
             e.printStackTrace();
         }
         return list;
+    }
+
+    private static void loadRelationships() {
+        /*
+            0  - Numbering system, in the format  Chromosome.Map_Entry_Number
+            1  - Month entered
+            2  - Day     "
+            3  - Year    "
+            4  - Cytogenetic location
+            5  - Gene Symbol(s)
+            6  - Gene Status (see below for codes)
+            7  - Title
+            8 - MIM Number
+            9 - Method (see below for codes)
+            10 - Comments
+            11 - Disorders (each disorder is followed by its MIM number, if different from that of the locus,
+                 and phenotype mapping method (see below).  Allelic disorders are separated by a semi-colon.
+            12 - Mouse correlate
+            13 - Reference
+            1.42|11|4|93|1p36.31|RPL22, EAP|C|Ribosomal protein L22|180474|Ch, REc|fused with AML1 in t(3;21)|.|.|
+         */
+        relationships = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(genemap))) {
+            reader.lines().forEach(Omim::loadRelationship);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void loadRelationship(String line) {
+        final String [] row = line.split("\\|");
+        final String[] genes = row[5].split(", ");
+
+
     }
 }

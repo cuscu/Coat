@@ -16,18 +16,16 @@ public class ShortestPath {
     private static List<List<PearlRelationship>> getSubPaths(Pearl pearl) {
         final List<List<PearlRelationship>> paths = new ArrayList<>();
         int min = getMinWeight(pearl);
-        for (Pearl neighbour : pearl.getRelationships().keySet()){
-            if (neighbour.getDistanceToPhenotype() == min) {
-                final List<List<PearlRelationship>> subPaths = getShortestPaths(neighbour);
-                for (List<PearlRelationship> path : subPaths) {
-                    for (PearlRelationship relationship : pearl.getRelationships().get(neighbour)){
-                        List<PearlRelationship> newPath = new ArrayList<>(path);
-                        newPath.add(0, relationship);
-                        paths.add(newPath);
-                    }
+        pearl.getRelationships().keySet().stream().filter(neighbour -> neighbour.getDistanceToPhenotype() == min).forEach(neighbour -> {
+            final List<List<PearlRelationship>> subPaths = getShortestPaths(neighbour);
+            for (List<PearlRelationship> path : subPaths) {
+                for (PearlRelationship relationship : pearl.getRelationships().get(neighbour)) {
+                    List<PearlRelationship> newPath = new ArrayList<>(path);
+                    newPath.add(0, relationship);
+                    paths.add(newPath);
                 }
             }
-        }
+        });
         return paths;
     }
 

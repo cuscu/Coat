@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  */
 public class PoirotView extends Tool {
 
-    private HBox content = new HBox();
+    private final HBox content = new HBox();
     private final TextArea phenotypeList = new TextArea();
     private final Button start = new Button(OS.getResources().getString("start"));
     private final Label message = new Label();
@@ -55,7 +55,6 @@ public class PoirotView extends Tool {
     private final VBox infoBox = new VBox();
     private final StackPane stackPane = new StackPane(graphVBox, infoBox);
 
-    //    private final ListView<Pearl> pearlTableView = new ListView<>();
     private final TableView<Pearl> pearlTableView = new TableView<>();
     private final TableColumn<Pearl, String> scoreColumn = new TableColumn<>("Score");
     private final TableColumn<Pearl, Integer> indexColumn = new TableColumn<>("*");
@@ -98,7 +97,10 @@ public class PoirotView extends Tool {
     private void initializeFileInput() {
         file.setEditable(false);
         browse.setMaxWidth(9999);
-        browse.setOnAction(event -> FileManager.openFile(file, "Select file", FileManager.VCF_FILTER));
+        browse.setOnAction(event -> {
+            final File file = FileManager.openFile(this.file, "Select file", FileManager.VCF_FILTER);
+            if (file != null) title.setValue("Poirot (" + file.getName() + ")");
+        });
     }
 
     private void initializeListPane() {
@@ -109,6 +111,7 @@ public class PoirotView extends Tool {
 
     private void initializePhenotypeList() {
         phenotypeList.setPromptText("Phenotypes: one per line");
+        VBox.setVgrow(phenotypeList, Priority.ALWAYS);
     }
 
     private void initializeStartButton() {
@@ -215,7 +218,7 @@ public class PoirotView extends Tool {
             final VcfFile vcfFile = new VcfFile(new File(file.getText()));
             genes.clear();
             vcfFile.getVariants().stream().map(variant -> (String) variant.getInfos().get("GNAME")).filter(name -> name != null).distinct().forEach(genes::add);
-            final Task<PearlDatabase> task = new PoirotAnalysis2(vcfFile.getVariants(), phenotypes);
+            final Task<PearlDatabase> task = new PoirotAnalysis(vcfFile.getVariants(), phenotypes);
             message.textProperty().bind(task.messageProperty());
             start.setDisable(true);
             new Thread(task).start();

@@ -9,32 +9,32 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 /**
+ * Provides access to BioGrid relationships database. Accesses must be done via <code>getRelationships(String geneName)</code>.
+ * The result is a list of StringRelationship.
+ *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class BioGridDatabase {
 
     private static Map<String, List<StringRelationship>> relationships;
 
+    /**
+     * Get a list of relationships where the argument gene is involved.
+     *
+     * @param name name of the gene
+     * @return list of relationships of the gene
+     */
     public static List<StringRelationship> getRelationships(String name) {
         if (relationships == null) loadRelationships();
         return relationships.get(name);
     }
 
-    public static List<StringRelationship> getRelationships(String source, String target) {
-        if (relationships == null) loadRelationships();
-        final List<StringRelationship> stringRelationships = relationships.get(source);
-        return stringRelationships == null ? null : stringRelationships.stream().filter(stringRelationship -> stringRelationship.getTarget().equals(target)).collect(Collectors.toList());
-    }
-
     private static void loadRelationships() {
         System.out.println("Loading BioGrid");
         relationships = new HashMap<>();
-        // id,source,target,database,type,method,score
-        // 270092,KLHL20,GBP2,biogrid,direct interaction,two hybrid,2.0
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(BioGridDatabase.class.getResourceAsStream("biogrid.csv.gz"))))) {
             reader.readLine();
             reader.lines().forEach(BioGridDatabase::createRelationship);
@@ -47,6 +47,15 @@ public class BioGridDatabase {
 
     private static void createRelationship(String line) {
         try {
+            /*
+                0 id  270092
+                1 source  KLHL20
+                2 target  GBP2
+                3 database    biogrid
+                4 type    direct interaction
+                5 method  two hybrid
+                6 score   2.0
+             */
             final String row[] = line.split(",");
             final String id = row[0];
             final String source = row[1];

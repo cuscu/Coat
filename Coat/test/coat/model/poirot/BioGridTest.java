@@ -38,4 +38,10 @@ public class BioGridTest {
         final List<String> expected = Collections.singletonList("NDEL1");
         Assert.assertEquals(expected, genes);
     }
+
+    @Test
+    public void test3() {
+        final String gene = "ZNF211";
+        final List<StringRelationship> relationships = MenthaDatabase.getRelationships(gene);
+    }
 }

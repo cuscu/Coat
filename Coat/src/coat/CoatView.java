@@ -30,6 +30,7 @@ import coat.view.tsv.TsvFileReader;
 import coat.view.vcfcombiner.CombineVcfMenu;
 import coat.view.vcfcombiner.CompleteAnalysisMenu;
 import coat.view.vcfreader.VcfReader;
+import javafx.beans.value.ChangeListener;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -73,6 +74,7 @@ public class CoatView {
     private Label info;
 
     private final List<ToolMenu> toolsMenuClasses = new ArrayList<>();
+    private ChangeListener<? super String> toolListener = (observable, oldValue, newValue) -> Coat.setTitle(newValue);
 
     {
         toolsMenuClasses.add(new CombineMistMenu());
@@ -93,6 +95,9 @@ public class CoatView {
 
     private final static List<String> AVAILABLE_MESSAGE_TYPES = Arrays.asList("info", "error", "success", "warning");
 
+    private Tool selectedTool;
+
+
     public void initialize() {
         createToolsMenu();
         root.setCenter(workspace);
@@ -110,7 +115,7 @@ public class CoatView {
         toolsMenuClasses.forEach(toolMenu -> {
             final MenuItem menuItem = new MenuItem(toolMenu.getName(), new SizableImage(toolMenu.getIconPath(), SizableImage.MEDIUM_SIZE));
             toolsMenu.getItems().add(menuItem);
-            menuItem.setOnAction(event -> show(toolMenu));
+            menuItem.setOnAction(event -> addTool(toolMenu));
         });
     }
 
@@ -147,17 +152,19 @@ public class CoatView {
     }
 
     private void toolSelected(Tab current) {
-        Tool tool = (Tool) current.getContent();
-        Coat.setTitle(tool.getTitleProperty().getValue());
+        if (selectedTool != null) selectedTool.getTitleProperty().removeListener(toolListener);
+        selectedTool = (Tool) current.getContent();
+        selectedTool.getTitleProperty().addListener(toolListener);
+        Coat.setTitle(selectedTool.getTitleProperty().getValue());
         try {
-            tool.getClass().getDeclaredMethod("saveAs").getDeclaringClass();
+            selectedTool.getClass().getDeclaredMethod("saveAs").getDeclaringClass();
             saveFileMenu.setDisable(false);
         } catch (NoSuchMethodException e) {
             saveFileMenu.setDisable(true);
         }
     }
 
-    private void show(ToolMenu toolMenu) {
+    private void addTool(ToolMenu toolMenu) {
         final Tool tool = toolMenu.getTool();
         final Tab tab = new Tab();
         tab.setContent(tool);
