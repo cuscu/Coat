@@ -53,22 +53,6 @@ public class Pearl {
         this.distanceToPhenotype = distanceToPhenotype;
     }
 
-
-//    public List<PearlRelationship> getOutRelationships() {
-//        return outRelationships;
-//    }
-
-//    public PearlRelationship createRelationshipTo(Pearl target) {
-//        final PearlRelationship relationship = new PearlRelationship(this, target);
-//        this.outRelationships.add(relationship);
-//        target.inRelationships.add(relationship);
-//        return relationship;
-//    }
-
-//    public List<PearlRelationship> getInRelationships() {
-//        return inRelationships;
-//    }
-
     public Map<String, Object> getProperties() {
         return properties;
     }

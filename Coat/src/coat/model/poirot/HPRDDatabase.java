@@ -17,7 +17,7 @@ import java.util.zip.GZIPInputStream;
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class HPRDDatabase {
+public class HPRDDatabase  {
 
     private static Map<String, List<StringRelationship>> relationships;
 

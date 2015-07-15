@@ -15,7 +15,6 @@ public class GraphNode {
     private Vector direction = new Vector();
     private boolean selected;
     private boolean mouseMoving;
-    private double speed = 0;
     private boolean mouseOver;
 
     public GraphNode(Pearl pearl) {
@@ -25,10 +24,6 @@ public class GraphNode {
     public Pearl getPearl() {
         return pearl;
     }
-
-//    public List<GraphRelationship> getRelationships() {
-//        return relationships;
-//    }
 
     public double distance(GraphNode node) {
         return position.distance(node.position);

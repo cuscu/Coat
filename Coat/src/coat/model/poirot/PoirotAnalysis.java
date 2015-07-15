@@ -8,27 +8,42 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
+ * This class is a Task (a long task) that analyzes a VCF file and a list of phenotype key words and returns a
+ * PearlDatabase with the gene-gene-phenotype graph associated to the variants.
+ * TODO: Separate in a new class the punctuation system.
+ *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class PoirotAnalysis extends Task<PearlDatabase> {
 
 
-    private final List<String> phenotypes;
+    private final List<String> phenotypeKeyWords;
     private final List<Variant> variants;
-    private final List<String> genes = new ArrayList<>();
 
-    private final PearlDatabase pearlDatabase = new PearlDatabase();
-    private final Map<String, List<String>> phenotypeGenes = new HashMap<>();
     private Map<String, List<Variant>> geneMap = new HashMap<>();
+    private final PearlDatabase pearlDatabase = new PearlDatabase();
 
     private AtomicInteger round = new AtomicInteger();
 
-    private final static List<String> BLACKLIST = new ArrayList<>();
+    private final static List<String> GENE_BLACKLIST = new ArrayList<>();
     public static final Map<String, Double> CONSEQUENCE_SCORE = new HashMap<>();
     public static final Map<String, Double> RELATIONSHIP_SCORE = new HashMap<>();
 
+    /**
+     * Omim diseases database (gene-phenotype)
+     */
+    private OmimDatabase omimDatabase = new OmimDatabase();
+    /**
+     * HGNC genes database (gene standard names)
+     */
+    private HGNCDatabase hgncDatabase = new HGNCDatabase();
+    /**
+     * HPRD expression database (gene-phenotype)
+     */
+    private HPRDExpressionDatabase hprdExpressionDatabase = new HPRDExpressionDatabase();
+
     static {
-        BLACKLIST.add("UBC");
+        GENE_BLACKLIST.add("UBC");
         CONSEQUENCE_SCORE.put("transcript_ablation", 5.0);
         CONSEQUENCE_SCORE.put("splice_acceptor_variant", 5.0);
         CONSEQUENCE_SCORE.put("splice_donor_variant", 5.0);
@@ -111,31 +126,26 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
         RELATIONSHIP_SCORE.put("dna strand elongation", 1.0);
     }
 
+    /**
+     * Creates a new PoirotAnalysis task, ready to be inserted in a Thread, or launch with <code>Paltform</code>
+     *
+     * @param variants
+     * @param phenotypes
+     */
     public PoirotAnalysis(List<Variant> variants, List<String> phenotypes) {
         this.variants = variants;
-        this.phenotypes = phenotypes;
+        this.phenotypeKeyWords = phenotypes;
     }
 
     @Override
     protected PearlDatabase call() throws Exception {
         try {
             mapVariantsToGenes();
-            loadPhenotypes();
-            System.out.println(phenotypeGenes);
             return secondTry();
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
-    }
-
-    private void loadPhenotypes() {
-        phenotypes.forEach(phenotype -> {
-            final List<String> omimPhenotyes = Omim.getPhenotypes(phenotype);
-            omimPhenotyes.forEach(name -> phenotypeGenes.put(name, Omim.getRelatedGenes(name)));
-            final List<String> hrpdPhenotypes = HPRDPhenotypeDatabase.getPhenotypes(phenotype);
-            hrpdPhenotypes.forEach(name -> phenotypeGenes.put(name, HPRDPhenotypeDatabase.getRelatedGenes(name)));
-        });
     }
 
     private void printDatabase() {
@@ -148,23 +158,38 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
     }
 
     private void mapVariantsToGenes() {
+        updateMessage("Reading variants");
+        int total = variants.size();
+        int count = 0;
         for (Variant variant : variants) {
             final String gene = (String) variant.getInfos().get("GNAME");
             if (gene != null) {
-                final String GENE = gene.toUpperCase();
+                String GENE = getStandardName(gene);
+                if (GENE == null) GENE = gene.toUpperCase();
                 List<Variant> vs = geneMap.get(GENE);
                 if (vs == null) {
                     vs = new ArrayList<>();
                     geneMap.put(GENE, vs);
                 }
                 vs.add(variant);
-                if (!genes.contains(GENE)) genes.add(GENE);
             }
+            if (++count % 1000 == 0) updateMessage(String.format("Reading variants %d/%d", count, total));
         }
     }
 
+    private String getStandardName(String gene) {
+        final String lowerCasedGene = gene.toLowerCase();
+        for (DatabaseEntry hgncEntry : hgncDatabase.getUnmodifiableEntries()) {
+            if (hgncEntry.getField(1).equalsIgnoreCase(gene)
+                    || hgncEntry.getField(3).toLowerCase().contains(lowerCasedGene)
+                    || hgncEntry.getField(4).toLowerCase().contains(lowerCasedGene))
+                return hgncEntry.getField(1);
+        }
+        return null;
+    }
+
     private PearlDatabase secondTry() {
-        initializeDatabase();
+        addInitialGenes();
         expandGraph();
         setDistances();
         cleanDatabase();
@@ -172,59 +197,78 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
         return pearlDatabase;
     }
 
-    private void initializeDatabase() {
-        addInitialPhenotypes();
-        addInitialGenes();
-    }
-
     private void addInitialGenes() {
-        genes.forEach(gene -> {
+        geneMap.keySet().forEach(gene -> {
             final Pearl pearl = pearlDatabase.getOrCreate(gene, "gene");
             final List<Variant> vs = geneMap.get(gene);
             pearl.getProperties().put("variants", vs);
         });
     }
 
-    private void addInitialPhenotypes() {
-        phenotypeGenes.keySet().forEach(phenotype -> {
-            final Pearl pearl = pearlDatabase.getOrCreate(phenotype, "phenotype");
-        });
-    }
-
     private void expandGraph() {
+        AtomicInteger count = new AtomicInteger();
         for (int i = 0; i < 2; i++) {
             round.set(i + 1);
-            final List<String> leafGenes = getLeafGenes();
-            expandGenes(leafGenes);
+            final long total = pearlDatabase.getPearls("gene").stream().filter(Pearl::isLeaf).count();
+            pearlDatabase.getPearls("gene").stream().
+                    filter(Pearl::isLeaf).
+                    forEach(pearl -> {
+                        connectToOmimPhenotypes(pearl);
+                        connectToHPRDExpressions(pearl);
+                        addRelationships(BioGridDatabase.getRelationships(pearl.getName()));
+                        addRelationships(MenthaDatabase.getRelationships(pearl.getName()));
+//                        addRelationships(HPRDDatabase.getRelationships(pearl.getName()));
+                        pearl.setLeaf(false);
+                        if (count.incrementAndGet() % 100 == 0)
+                            updateMessage(String.format("Round %d of %d, %d/%d genes processed", round.get(), 2, count.get(), total));
+                    });
         }
     }
 
-    private List<String> getLeafGenes() {
-        return pearlDatabase.getPearls("gene").stream().
-                filter(Pearl::isLeaf).
-                map(Pearl::getName).
-                collect(Collectors.toList());
+    private void connectToOmimPhenotypes(Pearl pearl) {
+        omimDatabase.getUnmodifiableEntries().stream().
+                filter(omimEntry -> omimEntry.getField(0).equals(pearl.getName())).
+                map(omimEntry -> omimEntry.getField(3)).
+                filter(disorders -> !disorders.equals(".")).
+                forEach(disorders ->
+                        Arrays.stream(disorders.split(";")).forEach(disorder -> linkGeneToDisorder(pearl, disorder)));
     }
 
-    private void expandGenes(List<String> genes) {
-        connectWithLocalGenes(genes);
-        connectWithPhenotypes(genes);
-        unLeaf(genes);
+    private void connectToHPRDExpressions(Pearl pearl) {
+        hprdExpressionDatabase.getUnmodifiableEntries().stream().
+                filter(hprdEntry -> hprdEntry.getField(2).equals(pearl.getName())).
+                forEach(hprdEntry -> linkGeneToExpression(pearl, hprdEntry));
     }
 
-    private void connectWithLocalGenes(List<String> genes) {
-        final AtomicInteger counter = new AtomicInteger();
-        genes.forEach(geneName -> {
-            if (counter.incrementAndGet() % 100 == 0)
-                updateMessage(String.format("Round %d/%d, %d/%d genes", round.get(), 2, counter.get(), genes.size()));
-            addRelationships(BioGridDatabase.getRelationships(geneName));
-            addRelationships(MenthaDatabase.getRelationships(geneName));
-        });
+    private void linkGeneToDisorder(Pearl pearl, String disorder) {
+        boolean isValid = false;
+        for (String p : phenotypeKeyWords) if (disorder.toLowerCase().contains(p.toLowerCase())) isValid = true;
+        if (isValid) {
+            final String[] disorderFields = disorder.split("\\|");
+            final String id = disorderFields[0] + "," + disorderFields[1];
+            final Pearl phenotype = pearlDatabase.getOrCreate(id, "phenotype");
+            phenotype.getProperties().put("name", disorderFields[0]);
+            phenotype.getProperties().put("mimNumber", disorderFields[1]);
+            final PearlRelationship relationshipTo = pearl.createRelationshipTo(phenotype);
+            relationshipTo.setProperty("method", disorderFields[2]);
+        }
+    }
+
+    private void linkGeneToExpression(Pearl pearl, DatabaseEntry expression) {
+        boolean isValid = false;
+        for (String p : phenotypeKeyWords)
+            if (expression.getField(3).toLowerCase().contains(p.toLowerCase())) isValid = true;
+        if (isValid) {
+            final Pearl phenotype = pearlDatabase.getOrCreate(expression.getField(3), "phenotype");
+            phenotype.getProperties().put("name", expression.getField(3));
+            final PearlRelationship relationshipTo = pearl.createRelationshipTo(phenotype);
+            relationshipTo.setProperty("status", expression.getField(4));
+        }
     }
 
     private void addRelationships(List<StringRelationship> relationships) {
         if (relationships != null)
-            relationships.stream().filter(relationship -> !BLACKLIST.contains(relationship.getSource()) && !BLACKLIST.contains(relationship.getTarget())).forEach(relationship -> {
+            relationships.stream().filter(relationship -> !GENE_BLACKLIST.contains(relationship.getSource()) && !GENE_BLACKLIST.contains(relationship.getTarget())).forEach(relationship -> {
                 final Pearl source = pearlDatabase.getOrCreate(relationship.getSource(), "gene");
                 final Pearl target = pearlDatabase.getOrCreate(relationship.getTarget(), "gene");
                 updateRelationship(relationship, source, target);
@@ -236,8 +280,6 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
         if (!relationshipExists(source, target, id)) {
             PearlRelationship relationship = new PearlRelationship(source, target);
             cloneProperties(myRelationship, relationship);
-            source.addRelationship(target, relationship);
-            target.addRelationship(source, relationship);
         }
     }
 
@@ -251,44 +293,6 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
 
     private void cloneProperties(StringRelationship myRelationship, PearlRelationship relationship) {
         myRelationship.getProperties().keySet().forEach(key -> relationship.getProperties().put(key, myRelationship.getProperties().get(key)));
-    }
-
-    private void connectWithPhenotypes(List<String> genes) {
-        phenotypeGenes.forEach((phenotype, geneList) -> genes.forEach(gene -> {
-            if (geneList.contains(gene)) {
-                connect(gene, phenotype);
-            }
-        }));
-    }
-
-    private void connect(String gene, String phenotype) {
-        final Pearl genePearl = pearlDatabase.getPearl(gene, "gene");
-        final Pearl phenotypePearl = pearlDatabase.getPearl(phenotype, "phenotype");
-        if (phenotypePearl == null || genePearl == null) return;
-        PearlRelationship relationship = findRelationship(genePearl, phenotypePearl);
-        if (relationship != null) {
-            int total = (int) relationship.getProperty("total");
-            relationship.setProperty("total", total + 1);
-        } else {
-            PearlRelationship pearlRelationship = new PearlRelationship(genePearl, phenotypePearl);
-            pearlRelationship.getProperties().put("total", 1);
-            genePearl.addRelationship(phenotypePearl, pearlRelationship);
-            phenotypePearl.addRelationship(genePearl, pearlRelationship);
-        }
-    }
-
-    private PearlRelationship findRelationship(Pearl source, Pearl target) {
-        final List<PearlRelationship> relationships = source.getRelationships().get(target);
-        if (relationships != null) {
-            for (PearlRelationship relationship : relationships) {
-                if (relationship.getTarget().equals(target)) return relationship;
-            }
-        }
-        return null;
-    }
-
-    private void unLeaf(List<String> genes) {
-        genes.stream().map(gene -> pearlDatabase.getPearl(gene, "gene")).filter(pearl -> pearl != null).forEach(pearl -> pearl.setLeaf(false));
     }
 
     private void setDistances() {

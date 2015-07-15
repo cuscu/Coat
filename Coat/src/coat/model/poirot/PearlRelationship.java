@@ -14,6 +14,8 @@ public class PearlRelationship {
     public PearlRelationship(Pearl source, Pearl target) {
         this.source = source;
         this.target = target;
+        source.addRelationship(target, this);
+        target.addRelationship(source, this);
     }
 
     public Pearl getTarget() {

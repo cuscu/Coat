@@ -70,6 +70,9 @@ public class PoirotView extends Tool {
     private List<String> genes = new ArrayList<>();
     private Property<String> title = new SimpleStringProperty("Poirot");
 
+    private HGNCDatabase hgncDatabase = new HGNCDatabase();
+    private OmimDatabase omimDatabase = new OmimDatabase();
+
 
     public PoirotView() {
         file.setText("/home/unidad03/Copy/Proyectos/SQZ/sqz_20150420_VEP_f001_DP9_protcoding.vcf");
@@ -178,12 +181,24 @@ public class PoirotView extends Tool {
     }
 
     private void showNonGeneDescription(Pearl pearl) {
-        infoBox.getChildren().add(new Label(pearl.getName()));
+        infoBox.getChildren().add(new Label(pearl.getProperties().toString()));
     }
 
     private void showGeneDescription(Pearl pearl) {
         final String name = pearl.getName();
-        final String description = Omim.getGeneDescription(name);
+
+        String description = null;
+        for (DatabaseEntry entry : hgncDatabase.getUnmodifiableEntries()) {
+            if (entry.getField(1).equals(name)) description = entry.getField(2);
+            break;
+        }
+        if (description == null) {
+            for (DatabaseEntry entry : omimDatabase.getUnmodifiableEntries())
+                if (entry.getField(0).equals(name)) {
+                    description = entry.getField(1);
+                    break;
+                }
+        }
         infoBox.getChildren().add(new Label(name + "(" + description + ")"));
         if (pearl.getType().equals("gene")) {
             final String url = "http://v4.genecards.org/cgi-bin/carddisp.pl?gene=" + pearl.getName();
