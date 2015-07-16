@@ -2,8 +2,8 @@ package coat.view.poirot;
 
 import coat.Coat;
 import coat.model.poirot.Graph;
+import coat.model.poirot.GraphScore;
 import coat.model.poirot.Pearl;
-import coat.model.poirot.PoirotAnalysis;
 import coat.model.vcfreader.Variant;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
@@ -22,6 +22,9 @@ import javafx.scene.text.TextAlignment;
 import java.util.*;
 
 /**
+ * This is the graph view. Input is a list of Pearls, output are selectedPearl and selectedRelationship. Pearls (logical
+ * graph) are stored on a <code>Graph</code> object.
+ *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class GraphView extends Canvas {
@@ -48,17 +51,19 @@ public class GraphView extends Canvas {
 
     private long startTime;
     private Vector lastMousePosition = new Vector();
-    private final static long GLOWING_TIME = 2000;
+    private final static long GLOWING_TIME = 1000;
     private final static long HALF_GLOWING_TIME = GLOWING_TIME / 2;
     private final static double OPACITY_FACTOR = 0.8 / HALF_GLOWING_TIME;
 
     private final static double MAX_RADIUS = 40;
-
-    private final static double MIN_RADIUS = 15;
+    private final static double MIN_RADIUS = 10;
 
     private final Random random = new Random();
     private GraphNode movingNode;
 
+    /**
+     * Creates a Canvas that renders a GraphView.
+     */
     public GraphView() {
         screen = getGraphicsContext2D();
         widthProperty().addListener((observable, oldValue, newValue) -> effectiveWidth = getWidth() - 2 * margin);
@@ -74,10 +79,20 @@ public class GraphView extends Canvas {
 
     }
 
+    /**
+     * Get the current selected Pearl property. It is possible to add listener to this property.
+     *
+     * @return the selected pearl property
+     */
     public Property<Pearl> getSelectedPearlProperty() {
         return selectedPearl;
     }
 
+    /**
+     * Get the current selected Relationship property. You can add listeners.
+     *
+     * @return the current selected relationship property
+     */
     public Property<GraphRelationship> getSelectedRelationship() {
         return selectedRelationship;
     }
@@ -91,6 +106,11 @@ public class GraphView extends Canvas {
         setOnScroll(this::zoom);
     }
 
+    /**
+     * Mouse has been pressed and released
+     *
+     * @param event the mouse event
+     */
     private void clicked(MouseEvent event) {
         if (movingNode == null) {
             final Vector click = new Vector(event.getX(), event.getY());
@@ -117,6 +137,11 @@ public class GraphView extends Canvas {
         }
     }
 
+    /**
+     * Mouse has been pressed. If a node is under mouse, it starts moving.
+     *
+     * @param event the mouse event
+     */
     private void startMove(MouseEvent event) {
         lastMousePosition = new Vector(event.getX(), event.getY());
         for (GraphNode node : graph.getNodes())
@@ -127,6 +152,11 @@ public class GraphView extends Canvas {
             }
     }
 
+    /**
+     * If a node has been previously pressed, and the mouse is still pressed, the node must go with the mouse.
+     *
+     * @param event
+     */
     private void mouseDragging(MouseEvent event) {
         if (movingNode != null) movingNode.getPosition().set(event.getX(), event.getY());
         else {
@@ -139,6 +169,11 @@ public class GraphView extends Canvas {
         }
     }
 
+    /**
+     * The mouse has been released. If there were a node moving, it is released.
+     *
+     * @param event the mouse event
+     */
     private void endMove(MouseEvent event) {
         if (movingNode != null) {
             movingNode.setMouseMoving(false);
@@ -146,6 +181,11 @@ public class GraphView extends Canvas {
         }
     }
 
+    /**
+     * Whe the user scrolls the mouse, the graph is zoomed (x1.25 or x0.8).
+     *
+     * @param event the mouse event
+     */
     private void zoom(ScrollEvent event) {
         double scale = event.getDeltaY() > 0 ? 1.25 : 0.8;
         radiusProperty.setValue(radiusProperty.get() * scale);
@@ -159,6 +199,11 @@ public class GraphView extends Canvas {
         }
     }
 
+    /**
+     * When the mouse is freely moved, nodes and relationships under it  will light.
+     *
+     * @param event the mouse event
+     */
     private void mouseMoving(MouseEvent event) {
         final Vector mousePosition = new Vector(event.getX(), event.getY());
         synchronized (graph.getNodes()) {
@@ -169,6 +214,12 @@ public class GraphView extends Canvas {
         }
     }
 
+    /**
+     * Changes the size of the node by setting the radius. This will also affect the distance between nodes and the size
+     * of margins. radius will never be less than MIN_RADIUS or more than MAX_RADIUS. In those cases, radius is cropped.
+     *
+     * @param radius the new radius
+     */
     private void setRadius(double radius) {
         if (radius > MAX_RADIUS) this.radiusProperty.setValue(MAX_RADIUS);
         else if (radius < MIN_RADIUS) this.radiusProperty.setValue(MIN_RADIUS);
@@ -183,8 +234,14 @@ public class GraphView extends Canvas {
         }
     }
 
-    public void setCandidates(List<Pearl> originGenes) {
-        graph.setOriginNodes(originGenes);
+    /**
+     * Set the list of root genes. <code>Graph</code> will call ShortestPath to get the paths to the phenotypes. Then
+     * <code>GraphView</code> will apply a hierarchy distribution to the resulting nodes.
+     *
+     * @param rootGenes the list of root genes
+     */
+    public void setRootGenes(List<Pearl> rootGenes) {
+        graph.setOriginNodes(rootGenes);
         maxWeight = graph.getNodes().stream().map(GraphNode::getPearl).map(Pearl::getDistanceToPhenotype).max(Integer::compare).get();
         radiusProperty.setValue(0.4 * Math.sqrt(0.25 * effectiveWidth * effectiveHeight / graph.getNodes().size()));
         HierarchyDistribution.distribute(graph, margin, effectiveWidth, effectiveHeight, maxWeight);
@@ -192,6 +249,9 @@ public class GraphView extends Canvas {
         startDrawer();
     }
 
+    /**
+     * Initialize the timer that repaints the GraphView.
+     */
     private void startDrawer() {
         if (timer != null) timer.cancel();
         timer = new Timer();
@@ -209,12 +269,12 @@ public class GraphView extends Canvas {
 
     private void iterate() {
         if (Coat.getStage() != null && !Coat.getStage().isShowing()) timer.cancel();
-        interactNodes();
+        calculateNewPositions();
         updateNodePositions();
         Platform.runLater(this::paint);
     }
 
-    private void interactNodes() {
+    private void calculateNewPositions() {
         synchronized (graph.getNodes()) {
             graph.getNodes().stream().filter(graphNode -> !graphNode.isMouseMoving()).forEach(this::avoidCollisions);
         }
@@ -225,7 +285,7 @@ public class GraphView extends Canvas {
         graph.getNodes().stream().filter(node -> !node.equals(graphNode)).forEach(node -> {
             final double dist = node.distance(graphNode);
             if (dist < security) {
-                moveRandomly(graphNode); // Moving randomly avoids strict horizontal or vertical movements
+                moveRandomly(graphNode);
                 final Vector vector = new Vector(graphNode.getPosition(), node.getPosition());
                 vector.scale((security - dist) / dist);
                 node.push(vector);
@@ -233,18 +293,31 @@ public class GraphView extends Canvas {
         });
     }
 
+    /**
+     * Applies a minimum random move to a node in both axis in the range [-0.5 , 0.5]. This random move allows nodes to
+     * behave more natural and avoids strict horizontal or vertical movements.
+     *
+     * @param node the node to move slightly
+     */
     private void moveRandomly(GraphNode node) {
         node.push(new Vector(random.nextDouble() - 0.5, random.nextDouble() - 0.5));
     }
 
+    /**
+     * Takes the movement of every node, limits to the maximum speed and updates its position to the target position.
+     */
     private void updateNodePositions() {
         graph.getNodes().forEach(node -> {
             limitSpeed(node);
             move(node);
-            stop(node);
         });
     }
 
+    /**
+     * Limits movement to a maximum value.
+     *
+     * @param node
+     */
     private void limitSpeed(GraphNode node) {
         if (node.getDirection().getX() > maxSpeed) node.getDirection().setX(maxSpeed);
         if (node.getDirection().getY() > maxSpeed) node.getDirection().setY(maxSpeed);
@@ -252,33 +325,47 @@ public class GraphView extends Canvas {
         if (node.getDirection().getY() < -maxSpeed) node.getDirection().setY(-maxSpeed);
     }
 
+    /**
+     * Updates the position of the node.
+     *
+     * @param node
+     */
     private void move(GraphNode node) {
         node.getPosition().add(node.getDirection());
-    }
-
-    private void stop(GraphNode node) {
         node.getDirection().set(0, 0);
     }
 
+    /**
+     * Clears screen and paint all nodes and relationships.
+     */
     private void paint() {
         screen.clearRect(0, 0, getWidth(), getHeight());
         paintRelationships();
         paintNodes();
     }
 
+    /**
+     * Paints all the relationships.
+     */
     private void paintRelationships() {
         graph.getRelationships().forEach((nodePairKey, graphRelationship) -> {
             final int size = graphRelationship.getRelationships().size();
             final Vector center = getCenter(nodePairKey);
             graphRelationship.getPosition().set(center.getX(), center.getY());
-            Color baseColor = getRelationshipColor(graphRelationship);
+            final Color baseColor = getRelationshipColor(graphRelationship);
             drawRelationshipLine(nodePairKey, size, baseColor);
             drawRelationshipCircle(graphRelationship, baseColor);
-            drawSelection(graphRelationship);
+            drawRelationshipSelectionCircle(graphRelationship);
             writeText(size + "", center);
         });
     }
 
+    /**
+     * Calculates the centre of a relationship.
+     *
+     * @param nodePairKey nodes of the relationship
+     * @return the centre
+     */
     private Vector getCenter(NodePairKey nodePairKey) {
         return new Vector(
                 (nodePairKey.getSource().getPosition().getX() + nodePairKey.getTarget().getPosition().getX()) * 0.5,
@@ -300,26 +387,43 @@ public class GraphView extends Canvas {
     private Color getRelationshipColor(GraphRelationship graphRelationship) {
         final double score = graphRelationship.getRelationships().stream().
                 map(pearlRelationship -> (String) pearlRelationship.getProperties().getOrDefault("type", null)).
-                map(type -> PoirotAnalysis.RELATIONSHIP_SCORE.getOrDefault(type, 0.0)).
+                map(type -> GraphScore.RELATIONSHIP_SCORE.getOrDefault(type, 0.0)).
                 max(Double::compare).get();
         Color baseColor = Color.BLACK.interpolate(Color.GREEN, score * 0.2);
         if (graphRelationship.isMouseOver()) baseColor = baseColor.interpolate(Color.WHITE, 0.5);
         return baseColor;
     }
 
-    private void drawSelection(GraphRelationship graphRelationship) {
+    /**
+     * If the relationship is selected, draws a circle around them.
+     *
+     * @param graphRelationship
+     */
+    private void drawRelationshipSelectionCircle(GraphRelationship graphRelationship) {
         if (graphRelationship.isSelected()) {
             screen.setLineWidth(4);
             screen.setStroke(new Color(1, 1, 0, getSelectionOpacity()));
-            screen.strokeOval(graphRelationship.getPosition().getX() - RELATIONSHIP_RADIUS, graphRelationship.getPosition().getY() - RELATIONSHIP_RADIUS, RELATIONSHIP_RADIUS * 2, RELATIONSHIP_RADIUS * 2);
+            screen.strokeOval(
+                    graphRelationship.getPosition().getX() - RELATIONSHIP_RADIUS,
+                    graphRelationship.getPosition().getY() - RELATIONSHIP_RADIUS,
+                    RELATIONSHIP_RADIUS * 2, RELATIONSHIP_RADIUS * 2);
         }
     }
 
+    /**
+     * Writes a white text in this position
+     *
+     * @param text     the text
+     * @param position the  position
+     */
     private void writeText(String text, Vector position) {
         screen.setFill(Color.WHITE);
         screen.fillText(text, position.getX(), position.getY());
     }
 
+    /**
+     * Paints all the nodes in the graph.
+     */
     private void paintNodes() {
         synchronized (graph.getNodes()) {
             graph.getNodes().forEach(graphNode -> {
@@ -330,32 +434,39 @@ public class GraphView extends Canvas {
     }
 
     private void drawCircle(GraphNode graphNode) {
-        drawRelationshipCircle(graphNode);
-        screen.setLineWidth(4);
-        drawConsequences(graphNode);
         drawSelectionCircle(graphNode);
+        drawNodeCircle(graphNode);
+        drawConsequences(graphNode);
     }
 
-    private void drawRelationshipCircle(GraphNode graphNode) {
-        setBackgroundColor(graphNode);
+    private void drawNodeCircle(GraphNode graphNode) {
+        Color color = getFillColor(graphNode);
+        if (graphNode.isMouseOver()) color = Color.WHITE.interpolate(color, 0.5);
+        screen.setFill(color);
         screen.fillOval(graphNode.getPosition().getX() - radiusProperty.get(), graphNode.getPosition().getY() - radiusProperty.get(), diameter, diameter);
     }
 
-    private void setBackgroundColor(GraphNode graphNode) {
-        Color color;
+    /**
+     * Calculates the fill color of a node
+     *
+     * @param graphNode the node to paint
+     */
+    private Color getFillColor(GraphNode graphNode) {
         switch (graphNode.getPearl().getType()) {
             case "phenotype":
-                color = Color.ORANGE;
-                break;
+                return Color.ORANGE;
             case "gene":
-                color = new Color(1.0 - graphNode.getPearl().getDistanceToPhenotype() / maxWeight, 0, 0, 1);
-                break;
+                return new Color(1.0 - graphNode.getPearl().getDistanceToPhenotype() / maxWeight, 0, 0, 1);
             default:
-                color = Color.GRAY;
+                return Color.GRAY;
         }
-        screen.setFill(graphNode.isMouseOver() ? color.interpolate(Color.WHITE, 0.5) : color);
     }
 
+    /**
+     * Paints the points in the nodes that indicate the consequences of the gene.
+     *
+     * @param graphNode
+     */
     private void drawConsequences(GraphNode graphNode) {
         final List<Variant> variants = (List<Variant>) graphNode.getPearl().getProperties().get("variants");
         if (variants != null) {
@@ -366,22 +477,33 @@ public class GraphView extends Canvas {
                 final double angle = 6.28318 * i / consequences.size() + 1.570795; // radians
                 final double x = graphNode.getPosition().getX() + Math.cos(angle) * (radiusProperty.get() - VARIANT_DIAMETER) - VARIANT_RADIUS;
                 final double y = graphNode.getPosition().getY() - Math.sin(angle) * (radiusProperty.get() - VARIANT_DIAMETER) - VARIANT_RADIUS;
-                final double score = PoirotAnalysis.CONSEQUENCE_SCORE.getOrDefault(consequences.get(i), 0.0);
+                final double score = GraphScore.CONSEQUENCE_SCORE.getOrDefault(consequences.get(i), 0.0);
                 Color color = Color.WHITE.interpolate(Color.RED, score * 0.2);
                 screen.setFill(color);
                 screen.fillOval(x, y, VARIANT_DIAMETER, VARIANT_DIAMETER);
             }
         }
-
     }
 
+    /**
+     * If the node is selected, paints a yellow circle around it.
+     *
+     * @param graphNode
+     */
     private void drawSelectionCircle(GraphNode graphNode) {
         if (graphNode.isSelected()) {
-            screen.setStroke(new Color(1, 1, 0, getSelectionOpacity()));
+            screen.setStroke(Color.TRANSPARENT.interpolate(Color.GOLD, getSelectionOpacity()));
+            screen.setLineWidth(8);
             screen.strokeOval(graphNode.getPosition().getX() - radiusProperty.get(), graphNode.getPosition().getY() - radiusProperty.get(), diameter, diameter);
         }
     }
 
+    /**
+     * Maps a list of variants to a list of consequences.
+     *
+     * @param variants the lis t of variants
+     * @return the list of consequences
+     */
     private List<String> getConsequences(List<Variant> variants) {
         List<String> consequences = new ArrayList<>();
         variants.forEach(variant -> {
@@ -391,6 +513,11 @@ public class GraphView extends Canvas {
         return consequences;
     }
 
+    /**
+     * Gets the opacity of the selection based on System clock. This method allows the selection to glow.
+     *
+     * @return
+     */
     private double getSelectionOpacity() {
         final long period = (System.currentTimeMillis() - startTime) % GLOWING_TIME;
         final long step = Math.abs(HALF_GLOWING_TIME - period);

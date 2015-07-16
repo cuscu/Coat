@@ -275,7 +275,7 @@ public class PoirotView extends Tool {
 
     private void reload() {
         infoBox.getChildren().clear();
-        graphView.setCandidates(pearlTableView.getSelectionModel().getSelectedItems());
+        graphView.setRootGenes(pearlTableView.getSelectionModel().getSelectedItems());
     }
 
     @Override

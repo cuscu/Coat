@@ -1,26 +1,32 @@
 package coat.model.poirot;
 
+import coat.CoatView;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.zip.GZIPInputStream;
 
 /**
+ * Manages the Omim database.
+ *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class OmimDatabase implements Database {
 
-    private final static List<String> headers;
-    private final static List<DatabaseEntry> entries;
+    private final static Collection<String> headers;
+    private final static Collection<DatabaseEntry> entries;
 
     static {
-        headers = new ArrayList<>();
+        headers = Collections.singletonList("symbol\tname\tstatus\tdisorders");
         entries = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(OmimDatabase.class.getResourceAsStream("omim-normalized.tsv.gz"))))) {
-            System.out.println("Loading Omim database");
             reader.lines().forEach((line) -> entries.add(new DatabaseEntry(Arrays.asList(line.split("\t")))));
-            System.out.println("Omim database successfully loaded");
+            CoatView.printMessage("Omim database successfully loaded", "info");
         } catch (IOException e) {
             e.printStackTrace();
         }
