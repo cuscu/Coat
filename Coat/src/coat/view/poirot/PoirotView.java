@@ -1,6 +1,8 @@
 package coat.view.poirot;
 
 import coat.model.poirot.*;
+import coat.model.poirot.databases.HGNCDatabase;
+import coat.model.poirot.databases.OmimDatabase;
 import coat.model.tool.Tool;
 import coat.model.vcfreader.Variant;
 import coat.model.vcfreader.VcfFile;
@@ -70,7 +72,6 @@ public class PoirotView extends Tool {
     private List<String> genes = new ArrayList<>();
     private Property<String> title = new SimpleStringProperty("Poirot");
 
-    private HGNCDatabase hgncDatabase = new HGNCDatabase();
     private OmimDatabase omimDatabase = new OmimDatabase();
 
 
@@ -142,7 +143,6 @@ public class PoirotView extends Tool {
     private void initializePearlListView() {
         VBox.setVgrow(pearlTableView, Priority.ALWAYS);
         pearlTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-//        pearlListView.setCellFactory(param1 -> new PearlListCell());
         pearlTableView.getColumns().addAll(indexColumn, distanceColumn, scoreColumn, nameColumn);
         pearlTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         distanceColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getDistanceToPhenotype()));
@@ -186,12 +186,7 @@ public class PoirotView extends Tool {
 
     private void showGeneDescription(Pearl pearl) {
         final String name = pearl.getName();
-
-        String description = null;
-        for (DatabaseEntry entry : hgncDatabase.getUnmodifiableEntries()) {
-            if (entry.getField(1).equals(name)) description = entry.getField(2);
-            break;
-        }
+        String description = HGNCDatabase.getName(name);
         if (description == null) {
             for (DatabaseEntry entry : omimDatabase.getUnmodifiableEntries())
                 if (entry.getField(0).equals(name)) {

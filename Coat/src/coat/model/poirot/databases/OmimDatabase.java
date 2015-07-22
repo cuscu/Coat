@@ -1,6 +1,8 @@
-package coat.model.poirot;
+package coat.model.poirot.databases;
 
 import coat.CoatView;
+import coat.model.poirot.Database;
+import coat.model.poirot.DatabaseEntry;
 
 import java.io.BufferedReader;
 import java.io.IOException;

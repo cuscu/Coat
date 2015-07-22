@@ -1,5 +1,6 @@
 package coat.model.poirot;
 
+import coat.model.poirot.databases.*;
 import coat.model.vcfreader.Variant;
 import javafx.concurrent.Task;
 
@@ -32,10 +33,6 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
      */
     private OmimDatabase omimDatabase = new OmimDatabase();
     /**
-     * HGNC genes database (gene standard names)
-     */
-    private HGNCDatabase hgncDatabase = new HGNCDatabase();
-    /**
      * HPRD expression database (gene-phenotype)
      */
     private HPRDExpressionDatabase hprdExpressionDatabase = new HPRDExpressionDatabase();
@@ -67,8 +64,8 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
      */
     private void mapVariantsToGenes() {
         updateMessage("Reading variants");
-        int total = variants.size();
-        AtomicInteger count = new AtomicInteger();
+        final int total = variants.size();
+        final AtomicInteger count = new AtomicInteger();
         variants.forEach(variant -> {
             final String gene = (String) variant.getInfos().get("GNAME");
             if (gene != null) {
@@ -105,14 +102,15 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
      * @return standard gene name
      */
     private String getStandardName(String gene) {
-        final String lowerCasedGene = gene.toLowerCase();
-        for (DatabaseEntry hgncEntry : hgncDatabase.getUnmodifiableEntries()) {
-            if (hgncEntry.getField(1).equalsIgnoreCase(gene)
-                    || hgncEntry.getField(3).toLowerCase().contains(lowerCasedGene)
-                    || hgncEntry.getField(4).toLowerCase().contains(lowerCasedGene))
-                return hgncEntry.getField(1);
-        }
-        return null;
+        return HGNCDatabase.getStandardSymbol(gene);
+//        final String lowerCasedGene = gene.toLowerCase();
+//        for (DatabaseEntry hgncEntry : hgncDatabase.getUnmodifiableEntries()) {
+//            if (hgncEntry.getField(1).equalsIgnoreCase(gene)
+//                    || hgncEntry.getField(3).toLowerCase().contains(lowerCasedGene)
+//                    || hgncEntry.getField(4).toLowerCase().contains(lowerCasedGene))
+//                return hgncEntry.getField(1);
+//        }
+//        return null;
     }
 
     /**
@@ -155,7 +153,7 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
                         connectToHPRDExpressions(pearl);
                         addRelationships(BioGridDatabase.getRelationships(pearl.getName()));
                         addRelationships(MenthaDatabase.getRelationships(pearl.getName()));
-//                        addRelationships(HPRDDatabase.getRelationships(pearl.getName()));
+                        addRelationships(HPRDDatabase.getRelationships(pearl.getName()));
                         pearl.setLeaf(false);
                         if (count.incrementAndGet() % 100 == 0)
                             updateMessage(String.format("Round %d of %d, %d/%d genes processed", round.get(), 2, count.get(), total));
@@ -310,7 +308,7 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
      *
      */
     private void setScores() {
-        GraphScore graphScore = new GraphScore(pearlDatabase);
+        final GraphScore graphScore = new GraphScore(pearlDatabase);
         graphScore.messageProperty().addListener((observable, oldValue, newValue) -> updateMessage(newValue));
         graphScore.run();
     }

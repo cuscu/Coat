@@ -1,6 +1,7 @@
-package coat.model.poirot;
+package coat.model.poirot.databases;
 
 import coat.CoatView;
+import coat.model.poirot.StringRelationship;
 
 import java.io.BufferedReader;
 import java.io.IOException;

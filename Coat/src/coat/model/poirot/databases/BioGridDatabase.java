@@ -1,6 +1,8 @@
-package coat.model.poirot;
+package coat.model.poirot.databases;
 
 import coat.CoatView;
+import coat.model.poirot.StringRelationship;
+import javafx.application.Platform;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,12 +16,19 @@ import java.util.zip.GZIPInputStream;
 /**
  * Provides access to BioGrid relationships database. Accesses must be done via <code>getRelationships(String geneName)</code>.
  * The result is a list of StringRelationship.
+ * <p>
+ * source = KLHL20, target = GBP2,
+ * properties = {id=270092, database = biogrid, type = direct interaction, method = two hybrid, score = 2.0}
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class BioGridDatabase {
 
-    private static Map<String, List<StringRelationship>> relationships;
+    private static Map<String, List<StringRelationship>> relationships = new HashMap<>();
+
+    static {
+        loadRelationships();
+    }
 
     /**
      * Get a list of relationships where the argument gene is involved.
@@ -28,21 +37,18 @@ public class BioGridDatabase {
      * @return list of relationships of the gene
      */
     public static List<StringRelationship> getRelationships(String name) {
-        if (relationships == null) loadRelationships();
         return relationships.get(name);
     }
 
     private static void loadRelationships() {
-        System.out.println("Loading BioGrid");
-        relationships = new HashMap<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(BioGridDatabase.class.getResourceAsStream("biogrid.csv.gz"))))) {
-            reader.readLine();
+            reader.readLine(); // Skip header
             reader.lines().forEach(BioGridDatabase::createRelationship);
+            Platform.runLater(() -> CoatView.printMessage("BioGrid database successfully loaded", "info"));
         } catch (IOException e) {
-            CoatView.printMessage("error loading BioGrid", "error");
+            Platform.runLater(() -> CoatView.printMessage("error loading BioGrid", "error"));
             e.printStackTrace();
         }
-        System.out.println("BioGrid database successfully loaded");
     }
 
     private static void createRelationship(String line) {

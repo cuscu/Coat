@@ -35,7 +35,6 @@ import javafx.scene.layout.HBox;
  */
 public class NaturalCell extends TableCell {
 
-
     private final TextField textField = new TextField();
     private final HBox box = new HBox(textField);
 

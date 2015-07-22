@@ -1,6 +1,8 @@
-package coat.model.poirot;
+package coat.model.poirot.databases;
 
 import coat.CoatView;
+import coat.model.poirot.StringRelationship;
+import javafx.application.Platform;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,7 +19,7 @@ import java.util.zip.GZIPInputStream;
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class HPRDDatabase  {
+public class HPRDDatabase {
 
     private static Map<String, List<StringRelationship>> relationships;
 
@@ -32,26 +34,17 @@ public class HPRDDatabase  {
         return relationships.get(name);
     }
 
-    private static void addToIndex(String name, StringRelationship relationship) {
-        List<StringRelationship> stringRelationships = relationships.get(name);
-        if (stringRelationships == null) {
-            stringRelationships = new ArrayList<>();
-            relationships.put(name, stringRelationships);
-        }
-        stringRelationships.add(relationship);
-    }
-
     private static void loadRelationships() {
-        System.out.println("Loading HPRD");
         relationships = new HashMap<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(HPRDDatabase.class.getResourceAsStream("hprd-gene-interactions.tsv.gz"))))) {
             reader.readLine();
             reader.lines().forEach(HPRDDatabase::createRelationship);
+            Platform.runLater(() -> CoatView.printMessage("HPRD genes database loaded", "info"));
         } catch (IOException e) {
-            CoatView.printMessage("error loading HPRD", "error");
+            Platform.runLater(() -> CoatView.printMessage("error loading HPRD", "error"));
             e.printStackTrace();
         }
-        System.out.println("HPRD database successfully loaded");
+//        System.out.println("HPRD database successfully loaded");
     }
 
     private static void createRelationship(String line) {
@@ -66,7 +59,7 @@ public class HPRDDatabase  {
                 6 experiment_type	in vitro;yeast 2-hybrid
                 7 reference_id	11003669
              */
-            final String row[] = line.split(",");
+            final String row[] = line.split("\t");
             final String id = row[7];
             final String source = row[0];
             final String target = row[3];
@@ -83,6 +76,15 @@ public class HPRDDatabase  {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    private static void addToIndex(String name, StringRelationship relationship) {
+        List<StringRelationship> list = relationships.get(name);
+        if (list == null) {
+            list = new ArrayList<>();
+            relationships.put(name, list);
+        }
+        list.add(relationship);
     }
 
 

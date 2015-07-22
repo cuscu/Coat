@@ -1,4 +1,4 @@
-package coat.model.poirot;
+package coat.model.poirot.databases;
 
 import java.io.BufferedReader;
 import java.io.IOException;

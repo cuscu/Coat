@@ -97,6 +97,10 @@ public class GraphScore extends Task<Integer> {
         RELATIONSHIP_SCORE.put("deneddylation reaction", 1.0);
         RELATIONSHIP_SCORE.put("glycosylation reaction", 1.0);
         RELATIONSHIP_SCORE.put("dna strand elongation", 1.0);
+
+        RELATIONSHIP_SCORE.put("linkage", 1.0);
+        RELATIONSHIP_SCORE.put("mutation", 2.0);
+        RELATIONSHIP_SCORE.put("deletion or duplication", 3.0);
     }
 
     /**
@@ -143,7 +147,7 @@ public class GraphScore extends Task<Integer> {
     private void setScore(Pearl pearl) {
         final double variantScore = getVariantScore(pearl);
         final double pathScore = getPathScore(pearl);
-        pearl.setScore((variantScore + (1.0 + pathScore) / (pearl.getDistanceToPhenotype() * pearl.getDistanceToPhenotype())));
+        pearl.setScore((variantScore + (pathScore) / (pearl.getDistanceToPhenotype() * pearl.getDistanceToPhenotype())));
     }
 
     private double getVariantScore(Pearl pearl) {
@@ -175,10 +179,17 @@ public class GraphScore extends Task<Integer> {
     }
 
     private double computePathScore(List<PearlRelationship> path) {
-        return path.stream().
-                map(relationship -> (String) relationship.getProperties().get("type")).
-                filter(type -> type != null).
-                map(type -> RELATIONSHIP_SCORE.getOrDefault(type, 0.0)).
-                reduce(0.0, Double::sum);
+        double score = 0.0;
+        for (PearlRelationship relationship : path) {
+            String type = (String) relationship.getProperties().get("type");
+            if (type == null) type = (String) relationship.getProperties().get("method");
+            if (type != null) score += RELATIONSHIP_SCORE.getOrDefault(type, 0.0);
+        }
+        return score;
+//        return path.stream().
+//                map(relationship -> (String) relationship.getProperties().get("type")).
+//                filter(type -> type != null).
+//                map(type -> RELATIONSHIP_SCORE.getOrDefault(type, 0.0)).
+//                reduce(0.0, Double::sum);
     }
 }
