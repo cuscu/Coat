@@ -2,6 +2,7 @@ package coat.model.poirot.databases;
 
 import coat.CoatView;
 import coat.model.poirot.StringRelationship;
+import javafx.application.Platform;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,13 +23,15 @@ public class MenthaDatabase {
 
     private static Map<String, List<StringRelationship>> relationships;
 
+    static {
+        loadRelationships();
+    }
+
     public static List<StringRelationship> getRelationships(String name) {
-        if (relationships == null) loadRelationships();
         return relationships.get(name);
     }
 
     private static void loadRelationships() {
-        System.out.println("Loading Mentha");
         relationships = new HashMap<>();
         /*
             00 ID(s) interactor A	uniprotkb:Q86V88
@@ -94,11 +97,11 @@ public class MenthaDatabase {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(MenthaDatabase.class.getResourceAsStream("mentha.tsv.gz"))))) {
             reader.readLine();
             reader.lines().forEach(MenthaDatabase::createRelationship);
+            Platform.runLater(() -> CoatView.printMessage("Mentha database successfully loaded", "info"));
         } catch (IOException e) {
-            CoatView.printMessage("error loading Mentha", "error");
+            Platform.runLater(() -> CoatView.printMessage("error loading Mentha", "error"));
             e.printStackTrace();
         }
-        System.out.println("Mentha database successfully loaded");
     }
 
     private static void createRelationship(String line) {

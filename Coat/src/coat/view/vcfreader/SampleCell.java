@@ -4,6 +4,10 @@ import coat.view.vcfcombiner.ClassCell;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 /**
  * View of a sample. A combobox with the level of affection (unaffected, heterocygous, homocygous or affected),
  * and a file name.
@@ -12,13 +16,14 @@ import javafx.scene.control.ListCell;
  */
 public class SampleCell extends ListCell<Sample> {
 
-    private ComboBox<String> filter = new ComboBox<>();
+    private ComboBox<Sample.Level> filter = new ComboBox<>();
 
     private Sample current;
 
+
     public SampleCell() {
         filter.setCellFactory(param -> new ClassCell());
-        filter.getItems().addAll("unaffected", "heterocygous", "homocygous", "affected");
+        filter.getItems().addAll(Sample.Level.values());
         filter.setOnAction(event -> levelChanged());
         filter.setButtonCell(new ClassCell());
     }
@@ -32,7 +37,7 @@ public class SampleCell extends ListCell<Sample> {
         super.updateItem(item, empty);
         if (!empty) {
             current = item;
-            setText(item.getFile().getAbsolutePath());
+            advancedTextLabel();
             setGraphic(filter);
             filter.getSelectionModel().select(item.getLevel());
         } else {
@@ -40,4 +45,15 @@ public class SampleCell extends ListCell<Sample> {
             setGraphic(null);
         }
     }
+
+    private void advancedTextLabel() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(current.getFile()))){
+            final long numberOfVariants = reader.lines().filter(line -> !line.startsWith("#")).count();
+            setText(current.getFile().getAbsolutePath() + " (" + numberOfVariants + " variants)");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
+
+

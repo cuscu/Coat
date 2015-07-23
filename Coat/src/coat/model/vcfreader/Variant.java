@@ -18,7 +18,6 @@ package coat.model.vcfreader;
 
 import coat.CoatView;
 import coat.utils.OS;
-import com.sun.istack.internal.NotNull;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -209,7 +208,7 @@ public class Variant implements Comparable<Variant> {
     }
 
     @Override
-    public int compareTo(@NotNull Variant variant) {
+    public int compareTo(Variant variant) {
         // Variants with no standard chromosome goes to the end
         if (chromIndex != -1 && variant.chromIndex == -1) return -1;
         if (chromIndex == -1 && variant.chromIndex != -1) return 1;

@@ -28,6 +28,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,6 +38,7 @@ import java.io.IOException;
  */
 public class CombineVCF extends Tool {
 
+    public Label message;
     @FXML
     private FileList includes;
     @FXML

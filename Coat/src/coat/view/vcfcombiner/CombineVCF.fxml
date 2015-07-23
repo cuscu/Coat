@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import java.net.URL?>
 <fx:root type="VBox" xmlns:fx="http://javafx.com/fxml/1">
-    <VBox spacing="5" alignment="CENTER">
+    <VBox spacing="5" alignment="CENTER" VBox.vgrow="ALWAYS">
         <stylesheets>
             <URL value="@/coat/main.css"/>
         </stylesheets>
@@ -21,11 +21,11 @@
                 <FileList fx:id="excludes" VBox.vgrow="SOMETIMES" maxWidth="Infinity"/>
             </VBox>
         </HBox>
-        <Button fx:id="startButton" text="%combine" maxWidth="Infinity" HBox.hgrow="ALWAYS" contentDisplay="RIGHT">
-            <padding>
-                <Insets top="10" bottom="10"/>
-            </padding>
-        </Button>
+            <Button fx:id="startButton" text="%save" maxWidth="Infinity" HBox.hgrow="ALWAYS" contentDisplay="RIGHT">
+                <padding>
+                    <Insets top="10" bottom="10"/>
+                </padding>
+            </Button>
         <padding>
             <Insets top="5" bottom="5" left="5" right="5"/>
         </padding>

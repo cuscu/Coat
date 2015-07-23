@@ -16,6 +16,7 @@
  */
 package coat.utils;
 
+import coat.Coat;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -225,7 +226,7 @@ public final class FileManager {
                 ? initDir : getLastPath());
         chooser.getExtensionFilters().addAll(filters);
         chooser.setTitle(title);
-        List<File> f = chooser.showOpenMultipleDialog(null);
+        List<File> f = chooser.showOpenMultipleDialog(Coat.getStage());
         if (f != null && !f.isEmpty()) {
             lastPath = f.get(0).getParentFile();
         }

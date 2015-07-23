@@ -1,6 +1,7 @@
 package coat.view.vcfcombiner;
 
 import coat.view.graphic.SizableImage;
+import coat.view.vcfreader.Sample;
 import javafx.scene.control.ListCell;
 
 /**
@@ -8,14 +9,14 @@ import javafx.scene.control.ListCell;
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class ClassCell extends ListCell<String> {
+public class ClassCell extends ListCell<Sample.Level> {
 
     @Override
-    protected void updateItem(String item, boolean empty) {
+    protected void updateItem(Sample.Level item, boolean empty) {
         super.updateItem(item, empty);
         if (!empty) {
-            setText(item);
-            setGraphic(new SizableImage("coat/img/" + item + ".png", SizableImage.SMALL_SIZE));
+            setText(item.name());
+            setGraphic(new SizableImage("coat/img/" + item.toString().toLowerCase() + ".png", SizableImage.SMALL_SIZE));
         } else {
             setText(null);
             setGraphic(null);

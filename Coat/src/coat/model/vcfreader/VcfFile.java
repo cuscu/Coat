@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Stores in memory a Vcf file data.
+ *
  * @author Lorente Arencibia, Pascual <pasculorente@gmail.com>
  */
 public class VcfFile {
@@ -37,7 +39,7 @@ public class VcfFile {
     private final List<String> unformattedHeaders = new ArrayList<>();
     private File file;
 
-    public VcfFile(File file ) {
+    public VcfFile(File file) {
         this.file = file;
         readFile(file);
     }

@@ -22,10 +22,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
-<fx:root type="VBox" xmlns:fx="http://javafx.com/fxml/1"  xmlns="http://javafx.com/javafx/8" >
-    <VBox alignment="TOP_CENTER" spacing="5" >
+<fx:root type="VBox" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8">
+    <VBox alignment="TOP_CENTER" spacing="5" VBox.vgrow="ALWAYS">
         <padding>
-            <Insets right="5" left="5" bottom="5" top="5" />
+            <Insets right="5" left="5" bottom="5" top="5"/>
         </padding>
         <Label text="%include.files"/>
         <FileList fx:id="files" VBox.vgrow="SOMETIMES" maxWidth="Infinity"/>

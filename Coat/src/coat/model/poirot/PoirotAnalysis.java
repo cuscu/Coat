@@ -103,14 +103,6 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
      */
     private String getStandardName(String gene) {
         return HGNCDatabase.getStandardSymbol(gene);
-//        final String lowerCasedGene = gene.toLowerCase();
-//        for (DatabaseEntry hgncEntry : hgncDatabase.getUnmodifiableEntries()) {
-//            if (hgncEntry.getField(1).equalsIgnoreCase(gene)
-//                    || hgncEntry.getField(3).toLowerCase().contains(lowerCasedGene)
-//                    || hgncEntry.getField(4).toLowerCase().contains(lowerCasedGene))
-//                return hgncEntry.getField(1);
-//        }
-//        return null;
     }
 
     /**

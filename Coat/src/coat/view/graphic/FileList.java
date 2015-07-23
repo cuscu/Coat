@@ -21,6 +21,10 @@ import java.util.List;
 
 
 /**
+ * This StackPane shows a list that holds files. New files can be added with 'add' button on the BOTTOM_RIGHT corner.
+ * User can add multiple Files at once. To delete a file, user can press the 'Delete' button or keyboard 'Del' key when
+ * File is selected.
+ *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class FileList extends StackPane {

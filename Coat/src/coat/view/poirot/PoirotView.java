@@ -255,7 +255,6 @@ public class PoirotView extends Tool {
             final List<Pearl> candidates = getCandidates(database);
             pearlTableView.getItems().setAll(candidates);
             Collections.sort(pearlTableView.getItems(), (p1, p2) -> {
-//                final int compare = Integer.compare(p1.getDistanceToPhenotype(), p2.getDistanceToPhenotype());
                 final int compare = Double.compare(p2.getScore(), p1.getScore());
                 return (compare != 0) ? compare : p1.getName().compareTo(p2.getName());
             });

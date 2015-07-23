@@ -1,7 +1,9 @@
 package coat.model.poirot.databases;
 
+import coat.CoatView;
 import coat.model.poirot.Database;
 import coat.model.poirot.DatabaseEntry;
+import javafx.application.Platform;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,9 +31,8 @@ public class HPRDExpressionDatabase implements Database {
         headers = new ArrayList<>();
         entries = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(OmimDatabase.class.getResourceAsStream("hprd-phenotypes.tsv.gz"))))) {
-            System.out.println("Loading HPRD database");
             reader.lines().forEach((line) -> entries.add(new DatabaseEntry(Arrays.asList(line.split("\t")))));
-            System.out.println("HPRD database successfully loaded");
+            Platform.runLater(() -> CoatView.printMessage("HPRD database successfully loaded", "info"));
         } catch (IOException e) {
             e.printStackTrace();
         }

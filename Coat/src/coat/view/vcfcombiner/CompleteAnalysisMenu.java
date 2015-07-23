@@ -19,6 +19,6 @@ public class CompleteAnalysisMenu implements ToolMenu {
 
     @Override
     public Tool getTool() {
-        return new CompleteAnalysis();
+        return new AdvancedCombineVcf();
     }
 }

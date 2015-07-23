@@ -44,7 +44,6 @@ public class HPRDDatabase {
             Platform.runLater(() -> CoatView.printMessage("error loading HPRD", "error"));
             e.printStackTrace();
         }
-//        System.out.println("HPRD database successfully loaded");
     }
 
     private static void createRelationship(String line) {
@@ -65,12 +64,10 @@ public class HPRDDatabase {
             final String target = row[3];
             final String database = "hprd";
             final String type = row[6];
-//            final String method = row[6];
             final StringRelationship relationship = new StringRelationship(source, target);
             relationship.getProperties().put("id", id);
             relationship.getProperties().put("type", type);
             relationship.getProperties().put("database", database);
-//            relationship.getProperties().put("method", method);
             addToIndex(source, relationship);
             addToIndex(target, relationship);
         } catch (Exception ex) {

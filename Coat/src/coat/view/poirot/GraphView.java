@@ -386,10 +386,12 @@ public class GraphView extends Canvas {
 
     private Color getRelationshipColor(GraphRelationship graphRelationship) {
         final double score = graphRelationship.getRelationships().stream().
-                map(pearlRelationship -> (String) pearlRelationship.getProperties().getOrDefault("type", null)).
-                map(type -> GraphScore.RELATIONSHIP_SCORE.getOrDefault(type, 0.0)).
-                max(Double::compare).get();
-        Color baseColor = Color.BLACK.interpolate(Color.GREEN, score * 0.2);
+                map(relationship -> {
+                    String type = (String) relationship.getProperties().get("type");
+                    if (type == null) type = (String) relationship.getProperties().get("method");
+                    return GraphScore.RELATIONSHIP_SCORE.getOrDefault(type, 0.0);
+                }).max(Double::compare).get();
+        Color baseColor = Color.BLACK.interpolate(Color.DODGERBLUE, score * 0.2);
         if (graphRelationship.isMouseOver()) baseColor = baseColor.interpolate(Color.WHITE, 0.5);
         return baseColor;
     }

@@ -186,10 +186,5 @@ public class GraphScore extends Task<Integer> {
             if (type != null) score += RELATIONSHIP_SCORE.getOrDefault(type, 0.0);
         }
         return score;
-//        return path.stream().
-//                map(relationship -> (String) relationship.getProperties().get("type")).
-//                filter(type -> type != null).
-//                map(type -> RELATIONSHIP_SCORE.getOrDefault(type, 0.0)).
-//                reduce(0.0, Double::sum);
     }
 }
