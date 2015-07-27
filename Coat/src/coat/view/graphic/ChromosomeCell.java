@@ -54,7 +54,7 @@ public class ChromosomeCell extends TableCell<Variant, String> {
         final TableViewSkin skin = (TableViewSkin) getTableView().getSkin();
         final ObservableList kids = skin.getChildren();
         if (kids != null && !kids.isEmpty()) {
-            VirtualFlow flow = (VirtualFlow) kids.get(1);
+            final VirtualFlow flow = (VirtualFlow) kids.get(1);
             if (flow != null) {
                 final IndexedCell firstVisibleCell = flow.getFirstVisibleCell();
                 if (firstVisibleCell != null) {

@@ -201,7 +201,6 @@
 }
 
 .combo-box {
-
     -fx-padding: 0;
     -fx-border-width: 0;
 }
@@ -224,20 +223,6 @@
     -fx-background-radius: 5;
 }
 
-.protein-coding {
-/ / -fx-background-color : #ddffdd;
-    -fx-text-fill: #00ae1b;
-}
-
-.protein-coding:selected {
-    -fx-text-fill: white;
-}
-
-.damaging {
-/ / -fx-background-color : lightsalmon;
-    -fx-text-fill: red;
-}
-
 .search-box {
     -fx-background-radius: 0;
 }
@@ -248,9 +233,9 @@
     -fx-border-color: darkgrey;
 }
 
-.table-view:focused .table-row-cell:filled:focused:selected {
-    -fx-background-color: lightblue;
-}
+/*.table-view:focused .table-row-cell:filled:focused:selected {*/
+/*-fx-background-color: lightblue;*/
+/*}*/
 
 .table-view {
     -fx-background-color: transparent;
@@ -262,6 +247,28 @@
     -fx-background-color: transparent;
 }
 
+.variants-table .table-row-cell {
+    -fx-border-width: 2 2 1 2;
+    -fx-border-color: lightgrey lightgrey grey lightgrey;
+    -fx-background-color: white;
+}
+
+.variants-table .table-row-cell:selected {
+    -fx-background-color: lightblue;
+    -fx-text-fill: white;
+}
+
+.variants-table .protein-coding {
+    -fx-background-color: #ddffdd;
+    -fx-text-fill: #00ae1b;
+}
+
+.variants-table .damaging {
+    -fx-background-color: lightsalmon;
+    -fx-text-fill: red;
+}
+
+.variants-table .table-column
 .graph-info-box {
     -fx-background-color: rgba(100, 100, 100, 0.1);
 }
