@@ -169,12 +169,10 @@ public class VcfFilter {
         if (connector == null) return true;
         switch (connector) {
             case CONTAINS:
-                if (stringValue != null)
-                    return stringValue.contains(value);
+                if (stringValue != null) return stringValue.contains(value);
                 break;
             case DIFFERS:
-                if (stringValue != null)
-                    return !value.equals(stringValue);
+                if (stringValue != null) return !value.equals(stringValue);
                 break;
             case EQUALS:
                 if (doubleValue > Double.MIN_VALUE)
@@ -183,15 +181,14 @@ public class VcfFilter {
                     } catch (NumberFormatException e) {
                         return true;
                     }
-                else if (stringValue != null)
-                    return stringValue.equals(value);
+                else if (stringValue != null) return stringValue.equals(value);
                 break;
             case GREATER:
                 if (doubleValue > Double.MIN_VALUE)
                     try {
                         return doubleValue > Double.valueOf(value);
                     } catch (NumberFormatException e) {
-                        // If user did not input a number, pass is passed
+                        // If user did not input a number, filter is passed
                         return true;
                     }
                 break;
@@ -205,8 +202,7 @@ public class VcfFilter {
                     }
                 break;
             case MATCHES:
-                if (stringValue != null)
-                    return stringValue.matches(value);
+                if (stringValue != null) return stringValue.matches(value);
                 break;
             case PRESENT:
                 return variant.getInfos().containsKey(info);

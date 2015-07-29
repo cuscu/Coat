@@ -45,7 +45,6 @@ public class VcfReader extends VBox implements Reader {
 
     private final InfoTable infoTable = new InfoTable();
     private final VariantsTable variantsTable = new VariantsTable();
-    //private final VariantsList variantsTable = new VariantsList();
     private final FilterList filterList = new FilterList();
     private final TabPane tabs = new TabPane();
 

@@ -20,25 +20,20 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
     private final List<String> phenotypeKeyWords;
     private final List<Variant> variants;
 
-    private Map<String, List<Variant>> geneMap = new HashMap<>();
+    private final Map<String, List<Variant>> geneMap = new HashMap<>();
     private final PearlDatabase pearlDatabase = new PearlDatabase();
 
-    private AtomicInteger round = new AtomicInteger();
+    private final AtomicInteger round = new AtomicInteger();
+    private final AtomicInteger genesCount = new AtomicInteger();
+    private final AtomicInteger variantsCount = new AtomicInteger();
+
+    private long numberOfLeafGenes;
 
     private final static List<String> GENE_BLACKLIST = Arrays.asList("UBC");
     private final static List<String> OMIM_METHOD = Arrays.asList("", "association", "linkage", "mutation", "deletion or duplication");
 
     /**
-     * Omim diseases database (gene-phenotype)
-     */
-    private OmimDatabase omimDatabase = new OmimDatabase();
-    /**
-     * HPRD expression database (gene-phenotype)
-     */
-    private HPRDExpressionDatabase hprdExpressionDatabase = new HPRDExpressionDatabase();
-
-    /**
-     * Creates a new PoirotAnalysis task, ready to be inserted in a Thread, or launch with <code>Paltform</code>
+     * Creates a new PoirotAnalysis task, ready to be inserted in a Thread, or launched with <code>Paltform</code>
      *
      * @param variants   the list of variants
      * @param phenotypes this list of keywords
@@ -64,19 +59,19 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
      */
     private void mapVariantsToGenes() {
         updateMessage("Reading variants");
-        final int total = variants.size();
-        final AtomicInteger count = new AtomicInteger();
-        variants.forEach(variant -> {
-            final String gene = (String) variant.getInfos().get("GNAME");
-            if (gene != null) {
-                String GENE = getStandardName(gene);
-                if (GENE == null) GENE = gene.toUpperCase();
-                List<Variant> vs = getVariants(GENE);
-                vs.add(variant);
-            }
-            if (count.incrementAndGet() % 1000 == 0)
-                updateMessage(String.format("Reading variants %d/%d", count.get(), total));
-        });
+        variants.forEach(this::mapVariant);
+    }
+
+    private void mapVariant(Variant variant) {
+        final String gene = (String) variant.getInfos().get("GNAME");
+        if (gene != null) {
+            String GENE = HGNCDatabase.getStandardSymbol(gene);
+            if (GENE == null) GENE = gene.toUpperCase();
+            List<Variant> vs = getVariants(GENE);
+            vs.add(variant);
+        }
+        if (variantsCount.incrementAndGet() % 1000 == 0)
+            updateMessage(String.format("Reading variants %d/%d", variantsCount.get(), variants.size()));
     }
 
     /**
@@ -92,17 +87,6 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
             geneMap.put(GENE, vs);
         }
         return vs;
-    }
-
-    /**
-     * Tries to get the HGNC standard name for the gene. If the name is already the standard name, returns the same name.
-     * If it is an old or synonym name, returns the standard associated name from the HGNC database.
-     *
-     * @param gene gene name
-     * @return standard gene name
-     */
-    private String getStandardName(String gene) {
-        return HGNCDatabase.getStandardSymbol(gene);
     }
 
     /**
@@ -135,22 +119,23 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
      */
     private void expandGraph() {
         for (int i = 0; i < 2; i++) {
-            AtomicInteger count = new AtomicInteger();
             round.set(i + 1);
-            final long total = pearlDatabase.getPearls("gene").stream().filter(Pearl::isLeaf).count();
+            numberOfLeafGenes = pearlDatabase.getPearls("gene").stream().filter(Pearl::isLeaf).count();
             pearlDatabase.getPearls("gene").stream().
                     filter(Pearl::isLeaf).
-                    forEach(pearl -> {
-                        connectToOmimPhenotypes(pearl);
-                        connectToHPRDExpressions(pearl);
-                        addRelationships(BioGridDatabase.getRelationships(pearl.getName()));
-                        addRelationships(MenthaDatabase.getRelationships(pearl.getName()));
-                        addRelationships(HPRDDatabase.getRelationships(pearl.getName()));
-                        pearl.setLeaf(false);
-                        if (count.incrementAndGet() % 100 == 0)
-                            updateMessage(String.format("Round %d of %d, %d/%d genes processed", round.get(), 2, count.get(), total));
-                    });
+                    forEach(this::expand);
         }
+    }
+
+    private void expand(Pearl pearl) {
+        connectToOmimDisorders(pearl);
+        connectToHPRDExpressions(pearl);
+        addRelationships(BioGridDatabase.getRelationships(pearl.getGeneSymbol()));
+        addRelationships(MenthaDatabase.getRelationships(pearl.getGeneSymbol()));
+        addRelationships(HPRDDatabase.getRelationships(pearl.getGeneSymbol()));
+        pearl.setLeaf(false);
+        if (genesCount.incrementAndGet() % 100 == 0)
+            updateMessage(String.format("Round %d of %d, %d/%d genes processed", round.get(), 2, genesCount.get(), numberOfLeafGenes));
     }
 
     /**
@@ -158,13 +143,12 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
      *
      * @param pearl the gene pearl
      */
-    private void connectToOmimPhenotypes(Pearl pearl) {
-        omimDatabase.getUnmodifiableEntries().stream().
-                filter(omimEntry -> omimEntry.getField(0).equals(pearl.getName())).
-                map(omimEntry -> omimEntry.getField(3)).
+    private void connectToOmimDisorders(Pearl pearl) {
+        final List<DatabaseEntry> entries = OmimDatabase.getEntries(pearl.getGeneSymbol());
+        entries.stream().map(omimEntry -> omimEntry.getField(3)).
                 filter(disorders -> !disorders.equals(".")).
                 forEach(disorders ->
-                        Arrays.stream(disorders.split(";")).forEach(disorder -> linkGeneToDisorder(pearl, disorder)));
+                        Arrays.stream(disorders.split(";")).forEach(disorder -> linkGeneToOmimDisorder(pearl, disorder)));
     }
 
     /**
@@ -173,10 +157,8 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
      * @param pearl    the gene pearl
      * @param disorder the line of the disorder
      */
-    private void linkGeneToDisorder(Pearl pearl, String disorder) {
-        boolean isValid = false;
-        for (String p : phenotypeKeyWords) if (disorder.toLowerCase().contains(p.toLowerCase())) isValid = true;
-        if (isValid) {
+    private void linkGeneToOmimDisorder(Pearl pearl, String disorder) {
+        if (matchesKeywords(disorder)) {
             final String[] disorderFields = disorder.split("\\|");
             final String id = disorderFields[0] + "," + disorderFields[1];
             final Pearl phenotype = pearlDatabase.getOrCreate(id, "phenotype");
@@ -187,15 +169,18 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
         }
     }
 
+    private boolean matchesKeywords(String disorder) {
+        return phenotypeKeyWords.parallelStream().anyMatch(keyword -> disorder.toLowerCase().contains(keyword.toLowerCase()));
+    }
+
     /**
      * Locate the hprd expressions associated to the gene, and create the relationships.
      *
      * @param pearl the gene pearl
      */
     private void connectToHPRDExpressions(Pearl pearl) {
-        hprdExpressionDatabase.getUnmodifiableEntries().stream().
-                filter(hprdEntry -> hprdEntry.getField(2).equals(pearl.getName())).
-                forEach(hprdEntry -> linkGeneToHPRDExpression(pearl, hprdEntry));
+        final List<DatabaseEntry> entries = HPRDExpressionDatabase.getEntries(pearl.getGeneSymbol());
+        entries.forEach(hprdEntry -> linkGeneToHPRDExpression(pearl, hprdEntry));
     }
 
     /**
@@ -205,10 +190,7 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
      * @param expression the HPRD expression
      */
     private void linkGeneToHPRDExpression(Pearl pearl, DatabaseEntry expression) {
-        boolean isValid = false;
-        for (String p : phenotypeKeyWords)
-            if (expression.getField(3).toLowerCase().contains(p.toLowerCase())) isValid = true;
-        if (isValid) {
+        if (matchesKeywords(expression.getField(3))) {
             final Pearl phenotype = pearlDatabase.getOrCreate(expression.getField(3), "phenotype");
             phenotype.getProperties().put("name", expression.getField(3));
             final PearlRelationship relationshipTo = pearl.createRelationshipTo(phenotype);
@@ -223,11 +205,18 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
      */
     private void addRelationships(List<StringRelationship> relationships) {
         if (relationships != null)
-            relationships.stream().filter(relationship -> !GENE_BLACKLIST.contains(relationship.getSource()) && !GENE_BLACKLIST.contains(relationship.getTarget())).forEach(relationship -> {
-                final Pearl source = pearlDatabase.getOrCreate(relationship.getSource(), "gene");
-                final Pearl target = pearlDatabase.getOrCreate(relationship.getTarget(), "gene");
-                updateRelationship(relationship, source, target);
-            });
+            relationships.stream().
+                    filter(relationship -> !isInBlacklist(relationship.getSource())).
+                    filter(relationship -> !isInBlacklist(relationship.getTarget())).
+                    forEach(relationship -> {
+                        final Pearl source = pearlDatabase.getOrCreate(relationship.getSource(), "gene");
+                        final Pearl target = pearlDatabase.getOrCreate(relationship.getTarget(), "gene");
+                        updateRelationship(relationship, source, target);
+                    });
+    }
+
+    private boolean isInBlacklist(String symbol) {
+        return GENE_BLACKLIST.contains(symbol);
     }
 
     /**

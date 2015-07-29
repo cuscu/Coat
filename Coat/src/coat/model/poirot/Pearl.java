@@ -11,25 +11,25 @@ import java.util.Map;
 public class Pearl {
     private boolean leaf = true;
     private String type;
-    private String name;
+    private String geneSymbol;
     private int distanceToPhenotype = -1;
     private Map<String, Object> properties = new HashMap<>();
 
     private Map<Pearl, List<PearlRelationship>> relationships = new HashMap<>();
     private Double score;
 
-    public Pearl(String name, String type) {
-        this.name = name;
+    public Pearl(String geneSymbol, String type) {
+        this.geneSymbol = geneSymbol;
         this.type = type;
-        this.name = name;
+        this.geneSymbol = geneSymbol;
     }
 
     public boolean isLeaf() {
         return leaf;
     }
 
-    public String getName() {
-        return name;
+    public String getGeneSymbol() {
+        return geneSymbol;
     }
 
     public String getType() {
@@ -42,7 +42,7 @@ public class Pearl {
 
     @Override
     public String toString() {
-        return String.format("[%s] %d, %s", type, distanceToPhenotype, name);
+        return String.format("[%s] %d, %s", type, distanceToPhenotype, geneSymbol);
     }
 
     public int getDistanceToPhenotype() {

@@ -46,7 +46,7 @@ public class PearlRelationship {
 
     @Override
     public String toString() {
-        return source.getName() + "->" + target.getName();
+        return source.getGeneSymbol() + "->" + target.getGeneSymbol();
     }
 
     public Map<String, Object> getProperties() {

@@ -9,6 +9,7 @@ import coat.model.vcfreader.VcfFile;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.IndexCell;
+import coat.view.graphic.SizableImage;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -43,7 +44,7 @@ public class PoirotView extends Tool {
 
     private final HBox content = new HBox();
     private final TextArea phenotypeList = new TextArea();
-    private final Button start = new Button(OS.getResources().getString("start"));
+    private final Button start = new Button(OS.getResources().getString("start"), new SizableImage("coat/img/start.png", SizableImage.SMALL_SIZE));
     private final Label message = new Label();
     private final TextField file = new TextField();
     private final Button browse = new Button("Select file");
@@ -53,7 +54,6 @@ public class PoirotView extends Tool {
     private final GraphView graphView = new GraphView();
 
     private final VBox graphVBox = new VBox(graphView);
-    private final Label info = new Label();
     private final VBox infoBox = new VBox();
     private final StackPane stackPane = new StackPane(graphVBox, infoBox);
 
@@ -87,6 +87,7 @@ public class PoirotView extends Tool {
     private void initializeThis() {
         getChildren().add(content);
         VBox.setVgrow(content, Priority.ALWAYS);
+        VBox.setVgrow(browse, Priority.ALWAYS);
         content.setSpacing(5);
         content.setPadding(new Insets(5, 5, 0, 5));
         content.getChildren().addAll(inputPane);
@@ -147,7 +148,7 @@ public class PoirotView extends Tool {
         pearlTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         distanceColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getDistanceToPhenotype()));
         scoreColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(String.format("%.2f", param.getValue().getScore())));
-        nameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getName()));
+        nameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getGeneSymbol()));
         indexColumn.setCellFactory(param -> new IndexCell());
     }
 
@@ -185,18 +186,15 @@ public class PoirotView extends Tool {
     }
 
     private void showGeneDescription(Pearl pearl) {
-        final String name = pearl.getName();
-        String description = HGNCDatabase.getName(name);
+        final String symbol = pearl.getGeneSymbol();
+        String description = HGNCDatabase.getName(symbol);
         if (description == null) {
-            for (DatabaseEntry entry : omimDatabase.getUnmodifiableEntries())
-                if (entry.getField(0).equals(name)) {
-                    description = entry.getField(1);
-                    break;
-                }
+            final List<DatabaseEntry> entries = OmimDatabase.getEntries(symbol);
+            if (!entries.isEmpty()) description = entries.get(0).getField(1);
         }
-        infoBox.getChildren().add(new Label(name + "(" + description + ")"));
+        infoBox.getChildren().add(new Label(symbol + "(" + description + ")"));
         if (pearl.getType().equals("gene")) {
-            final String url = "http://v4.genecards.org/cgi-bin/carddisp.pl?gene=" + pearl.getName();
+            final String url = "http://v4.genecards.org/cgi-bin/carddisp.pl?gene=" + pearl.getGeneSymbol();
             final Hyperlink hyperlink = new Hyperlink("GeneCards");
             hyperlink.setOnAction(event -> new Thread(() -> {
                 try {
@@ -256,7 +254,7 @@ public class PoirotView extends Tool {
             pearlTableView.getItems().setAll(candidates);
             Collections.sort(pearlTableView.getItems(), (p1, p2) -> {
                 final int compare = Double.compare(p2.getScore(), p1.getScore());
-                return (compare != 0) ? compare : p1.getName().compareTo(p2.getName());
+                return (compare != 0) ? compare : p1.getGeneSymbol().compareTo(p2.getGeneSymbol());
             });
         }
     }

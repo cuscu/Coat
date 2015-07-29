@@ -57,7 +57,8 @@ public class AdvancedCombineVcf extends Tool {
         configureAddButton();
         configureButtonsPane();
         getChildren().addAll(add, listStackPane, message, save);
-        VBox.setVgrow(listStackPane, Priority.ALWAYS);
+        VBox.setVgrow(listStackPane, Priority.SOMETIMES);
+        VBox.setVgrow(add, Priority.ALWAYS);
         setPadding(new Insets(10));
         setSpacing(5);
         samples.setCellFactory(param -> new SampleCell());

@@ -59,7 +59,7 @@ public class PearlDatabase {
         pearl.getRelationships().keySet().stream().filter(key -> !key.equals(pearl)).forEach(key -> key.getRelationships().remove(pearl));
         pearl.getRelationships().clear();
         final HashMap<String, Pearl> typeMap = types.get(pearl.getType());
-        if (typeMap != null) typeMap.remove(pearl.getName());
+        if (typeMap != null) typeMap.remove(pearl.getGeneSymbol());
     }
 
     public void add(Pearl pearl) {
@@ -68,6 +68,6 @@ public class PearlDatabase {
             typeMap = new HashMap<>();
             types.put(pearl.getType(), typeMap);
         }
-        typeMap.put(pearl.getName(), pearl);
+        typeMap.put(pearl.getGeneSymbol(), pearl);
     }
 }

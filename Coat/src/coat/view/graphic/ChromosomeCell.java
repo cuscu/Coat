@@ -25,8 +25,7 @@ import javafx.scene.control.IndexedCell;
 import javafx.scene.control.TableCell;
 
 /**
- * A convenient Cell that plots the index of the cell. Every cell has styleClass 'index-cell' to
- * style with CSS.
+ * Experiment: I was trying to show only the name of the chromosome in the first visible row.
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */

@@ -203,10 +203,10 @@ public class CoatView {
 
     public static void printMessage(String message, String level) {
         final String date = df.format(new Date());
-        final Label label = new Label();
         final String type = level.toLowerCase();
         staticInfo.getStyleClass().clear();
         setMessageLabel(message, date, staticInfo, type);
+        final Label label = new Label();
         setMessageLabel(message, date, label, type);
         bigConsole.getChildren().add(label);
     }

@@ -17,21 +17,17 @@ import java.util.zip.GZIPInputStream;
  * Provides access to HPRD relationships database. Accesses must be done via <code>getRelationships(String geneName)</code>.
  * The result is a list of StringRelationship.
  *
+ *  <p>
+ * source = ERRFI1, target = ERBB2,
+ * properties = {id=01281, database = hprd, type = in vitro;yeast 2-hybrid}
+ *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class HPRDDatabase {
 
     private static Map<String, List<StringRelationship>> relationships;
-
-    /**
-     * Get a list of relationships where the argument gene is involved.
-     *
-     * @param name name of the gene
-     * @return list of relationships of the gene
-     */
-    public static List<StringRelationship> getRelationships(String name) {
-        if (relationships == null) loadRelationships();
-        return relationships.get(name);
+    static {
+        loadRelationships();
     }
 
     private static void loadRelationships() {
@@ -39,9 +35,9 @@ public class HPRDDatabase {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(HPRDDatabase.class.getResourceAsStream("hprd-gene-interactions.tsv.gz"))))) {
             reader.readLine();
             reader.lines().forEach(HPRDDatabase::createRelationship);
-            Platform.runLater(() -> CoatView.printMessage("HPRD genes database loaded", "info"));
+            Platform.runLater(() -> CoatView.printMessage("HPRD genes database succesfully loaded", "info"));
         } catch (IOException e) {
-            Platform.runLater(() -> CoatView.printMessage("error loading HPRD", "error"));
+            Platform.runLater(() -> CoatView.printMessage("Error loading HPRD", "error"));
             e.printStackTrace();
         }
     }
@@ -82,6 +78,16 @@ public class HPRDDatabase {
             relationships.put(name, list);
         }
         list.add(relationship);
+    }
+
+    /**
+     * Get a list of relationships where the argument gene is involved.
+     *
+     * @param name name of the gene
+     * @return list of relationships of the gene
+     */
+    public static List<StringRelationship> getRelationships(String name) {
+        return relationships.get(name);
     }
 
 

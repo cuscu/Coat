@@ -12,9 +12,9 @@ public class NodePairKey implements Comparable<NodePairKey> {
     public NodePairKey(GraphNode source, GraphNode target) {
         this.source = source;
         this.target = target;
-        if (source.getPearl().getName().compareTo(target.getPearl().getName()) < 0)
-            key = source.getPearl().getName() + target.getPearl().getName();
-        else key = target.getPearl().getName() + source.getPearl().getName();
+        if (source.getPearl().getGeneSymbol().compareTo(target.getPearl().getGeneSymbol()) < 0)
+            key = source.getPearl().getGeneSymbol() + target.getPearl().getGeneSymbol();
+        else key = target.getPearl().getGeneSymbol() + source.getPearl().getGeneSymbol();
     }
 
     public GraphNode getSource() {

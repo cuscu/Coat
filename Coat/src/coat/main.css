@@ -248,7 +248,8 @@
 }
 
 .variants-table .table-row-cell {
-    -fx-border-width: 2 2 1 2;
+    -fx-padding: -3 -2 -1 5;
+    -fx-border-width: 3 2 1 5;
     -fx-border-color: lightgrey lightgrey grey lightgrey;
     -fx-background-color: white;
 }
@@ -259,16 +260,19 @@
 }
 
 .variants-table .protein-coding {
-    -fx-background-color: #ddffdd;
+    -fx-background-color: #DFF2BF;
     -fx-text-fill: #00ae1b;
 }
 
 .variants-table .damaging {
-    -fx-background-color: lightsalmon;
+    -fx-background-color: #FFBABA;
     -fx-text-fill: red;
 }
 
-.variants-table .table-column
+.variants-table .table-column{
+
+}
+
 .graph-info-box {
     -fx-background-color: rgba(100, 100, 100, 0.1);
 }

@@ -12,6 +12,9 @@ import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 /**
+ * Standard gene name database. Use <code>getStandardSymbol()</code> to get the standard HGNC symbol of the gene, and
+ * <code>getName()</code> to get the whole name of the gene.
+ * <p>
  * 0 HGNC ID
  * 1 Approved Symbol
  * 2 Approved Name

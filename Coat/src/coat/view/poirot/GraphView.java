@@ -264,7 +264,7 @@ public class GraphView extends Canvas {
                     e.printStackTrace();
                 }
             }
-        }, 0, 200);
+        }, 0, 50);
     }
 
     private void iterate() {
@@ -494,7 +494,7 @@ public class GraphView extends Canvas {
      */
     private void drawSelectionCircle(GraphNode graphNode) {
         if (graphNode.isSelected()) {
-            screen.setStroke(Color.TRANSPARENT.interpolate(Color.GOLD, getSelectionOpacity()));
+            screen.setStroke(new Color(1, 1, 0, getSelectionOpacity()));
             screen.setLineWidth(8);
             screen.strokeOval(graphNode.getPosition().getX() - radiusProperty.get(), graphNode.getPosition().getY() - radiusProperty.get(), diameter, diameter);
         }
@@ -533,13 +533,13 @@ public class GraphView extends Canvas {
             name = simplifyName(graphNode);
         } else {
             screen.setFill(Color.WHITE);
-            name = graphNode.getPearl().getName();
+            name = graphNode.getPearl().getGeneSymbol();
         }
         screen.fillText(name, graphNode.getPosition().getX(), graphNode.getPosition().getY());
     }
 
     private String simplifyName(GraphNode graphNode) {
-        String name = graphNode.getPearl().getName();
+        String name = graphNode.getPearl().getGeneSymbol();
         String[] words = name.split(" ");
         return words[0].replaceAll("\\p{Punct}", "");
     }

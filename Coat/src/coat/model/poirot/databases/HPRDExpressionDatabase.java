@@ -1,7 +1,6 @@
 package coat.model.poirot.databases;
 
 import coat.CoatView;
-import coat.model.poirot.Database;
 import coat.model.poirot.DatabaseEntry;
 import javafx.application.Platform;
 
@@ -21,30 +20,43 @@ import java.util.zip.GZIPInputStream;
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class HPRDExpressionDatabase implements Database {
+public class HPRDExpressionDatabase {
 
-
-    private final static List<String> headers;
-    private final static List<DatabaseEntry> entries;
+    private final static Map<String, List<DatabaseEntry>> index;
 
     static {
-        headers = new ArrayList<>();
-        entries = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(OmimDatabase.class.getResourceAsStream("hprd-phenotypes.tsv.gz"))))) {
-            reader.lines().forEach((line) -> entries.add(new DatabaseEntry(Arrays.asList(line.split("\t")))));
+        index = new HashMap<>();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(HPRDExpressionDatabase.class.getResourceAsStream("hprd-phenotypes.tsv.gz"))))) {
+            reader.lines().forEach((line) -> {
+                final String[] row = line.split("\t");
+                final DatabaseEntry entry = new DatabaseEntry(Arrays.asList(row));
+                String standardSymbol = HGNCDatabase.getStandardSymbol(row[2]);
+                if (standardSymbol == null) standardSymbol = row[2];
+                addToIndex(entry, standardSymbol);
+            });
             Platform.runLater(() -> CoatView.printMessage("HPRD database successfully loaded", "info"));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    @Override
-    public Collection<String> getUnmodifiableHeaders() {
-        return Collections.unmodifiableCollection(headers);
+    private static void addToIndex(DatabaseEntry entry, String standardSymbol) {
+        List<DatabaseEntry> databaseEntries = index.get(standardSymbol);
+        if (databaseEntries == null) {
+            databaseEntries = new ArrayList<>();
+            index.put(standardSymbol, databaseEntries);
+        }
+        databaseEntries.add(entry);
     }
 
-    @Override
-    public Collection<DatabaseEntry> getUnmodifiableEntries() {
-        return Collections.unmodifiableCollection(entries);
+    /**
+     * Gets the related entries associated to the HGNC standard symbol.
+     *
+     * @param symbol a standard HGNC gene symbol
+     * @return a list with the entries related to the gene symbol, or an empty list if no entries are associated
+     */
+    public static List<DatabaseEntry> getEntries(String symbol) {
+        return index.getOrDefault(symbol, Collections.emptyList());
+
     }
 }
