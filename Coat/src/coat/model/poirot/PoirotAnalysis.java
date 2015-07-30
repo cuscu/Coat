@@ -144,11 +144,11 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
      * @param pearl the gene pearl
      */
     private void connectToOmimDisorders(Pearl pearl) {
-        final List<DatabaseEntry> entries = OmimDatabase.getEntries(pearl.getGeneSymbol());
-        entries.stream().map(omimEntry -> omimEntry.getField(3)).
-                filter(disorders -> !disorders.equals(".")).
-                forEach(disorders ->
-                        Arrays.stream(disorders.split(";")).forEach(disorder -> linkGeneToOmimDisorder(pearl, disorder)));
+        OmimDatabase.getEntries(pearl.getGeneSymbol()).stream()
+                .map(omimEntry -> omimEntry.getField(3))
+                .filter(disorders -> !disorders.equals("."))
+                .flatMap(disorders -> Arrays.stream(disorders.split(";")))
+                .forEach(disorder -> linkGeneToOmimDisorder(pearl, disorder));
     }
 
     /**
@@ -179,8 +179,7 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
      * @param pearl the gene pearl
      */
     private void connectToHPRDExpressions(Pearl pearl) {
-        final List<DatabaseEntry> entries = HPRDExpressionDatabase.getEntries(pearl.getGeneSymbol());
-        entries.forEach(hprdEntry -> linkGeneToHPRDExpression(pearl, hprdEntry));
+        HPRDExpressionDatabase.getEntries(pearl.getGeneSymbol()).forEach(hprdEntry -> linkGeneToHPRDExpression(pearl, hprdEntry));
     }
 
     /**
@@ -230,7 +229,7 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
         String id = (String) myRelationship.getProperties().get("id");
         if (!relationshipExists(source, target, id)) {
             PearlRelationship relationship = new PearlRelationship(source, target);
-            cloneProperties(myRelationship, relationship);
+            relationship.getProperties().putAll(myRelationship.getProperties());
         }
     }
 
@@ -243,21 +242,8 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
      * @return true if relationshipExists
      */
     private boolean relationshipExists(Pearl source, Pearl target, String id) {
-        final List<PearlRelationship> sourceToTarget = source.getRelationships().get(target);
-        if (sourceToTarget != null)
-            for (PearlRelationship relationship : sourceToTarget)
-                if (relationship.getProperties().get("id").equals(id)) return true;
-        return false;
-    }
-
-    /**
-     * Copy the properties from a StringRelationship to a PearlRelationship
-     *
-     * @param myRelationship the StringRelationship
-     * @param relationship   the PearlRelationship
-     */
-    private void cloneProperties(StringRelationship myRelationship, PearlRelationship relationship) {
-        myRelationship.getProperties().keySet().forEach(key -> relationship.getProperties().put(key, myRelationship.getProperties().get(key)));
+        final List<PearlRelationship> relationships = source.getRelationships().getOrDefault(target, Collections.emptyList());
+        return relationships.stream().anyMatch(relationship -> relationship.getProperties().get("id").equals(id));
     }
 
     /**

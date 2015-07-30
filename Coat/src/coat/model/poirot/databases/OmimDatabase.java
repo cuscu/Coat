@@ -6,16 +6,20 @@ import coat.model.poirot.DatabaseEntry;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 /**
  * Manages the Omim database.
  * <p>
- * 0 gene symbol
- * 1 gene name
- * 2 status (C,P,I or L)
- * 3 disorders
+ * 0 gene symbol.
+ * 1 gene name.
+ * 2 status (C,P,I or L).
+ * 3 disorders.
  * <p>
  * C = confirmed: observed in at least two laboratories or in several families.
  * P = provisional: based on evidence from one laboratory or one family.
@@ -26,33 +30,35 @@ import java.util.zip.GZIPInputStream;
  */
 public class OmimDatabase {
 
-
     private final static Map<String, List<DatabaseEntry>> index;
+    private final static Map<String, Integer> headers;
 
     static {
-        index = new HashMap<>();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(OmimDatabase.class.getResourceAsStream("omim-normalized.tsv.gz"))))) {
-            reader.lines().forEach((line) -> {
-                final String[] row = line.split("\t");
-                final DatabaseEntry entry = new DatabaseEntry(Arrays.asList(row));
-                String standardSymbol = HGNCDatabase.getStandardSymbol(row[0]);
-                if (standardSymbol == null) standardSymbol = row[0];
-                addToIndex(entry, standardSymbol);
+        headers = new HashMap<>();
+        headers.put("symbol", 0);
+        headers.put("name", 1);
+        headers.put("status", 2);
+        headers.put("disorders", 3);
+        index = readFile();
+        if (index != null) CoatView.printMessage("Omim database successfully loaded", "info");
+    }
 
-            });
-            CoatView.printMessage("Omim database successfully loaded", "info");
+    private static Map<String, List<DatabaseEntry>> readFile() {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(OmimDatabase.class.getResourceAsStream("omim-normalized.tsv.gz"))))) {
+            return reader.lines()
+                    .map(OmimDatabase::createEntry)
+                    .collect(Collectors.groupingBy(databaseEntry -> databaseEntry.getField(0)));
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
-    private static void addToIndex(DatabaseEntry entry, String standardSymbol) {
-        List<DatabaseEntry> databaseEntries = index.get(standardSymbol);
-        if (databaseEntries == null) {
-            databaseEntries = new ArrayList<>();
-            index.put(standardSymbol, databaseEntries);
-        }
-        databaseEntries.add(entry);
+    private static DatabaseEntry createEntry(String line) {
+        final String[] row = line.split("\t");
+        String standardSymbol = HGNCDatabase.getStandardSymbol(row[0]);
+        if (standardSymbol != null) row[0] = standardSymbol;
+        return new DatabaseEntry(row, headers);
     }
 
     /**

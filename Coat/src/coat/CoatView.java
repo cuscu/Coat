@@ -30,6 +30,7 @@ import coat.view.tsv.TsvFileReader;
 import coat.view.vcfcombiner.CombineVcfMenu;
 import coat.view.vcfcombiner.CompleteAnalysisMenu;
 import coat.view.vcfreader.VcfReader;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -212,11 +213,13 @@ public class CoatView {
     }
 
     private static void setMessageLabel(String message, String date, Label label, String type) {
-        if (AVAILABLE_MESSAGE_TYPES.contains(type)) {
-            label.setText(date + ": " + message);
-            label.setGraphic(new SizableImage("coat/img/" + type + ".png", SizableImage.SMALL_SIZE));
-            label.getStyleClass().add(type + "-label");
-        } else label.setText(date + " (" + type + "): " + message);
+        Platform.runLater(() -> {
+            if (AVAILABLE_MESSAGE_TYPES.contains(type)) {
+                label.setText(date + ": " + message);
+                label.setGraphic(new SizableImage("coat/img/" + type + ".png", SizableImage.SMALL_SIZE));
+                label.getStyleClass().add(type + "-label");
+            } else label.setText(date + " (" + type + "): " + message);
+        });
     }
 
     private void openFileInWorkspace(File f) {

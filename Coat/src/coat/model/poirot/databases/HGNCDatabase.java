@@ -25,8 +25,8 @@ import java.util.zip.GZIPInputStream;
  */
 public class HGNCDatabase {
 
+    private final static Map<String, String> symbols = new HashMap<>();
     private final static Map<String, String> names = new HashMap<>();
-    private final static Map<String, String> description = new HashMap<>();
 
     static {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(HGNCDatabase.class.getResourceAsStream("hgnc-complete.tsv.gz"))))) {
@@ -35,10 +35,10 @@ public class HGNCDatabase {
                 final String[] row = line.split("\t");
                 final String standardName = row[1];
                 final String[] previousNames = row[3].split("\\|");
-                Arrays.stream(previousNames).forEach(name -> names.put(name, standardName));
+                Arrays.stream(previousNames).forEach(name -> symbols.put(name, standardName));
                 final String[] synonyms = row[4].split("\\|");
-                Arrays.stream(synonyms).forEach(name -> names.put(name, standardName));
-                description.put(standardName, row[2]);
+                Arrays.stream(synonyms).forEach(name -> symbols.put(name, standardName));
+                names.put(standardName, row[2]);
             });
             Platform.runLater(() -> CoatView.printMessage("HGNC database successfully loaded", "info"));
         } catch (IOException e) {
@@ -53,7 +53,7 @@ public class HGNCDatabase {
      * @return the standard symbol or null if not available
      */
     public static String getStandardSymbol(String symbol) {
-        return names.get(symbol);
+        return symbols.get(symbol);
     }
 
     /**
@@ -63,6 +63,6 @@ public class HGNCDatabase {
      * @return the name or null if not available
      */
     public static String getName(String symbol) {
-        return description.get(symbol);
+        return names.get(symbol);
     }
 }

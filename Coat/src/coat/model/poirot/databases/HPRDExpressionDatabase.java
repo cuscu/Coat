@@ -2,12 +2,15 @@ package coat.model.poirot.databases;
 
 import coat.CoatView;
 import coat.model.poirot.DatabaseEntry;
-import javafx.application.Platform;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -23,30 +26,38 @@ import java.util.zip.GZIPInputStream;
 public class HPRDExpressionDatabase {
 
     private final static Map<String, List<DatabaseEntry>> index;
+    private final static Map<String, Integer> headers;
+
 
     static {
-        index = new HashMap<>();
+        headers = new HashMap<>();
+        headers.put("hprd_id", 0);
+        headers.put("refseq_id", 1);
+        headers.put("symbol", 2);
+        headers.put("expression", 3);
+        headers.put("status", 4);
+        headers.put("reference_id", 5);
+        index = readFile();
+        if (index != null) CoatView.printMessage("HPRD expression database successfully loaded", "info");
+
+    }
+
+    private static Map<String, List<DatabaseEntry>> readFile() {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(HPRDExpressionDatabase.class.getResourceAsStream("hprd-phenotypes.tsv.gz"))))) {
-            reader.lines().forEach((line) -> {
-                final String[] row = line.split("\t");
-                final DatabaseEntry entry = new DatabaseEntry(Arrays.asList(row));
-                String standardSymbol = HGNCDatabase.getStandardSymbol(row[2]);
-                if (standardSymbol == null) standardSymbol = row[2];
-                addToIndex(entry, standardSymbol);
-            });
-            Platform.runLater(() -> CoatView.printMessage("HPRD database successfully loaded", "info"));
+            return reader.lines()
+                    .map(HPRDExpressionDatabase::createEntry)
+                    .collect(Collectors.groupingBy(databaseEntry -> databaseEntry.getField(2)));
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
-    private static void addToIndex(DatabaseEntry entry, String standardSymbol) {
-        List<DatabaseEntry> databaseEntries = index.get(standardSymbol);
-        if (databaseEntries == null) {
-            databaseEntries = new ArrayList<>();
-            index.put(standardSymbol, databaseEntries);
-        }
-        databaseEntries.add(entry);
+    private static DatabaseEntry createEntry(String line) {
+        final String[] row = line.split("\t");
+        final String standardSymbol = HGNCDatabase.getStandardSymbol(row[0]);
+        if (standardSymbol != null) row[0] = standardSymbol;
+        return new DatabaseEntry(row, headers);
     }
 
     /**
