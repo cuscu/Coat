@@ -16,6 +16,7 @@
  */
 package coat.model.vcfreader;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -29,32 +30,33 @@ public class MapGenerator {
 
     private final static char QUOTE = '"';
     private final static char COMMA = ',';
-    public static final char EQUALS = '=';
+    private final static char EQUALS = '=';
 
-    private int cursor = 0;
-    private String key;
-    private String value;
-    private final Map<String, String> map = new LinkedHashMap<>();
-    private String line;
-    private boolean isKey = true;
+    private static int cursor;
+    private static String key;
+    private static String value;
+    private static Map<String, String> map = new LinkedHashMap<>();
+    private static String line;
+    private static boolean isKey;
 
     /**
-     *
      * @param line line to map, without ##INFO neither ##FORMAT neither &lt neither &gt
      * @return a map with the content of the line
      */
-    public Map<String, String> parse(String line) {
-        this.line = line;
-        start();
+    public synchronized static Map<String, String> parse(String line) {
+        MapGenerator.line = line;
+        map = new HashMap<>();
+        cursor = 0;
+        isKey = true;
+        return start();
+    }
+
+    private static Map<String, String> start() {
+        while (cursor < line.length()) nextCharacter();
         return map;
     }
 
-    private void start() {
-        while (cursor < line.length())
-            nextCharacter();
-    }
-
-    private void nextCharacter() {
+    private static void nextCharacter() {
         switch (line.charAt(cursor)) {
             case QUOTE:
                 putQuotedValue();
@@ -74,7 +76,7 @@ public class MapGenerator {
         }
     }
 
-    private void putUnquotedValue() {
+    private static void putUnquotedValue() {
         int end = endOfToken();
         if (isKey)
             key = line.substring(cursor, end);
@@ -85,17 +87,16 @@ public class MapGenerator {
         cursor = end;
     }
 
-    private int endOfToken() {
+    private static int endOfToken() {
         // Text not in quotes
         // token is the text between cursor and next "=" or ","
         // cursor at "=" or ","
         int end = cursor;
-        while (line.charAt(end) != EQUALS && line.charAt(end) != COMMA)
-            end++;
+        while (line.charAt(end) != EQUALS && line.charAt(end) != COMMA) end++;
         return end;
     }
 
-    private void putQuotedValue() {
+    private static void putQuotedValue() {
         // If isKey is false, something went wrong
         // Text in quotes
         // token is the text between quotes

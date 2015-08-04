@@ -1,7 +1,6 @@
 package coat.view.vcfcombiner;
 
 import coat.model.tool.Tool;
-import coat.model.vcfcombiner.VcfCombiner;
 import coat.model.vcfreader.Variant;
 import coat.model.vcfreader.VcfFile;
 import coat.model.vcfreader.VcfSaver;
@@ -13,10 +12,7 @@ import coat.view.vcfreader.SampleCell;
 import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -39,6 +35,8 @@ public class AdvancedCombineVcf extends Tool {
 
     private final ListView<Sample> samples = new ListView<>();
     private final Button add = new Button(OS.getResources().getString("add.files"), new SizableImage("coat/img/add.png", SizableImage.SMALL_SIZE));
+    private final Button combine = new Button(OS.getResources().getString("combine"), new SizableImage("coat/img/combine.png", SizableImage.SMALL_SIZE));
+    private final HBox topButtonsBox = new HBox(5, add, combine);
     private final FileChooser.ExtensionFilter[] filters = {FileManager.VCF_FILTER};
 
     private final Button delete = new Button(null, new SizableImage("coat/img/delete.png", SizableImage.MEDIUM_SIZE));
@@ -49,14 +47,13 @@ public class AdvancedCombineVcf extends Tool {
 
     private final StackPane listStackPane = new StackPane(samples);
     private Property<String> title = new SimpleStringProperty("Combine VCF(enhanced)");
-    private ChangeListener<? super Sample.Level> sampleLevelListener = (observable, oldValue, newValue) -> combine();
     private List<Variant> resultVariants;
     private Thread thread = null;
 
     public AdvancedCombineVcf() {
         configureAddButton();
         configureButtonsPane();
-        getChildren().addAll(add, listStackPane, message, save);
+        getChildren().addAll(topButtonsBox, listStackPane, message, save);
         VBox.setVgrow(listStackPane, Priority.SOMETIMES);
         VBox.setVgrow(add, Priority.ALWAYS);
         setPadding(new Insets(10));
@@ -67,7 +64,6 @@ public class AdvancedCombineVcf extends Tool {
             else if (!listStackPane.getChildren().contains(actionButtons))
                 listStackPane.getChildren().add(1, actionButtons);
         });
-        samples.getItems().addListener(this::listChanged);
         save.setOnAction(event -> saveAs());
         save.setPadding(new Insets(10));
         save.setMaxWidth(Double.MAX_VALUE);
@@ -77,12 +73,12 @@ public class AdvancedCombineVcf extends Tool {
 
 
     private void configureAddButton() {
-//        StackPane.setAlignment(add, Pos.BOTTOM_RIGHT);
-//        StackPane.setMargin(add, new Insets(10));
-//        add.getStyleClass().add("graphic-button");
         add.setMaxWidth(9999);
+        combine.setMaxWidth(9999);
         HBox.setHgrow(add, Priority.ALWAYS);
+        HBox.setHgrow(combine, Priority.ALWAYS);
         add.setOnAction(event -> addFiles());
+        combine.setOnAction(event -> combine());
     }
 
     private void addFiles() {
@@ -109,17 +105,6 @@ public class AdvancedCombineVcf extends Tool {
         samples.getItems().remove(samples.getSelectionModel().getSelectedItem());
     }
 
-    private void start() {
-        final File file = FileManager.saveFile("Select ouptut file", FileManager.VCF_FILTER);
-        if (file != null) launchCombiner(file);
-
-    }
-
-    private void launchCombiner(File file) {
-        final Task combiner = new VcfCombiner(samples.getItems(), file);
-        Platform.runLater(combiner);
-    }
-
     @Override
     public Property<String> getTitleProperty() {
         return title;
@@ -135,27 +120,12 @@ public class AdvancedCombineVcf extends Tool {
                 saver.invoke();
             }
         }
-        ;
-
-    }
-
-    private void listChanged(ListChangeListener.Change<? extends Sample> c) {
-        if (c.next()) {
-            if (c.wasRemoved()) {
-                c.getRemoved().forEach(sample -> sample.getLevelProperty().removeListener(sampleLevelListener));
-                combine();
-            } else {
-                c.getAddedSubList().forEach(sample -> sample.getLevelProperty().addListener(sampleLevelListener));
-                combine();
-            }
-        }
     }
 
     /**
      * Stops current combining thread and starts a new process
      */
     private void combine() {
-        System.gc();
         if (thread != null && thread.isAlive()) thread.interrupt();
         thread = new Thread(() -> combine(samples.getItems()));
         thread.start();
@@ -166,15 +136,17 @@ public class AdvancedCombineVcf extends Tool {
         final VariantStream reference = getReferenceStream(streams);
         if (reference != null) {
             Platform.runLater(() -> {
-                message.setText("Combining...");
+                message.setText(OS.getResources().getString("combining") + "...");
                 save.setDisable(true);
+                combine.setDisable(true);
             });
             resultVariants = null;
             System.gc();
             resultVariants = reference.getVariants().stream().filter(variant -> streams.stream().allMatch(stream -> stream.filter(variant))).collect(Collectors.toList());
             Platform.runLater(() -> {
-                message.setText(resultVariants.size() + " common variants");
+                message.setText(OS.getStringFormatted("commom.variants", resultVariants.size()));
                 save.setDisable(false);
+                combine.setDisable(false);
             });
         }
     }

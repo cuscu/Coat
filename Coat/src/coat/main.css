@@ -39,26 +39,6 @@
     -fx-border-color: whitesmoke;
 }
 
-/* Button with only graphic, whe hover or pressed a border is shown.*/
-.flat-button {
-    -fx-border-width: 1px;
-    -fx-border-radius: 2px;
-    -fx-border-color: transparent;
-    -fx-background-color: transparent;
-    -fx-pref-height: 16px;
-}
-
-.flat-button:hover {
-    -fx-opacity: 0.5;
-    -fx-border-color: black;
-}
-
-.flat-button:pressed {
-    -fx-opacity: 0.25;
-    -fx-border-color: black;
-
-}
-
 /* Buttons that only show an icon, hover and pressed are only made by decreasing the opacity*/
 .graphic-button {
     -fx-background-color: transparent;
@@ -76,22 +56,6 @@
 
 #nameColumn, #codeColumn {
     -fx-alignment: CENTER;
-}
-
-.parameter {
-    -fx-background-color: ghostwhite;
-    -fx-background-insets: 2px;
-    -fx-background-radius: 5px;
-    -fx-text-alignment: left;
-    -fx-padding: 4px;
-    -fx-border-color: darkgray;
-    -fx-border-width: 1px;
-    -fx-border-insets: 2px;
-    -fx-border-radius: 5px;
-}
-
-.parameter:hover {
-    -fx-background-color: white;
 }
 
 /* Filtering boxes in TSVReader/VCFReader*/

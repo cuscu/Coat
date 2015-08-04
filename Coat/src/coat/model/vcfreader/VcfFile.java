@@ -62,9 +62,9 @@ public class VcfFile {
     private void processMetaLine(String line) {
         unformattedHeaders.add(line);
         if (line.startsWith("##INFO=<"))
-            infos.add(new MapGenerator().parse(line.substring(8, line.length() - 1)));
+            infos.add(MapGenerator.parse(line.substring(8, line.length() - 1)));
         else if (line.startsWith("##FORMAT=<"))
-            formats.add(new MapGenerator().parse(line.substring(10, line.length() - 1)));
+            formats.add(MapGenerator.parse(line.substring(10, line.length() - 1)));
     }
 
     public ObservableList<Variant> getVariants() {
@@ -81,7 +81,7 @@ public class VcfFile {
 
     public void addInfoLines(String... lines) {
         for (String line : lines) {
-            infos.add(new MapGenerator().parse(line.substring(8, line.length() - 1)));
+            infos.add(MapGenerator.parse(line.substring(8, line.length() - 1)));
             addToUnformattedHeaders(line);
         }
     }

@@ -44,7 +44,7 @@ public class OS {
      */
     static {
         final String[] chrs = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12",
-            "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y"};
+                "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y"};
         standardChromosomes.addAll(Arrays.asList(chrs));
         locales.add(new Locale("es", "ES"));
         locales.add(new Locale("en", "US"));
@@ -55,7 +55,7 @@ public class OS {
      * Takes a byte value and convert it to the corresponding human readable unit.
      *
      * @param bytes value in bytes
-     * @param si if true, divides by 1000; else by 1024
+     * @param si    if true, divides by 1000; else by 1024
      * @return a human readable size
      */
     public static String humanReadableByteCount(long bytes, boolean si) {
@@ -73,7 +73,7 @@ public class OS {
      * value3] to value1,value2,value3
      *
      * @param separator something like "\t" or ","
-     * @param values a list of values
+     * @param values    a list of values
      * @return the stringified list
      */
     public static String asString(String separator, String... values) {
@@ -93,7 +93,7 @@ public class OS {
      * value3] to value1,value2,value3
      *
      * @param separator something like "\t" or ","
-     * @param values a list of values
+     * @param values    a list of values
      * @return the stringified list
      */
     public static String asString(String separator, List<String> values) {
@@ -140,7 +140,7 @@ public class OS {
      * Formats the String key from resources (the current ResourceBundle) using a MessageFormat
      * which will have args.
      *
-     * @param key the key of the string
+     * @param key  the key of the string
      * @param args the arguments of the string
      * @return the resulting string using the current locale
      */
@@ -148,4 +148,5 @@ public class OS {
         MessageFormat formatter = new MessageFormat(resources.getString(key), resources.getLocale());
         return formatter.format(args);
     }
+
 }

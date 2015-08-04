@@ -17,14 +17,12 @@ public class Sample {
         UNAFFECTED, AFFECTED, HETEROZYGOUS, HOMOZYGOUS
     }
 
-    private final   File file;
+    private final File file;
 
-    private final Property<Level> levelProperty = new SimpleObjectProperty<>(Level.UNAFFECTED);
-//    private final Property<VcfFile> vcfFileProperty = new SimpleObjectProperty<>();
+    private final Property<Level> levelProperty = new SimpleObjectProperty<>(Level.AFFECTED);
 
     public Sample(File file) {
         this.file = file;
-//        new Thread(() -> vcfFileProperty.setValue(new VcfFile(file))).start();
     }
 
     @Override
@@ -43,18 +41,5 @@ public class Sample {
     public void setLevel(Level level) {
         levelProperty.setValue(level);
     }
-
-//    public Property<VcfFile> getVcfFileProperty() {
-//        return vcfFileProperty;
-//    }
-
-    public Property<Level> getLevelProperty() {
-        return levelProperty;
-    }
-
-//    public VcfFile getVcfFile() {
-//        return vcfFileProperty.getValue();
-//    }
-
 
 }

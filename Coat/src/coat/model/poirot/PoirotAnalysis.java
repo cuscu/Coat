@@ -46,12 +46,26 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
     @Override
     protected PearlDatabase call() throws Exception {
         try {
-            mapVariantsToGenes();
             return runAnalysis();
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * Executes the PoirotAnalysis
+     *
+     * @return a PearlDatabase with the resulting graph
+     */
+    private PearlDatabase runAnalysis() {
+        mapVariantsToGenes();
+        addInitialGenes();
+        expandGraph();
+        setDistances();
+        cleanDatabase();
+        setScores();
+        return pearlDatabase;
     }
 
     /**
@@ -65,42 +79,32 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
     private void mapVariant(Variant variant) {
         final String gene = (String) variant.getInfos().get("GNAME");
         if (gene != null) {
-            String GENE = HGNCDatabase.getStandardSymbol(gene);
-            if (GENE == null) GENE = gene.toUpperCase();
-            List<Variant> vs = getVariants(GENE);
-            vs.add(variant);
+            final String symbol = getStandardSymbol(gene);
+            addToGene(symbol, variant);
         }
         if (variantsCount.incrementAndGet() % 1000 == 0)
             updateMessage(String.format("Reading variants %d/%d", variantsCount.get(), variants.size()));
     }
 
     /**
-     * Gets the list of variants related to this gene in the geneMap.
+     * Try to standardize the symbol of the gene by retrieving it from the HGNC database. If symbol is not found,
+     * returns the uppercase symbol passed by parameter.
      *
-     * @param GENE name of the gene
-     * @return list of variants
+     * @param symbol the given symbol
+     * @return HGNC standard symbol or the uppercase value of symbol
      */
-    private List<Variant> getVariants(String GENE) {
-        List<Variant> vs = geneMap.get(GENE);
-        if (vs == null) {
-            vs = new ArrayList<>();
-            geneMap.put(GENE, vs);
-        }
-        return vs;
+    private String getStandardSymbol(String symbol) {
+        final String standard = HGNCDatabase.getStandardSymbol(symbol);
+        return standard != null ? standard : symbol.toUpperCase();
     }
 
-    /**
-     * Executes the PoirotAnalysis
-     *
-     * @return a PearlDatabase with the resulting graph
-     */
-    private PearlDatabase runAnalysis() {
-        addInitialGenes();
-        expandGraph();
-        setDistances();
-        cleanDatabase();
-        setScores();
-        return pearlDatabase;
+    private void addToGene(String symbol, Variant variant) {
+        List<Variant> vs = geneMap.get(symbol);
+        if (vs == null) {
+            vs = new ArrayList<>();
+            geneMap.put(symbol, vs);
+        }
+        vs.add(variant);
     }
 
     /**
@@ -144,11 +148,16 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
      * @param pearl the gene pearl
      */
     private void connectToOmimDisorders(Pearl pearl) {
-        OmimDatabase.getEntries(pearl.getGeneSymbol()).stream()
-                .map(omimEntry -> omimEntry.getField(3))
+        Repository.getDataset(Repository.DatasetName.OMIM).getInstances(pearl.getGeneSymbol(), 0).stream()
+                .map(instance -> (String) instance.getField(3))
                 .filter(disorders -> !disorders.equals("."))
                 .flatMap(disorders -> Arrays.stream(disorders.split(";")))
                 .forEach(disorder -> linkGeneToOmimDisorder(pearl, disorder));
+//        OmimDatabase.getEntries(pearl.getGeneSymbol()).stream()
+//                .map(omimEntry -> omimEntry.getField(3))
+//                .filter(disorders -> !disorders.equals("."))
+//                .flatMap(disorders -> Arrays.stream(disorders.split(";")))
+//                .forEach(disorder -> linkGeneToOmimDisorder(pearl, disorder));
     }
 
     /**

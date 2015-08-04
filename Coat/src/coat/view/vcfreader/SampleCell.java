@@ -47,7 +47,7 @@ public class SampleCell extends ListCell<Sample> {
     }
 
     private void advancedTextLabel() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(current.getFile()))){
+        try (BufferedReader reader = new BufferedReader(new FileReader(current.getFile()))) {
             final long numberOfVariants = reader.lines().filter(line -> !line.startsWith("#")).count();
             setText(current.getFile().getAbsolutePath() + " (" + numberOfVariants + " variants)");
         } catch (IOException e) {

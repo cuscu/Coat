@@ -72,8 +72,6 @@ public class PoirotView extends Tool {
     private List<String> genes = new ArrayList<>();
     private Property<String> title = new SimpleStringProperty("Poirot");
 
-    private OmimDatabase omimDatabase = new OmimDatabase();
-
 
     public PoirotView() {
         file.setText("/home/unidad03/Copy/Proyectos/SQZ/sqz_20150420_VEP_f001_DP9_protcoding.vcf");

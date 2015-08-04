@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 public class VariantStream {
 
     private final Sample sample;
+    private List<String> chromosomeOrder;
     private BufferedReader reader;
     private Variant variant;
 
@@ -27,6 +28,11 @@ public class VariantStream {
             e.printStackTrace();
         }
         loadFirstVariant();
+    }
+
+    public VariantStream(Sample sample, List<String> chromosomeOrder) {
+        this.sample = sample;
+        this.chromosomeOrder = chromosomeOrder;
     }
 
     private void loadFirstVariant() {
@@ -59,7 +65,7 @@ public class VariantStream {
     public boolean filter(Variant variant) {
         Variant variant1 = this.variant;
         while (variant1 != null) {
-            final int compareTo = variant1.compareTo(variant);
+            final int compareTo = compareVariants(variant, variant1);
             // The variant is present
             if (compareTo == 0) return checkZygotic(variant1);
                 // The variant is lower
@@ -69,6 +75,25 @@ public class VariantStream {
         }
         // The variant is not present
         return sample.getLevel() == Sample.Level.UNAFFECTED;
+    }
+
+    private int compareVariants(Variant variant, Variant variant1) {
+        if (chromosomeOrder == null) return variant1.compareTo(variant);
+        else return compare(variant, variant1);
+    }
+
+    private int compare(Variant variant, Variant variant1) {
+        final int chromIndex1 = chromosomeOrder.indexOf(variant.getChrom());
+        final int chromIndex2 = chromosomeOrder.indexOf(variant1.getChrom());
+        // Variants with non-standard chromosomes go to the end
+        if (chromIndex1 != -1 && chromIndex2 == -1) return -1;
+        if (chromIndex1 == -1 && chromIndex2 != -1) return 1;
+        // Non-standard chromosomes are ordered alphabetically
+        int compare = (chromIndex1 == -1)
+                ? variant.getChrom().compareTo(variant1.getChrom())
+                : Integer.compare(chromIndex1, chromIndex2);
+        if (compare != 0) return compare;
+        return Integer.compare(variant.getPos(), variant1.getPos());
     }
 
     private String shortVariant(Variant variant) {
