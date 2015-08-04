@@ -145,8 +145,11 @@ public class OS {
      * @return the resulting string using the current locale
      */
     public static String getStringFormatted(String key, Object... args) {
-        MessageFormat formatter = new MessageFormat(resources.getString(key), resources.getLocale());
-        return formatter.format(args);
+        return new MessageFormat(resources.getString(key), resources.getLocale()).format(args);
+    }
+
+    public static String getString(String key) {
+        return resources.getString(key);
     }
 
 }

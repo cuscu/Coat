@@ -15,8 +15,8 @@ public class ClassCell extends ListCell<Sample.Level> {
     protected void updateItem(Sample.Level item, boolean empty) {
         super.updateItem(item, empty);
         if (!empty) {
-            setText(item.name());
-            setGraphic(new SizableImage("coat/img/" + item.toString().toLowerCase() + ".png", SizableImage.SMALL_SIZE));
+            setText(item.toString());
+            setGraphic(new SizableImage("coat/img/" + item.name().toLowerCase() + ".png", SizableImage.SMALL_SIZE));
         } else {
             setText(null);
             setGraphic(null);

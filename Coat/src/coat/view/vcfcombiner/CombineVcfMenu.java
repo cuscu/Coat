@@ -2,6 +2,7 @@ package coat.view.vcfcombiner;
 
 import coat.model.tool.Tool;
 import coat.model.tool.ToolMenu;
+import coat.utils.OS;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
@@ -9,7 +10,7 @@ import coat.model.tool.ToolMenu;
 public class CombineVcfMenu implements ToolMenu {
     @Override
     public String getName() {
-        return "Combine Vcf";
+        return OS.getString("combine.vcf");
     }
 
     @Override

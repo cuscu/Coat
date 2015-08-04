@@ -240,3 +240,7 @@
 .graph-info-box {
     -fx-background-color: rgba(100, 100, 100, 0.1);
 }
+
+.text-column {
+    -fx-alignment: CENTER-LEFT;
+}

@@ -41,6 +41,7 @@ public class VcfFilter {
     private final Property<Field> fieldProperty = new SimpleObjectProperty<>();
     private Property<Boolean> enabledProperty = new SimpleBooleanProperty(true);
     private Property<Boolean> strictProperty = new SimpleBooleanProperty(true);
+    private Property<String> nameProperty;
 
     /**
      * Creates a new VCFFIlter with default connector EQUALS and default field CHROMOSOME.
@@ -219,6 +220,10 @@ public class VcfFilter {
 
     public Property<Boolean> getStrictProperty() {
         return strictProperty;
+    }
+
+    public Property<String> getNameProperty() {
+        return nameProperty;
     }
 
     /**

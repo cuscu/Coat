@@ -27,8 +27,8 @@ import coat.view.graphic.SizableImage;
 import coat.view.mist.CombineMistMenu;
 import coat.view.poirot.PoirotMenu;
 import coat.view.tsv.TsvFileReader;
+import coat.view.vcfcombiner.AdvancedCombineVcfMenu;
 import coat.view.vcfcombiner.CombineVcfMenu;
-import coat.view.vcfcombiner.CompleteAnalysisMenu;
 import coat.view.vcfreader.VcfReader;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -80,7 +80,7 @@ public class CoatView {
     {
         toolsMenuClasses.add(new CombineMistMenu());
         toolsMenuClasses.add(new CombineVcfMenu());
-        toolsMenuClasses.add(new CompleteAnalysisMenu());
+        toolsMenuClasses.add(new AdvancedCombineVcfMenu());
         toolsMenuClasses.add(new PoirotMenu());
     }
 
