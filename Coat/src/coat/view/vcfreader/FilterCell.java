@@ -1,4 +1,4 @@
-package coat.view.vcfcombiner;
+package coat.view.vcfreader;
 
 import coat.model.vcfreader.VcfFilter;
 import coat.utils.OS;

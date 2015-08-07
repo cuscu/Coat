@@ -3,19 +3,22 @@ package coat.view.vcfcombiner;
 import coat.model.tool.Tool;
 import coat.model.vcfreader.Variant;
 import coat.model.vcfreader.VcfFile;
-import coat.model.vcfreader.VcfFilter;
 import coat.model.vcfreader.VcfSaver;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.SizableImage;
 import coat.view.vcfreader.Sample;
+import coat.view.vcfreader.VariantsTable;
 import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -24,44 +27,50 @@ import javafx.stage.FileChooser;
 import java.io.File;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 /**
+ * Main panel of the Combine Vcf Tool.
+ *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class AdvancedCombineVcf extends Tool {
+public class CombineVcf extends Tool {
 
     private final static FileChooser.ExtensionFilter[] filters = {FileManager.VCF_FILTER};
 
     private final SampleTableView sampleTableView = new SampleTableView();
 
-    private final VcfFilterTableView filterTableView = new VcfFilterTableView();
+    private VariantsTable variantsTable = new VariantsTable();
 
     private final Button addFiles = new Button(OS.getString("add.files"), new SizableImage("coat/img/add.png", SizableImage.SMALL_SIZE));
     private final Button combine = new Button(OS.getString("combine"), new SizableImage("coat/img/combine.png", SizableImage.SMALL_SIZE));
     private final Button delete = new Button(OS.getString("delete"), new SizableImage("coat/img/delete.png", SizableImage.SMALL_SIZE));
     private final Button save = new Button(OS.getString("save"), new SizableImage("coat/img/save.png", SizableImage.SMALL_SIZE));
-    private final Button addFilter = new Button(OS.getString("add.filter"), new SizableImage("coat/img/add.png", SizableImage.SMALL_SIZE));
-    private final HBox topButtonsBox = new HBox(5, addFiles, delete, combine, save, addFilter);
+
+    private final HBox topButtonsBox = new HBox(5, addFiles, delete, combine, save);
 
     private final Label message = new Label();
+    private final ProgressBar progressBar = new ProgressBar();
+    private final HBox progressPane = new HBox(5, message, progressBar);
 
     private Property<String> title = new SimpleStringProperty(OS.getString("combine.vcf"));
 
-    private List<Variant> resultVariants;
-    private Thread thread = null;
+    private final ObservableList<Variant> resultVariants = FXCollections.observableArrayList();
+    private Task<List<Variant>> combiner;
 
-    public AdvancedCombineVcf() {
+    public CombineVcf() {
         configureRoot();
         configureButtonsPane();
         configureSampleTable();
-        configureFilterTable();
+        configureVariantsTable();
     }
 
     private void configureRoot() {
-        getChildren().addAll(topButtonsBox, sampleTableView, filterTableView, message);
+        getChildren().addAll(topButtonsBox, sampleTableView, variantsTable, progressPane);
         setPadding(new Insets(10));
         setSpacing(5);
+        HBox.setHgrow(progressBar, Priority.ALWAYS);
+        progressBar.setMaxWidth(9999);
+        progressBar.setVisible(false);
     }
 
     private void configureButtonsPane() {
@@ -70,7 +79,6 @@ public class AdvancedCombineVcf extends Tool {
         addFiles.setOnAction(event -> addFiles());
         combine.setOnAction(event -> combine());
         delete.setOnAction(event -> deleteFile());
-        addFilter.setOnAction(event -> addFilter());
     }
 
     private void configureSampleTable() {
@@ -87,8 +95,8 @@ public class AdvancedCombineVcf extends Tool {
         button.setPadding(new Insets(10));
     }
 
-    private void configureFilterTable() {
-
+    private void configureVariantsTable() {
+        variantsTable.setVariants(resultVariants);
     }
 
     private void addFiles() {
@@ -121,19 +129,20 @@ public class AdvancedCombineVcf extends Tool {
      * Stops current combining thread and starts a new process
      */
     private void combine() {
-        if (thread != null && thread.isAlive()) thread.interrupt();
-        thread = new Thread(() -> combine(sampleTableView.getItems()));
-        thread.start();
+        if (combiner != null) combiner.cancel(true);
+        combiner = new VcfCombineTask(sampleTableView.getItems());
+        combiner.setOnSucceeded(event -> combinerSucceeded());
+        progressBar.progressProperty().bind(combiner.progressProperty());
+        Platform.runLater(this::prepareGUI);
+        progressBar.setVisible(true);
+        new Thread(combiner).start();
     }
 
-    private void combine(ObservableList<Sample> samples) {
-        final List<VariantStream> streams = samples.stream().map(VariantStream::new).collect(Collectors.toList());
-        final VariantStream reference = getReferenceStream(streams);
-        if (reference != null) {
-            Platform.runLater(this::prepareGUI);
-            resultVariants = reference.getVariants().stream().filter(variant -> streams.stream().allMatch(stream -> stream.filter(variant))).collect(Collectors.toList());
-            Platform.runLater(this::restoreGUI);
-        }
+    private void combinerSucceeded() {
+        Platform.runLater(this::restoreGUI);
+        resultVariants.setAll(combiner.getValue());
+        progressBar.progressProperty().unbind();
+        progressBar.setVisible(false);
     }
 
     private void prepareGUI() {
@@ -148,14 +157,6 @@ public class AdvancedCombineVcf extends Tool {
         combine.setDisable(false);
     }
 
-    private VariantStream getReferenceStream(List<VariantStream> streams) {
-        try {
-            return streams.stream().filter(stream -> !stream.getSample().getLevel().equals(Sample.Level.UNAFFECTED)).findFirst().get();
-        } catch (NoSuchElementException ex) {
-            return null;
-        }
-    }
-
     private Sample getReferenceSample(ObservableList<Sample> samples) {
         try {
             return samples.stream().filter(sample -> !sample.getLevel().equals(Sample.Level.UNAFFECTED)).findFirst().get();
@@ -164,10 +165,4 @@ public class AdvancedCombineVcf extends Tool {
         }
     }
 
-    private void addFilter() {
-        final VcfFilter filter = new VcfFilter();
-        filterTableView.getItems().add(filter);
-        sampleTableView.getItems().forEach(Sample::addFilterStatus);
-        sampleTableView.addFilterColumn();
-    }
 }

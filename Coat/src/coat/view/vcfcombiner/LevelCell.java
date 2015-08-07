@@ -1,35 +1,26 @@
 package coat.view.vcfcombiner;
 
+import coat.view.graphic.SizableImage;
 import coat.view.vcfreader.Sample;
-import javafx.collections.FXCollections;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TableCell;
+import javafx.scene.control.ListCell;
 
 /**
+ * Cell for ListView that shows the level of affection. The image is taken from coat/img/ plus level name plus .png.
+ * For instance: HETEROZYGOUS -> coat/img/heterozygous.png
+ *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class LevelCell extends TableCell<Sample, Sample.Level> {
-
-    private final ComboBox<Sample.Level> levelComboBox = new ComboBox<>(FXCollections.observableArrayList(Sample.Level.values()));
-    private Sample current;
-
-    public LevelCell() {
-        levelComboBox.setCellFactory(param -> new ClassCell());
-        levelComboBox.setButtonCell(new ClassCell());
-    }
+public class LevelCell extends ListCell<Sample.Level> {
 
     @Override
     protected void updateItem(Sample.Level item, boolean empty) {
         super.updateItem(item, empty);
         if (!empty) {
-            final Sample sample = (Sample) ((getTableRow() != null) ? getTableRow().getItem() : null);
-            if (current != null) levelComboBox.valueProperty().unbindBidirectional(current.getLevelProperty());
-            if (sample != null) levelComboBox.valueProperty().bindBidirectional(sample.getLevelProperty());
-            current = sample;
-            setGraphic(levelComboBox);
+            setText(item.toString());
+            setGraphic(new SizableImage("coat/img/" + item.name().toLowerCase() + ".png", SizableImage.SMALL_SIZE));
         } else {
+            setText(null);
             setGraphic(null);
         }
     }
-
 }

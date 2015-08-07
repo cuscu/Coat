@@ -39,15 +39,20 @@ public class VcfFilter {
     private final Property<String> valueProperty = new SimpleStringProperty();
     private final Property<String> infoProperty = new SimpleStringProperty();
     private final Property<Field> fieldProperty = new SimpleObjectProperty<>();
-    private Property<Boolean> enabledProperty = new SimpleBooleanProperty(true);
-    private Property<Boolean> strictProperty = new SimpleBooleanProperty(true);
-    private Property<String> nameProperty;
+    private final Property<Boolean> enabledProperty = new SimpleBooleanProperty(true);
+    private final Property<Boolean> strictProperty = new SimpleBooleanProperty(true);
+    private final Property<String> nameProperty = new SimpleObjectProperty<>();
 
     /**
-     * Creates a new VCFFIlter with default connector EQUALS and default field CHROMOSOME.
+     * Creates a new VcfFIlter with default connector EQUALS and default field CHROMOSOME.
      */
     public VcfFilter() {
     }
+
+    public VcfFilter(String name) {
+        this.nameProperty.setValue(name);
+    }
+
 
     public VcfFilter(Field field, String selectedInfo, Connector connector, String value) {
         this.valueProperty.setValue(value);

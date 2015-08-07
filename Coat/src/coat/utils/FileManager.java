@@ -37,9 +37,8 @@ public final class FileManager {
     /**
      * Filters SAM or BAM files (.bam and .sam)
      */
-    public static final FileChooser.ExtensionFilter SAM_FILTER
-            = new FileChooser.ExtensionFilter("Sequence Alignment/Map Format (.bam .sam)", "*.bam",
-            "*.sam");
+    public static final FileChooser.ExtensionFilter BAM_FILTER
+            = new FileChooser.ExtensionFilter("Binary Sequence Alignment/Map Format (.bam)", "*.bam");
     /**
      * Admits all files
      */

@@ -4,7 +4,6 @@ import coat.model.vcfreader.Variant;
 import coat.model.vcfreader.VcfFilter;
 import coat.utils.OS;
 import coat.view.graphic.ThresholdDialog;
-import coat.view.vcfcombiner.FilterCell;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;

@@ -9,8 +9,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Stores a Vcf file into memory and the level of affection (UNAFFECTED, AFFECTED, HOMOZYGOUS, HETEROZYGOUS) in the VCF
@@ -21,14 +19,21 @@ import java.util.List;
 public class Sample {
 
     private final File file;
-    private Property<Boolean> enabledProperty = new SimpleBooleanProperty();
+    private final Property<Boolean> enabledProperty = new SimpleBooleanProperty(true);
     private final Property<Level> levelProperty = new SimpleObjectProperty<>(Level.AFFECTED);
+    private Property<File> bamFileProperty = new SimpleObjectProperty<>();
+    private Property<File> mistFileProperty = new SimpleObjectProperty<>();
     private final long numberOfVariants;
-    private final List<Property<Boolean>> filterstatus = new ArrayList<>();
 
     public Sample(File file) {
         this.file = file;
+        final File bam = new File(file.getAbsolutePath().replace(".vcf", ".bam"));
+        if (bam.exists()) bamFileProperty.setValue(bam);
+        final File mist = new File(file.getAbsolutePath().replace(".vcf", ".mist"));
+        if (mist.exists()) mistFileProperty.setValue(mist);
         numberOfVariants = determineNumberOfVariants();
+        bamFileProperty.addListener((observable, oldValue, newValue) -> System.out.println(file + " bam selected"));
+        mistFileProperty.addListener((observable, oldValue, newValue) -> System.out.println(file + " mist selected"));
     }
 
     private long determineNumberOfVariants() {
@@ -69,12 +74,12 @@ public class Sample {
         return numberOfVariants;
     }
 
-    public void addFilterStatus() {
-        filterstatus.add(new SimpleBooleanProperty(true));
+    public Property<File> getBamFileProperty() {
+        return bamFileProperty;
     }
 
-    public Property<Boolean> getFilterStatus(int index) {
-        return filterstatus.get(index);
+    public Property<File> getMistFileProperty() {
+        return mistFileProperty;
     }
 
     public enum Level {
@@ -99,7 +104,6 @@ public class Sample {
                 return OS.getString("homozygous");
             }
         }
-
     }
 
 }

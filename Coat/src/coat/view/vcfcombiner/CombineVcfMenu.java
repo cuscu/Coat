@@ -5,6 +5,8 @@ import coat.model.tool.ToolMenu;
 import coat.utils.OS;
 
 /**
+ * Menu entry of the Combine Vcf tool.
+ *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class CombineVcfMenu implements ToolMenu {
@@ -20,6 +22,6 @@ public class CombineVcfMenu implements ToolMenu {
 
     @Override
     public Tool getTool() {
-        return new CombineVCF();
+        return new CombineVcf();
     }
 }

@@ -60,16 +60,6 @@ public class VcfCombiner extends Task<Integer> {
         this.output = output;
     }
 
-    /**
-     * TODO: not yet implemented. One list of files.
-     * @param samples
-     * @param output
-     */
-    public VcfCombiner(List<Sample> samples, File output) {
-        this.samples = samples;
-        this.output = output;
-    }
-
     @Override
     protected Integer call() throws Exception {
         combine(include, exclude, output);
