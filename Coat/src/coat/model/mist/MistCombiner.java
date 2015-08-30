@@ -52,9 +52,10 @@ public class MistCombiner extends Task<Integer> {
 
     @Override
     protected Integer call() throws Exception {
+        updateMessage(String.format("Combining %d files", inputFiles.size()));
         final Map<String, String[]> exons = combine();
         saveToFile(exons);
-        String message = OS.getStringFormatted("combine.mist.success", output.getAbsolutePath(), exons.size());
+        final String message = OS.getStringFormatted("combine.mist.success", output.getAbsolutePath(), exons.size());
         CoatView.printMessage(message, "success");
         updateMessage(message);
         return exons.size();
@@ -66,7 +67,6 @@ public class MistCombiner extends Task<Integer> {
      * @return a map: the key is the exon id, the value is the line split by tabulator (\t).
      */
     private Map<String, String[]> combine() {
-        updateMessage(String.format("Combining %d files", inputFiles.size()));
         final Map<String, String[]> exons = readExons(inputFiles.get(0));
         final List<Set<String>> fileExonIds = readExonIds(inputFiles.subList(1, inputFiles.size()));
         fileExonIds.forEach(file -> exons.keySet().retainAll(file));

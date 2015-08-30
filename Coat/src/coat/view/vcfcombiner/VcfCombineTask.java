@@ -1,7 +1,7 @@
 package coat.view.vcfcombiner;
 
 import coat.model.vcfreader.Variant;
-import coat.view.vcfreader.Sample;
+import coat.view.vcfreader.VcfSample;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  */
 public class VcfCombineTask extends Task<List<Variant>> {
 
-    private ObservableList<Sample> samples;
+    private ObservableList<VcfSample> vcfSamples;
     private int size;
     private AtomicInteger count = new AtomicInteger();
     List<VariantStream> streams;
@@ -27,15 +27,15 @@ public class VcfCombineTask extends Task<List<Variant>> {
     /**
      * Creates a new VcfCombinerTask with the given list of samples.
      *
-     * @param samples must not be null. Empty list is valid, although useless.
+     * @param vcfSamples must not be null. Empty list is valid, although useless.
      */
-    public VcfCombineTask(ObservableList<Sample> samples) {
-        this.samples = samples;
+    public VcfCombineTask(ObservableList<VcfSample> vcfSamples) {
+        this.vcfSamples = vcfSamples;
     }
 
     @Override
     protected List<Variant> call() throws Exception {
-        streams = samples.stream().filter(sample -> sample.getEnabledProperty().getValue()).map(VariantStream::new).collect(Collectors.toList());
+        streams = vcfSamples.stream().filter(sample -> sample.enabledProperty().getValue()).map(VariantStream::new).collect(Collectors.toList());
         final VariantStream reference = getReferenceStream();
         if (reference == null) return Collections.emptyList();
         size = reference.getVariants().size();
@@ -49,7 +49,7 @@ public class VcfCombineTask extends Task<List<Variant>> {
 
     private VariantStream getReferenceStream() {
         try {
-            return streams.stream().filter(stream -> !stream.getSample().getLevel().equals(Sample.Level.UNAFFECTED)).findFirst().get();
+            return streams.stream().filter(stream -> !stream.getVcfSample().getLevel().equals(VcfSample.Level.UNAFFECTED)).findFirst().get();
         } catch (NoSuchElementException ex) {
             return null;
         }

@@ -2,20 +2,20 @@ package coat.view.vcfcombiner;
 
 import coat.utils.FileManager;
 import coat.utils.OS;
-import coat.view.vcfreader.Sample;
+import coat.view.vcfreader.VcfSample;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
 
 import java.io.File;
 
 /**
- * Manages the Mist file TableCell in SampleTableView.
+ * Manages the Mist file TableCell in VcfSampleTableView.
  * <p>
  * TODO: This class was tried to merge with BamTableCell, but code <code>startEdit();commitEdit(file);</code> throws NullPointerException
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class MistTableCell extends TableCell<Sample, File> {
+public class MistTableCell extends TableCell<VcfSample, File> {
 
     final Button button = new Button("...");
 
@@ -25,7 +25,7 @@ public class MistTableCell extends TableCell<Sample, File> {
 
     private void selectFile() {
         final File file = FileManager.openFile(OS.getString("choose.file"), FileManager.MIST_FILTER);
-        if (file != null) ((Sample) getTableRow().getItem()).getMistFileProperty().setValue(file);
+        if (file != null) ((VcfSample) getTableRow().getItem()).mistFileProperty().setValue(file);
     }
 
     @Override

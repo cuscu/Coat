@@ -7,7 +7,7 @@ import coat.model.vcfreader.VcfSaver;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.SizableImage;
-import coat.view.vcfreader.Sample;
+import coat.view.vcfreader.VcfSample;
 import coat.view.vcfreader.VariantsTable;
 import javafx.application.Platform;
 import javafx.beans.property.Property;
@@ -37,7 +37,7 @@ public class CombineVcf extends Tool {
 
     private final static FileChooser.ExtensionFilter[] filters = {FileManager.VCF_FILTER};
 
-    private final SampleTableView sampleTableView = new SampleTableView();
+    private final VcfSampleTableView vcfSampleTableView = new VcfSampleTableView();
 
     private VariantsTable variantsTable = new VariantsTable();
 
@@ -65,7 +65,7 @@ public class CombineVcf extends Tool {
     }
 
     private void configureRoot() {
-        getChildren().addAll(topButtonsBox, sampleTableView, variantsTable, progressPane);
+        getChildren().addAll(topButtonsBox, vcfSampleTableView, variantsTable, progressPane);
         setPadding(new Insets(10));
         setSpacing(5);
         HBox.setHgrow(progressBar, Priority.ALWAYS);
@@ -82,9 +82,9 @@ public class CombineVcf extends Tool {
     }
 
     private void configureSampleTable() {
-        VBox.setVgrow(sampleTableView, Priority.ALWAYS);
+        VBox.setVgrow(vcfSampleTableView, Priority.ALWAYS);
 
-        sampleTableView.getSelectionModel().selectedItemProperty().addListener((obs, prev, current) ->
+        vcfSampleTableView.getSelectionModel().selectedItemProperty().addListener((obs, prev, current) ->
                 delete.setDisable(current == null));
         delete.setDisable(true);
     }
@@ -100,12 +100,19 @@ public class CombineVcf extends Tool {
     }
 
     private void addFiles() {
-        List<File> f = FileManager.openFiles(OS.getString("select.files"), filters);
-        if (f != null) f.forEach(file -> sampleTableView.getItems().addAll(new Sample(file)));
+        final List<File> f = FileManager.openFiles(OS.getString("select.files"), filters);
+        if (f != null) f.stream()
+                .filter(this::isInSampleTable)
+                .map(VcfSample::new)
+                .forEach(vcfSampleTableView.getItems()::add);
+    }
+
+    private boolean isInSampleTable(File file) {
+        return !vcfSampleTableView.getItems().stream().anyMatch(sample -> sample.getFile().equals(file));
     }
 
     private void deleteFile() {
-        sampleTableView.getItems().remove(sampleTableView.getSelectionModel().getSelectedItem());
+        vcfSampleTableView.getItems().remove(vcfSampleTableView.getSelectionModel().getSelectedItem());
     }
 
     @Override
@@ -117,7 +124,7 @@ public class CombineVcf extends Tool {
     public void saveAs() {
         final File file = FileManager.saveFile("Select ouptut file", FileManager.VCF_FILTER);
         if (file != null) {
-            final Sample referenceSample = getReferenceSample(sampleTableView.getItems());
+            final VcfSample referenceSample = getReferenceSample(vcfSampleTableView.getItems());
             if (referenceSample != null) {
                 VcfSaver saver = new VcfSaver(new VcfFile(referenceSample.getFile()), file, resultVariants);
                 saver.invoke();
@@ -130,7 +137,7 @@ public class CombineVcf extends Tool {
      */
     private void combine() {
         if (combiner != null) combiner.cancel(true);
-        combiner = new VcfCombineTask(sampleTableView.getItems());
+        combiner = new VcfCombineTask(vcfSampleTableView.getItems());
         combiner.setOnSucceeded(event -> combinerSucceeded());
         progressBar.progressProperty().bind(combiner.progressProperty());
         Platform.runLater(this::prepareGUI);
@@ -157,9 +164,9 @@ public class CombineVcf extends Tool {
         combine.setDisable(false);
     }
 
-    private Sample getReferenceSample(ObservableList<Sample> samples) {
+    private VcfSample getReferenceSample(ObservableList<VcfSample> vcfSamples) {
         try {
-            return samples.stream().filter(sample -> !sample.getLevel().equals(Sample.Level.UNAFFECTED)).findFirst().get();
+            return vcfSamples.stream().filter(sample -> !sample.getLevel().equals(VcfSample.Level.UNAFFECTED)).findFirst().get();
         } catch (NoSuchElementException ex) {
             return null;
         }

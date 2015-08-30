@@ -16,24 +16,30 @@ import java.io.IOException;
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class Sample {
+public class VcfSample {
 
     private final File file;
     private final Property<Boolean> enabledProperty = new SimpleBooleanProperty(true);
     private final Property<Level> levelProperty = new SimpleObjectProperty<>(Level.AFFECTED);
+    private final long numberOfVariants;
     private Property<File> bamFileProperty = new SimpleObjectProperty<>();
     private Property<File> mistFileProperty = new SimpleObjectProperty<>();
-    private final long numberOfVariants;
 
-    public Sample(File file) {
+    public VcfSample(File file) {
         this.file = file;
-        final File bam = new File(file.getAbsolutePath().replace(".vcf", ".bam"));
-        if (bam.exists()) bamFileProperty.setValue(bam);
+        autodetectBamFile(file);
+        autodetectMistFile(file);
+        numberOfVariants = determineNumberOfVariants();
+    }
+
+    private void autodetectMistFile(File file) {
         final File mist = new File(file.getAbsolutePath().replace(".vcf", ".mist"));
         if (mist.exists()) mistFileProperty.setValue(mist);
-        numberOfVariants = determineNumberOfVariants();
-        bamFileProperty.addListener((observable, oldValue, newValue) -> System.out.println(file + " bam selected"));
-        mistFileProperty.addListener((observable, oldValue, newValue) -> System.out.println(file + " mist selected"));
+    }
+
+    private void autodetectBamFile(File file) {
+        final File bam = new File(file.getAbsolutePath().replace(".vcf", ".bam"));
+        if (bam.exists()) bamFileProperty.setValue(bam);
     }
 
     private long determineNumberOfVariants() {
@@ -62,24 +68,24 @@ public class Sample {
         levelProperty.setValue(level);
     }
 
-    public Property<Level> getLevelProperty() {
+    public Property<Level> levelProperty() {
         return levelProperty;
     }
 
-    public Property<Boolean> getEnabledProperty() {
+    public Property<Boolean> enabledProperty() {
         return enabledProperty;
+    }
+
+    public Property<File> bamFileProperty() {
+        return bamFileProperty;
+    }
+
+    public Property<File> mistFileProperty() {
+        return mistFileProperty;
     }
 
     public long getNumberOfVariants() {
         return numberOfVariants;
-    }
-
-    public Property<File> getBamFileProperty() {
-        return bamFileProperty;
-    }
-
-    public Property<File> getMistFileProperty() {
-        return mistFileProperty;
     }
 
     public enum Level {

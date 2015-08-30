@@ -1,6 +1,6 @@
 package coat.model.vcfcombiner;
 
-import coat.view.vcfreader.Sample;
+import coat.view.vcfreader.VcfSample;
 import javafx.concurrent.Task;
 
 import java.io.*;
@@ -45,7 +45,7 @@ public class VcfCombiner extends Task<Integer> {
     // Vector para guardar las líneas coincidentes respecto a cromosoma (CHROM) y posición (POS)
     // de todos los ficheros de entrada (include y exclude):
     private static String[] matches;
-    private List<Sample> samples;
+    private List<VcfSample> vcfSamples;
     private  File[] include;
     private  File[] exclude;
     private  File output;

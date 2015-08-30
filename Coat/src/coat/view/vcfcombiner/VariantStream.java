@@ -1,7 +1,7 @@
 package coat.view.vcfcombiner;
 
 import coat.model.vcfreader.Variant;
-import coat.view.vcfreader.Sample;
+import coat.view.vcfreader.VcfSample;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -15,14 +15,14 @@ import java.util.stream.Collectors;
  */
 public class VariantStream {
 
-    private final Sample sample;
+    private final VcfSample vcfSample;
     private BufferedReader reader;
     private Variant variant;
 
-    public VariantStream(Sample sample) {
-        this.sample = sample;
+    public VariantStream(VcfSample vcfSample) {
+        this.vcfSample = vcfSample;
         try {
-            reader = new BufferedReader(new FileReader(sample.getFile()));
+            reader = new BufferedReader(new FileReader(vcfSample.getFile()));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -43,12 +43,12 @@ public class VariantStream {
         }
     }
 
-    public Sample getSample() {
-        return sample;
+    public VcfSample getVcfSample() {
+        return vcfSample;
     }
 
     public List<Variant> getVariants() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(sample.getFile()))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(vcfSample.getFile()))) {
             return reader.lines().filter(line -> !line.startsWith("#")).map(Variant::new).collect(Collectors.toList());
         } catch (IOException e) {
             e.printStackTrace();
@@ -68,15 +68,15 @@ public class VariantStream {
             else break;
         }
         // The variant is not present
-        return sample.getLevel() == Sample.Level.UNAFFECTED;
+        return vcfSample.getLevel() == VcfSample.Level.UNAFFECTED;
     }
 
     private boolean checkZygotic(Variant variant) {
-        if (sample.getLevel() == Sample.Level.UNAFFECTED) return false;
-        if (sample.getLevel() == Sample.Level.AFFECTED) return true;
+        if (vcfSample.getLevel() == VcfSample.Level.UNAFFECTED) return false;
+        if (vcfSample.getLevel() == VcfSample.Level.AFFECTED) return true;
         final String AF = (String) variant.getInfos().get("AF");
-        if (AF.equals("0.500")) return sample.getLevel() == Sample.Level.HETEROZYGOUS;
-        else return sample.getLevel() == Sample.Level.HOMOZYGOUS;
+        if (AF.equals("0.500")) return vcfSample.getLevel() == VcfSample.Level.HETEROZYGOUS;
+        else return vcfSample.getLevel() == VcfSample.Level.HOMOZYGOUS;
     }
 
 

@@ -1,7 +1,7 @@
 package coat.view.vcfcombiner;
 
 import coat.view.graphic.SizableImage;
-import coat.view.vcfreader.Sample;
+import coat.view.vcfreader.VcfSample;
 import javafx.scene.control.ListCell;
 
 /**
@@ -10,10 +10,10 @@ import javafx.scene.control.ListCell;
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class LevelCell extends ListCell<Sample.Level> {
+public class LevelCell extends ListCell<VcfSample.Level> {
 
     @Override
-    protected void updateItem(Sample.Level item, boolean empty) {
+    protected void updateItem(VcfSample.Level item, boolean empty) {
         super.updateItem(item, empty);
         if (!empty) {
             setText(item.toString());
