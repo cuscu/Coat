@@ -1,5 +1,6 @@
 package coat.view.vcfcombiner;
 
+import coat.model.vcfcombiner.VcfCombineTask;
 import coat.model.tool.Tool;
 import coat.model.vcfreader.Variant;
 import coat.model.vcfreader.VcfFile;

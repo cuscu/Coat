@@ -1,6 +1,7 @@
-package coat.view.vcfcombiner;
+package coat.model.vcfcombiner;
 
 import coat.model.vcfreader.Variant;
+import coat.view.vcfcombiner.VariantStream;
 import coat.view.vcfreader.VcfSample;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;

@@ -1,4 +1,4 @@
-package coat.view.vcfcombiner;
+package coat.model.vcfcombiner;
 
 import coat.model.vcfreader.Variant;
 import coat.view.vcfreader.VcfSample;
