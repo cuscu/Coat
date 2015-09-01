@@ -43,6 +43,7 @@ public class VcfSample {
         if (bam.exists()) bamFileProperty.setValue(bam);
     }
 
+
     private long determineNumberOfVariants() {
         try (BufferedReader reader = new BufferedReader(new FileReader(vcfFile))) {
             return reader.lines().filter(line -> !line.startsWith("#")).count();
