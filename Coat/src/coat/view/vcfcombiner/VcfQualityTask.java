@@ -7,7 +7,10 @@ import javafx.concurrent.Task;
 import java.util.List;
 
 /**
+ * This task will score each variant with metadata generated from the bam and mist files related with the samples
+ * genetic information.
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
+ * @author Jacob
  */
 public class VcfQualityTask extends Task<List<Variant>> {
 
