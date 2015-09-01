@@ -25,7 +25,6 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 /**
- *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class Coat extends Application {
@@ -34,15 +33,15 @@ public class Coat extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-//        System.out.println(System.getProperty("user.dir"));
-        Parent root = FXMLLoader.load(getClass().getResource("CoatView.fxml"), OS.getResources());
 
-        Scene scene = new Scene(root);
+        final Parent root = FXMLLoader.load(getClass().getResource("CoatView.fxml"), OS.getResources());
+        final Scene scene = new Scene(root);
+
         stage.getIcons().add(new Image("coat/img/lfs.png"));
-
         stage.setTitle("COAT");
         stage.setScene(scene);
         stage.show();
+
         Coat.stage = stage;
     }
 

@@ -22,7 +22,7 @@ public class VariantStream {
     public VariantStream(VcfSample vcfSample) {
         this.vcfSample = vcfSample;
         try {
-            reader = new BufferedReader(new FileReader(vcfSample.getFile()));
+            reader = new BufferedReader(new FileReader(vcfSample.getVcfFile()));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -48,7 +48,7 @@ public class VariantStream {
     }
 
     public List<Variant> getVariants() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(vcfSample.getFile()))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(vcfSample.getVcfFile()))) {
             return reader.lines().filter(line -> !line.startsWith("#")).map(Variant::new).collect(Collectors.toList());
         } catch (IOException e) {
             e.printStackTrace();

@@ -22,6 +22,6 @@ public class CombineVcfMenu implements ToolMenu {
 
     @Override
     public Tool getTool() {
-        return new CombineVcf();
+        return new CombineVcfTool();
     }
 }

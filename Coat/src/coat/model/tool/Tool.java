@@ -8,7 +8,7 @@ import javafx.scene.layout.VBox;
  */
 public abstract class Tool extends VBox {
 
-    public abstract Property<String> getTitleProperty();
+    public abstract Property<String> titleProperty();
 
     /**
      * Implement this method if you want that something happens when user clicks on File->Save as...

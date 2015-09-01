@@ -269,7 +269,7 @@ public class PoirotView extends Tool {
     }
 
     @Override
-    public Property<String> getTitleProperty() {
+    public Property<String> titleProperty() {
         return title;
     }
 

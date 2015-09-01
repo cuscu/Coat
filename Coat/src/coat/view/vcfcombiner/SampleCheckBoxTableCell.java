@@ -15,7 +15,7 @@ public class SampleCheckBoxTableCell extends CheckBoxTableCell<VcfSample, Boolea
         super.updateItem(item, empty);
         if (!empty) {
             final VcfSample vcfSample = (VcfSample) getTableRow().getItem();
-            if (vcfSample != null) setText(vcfSample.getFile().getName());
+            if (vcfSample != null) setText(vcfSample.getVcfFile().getName());
         } else setText(null);
     }
 }

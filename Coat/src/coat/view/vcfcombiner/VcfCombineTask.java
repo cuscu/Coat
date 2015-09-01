@@ -35,11 +35,17 @@ public class VcfCombineTask extends Task<List<Variant>> {
 
     @Override
     protected List<Variant> call() throws Exception {
-        streams = vcfSamples.stream().filter(sample -> sample.enabledProperty().getValue()).map(VariantStream::new).collect(Collectors.toList());
+        createStreams();
         final VariantStream reference = getReferenceStream();
         if (reference == null) return Collections.emptyList();
         size = reference.getVariants().size();
         return reference.getVariants().stream().filter(this::filter).collect(Collectors.toList());
+    }
+
+    private void createStreams() {
+        streams = vcfSamples.stream()
+                .filter(sample -> sample.enabledProperty().getValue())
+                .map(VariantStream::new).collect(Collectors.toList());
     }
 
     private boolean filter(Variant variant) {

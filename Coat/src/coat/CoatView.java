@@ -151,10 +151,10 @@ public class CoatView {
     }
 
     private void toolSelected(Tab current) {
-        if (selectedTool != null) selectedTool.getTitleProperty().removeListener(toolListener);
+        if (selectedTool != null) selectedTool.titleProperty().removeListener(toolListener);
         selectedTool = (Tool) current.getContent();
-        selectedTool.getTitleProperty().addListener(toolListener);
-        Coat.setTitle(selectedTool.getTitleProperty().getValue());
+        selectedTool.titleProperty().addListener(toolListener);
+        Coat.setTitle(selectedTool.titleProperty().getValue());
         try {
             selectedTool.getClass().getDeclaredMethod("saveAs").getDeclaringClass();
             saveFileMenu.setDisable(false);
@@ -167,7 +167,7 @@ public class CoatView {
         final Tool tool = toolMenu.getTool();
         final Tab tab = new Tab();
         tab.setContent(tool);
-        tab.textProperty().bind(tool.getTitleProperty());
+        tab.textProperty().bind(tool.titleProperty());
         workspace.getTabs().add(tab);
         workspace.getSelectionModel().select(tab);
     }

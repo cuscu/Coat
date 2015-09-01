@@ -7,8 +7,8 @@ import coat.model.vcfreader.VcfSaver;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.SizableImage;
-import coat.view.vcfreader.VcfSample;
 import coat.view.vcfreader.VariantsTable;
+import coat.view.vcfreader.VcfSample;
 import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
@@ -33,13 +33,13 @@ import java.util.NoSuchElementException;
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class CombineVcf extends Tool {
+public class CombineVcfTool extends Tool {
 
     private final static FileChooser.ExtensionFilter[] filters = {FileManager.VCF_FILTER};
 
     private final VcfSampleTableView vcfSampleTableView = new VcfSampleTableView();
 
-    private VariantsTable variantsTable = new VariantsTable();
+    private final VariantsTable variantsTable = new VariantsTable();
 
     private final Button addFiles = new Button(OS.getString("add.files"), new SizableImage("coat/img/add.png", SizableImage.SMALL_SIZE));
     private final Button combine = new Button(OS.getString("combine"), new SizableImage("coat/img/combine.png", SizableImage.SMALL_SIZE));
@@ -52,12 +52,12 @@ public class CombineVcf extends Tool {
     private final ProgressBar progressBar = new ProgressBar();
     private final HBox progressPane = new HBox(5, message, progressBar);
 
-    private Property<String> title = new SimpleStringProperty(OS.getString("combine.vcf"));
+    private final Property<String> title = new SimpleStringProperty(OS.getString("combine.vcf"));
 
     private final ObservableList<Variant> resultVariants = FXCollections.observableArrayList();
     private Task<List<Variant>> combiner;
 
-    public CombineVcf() {
+    public CombineVcfTool() {
         configureRoot();
         configureButtonsPane();
         configureSampleTable();
@@ -81,18 +81,17 @@ public class CombineVcf extends Tool {
         delete.setOnAction(event -> deleteFile());
     }
 
-    private void configureSampleTable() {
-        VBox.setVgrow(vcfSampleTableView, Priority.ALWAYS);
-
-        vcfSampleTableView.getSelectionModel().selectedItemProperty().addListener((obs, prev, current) ->
-                delete.setDisable(current == null));
-        delete.setDisable(true);
-    }
-
     private void setTopButton(Button button) {
         button.setMaxWidth(9999);
         HBox.setHgrow(button, Priority.ALWAYS);
         button.setPadding(new Insets(10));
+    }
+
+    private void configureSampleTable() {
+        VBox.setVgrow(vcfSampleTableView, Priority.ALWAYS);
+        vcfSampleTableView.getSelectionModel().selectedItemProperty().addListener((obs, prev, current) ->
+                delete.setDisable(current == null));
+        delete.setDisable(true);
     }
 
     private void configureVariantsTable() {
@@ -102,22 +101,17 @@ public class CombineVcf extends Tool {
     private void addFiles() {
         final List<File> f = FileManager.openFiles(OS.getString("select.files"), filters);
         if (f != null) f.stream()
-                .filter(this::isInSampleTable)
+                .filter(this::notInSampleTable)
                 .map(VcfSample::new)
                 .forEach(vcfSampleTableView.getItems()::add);
     }
 
-    private boolean isInSampleTable(File file) {
-        return !vcfSampleTableView.getItems().stream().anyMatch(sample -> sample.getFile().equals(file));
+    private boolean notInSampleTable(File file) {
+        return vcfSampleTableView.getItems().stream().noneMatch(vcfSample -> vcfSample.getVcfFile().equals(file));
     }
 
     private void deleteFile() {
         vcfSampleTableView.getItems().remove(vcfSampleTableView.getSelectionModel().getSelectedItem());
-    }
-
-    @Override
-    public Property<String> getTitleProperty() {
-        return title;
     }
 
     @Override
@@ -126,42 +120,59 @@ public class CombineVcf extends Tool {
         if (file != null) {
             final VcfSample referenceSample = getReferenceSample(vcfSampleTableView.getItems());
             if (referenceSample != null) {
-                VcfSaver saver = new VcfSaver(new VcfFile(referenceSample.getFile()), file, resultVariants);
+                VcfSaver saver = new VcfSaver(new VcfFile(referenceSample.getVcfFile()), file, resultVariants);
                 saver.invoke();
             }
         }
+    }
+
+    @Override
+    public Property<String> titleProperty() {
+        return title;
     }
 
     /**
      * Stops current combining thread and starts a new process
      */
     private void combine() {
+        stopCombiner();
+        prepareGUI();
+        startCombiner();
+    }
+
+    private void stopCombiner() {
         if (combiner != null) combiner.cancel(true);
+    }
+
+    private void prepareGUI() {
+        Platform.runLater(() -> {
+            message.setText(OS.getString("combining") + "...");
+            save.setDisable(true);
+            combine.setDisable(true);
+            progressBar.setVisible(true);
+        });
+    }
+
+    private void startCombiner() {
         combiner = new VcfCombineTask(vcfSampleTableView.getItems());
         combiner.setOnSucceeded(event -> combinerSucceeded());
         progressBar.progressProperty().bind(combiner.progressProperty());
-        Platform.runLater(this::prepareGUI);
-        progressBar.setVisible(true);
         new Thread(combiner).start();
     }
 
     private void combinerSucceeded() {
-        Platform.runLater(this::restoreGUI);
+        restoreGUI();
         resultVariants.setAll(combiner.getValue());
-        progressBar.progressProperty().unbind();
-        progressBar.setVisible(false);
-    }
-
-    private void prepareGUI() {
-        message.setText(OS.getString("combining") + "...");
-        save.setDisable(true);
-        combine.setDisable(true);
     }
 
     private void restoreGUI() {
-        message.setText(OS.getStringFormatted("commom.variants", resultVariants.size()));
-        save.setDisable(false);
-        combine.setDisable(false);
+        Platform.runLater(() -> {
+            message.setText(OS.getStringFormatted("commom.variants", resultVariants.size()));
+            save.setDisable(false);
+            combine.setDisable(false);
+            progressBar.progressProperty().unbind();
+            progressBar.setVisible(false);
+        });
     }
 
     private VcfSample getReferenceSample(ObservableList<VcfSample> vcfSamples) {

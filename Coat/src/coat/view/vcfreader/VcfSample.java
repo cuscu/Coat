@@ -18,17 +18,18 @@ import java.io.IOException;
  */
 public class VcfSample {
 
-    private final File file;
+    private final File vcfFile;
+
     private final Property<Boolean> enabledProperty = new SimpleBooleanProperty(true);
     private final Property<Level> levelProperty = new SimpleObjectProperty<>(Level.AFFECTED);
     private final long numberOfVariants;
     private Property<File> bamFileProperty = new SimpleObjectProperty<>();
     private Property<File> mistFileProperty = new SimpleObjectProperty<>();
 
-    public VcfSample(File file) {
-        this.file = file;
-        autodetectBamFile(file);
-        autodetectMistFile(file);
+    public VcfSample(File vcfFile) {
+        this.vcfFile = vcfFile;
+        autodetectBamFile(vcfFile);
+        autodetectMistFile(vcfFile);
         numberOfVariants = determineNumberOfVariants();
     }
 
@@ -43,7 +44,7 @@ public class VcfSample {
     }
 
     private long determineNumberOfVariants() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(vcfFile))) {
             return reader.lines().filter(line -> !line.startsWith("#")).count();
         } catch (IOException e) {
             e.printStackTrace();
@@ -53,11 +54,11 @@ public class VcfSample {
 
     @Override
     public String toString() {
-        return file.getAbsolutePath();
+        return vcfFile.getAbsolutePath();
     }
 
-    public File getFile() {
-        return file;
+    public File getVcfFile() {
+        return vcfFile;
     }
 
     public Level getLevel() {
@@ -86,6 +87,22 @@ public class VcfSample {
 
     public long getNumberOfVariants() {
         return numberOfVariants;
+    }
+
+    public File getBamFile() {
+        return bamFileProperty.getValue();
+    }
+
+    public File getMistFile() {
+        return mistFileProperty.getValue();
+    }
+
+    public void setBamFile(File file) {
+        bamFileProperty.setValue(file);
+    }
+
+    public void setMistFile(File file) {
+        mistFileProperty.setValue(file);
     }
 
     public enum Level {
