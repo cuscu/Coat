@@ -134,9 +134,9 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
     private void expand(Pearl pearl) {
         connectToOmimDisorders(pearl);
         connectToHPRDExpressions(pearl);
-        addRelationships(BioGridDatabase.getRelationships(pearl.getGeneSymbol()));
-        addRelationships(MenthaDatabase.getRelationships(pearl.getGeneSymbol()));
-        addRelationships(HPRDDatabase.getRelationships(pearl.getGeneSymbol()));
+        addRelationships(BioGridDatabase.getRelationships(pearl.getName()));
+        addRelationships(MenthaDatabase.getRelationships(pearl.getName()));
+        addRelationships(HPRDDatabase.getRelationships(pearl.getName()));
         pearl.setLeaf(false);
         if (genesCount.incrementAndGet() % 100 == 0)
             updateMessage(String.format("Round %d of %d, %d/%d genes processed", round.get(), 2, genesCount.get(), numberOfLeafGenes));
@@ -148,12 +148,12 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
      * @param pearl the gene pearl
      */
     private void connectToOmimDisorders(Pearl pearl) {
-        Repository.getDataset(Repository.DatasetName.OMIM).getInstances(pearl.getGeneSymbol(), 0).stream()
+        Repository.getDataset(Repository.DatasetName.OMIM).getInstances(pearl.getName(), 0).stream()
                 .map(instance -> (String) instance.getField(3))
                 .filter(disorders -> !disorders.equals("."))
                 .flatMap(disorders -> Arrays.stream(disorders.split(";")))
                 .forEach(disorder -> linkGeneToOmimDisorder(pearl, disorder));
-//        OmimDatabase.getEntries(pearl.getGeneSymbol()).stream()
+//        OmimDatabase.getEntries(pearl.getName()).stream()
 //                .map(omimEntry -> omimEntry.getField(3))
 //                .filter(disorders -> !disorders.equals("."))
 //                .flatMap(disorders -> Arrays.stream(disorders.split(";")))
@@ -188,7 +188,7 @@ public class PoirotAnalysis extends Task<PearlDatabase> {
      * @param pearl the gene pearl
      */
     private void connectToHPRDExpressions(Pearl pearl) {
-        HPRDExpressionDatabase.getEntries(pearl.getGeneSymbol()).forEach(hprdEntry -> linkGeneToHPRDExpression(pearl, hprdEntry));
+        HPRDExpressionDatabase.getEntries(pearl.getName()).forEach(hprdEntry -> linkGeneToHPRDExpression(pearl, hprdEntry));
     }
 
     /**

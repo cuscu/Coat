@@ -6,30 +6,33 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Single unit of the PearlDatabase. Each Pearl is characterized by its name and type. A Pearl can contain any number of
+ * relationships with any other Pearl.
+ *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class Pearl {
+
     private boolean leaf = true;
     private String type;
-    private String geneSymbol;
+    private String name;
     private int distanceToPhenotype = -1;
     private Map<String, Object> properties = new HashMap<>();
 
     private Map<Pearl, List<PearlRelationship>> relationships = new HashMap<>();
     private Double score;
 
-    public Pearl(String geneSymbol, String type) {
-        this.geneSymbol = geneSymbol;
+    public Pearl(String name, String type) {
+        this.name = name;
         this.type = type;
-        this.geneSymbol = geneSymbol;
     }
 
     public boolean isLeaf() {
         return leaf;
     }
 
-    public String getGeneSymbol() {
-        return geneSymbol;
+    public String getName() {
+        return name;
     }
 
     public String getType() {
@@ -42,7 +45,7 @@ public class Pearl {
 
     @Override
     public String toString() {
-        return String.format("[%s] %d, %s", type, distanceToPhenotype, geneSymbol);
+        return String.format("[%s] %d, %s", type, distanceToPhenotype, name);
     }
 
     public int getDistanceToPhenotype() {

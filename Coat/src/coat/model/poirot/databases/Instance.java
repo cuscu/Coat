@@ -5,7 +5,6 @@ package coat.model.poirot.databases;
  */
 public class Instance {
 
-
     private final Dataset dataset;
     private final Object[] fields;
 

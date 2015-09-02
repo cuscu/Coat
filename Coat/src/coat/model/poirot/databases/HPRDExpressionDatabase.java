@@ -57,7 +57,7 @@ public class HPRDExpressionDatabase {
         final String[] row = line.split("\t");
         final String standardSymbol = HGNCDatabase.getStandardSymbol(row[0]);
         if (standardSymbol != null) row[0] = standardSymbol;
-        return new DatabaseEntry(row, headers);
+        return new DatabaseEntry(headers, row);
     }
 
     /**

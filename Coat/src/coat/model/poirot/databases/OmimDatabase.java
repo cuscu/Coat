@@ -43,6 +43,7 @@ public class OmimDatabase {
         if (index != null) CoatView.printMessage("Omim database successfully loaded", "info");
     }
 
+
     private static Map<String, List<DatabaseEntry>> readFile() {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(OmimDatabase.class.getResourceAsStream("omim-normalized.tsv.gz"))))) {
             return reader.lines()
@@ -58,7 +59,7 @@ public class OmimDatabase {
         final String[] row = line.split("\t");
         String standardSymbol = HGNCDatabase.getStandardSymbol(row[0]);
         if (standardSymbol != null) row[0] = standardSymbol;
-        return new DatabaseEntry(row, headers);
+        return new DatabaseEntry(headers, row);
     }
 
     /**

@@ -146,7 +146,7 @@ public class PoirotView extends Tool {
         pearlTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         distanceColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getDistanceToPhenotype()));
         scoreColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(String.format("%.2f", param.getValue().getScore())));
-        nameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getGeneSymbol()));
+        nameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getName()));
         indexColumn.setCellFactory(param -> new IndexCell());
     }
 
@@ -184,7 +184,7 @@ public class PoirotView extends Tool {
     }
 
     private void showGeneDescription(Pearl pearl) {
-        final String symbol = pearl.getGeneSymbol();
+        final String symbol = pearl.getName();
         String description = HGNCDatabase.getName(symbol);
         if (description == null) {
             final List<DatabaseEntry> entries = OmimDatabase.getEntries(symbol);
@@ -192,7 +192,7 @@ public class PoirotView extends Tool {
         }
         infoBox.getChildren().add(new Label(symbol + "(" + description + ")"));
         if (pearl.getType().equals("gene")) {
-            final String url = "http://v4.genecards.org/cgi-bin/carddisp.pl?gene=" + pearl.getGeneSymbol();
+            final String url = "http://v4.genecards.org/cgi-bin/carddisp.pl?gene=" + pearl.getName();
             final Hyperlink hyperlink = new Hyperlink("GeneCards");
             hyperlink.setOnAction(event -> new Thread(() -> {
                 try {
@@ -252,7 +252,7 @@ public class PoirotView extends Tool {
             pearlTableView.getItems().setAll(candidates);
             Collections.sort(pearlTableView.getItems(), (p1, p2) -> {
                 final int compare = Double.compare(p2.getScore(), p1.getScore());
-                return (compare != 0) ? compare : p1.getGeneSymbol().compareTo(p2.getGeneSymbol());
+                return (compare != 0) ? compare : p1.getName().compareTo(p2.getName());
             });
         }
     }

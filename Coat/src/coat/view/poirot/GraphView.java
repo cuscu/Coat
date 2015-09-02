@@ -533,13 +533,13 @@ public class GraphView extends Canvas {
             name = simplifyName(graphNode);
         } else {
             screen.setFill(Color.WHITE);
-            name = graphNode.getPearl().getGeneSymbol();
+            name = graphNode.getPearl().getName();
         }
         screen.fillText(name, graphNode.getPosition().getX(), graphNode.getPosition().getY());
     }
 
     private String simplifyName(GraphNode graphNode) {
-        String name = graphNode.getPearl().getGeneSymbol();
+        String name = graphNode.getPearl().getName();
         String[] words = name.split(" ");
         return words[0].replaceAll("\\p{Punct}", "");
     }

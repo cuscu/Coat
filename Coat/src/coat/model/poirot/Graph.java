@@ -4,20 +4,16 @@ import coat.view.poirot.GraphNode;
 import coat.view.poirot.GraphRelationship;
 import coat.view.poirot.NodePairKey;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
- * Represents the Graphic Graph. Contains a list of GraphNodes and a Map of GraphRelationships that can be accessed via
- * NodePairKey, since relationships are not directed. The Graph can be updated with the method
+ * Represents the Graphical Graph. Contains a list of GraphNodes and a Map of GraphRelationships that can be accessed
+ * via NodePairKey, since relationships are not directed. The Graph can be updated with the method
  * <code>setOriginNodes()</code>.
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class Graph {
-
 
     private final List<GraphNode> nodes = new ArrayList<>();
     private final Map<NodePairKey, GraphRelationship> relationships = new HashMap<>();
@@ -31,32 +27,42 @@ public class Graph {
         return relationships;
     }
 
+    /**
+     * Updates the graph by settings its origin genes, id est, the genes shown in the list of affected genes, but they
+     * can be any Pearl. Graph will create a subgraph by using the PearlRelationships of the Pearls.
+     *
+     * @param originNodes the initial list of genes
+     */
     public void setOriginNodes(List<Pearl> originNodes) {
-        nodes.clear();
-        relationships.clear();
-        originNodes.forEach(gene -> {
-            final List<List<PearlRelationship>> paths = ShortestPath.getShortestPaths(gene);
-            addToGraph(paths);
-        });
+        clearGraph();
+        createGraph(originNodes);
     }
 
-    private void addToGraph(List<List<PearlRelationship>> paths) {
-        paths.forEach(path -> path.forEach(relationship -> {
-            final GraphNode target = addOrGetNode(relationship.getTarget());
-            final GraphNode source = addOrGetNode(relationship.getSource());
-            addRelationship(source, target, relationship);
-        }));
+    private void clearGraph() {
+        nodes.clear();
+        relationships.clear();
+    }
+
+    private void createGraph(List<Pearl> originNodes) {
+        originNodes.stream()
+                .map(ShortestPath::getShortestPaths)
+                .flatMap(Collection::stream) // List<List<PearlRelationship>>
+                .flatMap(Collection::stream) // List<PearlRelationship>
+                .forEach(relationship -> { // PearlRelationship
+                    final GraphNode target = addOrGetNode(relationship.getTarget());
+                    final GraphNode source = addOrGetNode(relationship.getSource());
+                    addRelationship(source, target, relationship);
+                });
     }
 
     private GraphNode addOrGetNode(Pearl node) {
-        GraphNode graphNode = getGraphNode(node);
-        if (graphNode == null) graphNode = createGraphNode(node);
-        return graphNode;
+        final GraphNode graphNode = getGraphNode(node);
+        return graphNode == null ? createGraphNode(node) : graphNode;
     }
 
     private GraphNode getGraphNode(Pearl node) {
-        for (GraphNode graphNode : nodes) if (graphNode.getPearl().equals(node)) return graphNode;
-        return null;
+        final Optional<GraphNode> first = nodes.stream().filter(graphNode -> graphNode.getPearl().equals(node)).findFirst();
+        return first.isPresent() ? first.get() : null;
     }
 
     private GraphNode createGraphNode(Pearl node) {

@@ -7,6 +7,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * Given a PearlDatabase
+ *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class GraphScore extends Task<Integer> {
@@ -123,7 +125,7 @@ public class GraphScore extends Task<Integer> {
         final AtomicInteger count = new AtomicInteger();
         pearlDatabase.getPearls("gene").parallelStream().forEach((pearl) -> {
             if (count.incrementAndGet() % 100 == 0)
-                updateMessage(String.format("Scoring gene %d/%d", count.get(), pearlDatabase.pearls("gene")));
+                updateMessage(String.format("Scoring gene %d/%d", count.get(), pearlDatabase.numberOfPearls("gene")));
             setScore(pearl);
         });
         return 0;
@@ -152,25 +154,17 @@ public class GraphScore extends Task<Integer> {
 
     private double getVariantScore(Pearl pearl) {
         final List<Variant> variants = (List<Variant>) pearl.getProperties().get("variants");
-        return variants != null ? consequenceScore(variants) : 0.0;
+        return variants == null ? 0.0 : consequenceScore(variants);
     }
 
     private double consequenceScore(List<Variant> variants) {
-        try {
-            final List<String> consequences = getConsequences(variants);
-            return consequences.stream().map(cons -> CONSEQUENCE_SCORE.getOrDefault(cons, 0.0)).max(Double::compare).get();
-        } catch (NoSuchElementException ex) {
-            return 0.0;
-        }
-    }
-
-    private List<String> getConsequences(List<Variant> variants) {
-        final List<String> consequences = new ArrayList<>();
-        for (Variant variant : variants) {
-            final String cons = (String) variant.getInfos().get("CONS");
-            if (cons != null) Collections.addAll(consequences, cons.split(", "));
-        }
-        return consequences;
+        final OptionalDouble score = variants.stream()
+                .map(variant -> (String) variant.getInfos().get("CONS"))
+                .filter(cons -> cons != null)
+                .flatMap(cons -> Arrays.stream(cons.split(", ")))
+                .mapToDouble(consequence -> CONSEQUENCE_SCORE.getOrDefault(consequence, 0.0))
+                .max();
+        return score.isPresent() ? score.getAsDouble() : 0.0;
     }
 
     private double getPathScore(Pearl pearl) {
@@ -179,12 +173,14 @@ public class GraphScore extends Task<Integer> {
     }
 
     private double computePathScore(List<PearlRelationship> path) {
-        double score = 0.0;
-        for (PearlRelationship relationship : path) {
-            String type = (String) relationship.getProperties().get("type");
-            if (type == null) type = (String) relationship.getProperties().get("method");
-            if (type != null) score += RELATIONSHIP_SCORE.getOrDefault(type, 0.0);
-        }
-        return score;
+        return path.stream()
+                .map(this::getRelationshipType)
+                .mapToDouble(type -> RELATIONSHIP_SCORE.getOrDefault(type, 0.0))
+                .sum();
+    }
+
+    private String getRelationshipType(PearlRelationship relationship) {
+        final String type = (String) relationship.getProperties().get("type");
+        return type != null ? type : (String) relationship.getProperties().get("method");
     }
 }
