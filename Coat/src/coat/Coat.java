@@ -24,7 +24,6 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
