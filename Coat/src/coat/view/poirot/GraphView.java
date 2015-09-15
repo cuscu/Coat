@@ -4,6 +4,7 @@ import coat.Coat;
 import coat.model.poirot.Graph;
 import coat.model.poirot.GraphScore;
 import coat.model.poirot.Pearl;
+import coat.model.poirot.PearlRelationship;
 import coat.model.vcfreader.Variant;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
@@ -187,7 +188,7 @@ public class GraphView extends Canvas {
      * @param event the mouse event
      */
     private void zoom(ScrollEvent event) {
-        double scale = event.getDeltaY() > 0 ? 1.25 : 0.8;
+        final double scale = event.getDeltaY() > 0 ? 1.25 : 0.8;
         radiusProperty.setValue(radiusProperty.get() * scale);
         final Vector mouse = new Vector(event.getX(), event.getY());
         synchronized (graph.getNodes()) {
@@ -206,9 +207,17 @@ public class GraphView extends Canvas {
      */
     private void mouseMoving(MouseEvent event) {
         final Vector mousePosition = new Vector(event.getX(), event.getY());
+        setMouseOverNodes(mousePosition);
+        setMouseOverRelationships(mousePosition);
+    }
+
+    private void setMouseOverNodes(Vector mousePosition) {
         synchronized (graph.getNodes()) {
             graph.getNodes().forEach(node -> node.setMouseOver(node.getPosition().distance(mousePosition) < radiusProperty.get()));
         }
+    }
+
+    private void setMouseOverRelationships(Vector mousePosition) {
         synchronized (graph.getRelationships()) {
             graph.getRelationships().forEach((nodePairKey, graphRelationship) -> graphRelationship.setMouseOver(graphRelationship.getPosition().distance(mousePosition) < RELATIONSHIP_RADIUS));
         }
@@ -281,16 +290,24 @@ public class GraphView extends Canvas {
     }
 
     private void avoidCollisions(GraphNode graphNode) {
-        final double security = diameter + 0.5 * nodeDistance;
-        graph.getNodes().stream().filter(node -> !node.equals(graphNode)).forEach(node -> {
-            final double dist = node.distance(graphNode);
-            if (dist < security) {
-                moveRandomly(graphNode);
-                final Vector vector = new Vector(graphNode.getPosition(), node.getPosition());
-                vector.scale((security - dist) / dist);
-                node.push(vector);
-            }
-        });
+        final double minDistance = diameter + 0.5 * nodeDistance;
+        graph.getNodes().stream()
+                .filter(node -> !node.equals(graphNode))
+                .forEach(node -> avoidCollisionWith(graphNode, minDistance, node));
+    }
+
+    private void avoidCollisionWith(GraphNode graphNode, double minDistance, GraphNode node) {
+        final double dist = node.distance(graphNode);
+        if (dist < minDistance) {
+            moveRandomly(graphNode);
+            separate(graphNode, minDistance, node, dist);
+        }
+    }
+
+    private void separate(GraphNode graphNode, double minDistance, GraphNode node, double dist) {
+        final Vector vector = new Vector(graphNode.getPosition(), node.getPosition());
+        vector.scale((minDistance - dist) / dist);
+        node.push(vector);
     }
 
     /**
@@ -386,14 +403,16 @@ public class GraphView extends Canvas {
 
     private Color getRelationshipColor(GraphRelationship graphRelationship) {
         final double score = graphRelationship.getRelationships().stream().
-                map(relationship -> {
-                    String type = (String) relationship.getProperties().get("type");
-                    if (type == null) type = (String) relationship.getProperties().get("method");
-                    return GraphScore.RELATIONSHIP_SCORE.getOrDefault(type, 0.0);
-                }).max(Double::compare).get();
+                mapToDouble(this::getRelationshipScore).max().getAsDouble();
         Color baseColor = Color.BLACK.interpolate(Color.DODGERBLUE, score * 0.2);
         if (graphRelationship.isMouseOver()) baseColor = baseColor.interpolate(Color.WHITE, 0.5);
         return baseColor;
+    }
+
+    private Double getRelationshipScore(PearlRelationship relationship) {
+        String type = (String) relationship.getProperties().get("type");
+        if (type == null) type = (String) relationship.getProperties().get("method");
+        return GraphScore.RELATIONSHIP_SCORE.getOrDefault(type, 0.0);
     }
 
     /**

@@ -17,7 +17,7 @@ public class HierarchyDistribution {
     private static double effectiveHeight;
     private static double maxWeight;
 
-    public static void distribute(Graph graph, double margin, double effectiveWidth, double effectiveHeight, double maxWeight) {
+    public static synchronized void distribute(Graph graph, double margin, double effectiveWidth, double effectiveHeight, double maxWeight) {
         HierarchyDistribution.graph = graph;
         HierarchyDistribution.margin = margin;
         HierarchyDistribution.effectiveWidth = effectiveWidth;
@@ -27,8 +27,8 @@ public class HierarchyDistribution {
     }
 
     private static void hierarchyDistribution() {
-        final List<GraphNode> rootNodes = graph.getNodes().stream().
-                filter(graphNode -> graphNode.getPearl().getDistanceToPhenotype() == 0).collect(Collectors.toList());
+        final List<GraphNode> rootNodes = graph.getNodes().stream()
+                .filter(graphNode -> graphNode.getPearl().getDistanceToPhenotype() == 0).collect(Collectors.toList());
         final double y = margin;
         final double nodeWidth = effectiveWidth / rootNodes.size();
         for (int i = 0; i < rootNodes.size(); i++) {
@@ -62,6 +62,7 @@ public class HierarchyDistribution {
     }
 
     private static List<GraphNode> extractNodeChildren(List<GraphNode> subNodes, GraphNode parentNode) {
-        return subNodes.stream().filter(graphNode -> graph.getRelationships().containsKey(new NodePairKey(parentNode, graphNode))).collect(Collectors.toList());
+        return subNodes.stream()
+                .filter(graphNode -> graph.getRelationships().containsKey(new NodePairKey(parentNode, graphNode))).collect(Collectors.toList());
     }
 }

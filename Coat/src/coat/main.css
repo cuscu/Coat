@@ -244,3 +244,17 @@
 .text-column {
     -fx-alignment: CENTER-LEFT;
 }
+
+.fancy-text-field {
+    -fx-background-color: white;
+    -fx-border-color: black;
+    -fx-border-width: 0 0 2 0;
+}
+
+.fancy-text-field:hover {
+    -fx-background-color: aliceblue;
+}
+
+.fancy-text-field:focused {
+    -fx-border-color: dodgerblue;
+}

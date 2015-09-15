@@ -19,8 +19,11 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
@@ -47,9 +50,9 @@ public class PoirotView extends Tool {
     private final Button start = new Button(OS.getResources().getString("start"), new SizableImage("coat/img/start.png", SizableImage.SMALL_SIZE));
     private final Label message = new Label();
     private final TextField file = new TextField();
-    private final Button browse = new Button("Select file");
+    private final Button browse = new Button();
 
-    private final VBox inputPane = new VBox(5, file, browse, phenotypeList, start, message);
+    private final VBox inputPane = new VBox(5, new HBox(file, browse), phenotypeList, start, message);
 
     private final GraphView graphView = new GraphView();
 
@@ -66,15 +69,21 @@ public class PoirotView extends Tool {
 
     private final Button reload = new Button("Reload graph");
     private final ToggleButton repeat = new ToggleButton("Show panel");
+    private final HBox buttons = new HBox(5, repeat, reload);
 
-    private final VBox listPane = new VBox(5, pearlTableView, reload, repeat);
+    private final VBox listPane = new VBox(5, pearlTableView, buttons);
 
     private List<String> genes = new ArrayList<>();
     private Property<String> title = new SimpleStringProperty("Poirot");
 
 
     public PoirotView() {
-        file.setText("/home/unidad03/Copy/Proyectos/SQZ/sqz_20150420_VEP_f001_DP9_protcoding.vcf");
+        file.getStyleClass().add("fancy-text-field");
+        file.setTooltip(new Tooltip("Input VCF file"));
+        file.setPromptText("Input VCF file");
+        HBox.setHgrow(file, Priority.ALWAYS);
+        browse.setGraphic(new SizableImage("coat/img/folder.png", SizableImage.SMALL_SIZE));
+        browse.getStyleClass().add("graphic-button");
         phenotypeList.setText("schizophrenia");
         initializeThis();
         initializeInputPane();
@@ -124,13 +133,17 @@ public class PoirotView extends Tool {
     }
 
     private void initializeReloadButton() {
+        reload.setGraphic(new SizableImage("coat/img/update.png", SizableImage.SMALL_SIZE));
+        HBox.setHgrow(reload, Priority.ALWAYS);
         reload.setMaxWidth(9999);
         reload.setPadding(new Insets(10));
         reload.setOnAction(event -> reload());
     }
 
     private void initializeRepeatButton() {
+        repeat.setGraphic(new SizableImage("coat/img/form.png", SizableImage.SMALL_SIZE));
         repeat.setMaxWidth(9999);
+        HBox.setHgrow(repeat, Priority.ALWAYS);
         repeat.setPadding(new Insets(10));
         repeat.selectedProperty().addListener((observable, oldValue, selected) -> repeat.setText((selected) ? "Hide panel" : "Show panel"));
         repeat.selectedProperty().addListener((observable, oldValue, selected) -> {
@@ -144,10 +157,26 @@ public class PoirotView extends Tool {
         pearlTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         pearlTableView.getColumns().addAll(indexColumn, distanceColumn, scoreColumn, nameColumn);
         pearlTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        final MenuItem menuItem = new MenuItem("Copy");
+        final ContextMenu menu = new ContextMenu(menuItem);
+        pearlTableView.setContextMenu(menu);
+        menuItem.setOnAction(event -> copy());
         distanceColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getDistanceToPhenotype()));
         scoreColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(String.format("%.2f", param.getValue().getScore())));
         nameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getName()));
         indexColumn.setCellFactory(param -> new IndexCell());
+    }
+
+    private void copy() {
+        final StringBuilder builder = new StringBuilder();
+        pearlTableView.getSelectionModel().getSelectedItems()
+                .forEach(pearl -> builder
+                        .append(pearl.getName()).append("\t")
+                        .append(String.format("%.2f",pearl.getScore())).append("\t")
+                        .append(pearl.getDistanceToPhenotype()).append("\n"));
+        final ClipboardContent content = new ClipboardContent();
+        content.putString(builder.toString());
+        Clipboard.getSystemClipboard().setContent(content);
     }
 
     private void initializeGraphView() {

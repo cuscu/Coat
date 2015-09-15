@@ -48,11 +48,13 @@ public class Graph {
                 .map(ShortestPath::getShortestPaths)
                 .flatMap(Collection::stream) // List<List<PearlRelationship>>
                 .flatMap(Collection::stream) // List<PearlRelationship>
-                .forEach(relationship -> { // PearlRelationship
-                    final GraphNode target = addOrGetNode(relationship.getTarget());
-                    final GraphNode source = addOrGetNode(relationship.getSource());
-                    addRelationship(source, target, relationship);
-                });
+                .forEach(this::createGraphRelationship);
+    }
+
+    private void createGraphRelationship(PearlRelationship relationship) {
+        final GraphNode target = addOrGetNode(relationship.getTarget());
+        final GraphNode source = addOrGetNode(relationship.getSource());
+        addRelationship(source, target, relationship);
     }
 
     private GraphNode addOrGetNode(Pearl node) {
