@@ -17,6 +17,13 @@ public class PearlDatabase {
     private HashMap<String, HashMap<String, Pearl>> types = new HashMap<>();
 
     /**
+     * Creates a new empty PearlDatabase
+     */
+    public PearlDatabase() {
+
+    }
+
+    /**
      * Gets the number of Pearl of the given type in the PearlDatabase
      *
      * @param type type to count
@@ -114,7 +121,7 @@ public class PearlDatabase {
     /**
      * Add this Pearl to the PearlDatabase.
      *
-     * @param pearl
+     * @param pearl the pearl
      */
     public void add(Pearl pearl) {
         getTypeMap(pearl.getType()).put(pearl.getName(), pearl);

@@ -3,18 +3,35 @@ package coat.model.poirot;
 import coat.model.vcfreader.Variant;
 import javafx.concurrent.Task;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Given a PearlDatabase
+ * Given a PearlDatabase, set the score value for each gene pearl, according to the consequences of its variant, their
+ * distance to the nearest active phenotype and the type of relationships between them and the nearest phenotype.
+ * <p>
+ * The score of a single Pearl is:
+ * <p>
+ * score = max(v_i) + (1 + max(p_j) / d^2)
+ * <p>
+ * v_i = CONSEQUENCE_SCORE(variant(i).get("CONS"))
+ * <p>
+ * p_j = paths(j) = sum(r_k)
+ * <p>
+ * r_k = RELATIONSHIP_SCORE(relationships(k).type)
+ * <p>
+ * d = distance to phenotype
+ * <p>
+ * CONSEQUENCE_SCORE and RELATIONSHIP_SCORE are Maps that contain each possible value in the relationship or
+ * consequence as keys and a number from 1.0 to 5.0 as values.
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class GraphScore extends Task<Integer> {
+public class GraphEvaluator extends Task<Void> {
 
-    private PearlDatabase pearlDatabase;
-
+    private static final int MAX_DISTANCE = 20;
     public static final Map<String, Double> CONSEQUENCE_SCORE = new HashMap<>();
     public static final Map<String, Double> RELATIONSHIP_SCORE = new HashMap<>();
 
@@ -105,30 +122,54 @@ public class GraphScore extends Task<Integer> {
         RELATIONSHIP_SCORE.put("deletion or duplication", 3.0);
     }
 
-    /**
-     * Creates a new GraphScore.
-     *
-     * @param pearlDatabase pearlDatabase to score
-     */
-    public GraphScore(PearlDatabase pearlDatabase) {
-        this.pearlDatabase = pearlDatabase;
+    private final PearlDatabase database;
+    private final List<String> phenotypes;
+
+    public GraphEvaluator(PearlDatabase database, List<String> phenotypes) {
+        this.database = database;
+        this.phenotypes = phenotypes;
     }
 
-    /**
-     * Starts the scoring.
-     *
-     * @return always 0
-     * @throws Exception
-     */
     @Override
-    protected Integer call() throws Exception {
-        final AtomicInteger count = new AtomicInteger();
-        pearlDatabase.getPearls("gene").parallelStream().forEach((pearl) -> {
-            if (count.incrementAndGet() % 100 == 0)
-                updateMessage(String.format("Scoring gene %d/%d", count.get(), pearlDatabase.numberOfPearls("gene")));
-            setScore(pearl);
+    protected Void call() throws Exception {
+        try {
+            clear();
+            activatePhenotypes();
+            setDistances();
+            database.getPearls("gene").forEach(this::score);
+            System.err.println("done");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void activatePhenotypes() {
+        database.getPearls("phenotype").stream().forEach(pearl -> pearl.setActive(phenotypes.contains(pearl.getName())));
+    }
+
+    private void setDistances() {
+        database.getPearls("phenotype")
+                .stream()
+                .filter(Pearl::isActive)
+                .forEach(pearl -> expand(pearl, 0));
+    }
+
+    private static void expand(Pearl pearl, int distance) {
+        pearl.setDistanceToPhenotype(distance);
+        if (distance >  MAX_DISTANCE) return;
+        pearl.getRelationships().keySet().stream()
+                .filter(neighbour -> neighbour.getType().equals("gene"))
+                .filter(neighbour -> neighbour.getDistanceToPhenotype() == -1 || neighbour.getDistanceToPhenotype() > distance + 1)
+                .forEach(neighbour -> expand(neighbour, distance + 1));
+    }
+
+    private void clear() {
+        database.getPearls("gene").parallelStream().forEach(pearl -> {
+            pearl.setScore(0.0);
+            pearl.setDistanceToPhenotype(-1);
         });
-        return 0;
+        database.getPearls("phenotype").forEach(pearl -> pearl.setDistanceToPhenotype(0));
     }
 
     /**
@@ -144,9 +185,9 @@ public class GraphScore extends Task<Integer> {
      * <p>
      * d = distance to phenotype
      *
-     * @param pearl
+     * @param pearl the pearl to score
      */
-    private void setScore(Pearl pearl) {
+    private void score(Pearl pearl) {
         final double variantScore = getVariantScore(pearl);
         final double pathScore = getPathScore(pearl);
         pearl.setScore((variantScore + (pathScore) / (pearl.getDistanceToPhenotype() * pearl.getDistanceToPhenotype())));
@@ -158,18 +199,18 @@ public class GraphScore extends Task<Integer> {
     }
 
     private double consequenceScore(List<Variant> variants) {
-        final OptionalDouble score = variants.stream()
+        return variants.stream()
                 .map(variant -> (String) variant.getInfos().get("CONS"))
                 .filter(cons -> cons != null)
                 .flatMap(cons -> Arrays.stream(cons.split(", ")))
                 .mapToDouble(consequence -> CONSEQUENCE_SCORE.getOrDefault(consequence, 0.0))
-                .max();
-        return score.isPresent() ? score.getAsDouble() : 0.0;
+                .max().orElse(0.0);
     }
 
     private double getPathScore(Pearl pearl) {
-        final List<List<PearlRelationship>> paths = ShortestPath.getShortestPaths(pearl);
-        return paths.stream().map(this::computePathScore).max(Double::compare).get();
+        return ShortestPath.getPaths(pearl).stream()
+                .map(this::computePathScore)
+                .max(Double::compare).orElse(0.0);
     }
 
     private double computePathScore(List<PearlRelationship> path) {
@@ -183,4 +224,5 @@ public class GraphScore extends Task<Integer> {
         final String type = (String) relationship.getProperties().get("type");
         return type != null ? type : (String) relationship.getProperties().get("method");
     }
+
 }

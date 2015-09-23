@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class FilterCell extends ListCell<VcfFilter> {
+class FilterCell extends ListCell<VcfFilter> {
 
     private final static int SPACING = 2;
 
@@ -201,11 +201,11 @@ public class FilterCell extends ListCell<VcfFilter> {
     }
 
     private boolean filterIsValid() {
-        if (currentFilter == null) return false;
-        if (currentFilter.getConnector() == null) return false;
-        if (currentFilter.getField() == null) return false;
-        if (currentFilter.getField() == VcfFilter.Field.INFO && (currentFilter.getSelectedInfo() == null)) return false;
-        return true;
+        return currentFilter != null
+                && currentFilter.getConnector() != null
+                && currentFilter.getField() != null
+                && !(currentFilter.getField() == VcfFilter.Field.INFO
+                && (currentFilter.getSelectedInfo() == null));
     }
 
     private void setPassiveInfoText() {

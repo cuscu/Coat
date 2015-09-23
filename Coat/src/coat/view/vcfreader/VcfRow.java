@@ -6,7 +6,7 @@ import javafx.scene.control.TableRow;
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class VcfRow extends TableRow<Variant> {
+class VcfRow extends TableRow<Variant> {
 
     @Override
     protected void updateItem(Variant item, boolean empty) {

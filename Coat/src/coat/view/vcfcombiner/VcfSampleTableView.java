@@ -12,7 +12,7 @@ import java.util.Arrays;
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class VcfSampleTableView extends TableView<VcfSample> {
+class VcfSampleTableView extends TableView<VcfSample> {
 
     VcfSampleTableView(){
         final TableColumn<VcfSample, VcfSample.Level> levelColumn = new TableColumn<>(OS.getString("level"));

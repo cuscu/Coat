@@ -5,7 +5,7 @@ import javafx.scene.control.ListCell;
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class PearlListCell extends ListCell<Pearl> {
+class PearlListCell extends ListCell<Pearl> {
 
     @Override
     protected void updateItem(Pearl pearl, boolean empty) {

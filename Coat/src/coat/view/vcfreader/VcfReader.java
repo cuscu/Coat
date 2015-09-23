@@ -125,7 +125,7 @@ public class VcfReader extends VBox implements Reader {
         return viewheaders;
     }
 
-    public void viewHeaders() {
+    private void viewHeaders() {
         TextArea area = new TextArea();
         vcfFile.getUnformattedHeaders().forEach(header -> area.appendText(header + "\n"));
         area.setEditable(false);
@@ -148,7 +148,7 @@ public class VcfReader extends VBox implements Reader {
         return lfs;
     }
 
-    public void addLFS() {
+    private void addLFS() {
         injectLFSHeader();
         vcfFile.getVariants().parallelStream().forEach(LFS::addLFS);
         CoatView.printMessage("LFS tag added", "success");

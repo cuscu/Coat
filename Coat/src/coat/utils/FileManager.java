@@ -63,7 +63,7 @@ public final class FileManager {
      * The last successful path. Id est, the last path where the user did not canceled the file
      * selection.
      */
-    static File lastPath;
+    private static File lastPath;
     /**
      * The user home path. In Linux it use to be /home/username
      */

@@ -19,7 +19,7 @@ import java.util.logging.Logger;
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class Web {
+class Web {
 
     public static String httpRequest(URL url, Map<String, String> properties, JSONObject message) {
 //        System.out.println(url);

@@ -70,18 +70,17 @@ public class OS {
      * Converts an Array to String using the separator. Omits the last separator. [value1 value2
      * value3] to value1,value2,value3
      *
-     * @param separator something like "\t" or ","
      * @param values    a list of values
      * @return the stringified list
      */
-    public static String asString(String separator, String... values) {
+    public static String asString(String... values) {
         if (values.length == 0) {
             return "";
         }
         String s = values[0];
         int i = 1;
         while (i < values.length) {
-            s += separator + values[i++];
+            s += "\t" + values[i++];
         }
         return s;
     }

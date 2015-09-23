@@ -38,14 +38,14 @@ public class Graph {
         createGraph(originNodes);
     }
 
-    private void clearGraph() {
+    public void clearGraph() {
         nodes.clear();
         relationships.clear();
     }
 
     private void createGraph(List<Pearl> originNodes) {
         originNodes.stream()
-                .map(ShortestPath::getShortestPaths)
+                .map(ShortestPath::getPaths)
                 .flatMap(Collection::stream) // List<List<PearlRelationship>>
                 .flatMap(Collection::stream) // List<PearlRelationship>
                 .forEach(this::createGraphRelationship);
@@ -87,5 +87,4 @@ public class Graph {
         }
         return graphRelationship;
     }
-
 }

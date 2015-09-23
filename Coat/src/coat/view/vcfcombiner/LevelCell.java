@@ -10,7 +10,7 @@ import javafx.scene.control.ListCell;
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class LevelCell extends ListCell<VcfSample.Level> {
+class LevelCell extends ListCell<VcfSample.Level> {
 
     @Override
     protected void updateItem(VcfSample.Level item, boolean empty) {

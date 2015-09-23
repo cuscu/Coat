@@ -148,7 +148,7 @@ public class TsvFileReader extends VBox implements Reader {
             }
             Label size = (Label) box.getChildren().get(1);
             size.setText(uniques[i].size() + "");
-//            table.getColumns().get(i + 1).setText(headers[i] + "\n" + uniques[i].size());
+//            table.getColumns().get(i + 1).setText(columnNames[i] + "\n" + uniques[i].size());
         }
     }
 
@@ -170,14 +170,14 @@ public class TsvFileReader extends VBox implements Reader {
     }
 
     /**
-     * Exports headers and table.getItems to the given file.
+     * Exports columnNames and table.getItems to the given file.
      *
      * @param output the output file
      */
     private void exportTo(File output) {
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(output)))) {
-            writer.println(OS.asString("\t", headers));
-            table.getItems().forEach(line -> writer.println(OS.asString("\t", line)));
+            writer.println(OS.asString(headers));
+            table.getItems().forEach(line -> writer.println(OS.asString(line)));
         } catch (IOException ex) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
         }

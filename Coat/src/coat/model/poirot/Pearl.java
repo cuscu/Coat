@@ -18,9 +18,10 @@ public class Pearl {
     private String name;
     private int distanceToPhenotype = -1;
     private Map<String, Object> properties = new HashMap<>();
+    private Double score;
 
     private Map<Pearl, List<PearlRelationship>> relationships = new HashMap<>();
-    private Double score;
+    private boolean active;
 
     public Pearl(String name, String type) {
         this.name = name;
@@ -76,11 +77,8 @@ public class Pearl {
     }
 
     public void addRelationship(Pearl pearl, PearlRelationship relationship) {
-        List<PearlRelationship> rs = this.relationships.get(pearl);
-        if (rs == null) {
-            rs = new ArrayList<>();
-            relationships.put(pearl, rs);
-        }
+        relationships.putIfAbsent(pearl, new ArrayList<>());
+        final List<PearlRelationship> rs = this.relationships.get(pearl);
         if (!rs.contains(relationship)) rs.add(relationship);
     }
 
@@ -90,5 +88,13 @@ public class Pearl {
 
     public double getScore() {
         return score;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public boolean isActive() {
+        return active;
     }
 }

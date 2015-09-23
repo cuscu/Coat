@@ -1,8 +1,6 @@
 package coat.model.poirot.databases;
 
-import coat.CoatView;
 import coat.model.poirot.StringRelationship;
-import javafx.application.Platform;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -44,9 +42,9 @@ public class BioGridDatabase {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(BioGridDatabase.class.getResourceAsStream("biogrid.csv.gz"))))) {
             reader.readLine(); // Skip header
             reader.lines().forEach(BioGridDatabase::createRelationship);
-            Platform.runLater(() -> CoatView.printMessage("BioGrid database successfully loaded", "info"));
+//            CoatView.printMessage("BioGrid database successfully loaded", "info");
         } catch (IOException e) {
-            Platform.runLater(() -> CoatView.printMessage("error loading BioGrid", "error"));
+//            CoatView.printMessage("error loading BioGrid", "error");
             e.printStackTrace();
         }
     }

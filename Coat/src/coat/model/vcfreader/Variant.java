@@ -189,7 +189,7 @@ public class Variant implements Comparable<Variant> {
     public String toString() {
         String formats = "";
         if (format != null)
-            formats = "\t" + format + OS.asString("\t", samples);
+            formats = "\t" + format + OS.asString(samples);
         String inf = "";
         for (Map.Entry<String, Object> entry : infos.entrySet()) {
             String key = entry.getKey();

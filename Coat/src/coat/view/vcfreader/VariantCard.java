@@ -9,7 +9,7 @@ import javafx.scene.layout.VBox;
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class VariantCard extends TableCell<Variant, Variant> {
+class VariantCard extends TableCell<Variant, Variant> {
 
     private final TextField ref = new TextField();
     private final TextField alt = new TextField();

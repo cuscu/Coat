@@ -13,14 +13,12 @@ import coat.view.graphic.SizableImage;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -34,8 +32,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,13 +42,15 @@ import java.util.stream.Collectors;
 public class PoirotView extends Tool {
 
     private final HBox content = new HBox();
-    private final TextArea phenotypeList = new TextArea();
+    //    private final TextArea phenotypeList = new TextArea();
+    private final PhenotypeSelector phenotypeSelector = new PhenotypeSelector();
+
     private final Button start = new Button(OS.getResources().getString("start"), new SizableImage("coat/img/start.png", SizableImage.SMALL_SIZE));
     private final Label message = new Label();
     private final TextField file = new TextField();
-    private final Button browse = new Button();
+    private final Button browse = new Button(null, new SizableImage("coat/img/folder.png", SizableImage.SMALL_SIZE));
 
-    private final VBox inputPane = new VBox(5, new HBox(file, browse), phenotypeList, start, message);
+    private final VBox inputPane = new VBox(5, new HBox(file, browse), phenotypeSelector, start, message);
 
     private final GraphView graphView = new GraphView();
 
@@ -73,8 +71,8 @@ public class PoirotView extends Tool {
 
     private final VBox listPane = new VBox(5, pearlTableView, buttons);
 
-    private List<String> genes = new ArrayList<>();
     private Property<String> title = new SimpleStringProperty("Poirot");
+    private PearlDatabase database;
 
 
     public PoirotView() {
@@ -82,9 +80,8 @@ public class PoirotView extends Tool {
         file.setTooltip(new Tooltip("Input VCF file"));
         file.setPromptText("Input VCF file");
         HBox.setHgrow(file, Priority.ALWAYS);
-        browse.setGraphic(new SizableImage("coat/img/folder.png", SizableImage.SMALL_SIZE));
         browse.getStyleClass().add("graphic-button");
-        phenotypeList.setText("schizophrenia");
+//        phenotypeList.setText("schizophrenia");
         initializeThis();
         initializeInputPane();
         initializeListPane();
@@ -101,7 +98,6 @@ public class PoirotView extends Tool {
     }
 
     private void initializeInputPane() {
-        initializePhenotypeList();
         initializeStartButton();
         initializeFileInput();
     }
@@ -111,19 +107,30 @@ public class PoirotView extends Tool {
         browse.setMaxWidth(9999);
         browse.setOnAction(event -> {
             final File file = FileManager.openFile(this.file, "Select file", FileManager.VCF_FILTER);
-            if (file != null) title.setValue("Poirot (" + file.getName() + ")");
+            if (file != null) {
+                title.setValue("Poirot (" + file.getName() + ")");
+                loadGraph(file);
+            }
         });
+    }
+
+    private void loadGraph(File file) {
+        final VcfFile vcfFile = new VcfFile(file);
+        final PoirotGraphAnalysis analysis = new PoirotGraphAnalysis(vcfFile.getVariants());
+        analysis.setOnSucceeded(event -> fileLoaded(analysis));
+        new Thread(analysis).start();
+    }
+
+    private void fileLoaded(PoirotGraphAnalysis analysis) {
+        database = analysis.getValue();
+        final List<String> list = database.getPearls("phenotype").stream().map(Pearl::getName).collect(Collectors.toList());
+        phenotypeSelector.setPhenotypes(list);
     }
 
     private void initializeListPane() {
         initializeReloadButton();
         initializeRepeatButton();
         initializePearlListView();
-    }
-
-    private void initializePhenotypeList() {
-        phenotypeList.setPromptText("Phenotypes: one per line");
-        VBox.setVgrow(phenotypeList, Priority.ALWAYS);
     }
 
     private void initializeStartButton() {
@@ -172,7 +179,7 @@ public class PoirotView extends Tool {
         pearlTableView.getSelectionModel().getSelectedItems()
                 .forEach(pearl -> builder
                         .append(pearl.getName()).append("\t")
-                        .append(String.format("%.2f",pearl.getScore())).append("\t")
+                        .append(String.format("%.2f", pearl.getScore())).append("\t")
                         .append(pearl.getDistanceToPhenotype()).append("\n"));
         final ClipboardContent content = new ClipboardContent();
         content.putString(builder.toString());
@@ -248,17 +255,12 @@ public class PoirotView extends Tool {
     }
 
     private void start() {
-        final List<String> phenotypes = Arrays.asList(phenotypeList.getText().split("\n"));
-        if (!file.getText().isEmpty()) {
-            final VcfFile vcfFile = new VcfFile(new File(file.getText()));
-            genes.clear();
-            vcfFile.getVariants().stream().map(variant -> (String) variant.getInfos().get("GNAME")).filter(name -> name != null).distinct().forEach(genes::add);
-            final Task<PearlDatabase> task = new PoirotAnalysis(vcfFile.getVariants(), phenotypes);
-            message.textProperty().bind(task.messageProperty());
-            start.setDisable(true);
-            new Thread(task).start();
-            task.setOnSucceeded(event -> end(task.getValue()));
-        }
+        final List<String> phenotypes = phenotypeSelector.getSelectedPhenotypes();
+        final GraphEvaluator graphEvaluator = new GraphEvaluator(database, phenotypes);
+        pearlTableView.getItems().clear();
+        graphView.clear();
+        graphEvaluator.setOnSucceeded(event -> end(database));
+        new Thread(graphEvaluator).start();
     }
 
     private void end(PearlDatabase database) {
@@ -287,9 +289,10 @@ public class PoirotView extends Tool {
     }
 
     private List<Pearl> getCandidates(PearlDatabase database) {
-        return genes.stream().map(gene -> database.getPearl(gene, "gene")).
-                filter(pearl -> pearl != null).
-                collect(Collectors.toList());
+        return database.getPearls("gene").stream()
+                .filter(pearl -> pearl.getProperties().containsKey("variants"))
+                .filter(pearl -> pearl.getDistanceToPhenotype() > 0)
+                .collect(Collectors.toList());
     }
 
     private void reload() {

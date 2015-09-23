@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class HierarchyDistribution {
+class HierarchyDistribution {
 
     private static Graph graph;
     private static double margin;

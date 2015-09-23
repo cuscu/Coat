@@ -1,8 +1,5 @@
 package coat.model.poirot.databases;
 
-import coat.CoatView;
-import javafx.application.Platform;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -31,8 +28,7 @@ public class HGNCDatabase {
     static {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(HGNCDatabase.class.getResourceAsStream("hgnc-complete.tsv.gz"))))) {
             reader.readLine();
-            reader.lines().forEach(line -> {
-                final String[] row = line.split("\t");
+            reader.lines().map(line -> line.split("\t")).forEach(row -> {
                 final String standardName = row[1];
                 final String[] previousNames = row[3].split("\\|");
                 Arrays.stream(previousNames).forEach(name -> symbols.put(name, standardName));
@@ -40,7 +36,7 @@ public class HGNCDatabase {
                 Arrays.stream(synonyms).forEach(name -> symbols.put(name, standardName));
                 names.put(standardName, row[2]);
             });
-            Platform.runLater(() -> CoatView.printMessage("HGNC database successfully loaded", "info"));
+//            CoatView.printMessage("HGNC database successfully loaded", "info");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -50,10 +46,10 @@ public class HGNCDatabase {
      * Gets the HGNC standard Symbol of the given gene.
      *
      * @param symbol current symbol
-     * @return the standard symbol or null if not available
+     * @return the standard symbol or the passed symbol if not standard value available
      */
     public static String getStandardSymbol(String symbol) {
-        return symbols.get(symbol);
+        return symbols.getOrDefault(symbol, symbol);
     }
 
     /**

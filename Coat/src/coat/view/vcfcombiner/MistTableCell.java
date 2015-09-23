@@ -15,9 +15,9 @@ import java.io.File;
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class MistTableCell extends TableCell<VcfSample, File> {
+class MistTableCell extends TableCell<VcfSample, File> {
 
-    final Button button = new Button("...");
+    private final Button button = new Button("...");
 
     public MistTableCell() {
         button.setOnAction(event -> selectFile());

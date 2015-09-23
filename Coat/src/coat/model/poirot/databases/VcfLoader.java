@@ -23,7 +23,8 @@ public class VcfLoader {
         headers = new ArrayList<>();
         headers.addAll(Arrays.asList("chrom", "pos", "id", "ref", "alt", "qual", "filter"));
         headers.addAll(readInfoHeaders(file));
-        dataset = new Dataset(headers);
+        dataset = new Dataset();
+        dataset.setColumnNames(headers);
         readVariants(file);
         return dataset;
     }

@@ -29,7 +29,7 @@ import javafx.scene.control.TableCell;
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class ChromosomeCell extends TableCell<Variant, String> {
+class ChromosomeCell extends TableCell<Variant, String> {
 
     /**
      * Creates a new index cell that will have "index-cell" css class and will be aligned on the

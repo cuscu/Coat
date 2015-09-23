@@ -1,8 +1,6 @@
 package coat.model.poirot.databases;
 
-import coat.CoatView;
 import coat.model.poirot.StringRelationship;
-import javafx.application.Platform;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -97,9 +95,9 @@ public class MenthaDatabase {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(MenthaDatabase.class.getResourceAsStream("mentha.tsv.gz"))))) {
             reader.readLine();
             reader.lines().forEach(MenthaDatabase::createRelationship);
-            Platform.runLater(() -> CoatView.printMessage("Mentha database successfully loaded", "info"));
+//            CoatView.printMessage("Mentha database successfully loaded", "info");
         } catch (IOException e) {
-            Platform.runLater(() -> CoatView.printMessage("error loading Mentha", "error"));
+//            CoatView.printMessage("error loading Mentha", "error");
             e.printStackTrace();
         }
     }

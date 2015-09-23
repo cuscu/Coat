@@ -22,7 +22,7 @@ package coat.view.vcfreader;
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
-public final class Info {
+final class Info {
 
     private final String name;
     private final String value;

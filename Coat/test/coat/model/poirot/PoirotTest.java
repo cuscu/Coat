@@ -1,75 +1,56 @@
 package coat.model.poirot;
 
+import coat.model.vcfreader.VcfFile;
+import de.saxsys.javafx.test.JfxRunner;
+import javafx.application.Platform;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
+@RunWith(JfxRunner.class)
 public class PoirotTest {
 
+
+    PearlDatabase database;
+
+    @Before
+    public void start() {
+        final File file = new File("test/coat/model/poirot/agua.vcf");
+        final VcfFile vcfFile = new VcfFile(file);
+        final PoirotGraphAnalysis analysis = new PoirotGraphAnalysis(vcfFile.getVariants());
+        Platform.runLater(analysis);
+        try {
+            database = analysis.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Test
-    public void test() {
-//        final List<String> genes = ReadList.read(new File("test/genes.list"));
-//        final List<String> phenotypes = Arrays.asList("schizophrenia", "brain");
-/*
-        final List<String> genes = ReadList.read(new File("test/genes2.list"));
-        final List<String> phenotypes = Arrays.asList("hypomagnesemia");
+    public void testDatabaseLoaded() {
+        Assert.assertEquals(969, database.numberOfPearls("gene"));
+    }
 
-        final PearlDatabase database = new PearlDatabase(phenotypes);
-
-        if (genes != null) {
-            genes.forEach(geneName -> {
-                final Pearl pearl = new Pearl(geneName, "gene");
-                database.add(pearl);
-            });
-            for (int i = 0; i < 2; i++) {
-                System.out.println(i + ": " + database.size());
-                List<Pearl> unvisitedPearls = database.getLeafPearls();
-                AtomicInteger counter = new AtomicInteger(0);
-                unvisitedPearls.parallelStream().forEach(pearl -> {
-                    if (counter.incrementAndGet() % 500 == 0) {
-                        System.out.println(counter);
-                    }
-                    database.expand(pearl);
-                });
-            }
+    @Test
+    public void test2() {
+        final List<String> phenotypes = Arrays.asList("Kidney", "Brain");
+        final GraphEvaluator two = new GraphEvaluator(database, phenotypes);
+        Platform.runLater(two);
+        try {
+            two.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
         }
-        final long pearlsWithPhenotypes = database.getPearls().stream().filter(pearl -> !pearl.getPhenotypes().isEmpty()).count();
-        if (pearlsWithPhenotypes == 0) {
-            System.out.println("No evidence found");
-        } else {
-            database.getPearls().stream().filter(pearl -> !pearl.getPhenotypes().isEmpty()).forEach(pearl -> pearl.setDistanceToPhenotype(0));
-
-            List<Pearl> weighted = database.getPearls().stream().filter(pearl -> pearl.getDistanceToPhenotype() >= 0).collect(Collectors.toList());
-            int[] weight = new int[]{1};
-
-            int i = 0;
-            while (weighted.size() < database.size() && i < 4) {
-                for (Pearl pearl : weighted) {
-                    pearl.getRelationships().forEach(relatedPearl -> {
-                        if (relatedPearl.getDistanceToPhenotype() < 0) relatedPearl.setDistanceToPhenotype(weight[0]);
-                    });
-                }
-                weight[0]++;
-                i++;
-                weighted = database.getPearls().stream().filter(pearl -> pearl.getDistanceToPhenotype() >= 0).collect(Collectors.toList());
-            }
-            int total = 0;
-            for (String gene : genes) {
-                Pearl pearl = database.getPearl(gene);
-                if (pearl != null && pearl.getDistanceToPhenotype() >= 0) {
-                    total++;
-                    List<List<Pearl>> paths = database.findShortestPaths(pearl);
-                    for (List<Pearl> p : paths)
-                        System.out.println(String.format("(%d)%s->%s", p.size(), p.toString(), p.get(p.size() - 1).getPhenotypes().toString()));
-                    System.out.println();
-
-                }
-            }
-            System.out.println(String.format("%d/%d (%.2f%%)", total, genes.size(), 100.0* total / genes.size()));
-
-        }
-        */
+        Assert.assertEquals(0, database.getPearl("Brain", "phenotype").getDistanceToPhenotype());
     }
 
 }

@@ -10,7 +10,7 @@ import javafx.scene.control.TableCell;
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class LevelComboBoxCell extends TableCell<VcfSample, VcfSample.Level> {
+class LevelComboBoxCell extends TableCell<VcfSample, VcfSample.Level> {
 
     private final ComboBox<VcfSample.Level> levelComboBox = new ComboBox<>(FXCollections.observableArrayList(VcfSample.Level.values()));
     private VcfSample current;

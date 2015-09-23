@@ -40,7 +40,7 @@ public class TsvSaver {
     private void saveAsTsv(PrintWriter writer) {
         readInfoColumns();
         this.writer = writer;
-        writer.println(OS.asString("\t", header));
+        writer.println(OS.asString(header));
         variants.forEach(this::writeVariant);
     }
 
@@ -70,7 +70,7 @@ public class TsvSaver {
 
     private void writeVariant(Variant var) {
         String[] line = getTabulatedVariant(var);
-        writer.println(OS.asString("\t", line));
+        writer.println(OS.asString(line));
     }
 
     private String[] getTabulatedVariant(Variant var) {

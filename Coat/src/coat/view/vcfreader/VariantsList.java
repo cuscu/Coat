@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 /**
  * @author Lorente Arencibia, Pascual <pasculorente@gmail.com>
  */
-public class VariantsList extends VBox {
+class VariantsList extends VBox {
 
     private final ListView<Variant> listView = new ListView<>();
 

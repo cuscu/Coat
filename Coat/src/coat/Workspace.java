@@ -25,7 +25,7 @@ import java.io.File;
  *
  * @author UICHUIMI
  */
-public class Workspace {
+class Workspace {
 
     private ObservableList<File> openFiles = FXCollections.observableArrayList();
 

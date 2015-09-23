@@ -13,9 +13,9 @@ import java.io.File;
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class BamTableCell extends TableCell<VcfSample, File> {
+class BamTableCell extends TableCell<VcfSample, File> {
 
-    final Button button = new Button("...");
+    private final Button button = new Button("...");
 
     public BamTableCell() {
         button.setOnAction(event -> selectFile());

@@ -12,7 +12,7 @@ import java.util.List;
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  * @author Jacob
  */
-public class VcfQualityTask extends Task<List<Variant>> {
+class VcfQualityTask extends Task<List<Variant>> {
 
     private final List<Variant> variants;
     private final List<VcfSample> samples;

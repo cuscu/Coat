@@ -35,7 +35,7 @@ import java.util.List;
  *
  * @author Pascual Lorente Arencibia
  */
-public class TSVFilterPane extends VBox {
+class TSVFilterPane extends VBox {
 
     private final Label staticInfo = new Label();
     private final ComboBox<String> field = new ComboBox<>();

@@ -137,14 +137,14 @@ public class MistCombiner extends Task<Integer> {
     }
 
     private void writeToFile(BufferedWriter bw, String[] row) throws IOException {
-        bw.write(arrayToString(row, "\t"));
+        bw.write(arrayToString(row));
         bw.newLine();
     }
 
-    private String arrayToString(String[] array, String separator) {
+    private String arrayToString(String[] array) {
         if (array.length == 0) return "";
         String ret = array[0];
-        for (int i = 1; i < array.length; i++) ret += separator + array[i];
+        for (int i = 1; i < array.length; i++) ret += "\t" + array[i];
         return ret;
     }
 

@@ -15,7 +15,7 @@ import java.util.*;
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class StatsReader extends HBox {
+class StatsReader extends HBox {
 
     public static final int MAX_VALUES = 7;
     public static final int ITEMS_PIE_CHART = 5;

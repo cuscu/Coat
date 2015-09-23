@@ -9,7 +9,7 @@ package coat.model.mist;
  * 
  * @author Jacob Henríquez
  */
-public class MistZone {
+class MistZone {
         // Inicio intersección exón-región pobre (inicio zona MIST):
 	private int start;
         // Final intersección exón-región pobre (final zona MIST):

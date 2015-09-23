@@ -1,8 +1,6 @@
 package coat.model.poirot.databases;
 
-import coat.CoatView;
 import coat.model.poirot.StringRelationship;
-import javafx.application.Platform;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,9 +33,9 @@ public class HPRDDatabase {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(HPRDDatabase.class.getResourceAsStream("hprd-gene-interactions.tsv.gz"))))) {
             reader.readLine();
             reader.lines().forEach(HPRDDatabase::createRelationship);
-            Platform.runLater(() -> CoatView.printMessage("HPRD genes database succesfully loaded", "info"));
+//            CoatView.printMessage("HPRD genes database succesfully loaded", "info");
         } catch (IOException e) {
-            Platform.runLater(() -> CoatView.printMessage("Error loading HPRD", "error"));
+//            CoatView.printMessage("Error loading HPRD", "error");
             e.printStackTrace();
         }
     }

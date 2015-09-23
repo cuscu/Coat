@@ -200,6 +200,14 @@ public class CoatView {
         }
     }
 
+    /**
+     * Adds a message to the log. Messages will be show in the bottom line of the application, and will be also
+     * available in a history window. This method is run in the JavaFx main thread, so there is no need to encapsulate
+     * it in a <code>Platform.runLater()</code> block.
+     *
+     * @param message What you want to say
+     * @param level "info", "warning", "error" or "success", but it is possible to use any String
+     */
     public static void printMessage(String message, String level) {
         final String date = df.format(new Date());
         final String type = level.toLowerCase();

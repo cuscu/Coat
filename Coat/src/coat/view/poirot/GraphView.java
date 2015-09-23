@@ -2,7 +2,7 @@ package coat.view.poirot;
 
 import coat.Coat;
 import coat.model.poirot.Graph;
-import coat.model.poirot.GraphScore;
+import coat.model.poirot.GraphEvaluator;
 import coat.model.poirot.Pearl;
 import coat.model.poirot.PearlRelationship;
 import coat.model.vcfreader.Variant;
@@ -28,9 +28,9 @@ import java.util.*;
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class GraphView extends Canvas {
+class GraphView extends Canvas {
 
-    public static final int RELATIONSHIP_RADIUS = 10;
+    private static final int RELATIONSHIP_RADIUS = 10;
     private final GraphicsContext screen;
 
     private final Graph graph = new Graph();
@@ -156,7 +156,7 @@ public class GraphView extends Canvas {
     /**
      * If a node has been previously pressed, and the mouse is still pressed, the node must go with the mouse.
      *
-     * @param event
+     * @param event mouse event
      */
     private void mouseDragging(MouseEvent event) {
         if (movingNode != null) movingNode.getPosition().set(event.getX(), event.getY());
@@ -333,7 +333,7 @@ public class GraphView extends Canvas {
     /**
      * Limits movement to a maximum value.
      *
-     * @param node
+     * @param node node to limit
      */
     private void limitSpeed(GraphNode node) {
         if (node.getDirection().getX() > maxSpeed) node.getDirection().setX(maxSpeed);
@@ -345,7 +345,7 @@ public class GraphView extends Canvas {
     /**
      * Updates the position of the node.
      *
-     * @param node
+     * @param node node to move
      */
     private void move(GraphNode node) {
         node.getPosition().add(node.getDirection());
@@ -412,13 +412,13 @@ public class GraphView extends Canvas {
     private Double getRelationshipScore(PearlRelationship relationship) {
         String type = (String) relationship.getProperties().get("type");
         if (type == null) type = (String) relationship.getProperties().get("method");
-        return GraphScore.RELATIONSHIP_SCORE.getOrDefault(type, 0.0);
+        return GraphEvaluator.RELATIONSHIP_SCORE.getOrDefault(type, 0.0);
     }
 
     /**
      * If the relationship is selected, draws a circle around them.
      *
-     * @param graphRelationship
+     * @param graphRelationship relationship
      */
     private void drawRelationshipSelectionCircle(GraphRelationship graphRelationship) {
         if (graphRelationship.isSelected()) {
@@ -486,7 +486,7 @@ public class GraphView extends Canvas {
     /**
      * Paints the points in the nodes that indicate the consequences of the gene.
      *
-     * @param graphNode
+     * @param graphNode the node
      */
     private void drawConsequences(GraphNode graphNode) {
         final List<Variant> variants = (List<Variant>) graphNode.getPearl().getProperties().get("variants");
@@ -498,7 +498,7 @@ public class GraphView extends Canvas {
                 final double angle = 6.28318 * i / consequences.size() + 1.570795; // radians
                 final double x = graphNode.getPosition().getX() + Math.cos(angle) * (radiusProperty.get() - VARIANT_DIAMETER) - VARIANT_RADIUS;
                 final double y = graphNode.getPosition().getY() - Math.sin(angle) * (radiusProperty.get() - VARIANT_DIAMETER) - VARIANT_RADIUS;
-                final double score = GraphScore.CONSEQUENCE_SCORE.getOrDefault(consequences.get(i), 0.0);
+                final double score = GraphEvaluator.CONSEQUENCE_SCORE.getOrDefault(consequences.get(i), 0.0);
                 Color color = Color.WHITE.interpolate(Color.RED, score * 0.2);
                 screen.setFill(color);
                 screen.fillOval(x, y, VARIANT_DIAMETER, VARIANT_DIAMETER);
@@ -509,7 +509,7 @@ public class GraphView extends Canvas {
     /**
      * If the node is selected, paints a yellow circle around it.
      *
-     * @param graphNode
+     * @param graphNode the node
      */
     private void drawSelectionCircle(GraphNode graphNode) {
         if (graphNode.isSelected()) {
@@ -537,7 +537,7 @@ public class GraphView extends Canvas {
     /**
      * Gets the opacity of the selection based on System clock. This method allows the selection to glow.
      *
-     * @return
+     * @return the current opacity factor
      */
     private double getSelectionOpacity() {
         final long period = (System.currentTimeMillis() - startTime) % GLOWING_TIME;
@@ -566,5 +566,9 @@ public class GraphView extends Canvas {
     private void printGraphSize() {
         System.out.println(String.format("Nodes: %d, edges: %d", graph.getNodes().size(), graph.getRelationships().size()));
         graph.getRelationships().forEach((nodePairKey, graphRelationship) -> System.out.println(nodePairKey.getKey() + " " + graphRelationship.getRelationships().size()));
+    }
+
+    public void clear() {
+        graph.clearGraph();
     }
 }

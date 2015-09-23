@@ -23,7 +23,7 @@ public class VcfCombineTask extends Task<List<Variant>> {
     private ObservableList<VcfSample> vcfSamples;
     private int size;
     private AtomicInteger count = new AtomicInteger();
-    List<VariantStream> streams;
+    private List<VariantStream> streams;
 
     /**
      * Creates a new VcfCombinerTask with the given list of samples.

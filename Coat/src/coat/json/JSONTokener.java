@@ -32,7 +32,7 @@ import java.io.*;
  * @author JSON.org
  * @version 2014-05-03
  */
-public class JSONTokener {
+class JSONTokener {
 
     private long character;
     private boolean eof;

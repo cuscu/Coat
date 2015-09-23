@@ -26,7 +26,7 @@ import java.util.Map;
  *
  * @author UICHUIMI
  */
-public class MapGenerator {
+class MapGenerator {
 
     private final static char QUOTE = '"';
     private final static char COMMA = ',';
