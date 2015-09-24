@@ -37,7 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </MenuBar>
     </top>
     <bottom>
-        <HBox spacing="5">
+        <HBox id="bottom-pane" spacing="5">
             <HBox HBox.hgrow="ALWAYS">
                 <padding>
                     <javafx.geometry.Insets bottom="5" top="5" left="5" right="5"/>

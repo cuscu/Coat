@@ -1,34 +1,30 @@
 package coat.view.poirot;
 
-import coat.model.poirot.*;
+import coat.model.poirot.DatabaseEntry;
+import coat.model.poirot.GraphEvaluator;
+import coat.model.poirot.Pearl;
+import coat.model.poirot.PearlDatabase;
 import coat.model.poirot.databases.HGNCDatabase;
 import coat.model.poirot.databases.OmimDatabase;
 import coat.model.tool.Tool;
 import coat.model.vcfreader.Variant;
-import coat.model.vcfreader.VcfFile;
-import coat.utils.FileManager;
 import coat.utils.OS;
-import coat.view.graphic.IndexCell;
 import coat.view.graphic.SizableImage;
 import javafx.beans.property.Property;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ListChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.*;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -37,51 +33,43 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * Complete view of the poirot tool. It is made of three elements:
+ * <ol>
+ * <li>An input panel, where user selects the input file and the associated phenotypes.</li>
+ * <li>A list of affected genes, scored by relevance. User will select which genes to show in the canvas.</li>
+ * <li>A canvas, where a graph with the relationships are shown.</li>
+ * </ol>
+ *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class PoirotView extends Tool {
 
     private final HBox content = new HBox();
-    //    private final TextArea phenotypeList = new TextArea();
-    private final PhenotypeSelector phenotypeSelector = new PhenotypeSelector();
+
+    private final PoirotInputPane poirotInputPane = new PoirotInputPane();
+    private final PoirotPearlTable poirotPearlTable = new PoirotPearlTable();
+    private final GraphView graphView = new GraphView();
 
     private final Button start = new Button(OS.getResources().getString("start"), new SizableImage("coat/img/start.png", SizableImage.SMALL_SIZE));
     private final Label message = new Label();
-    private final TextField file = new TextField();
-    private final Button browse = new Button(null, new SizableImage("coat/img/folder.png", SizableImage.SMALL_SIZE));
 
-    private final VBox inputPane = new VBox(5, new HBox(file, browse), phenotypeSelector, start, message);
-
-    private final GraphView graphView = new GraphView();
-
+    private final VBox inputPane = new VBox(5, poirotInputPane, start, message);
     private final VBox graphVBox = new VBox(graphView);
     private final VBox infoBox = new VBox();
     private final StackPane stackPane = new StackPane(graphVBox, infoBox);
-
-    private final TableView<Pearl> pearlTableView = new TableView<>();
-    private final TableColumn<Pearl, String> scoreColumn = new TableColumn<>("Score");
-    private final TableColumn<Pearl, Integer> indexColumn = new TableColumn<>("*");
-    private final TableColumn<Pearl, Integer> distanceColumn = new TableColumn<>("Dist");
-    private final TableColumn<Pearl, String> nameColumn = new TableColumn<>("Name");
 
 
     private final Button reload = new Button("Reload graph");
     private final ToggleButton repeat = new ToggleButton("Show panel");
     private final HBox buttons = new HBox(5, repeat, reload);
 
-    private final VBox listPane = new VBox(5, pearlTableView, buttons);
+    private final VBox listPane = new VBox(5, poirotPearlTable, buttons);
 
     private Property<String> title = new SimpleStringProperty("Poirot");
-    private PearlDatabase database;
+//    private PearlDatabase database;
 
 
     public PoirotView() {
-        file.getStyleClass().add("fancy-text-field");
-        file.setTooltip(new Tooltip("Input VCF file"));
-        file.setPromptText("Input VCF file");
-        HBox.setHgrow(file, Priority.ALWAYS);
-        browse.getStyleClass().add("graphic-button");
-//        phenotypeList.setText("schizophrenia");
         initializeThis();
         initializeInputPane();
         initializeListPane();
@@ -91,9 +79,8 @@ public class PoirotView extends Tool {
     private void initializeThis() {
         getChildren().add(content);
         VBox.setVgrow(content, Priority.ALWAYS);
-        VBox.setVgrow(browse, Priority.ALWAYS);
         content.setSpacing(5);
-        content.setPadding(new Insets(5, 5, 0, 5));
+        content.setPadding(new Insets(5, 5, 5, 5));
         content.getChildren().addAll(inputPane);
     }
 
@@ -103,28 +90,13 @@ public class PoirotView extends Tool {
     }
 
     private void initializeFileInput() {
-        file.setEditable(false);
-        browse.setMaxWidth(9999);
-        browse.setOnAction(event -> {
-            final File file = FileManager.openFile(this.file, "Select file", FileManager.VCF_FILTER);
-            if (file != null) {
-                title.setValue("Poirot (" + file.getName() + ")");
-                loadGraph(file);
-            }
+        poirotInputPane.getInputVcf().fileProperty().addListener((observable1, oldValue1, file) -> {
+            title.setValue("Poirot (" + file.getName() + ")");
+            poirotPearlTable.getItems().clear();
+            graphView.clear();
         });
-    }
-
-    private void loadGraph(File file) {
-        final VcfFile vcfFile = new VcfFile(file);
-        final PoirotGraphAnalysis analysis = new PoirotGraphAnalysis(vcfFile.getVariants());
-        analysis.setOnSucceeded(event -> fileLoaded(analysis));
-        new Thread(analysis).start();
-    }
-
-    private void fileLoaded(PoirotGraphAnalysis analysis) {
-        database = analysis.getValue();
-        final List<String> list = database.getPearls("phenotype").stream().map(Pearl::getName).collect(Collectors.toList());
-        phenotypeSelector.setPhenotypes(list);
+        poirotInputPane.getSelectedPhenotypes().addListener((ListChangeListener<String>) c
+                -> start.setDisable(poirotInputPane.getSelectedPhenotypes().isEmpty()));
     }
 
     private void initializeListPane() {
@@ -137,53 +109,31 @@ public class PoirotView extends Tool {
         start.setOnAction(event -> start());
         start.setMaxWidth(9999);
         start.setPadding(new Insets(10));
+        start.setDisable(true);
     }
 
     private void initializeReloadButton() {
         reload.setGraphic(new SizableImage("coat/img/update.png", SizableImage.SMALL_SIZE));
-        HBox.setHgrow(reload, Priority.ALWAYS);
         reload.setMaxWidth(9999);
         reload.setPadding(new Insets(10));
         reload.setOnAction(event -> reload());
+        HBox.setHgrow(reload, Priority.ALWAYS);
     }
 
     private void initializeRepeatButton() {
         repeat.setGraphic(new SizableImage("coat/img/form.png", SizableImage.SMALL_SIZE));
         repeat.setMaxWidth(9999);
-        HBox.setHgrow(repeat, Priority.ALWAYS);
         repeat.setPadding(new Insets(10));
         repeat.selectedProperty().addListener((observable, oldValue, selected) -> repeat.setText((selected) ? "Hide panel" : "Show panel"));
         repeat.selectedProperty().addListener((observable, oldValue, selected) -> {
             if (!selected) content.getChildren().remove(inputPane);
             else if (!content.getChildren().contains(inputPane)) content.getChildren().add(0, inputPane);
         });
+        HBox.setHgrow(repeat, Priority.ALWAYS);
     }
 
     private void initializePearlListView() {
-        VBox.setVgrow(pearlTableView, Priority.ALWAYS);
-        pearlTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        pearlTableView.getColumns().addAll(indexColumn, distanceColumn, scoreColumn, nameColumn);
-        pearlTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        final MenuItem menuItem = new MenuItem("Copy");
-        final ContextMenu menu = new ContextMenu(menuItem);
-        pearlTableView.setContextMenu(menu);
-        menuItem.setOnAction(event -> copy());
-        distanceColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getDistanceToPhenotype()));
-        scoreColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(String.format("%.2f", param.getValue().getScore())));
-        nameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getName()));
-        indexColumn.setCellFactory(param -> new IndexCell());
-    }
-
-    private void copy() {
-        final StringBuilder builder = new StringBuilder();
-        pearlTableView.getSelectionModel().getSelectedItems()
-                .forEach(pearl -> builder
-                        .append(pearl.getName()).append("\t")
-                        .append(String.format("%.2f", pearl.getScore())).append("\t")
-                        .append(pearl.getDistanceToPhenotype()).append("\n"));
-        final ClipboardContent content = new ClipboardContent();
-        content.putString(builder.toString());
-        Clipboard.getSystemClipboard().setContent(content);
+        VBox.setVgrow(poirotPearlTable, Priority.ALWAYS);
     }
 
     private void initializeGraphView() {
@@ -201,9 +151,8 @@ public class PoirotView extends Tool {
 
     private void selected(GraphRelationship relationship) {
         if (relationship != null) {
-            for (PearlRelationship pearlRelationship : relationship.getRelationships()) {
-                infoBox.getChildren().add(new Label(pearlRelationship.getProperties().toString()));
-            }
+            relationship.getRelationships().forEach(pearlRelationship
+                    -> infoBox.getChildren().add(new Label(pearlRelationship.getProperties().toString())));
         } else if (graphView.getSelectedPearlProperty().getValue() == null) infoBox.getChildren().clear();
     }
 
@@ -255,11 +204,14 @@ public class PoirotView extends Tool {
     }
 
     private void start() {
-        final List<String> phenotypes = phenotypeSelector.getSelectedPhenotypes();
+        final List<String> phenotypes = poirotInputPane.getSelectedPhenotypes();
+        final PearlDatabase database = poirotInputPane.getDatabase();
         final GraphEvaluator graphEvaluator = new GraphEvaluator(database, phenotypes);
-        pearlTableView.getItems().clear();
-        graphView.clear();
         graphEvaluator.setOnSucceeded(event -> end(database));
+        poirotPearlTable.getItems().clear();
+        graphView.clear();
+        start.setDisable(true);
+        message.setText("Analyzing");
         new Thread(graphEvaluator).start();
     }
 
@@ -280,8 +232,8 @@ public class PoirotView extends Tool {
     private void createGraph(PearlDatabase database) {
         if (database != null) {
             final List<Pearl> candidates = getCandidates(database);
-            pearlTableView.getItems().setAll(candidates);
-            Collections.sort(pearlTableView.getItems(), (p1, p2) -> {
+            poirotPearlTable.getItems().setAll(candidates);
+            Collections.sort(poirotPearlTable.getItems(), (p1, p2) -> {
                 final int compare = Double.compare(p2.getScore(), p1.getScore());
                 return (compare != 0) ? compare : p1.getName().compareTo(p2.getName());
             });
@@ -297,7 +249,7 @@ public class PoirotView extends Tool {
 
     private void reload() {
         infoBox.getChildren().clear();
-        graphView.setRootGenes(pearlTableView.getSelectionModel().getSelectedItems());
+        graphView.setRootGenes(poirotPearlTable.getSelectionModel().getSelectedItems());
     }
 
     @Override

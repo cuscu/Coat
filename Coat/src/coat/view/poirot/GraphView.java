@@ -251,7 +251,7 @@ class GraphView extends Canvas {
      */
     public void setRootGenes(List<Pearl> rootGenes) {
         graph.setOriginNodes(rootGenes);
-        maxWeight = graph.getNodes().stream().map(GraphNode::getPearl).map(Pearl::getDistanceToPhenotype).max(Integer::compare).get();
+        maxWeight = graph.getNodes().stream().map(GraphNode::getPearl).map(Pearl::getDistanceToPhenotype).max(Integer::compare).orElse(1);
         radiusProperty.setValue(0.4 * Math.sqrt(0.25 * effectiveWidth * effectiveHeight / graph.getNodes().size()));
         HierarchyDistribution.distribute(graph, margin, effectiveWidth, effectiveHeight, maxWeight);
         startTime = System.currentTimeMillis();
