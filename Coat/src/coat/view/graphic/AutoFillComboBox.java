@@ -1,3 +1,11 @@
+/******************************************************************************
+ * Copyright (C) 2015 UICHUIMI                                                *
+ *                                                                            *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
+
 package coat.view.graphic;
 
 import javafx.collections.FXCollections;
@@ -29,13 +37,10 @@ public class AutoFillComboBox extends TextField {
 
     public AutoFillComboBox() {
 
-        popup.getContent().add(list);
-        popup.setAutoHide(true);
+        initializePopup();
+        addListenersToThis();
 
-        setOnKeyReleased(this::keyReleased);
-        setOnMouseClicked(this::editorMouseClicked);
-
-        textProperty().addListener((observable, oldValue, newValue) -> filter());
+        textProperty().addListener((observable, oldValue, newValue) -> filterAndShow());
 
         items.addListener((ListChangeListener<String>) c -> {
             list.getItems().setAll(items);
@@ -46,7 +51,17 @@ public class AutoFillComboBox extends TextField {
         list.setOnMouseReleased(this::listMouseClicked);
     }
 
-    private void keyReleased(KeyEvent event) {
+    private void addListenersToThis() {
+        setOnKeyReleased(this::editorKeyReleased);
+        setOnMouseClicked(this::editorMouseClicked);
+    }
+
+    private void initializePopup() {
+        popup.getContent().add(list);
+        popup.setAutoHide(true);
+    }
+
+    private void editorKeyReleased(KeyEvent event) {
         if (event.getCode() == KeyCode.DOWN) {
             if (popup.isShowing()) list.requestFocus();
             else show();
@@ -55,6 +70,11 @@ public class AutoFillComboBox extends TextField {
 
     private void editorMouseClicked(MouseEvent event) {
         if (event.getClickCount() == 2) show();
+    }
+
+    private void filterAndShow() {
+        filter();
+        show();
     }
 
     private void listMouseClicked(MouseEvent event) {
@@ -66,7 +86,6 @@ public class AutoFillComboBox extends TextField {
         list.getItems().setAll(items.stream()
                 .filter(t -> t.toLowerCase().contains(text))
                 .collect(Collectors.toList()));
-        show();
     }
 
     private void listKeyReleased(KeyEvent event) {

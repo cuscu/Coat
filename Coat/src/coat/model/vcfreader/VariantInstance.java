@@ -6,42 +6,17 @@
  * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package coat.model.poirot;
+package coat.model.vcfreader;
 
-import java.util.HashMap;
-import java.util.Map;
+import coat.model.poirot.databases.Dataset;
+import coat.model.poirot.databases.Instance;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class PearlRelationship {
+public class VariantInstance extends Instance {
 
-    private final Pearl source;
-    private final Pearl target;
-    private final Map<String, Object> properties = new HashMap<>();
-
-    public PearlRelationship(Pearl source, Pearl target) {
-        this.source = source;
-        this.target = target;
-        source.addRelationship(target, this);
-        target.addRelationship(source, this);
-    }
-
-    public Pearl getTarget() {
-        return target;
-    }
-
-    public Pearl getSource() {
-        return source;
-    }
-
-
-//    @Override
-//    public String toString() {
-//        return source.getName() + "->" + target.getName()+ properties;
-//    }
-
-    public Map<String, Object> getProperties() {
-        return properties;
+    public VariantInstance(Dataset dataset, Object[] fields) {
+        super(dataset, fields);
     }
 }

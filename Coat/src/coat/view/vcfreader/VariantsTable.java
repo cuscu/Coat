@@ -1,19 +1,10 @@
-/*
- * Copyright (C) 2015 UICHUIMI
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+/******************************************************************************
+ * Copyright (C) 2015 UICHUIMI                                                *
+ *                                                                            *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package coat.view.vcfreader;
 
 import coat.model.vcfreader.Variant;
@@ -160,11 +151,12 @@ public class VariantsTable extends VBox {
 
     private HBox initCoordinatesBox() {
         enableCoordinateHandler();
-        return gethBox();
+        return getCoordinatesBox();
     }
 
-    private HBox gethBox() {
-        HBox box = new HBox(5, coordinate, currentChromosome, currentPosition);
+    private HBox getCoordinatesBox() {
+        final HBox box = new HBox(5, coordinate, currentChromosome, currentPosition);
+        currentPosition.getStyleClass().add("fancy-text-field");
         box.setAlignment(Pos.CENTER);
         box.setPadding(new Insets(5));
         return box;
@@ -224,12 +216,10 @@ public class VariantsTable extends VBox {
     }
 
     private void updateChromosomeComboBox() {
-        // stream: for each
-        // map: select chromosomes
-        // distinct: unique values
-        // collect: to list again
-        List<String> list;
-        list = table.getItems().stream().map(Variant::getChrom).distinct().collect(Collectors.toList());
+        final List<String> list = table.getItems().stream()
+                .map(Variant::getChrom)
+                .distinct()
+                .collect(Collectors.toList());
         currentChromosome.getItems().setAll(list);
     }
 

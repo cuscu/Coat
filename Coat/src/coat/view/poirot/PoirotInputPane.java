@@ -1,3 +1,11 @@
+/******************************************************************************
+ * Copyright (C) 2015 UICHUIMI                                                *
+ *                                                                            *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
+
 package coat.view.poirot;
 
 import coat.model.poirot.Pearl;
@@ -9,6 +17,9 @@ import coat.view.graphic.FileParameter;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.io.File;
@@ -24,6 +35,8 @@ public class PoirotInputPane extends VBox {
 
     private final FileParameter inputVcf = new FileParameter("Input VCF");
     private final PhenotypeSelector phenotypeSelector = new PhenotypeSelector();
+    private final ProgressIndicator loading = new ProgressIndicator();
+    private final StackPane phenotypeSelectorStackPane = new StackPane(phenotypeSelector, loading);
 
     private Property<PearlDatabase> database = new SimpleObjectProperty<>();
 
@@ -31,7 +44,8 @@ public class PoirotInputPane extends VBox {
         inputVcf.getFilters().add(FileManager.VCF_FILTER);
         inputVcf.fileProperty().addListener((observable, oldValue, file) -> loadGraph(file));
         phenotypeSelector.setDisable(true);
-        getChildren().addAll(inputVcf, phenotypeSelector);
+        loading.setVisible(false);
+        getChildren().addAll(inputVcf, phenotypeSelectorStackPane);
         setSpacing(5);
     }
 
@@ -39,6 +53,8 @@ public class PoirotInputPane extends VBox {
         final VcfFile vcfFile = new VcfFile(file);
         final PoirotGraphAnalysis analysis = new PoirotGraphAnalysis(vcfFile.getVariants());
         phenotypeSelector.setDisable(true);
+        loading.setVisible(true);
+        StackPane.setMargin(loading, new Insets(20, 20, 20, 20));
         analysis.setOnSucceeded(event -> fileLoaded(analysis));
         new Thread(analysis).start();
     }
@@ -49,6 +65,7 @@ public class PoirotInputPane extends VBox {
         final List<String> list = pearlDatabase.getPearls("phenotype").stream().map(Pearl::getName).collect(Collectors.toList());
         phenotypeSelector.setPhenotypes(list);
         phenotypeSelector.setDisable(false);
+        loading.setVisible(false);
     }
 
     public Property<PearlDatabase> databaseProperty() {

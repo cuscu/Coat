@@ -1,22 +1,38 @@
-/*
- * Copyright (C) 2014 UICHUIMI
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+/******************************************************************************
+ * Copyright (C) 2015 UICHUIMI                                                *
+ *                                                                            *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 
 .background {
     -fx-background-color: #1d1d1d;
+}
+
+.custom-list .list-cell {
+    -fx-background-color: white;
+    -fx-border-color: grey;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-insets: 0 5 0 5;
+    -fx-text-fill: black;
+}
+
+.custom-list .list-cell:selected {
+    -fx-background-color: aliceblue;
+    -fx-border-color: white white grey dodgerblue;
+    -fx-border-width: 0 0 1 4;
+    -fx-text-fill: black;
+}
+
+.custom-list .list-cell:selected .label {
+    -fx-text-fill: black;
+}
+
+/* Clear the end of lists*/
+.list-view .list-cell:empty {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
 }
 
 .tab-pane, .vbox, .hbox {
@@ -46,8 +62,8 @@
 
 .graphic-button:hover {
     -fx-opacity: 0.5;
-    /*    -fx-border-color: black;
-        -fx-border-width: 0 1 1 0;*/
+    /*-fx-border-color: black;*/
+    /*-fx-border-width: 0 1 1 0;*/
 }
 
 .graphic-button:pressed {
@@ -102,19 +118,13 @@
     -fx-border-radius: 16px;
 }
 
-/* Clear the end of lists*/
-.list-cell:empty {
-    -fx-background-color: transparent;
-    -fx-border-width: 0;
-}
-
 /* Clear the bottom of tables*/
 .table-row-cell:empty {
     -fx-background-color: white;
 }
 
 .table-row-cell:empty .table-cell {
-    -fx-border-width: 0px;
+    -fx-border-width: 0;
 }
 
 .root {
@@ -230,29 +240,43 @@
 }
 
 .variants-table .table-row-cell {
-    -fx-padding: -3 -2 -1 5;
-    -fx-border-width: 3 2 1 5;
-    -fx-border-color: lightgrey lightgrey grey lightgrey;
+    /*-fx-padding: -3 -2 -1 5;*/
+    /*-fx-border-width: 3 2 1 5;*/
+    /*-fx-border-color: lightgrey lightgrey grey lightgrey;*/
     -fx-background-color: white;
+    -fx-border-color: grey;
+    -fx-border-width: 0 0 2 4;
+    /*-fx-border-insets: 0 5 0 5;*/
+    -fx-text-fill: black;
+    /*-fx-background-color: white;*/
 }
 
 .variants-table .table-row-cell:selected {
-    -fx-background-color: lightblue;
-    -fx-text-fill: white;
+    /*-fx-background-color: aliceblue;*/
+    /*-fx-border-color: dodgerblue;*/
+    /*-fx-border-width: 0 0 0 4;*/
+    /*-fx-text-fill: white;*/
+    -fx-background-color: aliceblue;
+    -fx-border-color: white white grey dodgerblue;
+    -fx-border-width: 0 0 1 4;
+    -fx-text-fill: black;
 }
 
 .variants-table .protein-coding {
-    -fx-background-color: #DFF2BF;
-    -fx-text-fill: #00ae1b;
+    -fx-border-color: white white grey #1cfb00;
+    -fx-border-width: 0 0 1 4;
+    /*-fx-text-fill: #00ae1b;*/
 }
 
 .variants-table .damaging {
-    -fx-background-color: #FFBABA;
-    -fx-text-fill: red;
+    -fx-border-color: white white grey red;
+    -fx-border-width: 0 0 1 4;
+    /*-fx-text-fill: red;*/
 }
 
-.variants-table .table-column{
-
+.variants-table .table-column {
+    -fx-border-width: 0 0 1 4;
+    -fx-border-color: transparent;
 }
 
 .graph-info-box {
@@ -260,7 +284,7 @@
 }
 
 .text-column {
-    -fx-alignment: CENTER-LEFT;
+    /*-fx-alignment: CENTER-LEFT;*/
 }
 
 .fancy-text-field {
@@ -281,3 +305,35 @@
     -fx-border-width: 1 0 0 0;
     -fx-border-color: black;
 }
+
+/* Tab panes */
+.tab-header-area {
+    -fx-padding: 0 0 0 0;
+}
+
+.headers-region {
+    -fx-background-color: transparent;
+    /*    -fx-padding: 0 0 0 0;*/
+}
+
+.tab-header-background {
+    /*    -fx-background-color: green;*/
+}
+
+.tab {
+    -fx-background-color: white;
+}
+
+.tab:hover {
+    -fx-border-width: 2 0 0 0;
+    -fx-background-color: aliceblue;
+    -fx-border-color: black;
+    /*    -fx-background-color: transparent;*/
+}
+
+.tab:selected, .tab:focused {
+    -fx-border-width: 2 0 0 0;
+    -fx-border-color: dodgerblue;
+    -fx-background-color: aliceblue;
+}
+

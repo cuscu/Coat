@@ -1,3 +1,11 @@
+/******************************************************************************
+ * Copyright (C) 2015 UICHUIMI                                                *
+ *                                                                            *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
+
 package coat.view.poirot;
 
 import coat.view.graphic.AutoFillComboBox;
@@ -7,8 +15,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
@@ -30,23 +36,25 @@ class PhenotypeSelector extends VBox {
 
     public PhenotypeSelector() {
 
-        final StackPane stackPane = new StackPane(listView, delete);
+        final StackPane listPane = new StackPane(listView, delete);
 
-        final HBox hBox = new HBox(comboBox, addButton);
+        final StackPane textFieldPane = new StackPane(comboBox, addButton);
+//        final HBox hBox = new HBox(comboBox, addButton);
 
         listView.getSelectionModel().selectedItemProperty().addListener((obs, previous, current) -> delete.setVisible(current != null));
-
+        listView.getStyleClass().add("custom-list");
 
         configureDeleteButton();
         configureAddButton();
-        configureComboBox();
+        configureTextPane();
 
         setSpacing(5);
-        getChildren().addAll(stackPane, hBox);
+        getChildren().addAll(listPane, textFieldPane);
     }
 
-    private void configureComboBox() {
-        HBox.setHgrow(comboBox, Priority.ALWAYS);
+    private void configureTextPane() {
+//        HBox.setHgrow(comboBox, Priority.ALWAYS);
+        StackPane.setAlignment(addButton, Pos.CENTER_RIGHT);
         comboBox.getStyleClass().add("fancy-text-field");
         comboBox.setOnAction(event -> {
             if (comboBox.getItems().contains(comboBox.getText())) addPhenotype(comboBox.getText());
@@ -70,7 +78,7 @@ class PhenotypeSelector extends VBox {
     }
 
     private void configureAddButton() {
-        addButton.getStyleClass().add("graphic-file-button");
+        addButton.getStyleClass().add("graphic-button");
         addButton.setOnAction(event -> addPhenotype(comboBox.getText()));
         addButton.setDisable(true);
     }
