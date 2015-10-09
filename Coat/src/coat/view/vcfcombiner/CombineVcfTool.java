@@ -1,7 +1,24 @@
+/******************************************************************************
+ * Copyright (C) 2015 UICHUIMI                                                *
+ *                                                                            *
+ * This program is free software: you can redistribute it and/or modify it    *
+ * under the terms of the GNU General Public License as published by the      *
+ * Free Software Foundation, either version 3 of the License, or (at your     *
+ * option) any later version.                                                 *
+ *                                                                            *
+ * This program is distributed in the hope that it will be useful, but        *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
+ * See the GNU General Public License for more details.                       *
+ *                                                                            *
+ * You should have received a copy of the GNU General Public License          *
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
+ ******************************************************************************/
+
 package coat.view.vcfcombiner;
 
-import coat.model.vcfcombiner.VcfCombineTask;
 import coat.model.tool.Tool;
+import coat.model.vcfcombiner.VcfCombineTask;
 import coat.model.vcfreader.Variant;
 import coat.model.vcfreader.VcfFile;
 import coat.model.vcfreader.VcfSaver;
@@ -45,9 +62,9 @@ public class CombineVcfTool extends Tool {
     private final Button addFiles = new Button(OS.getString("add.files"), new SizableImage("coat/img/add.png", SizableImage.SMALL_SIZE));
     private final Button combine = new Button(OS.getString("combine"), new SizableImage("coat/img/combine.png", SizableImage.SMALL_SIZE));
     private final Button delete = new Button(OS.getString("delete"), new SizableImage("coat/img/delete.png", SizableImage.SMALL_SIZE));
-    private final Button save = new Button(OS.getString("save"), new SizableImage("coat/img/save.png", SizableImage.SMALL_SIZE));
+//    private final Button save = new Button(OS.getString("save"), new SizableImage("coat/img/save.png", SizableImage.SMALL_SIZE));
 
-    private final HBox topButtonsBox = new HBox(5, addFiles, delete, combine, save);
+    private final HBox topButtonsBox = new HBox(5, addFiles, delete, combine);
 
     private final Label message = new Label();
     private final ProgressBar progressBar = new ProgressBar();
@@ -76,7 +93,7 @@ public class CombineVcfTool extends Tool {
 
     private void configureButtonsPane() {
         topButtonsBox.getChildren().stream().map(node -> (Button) node).forEach(this::setTopButton);
-        save.setOnAction(event -> saveAs());
+//        save.setOnAction(event -> saveAs());
         addFiles.setOnAction(event -> addFiles());
         combine.setOnAction(event -> combine());
         delete.setOnAction(event -> deleteFile());
@@ -148,7 +165,7 @@ public class CombineVcfTool extends Tool {
     private void prepareGUI() {
         Platform.runLater(() -> {
             message.setText(OS.getString("combining") + "...");
-            save.setDisable(true);
+//            save.setDisable(true);
             combine.setDisable(true);
             progressBar.setVisible(true);
         });
@@ -169,7 +186,7 @@ public class CombineVcfTool extends Tool {
     private void restoreGUI() {
         Platform.runLater(() -> {
             message.setText(OS.getStringFormatted("commom.variants", resultVariants.size()));
-            save.setDisable(false);
+//            save.setDisable(false);
             combine.setDisable(false);
             progressBar.progressProperty().unbind();
             progressBar.setVisible(false);

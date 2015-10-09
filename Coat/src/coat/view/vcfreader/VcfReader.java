@@ -1,19 +1,19 @@
-/*
- * Copyright (C) 2015 UICHUIMI
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+/******************************************************************************
+ * Copyright (C) 2015 UICHUIMI                                                *
+ *                                                                            *
+ * This program is free software: you can redistribute it and/or modify it    *
+ * under the terms of the GNU General Public License as published by the      *
+ * Free Software Foundation, either version 3 of the License, or (at your     *
+ * option) any later version.                                                 *
+ *                                                                            *
+ * This program is distributed in the hope that it will be useful, but        *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
+ * See the GNU General Public License for more details.                       *
+ *                                                                            *
+ * You should have received a copy of the GNU General Public License          *
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
+ ******************************************************************************/
 package coat.view.vcfreader;
 
 import coat.CoatView;
@@ -48,8 +48,8 @@ public class VcfReader extends VBox implements Reader {
     private final FilterList filterList = new FilterList();
     private final TabPane tabs = new TabPane();
 
-    private final SplitPane leftPane = new SplitPane(variantsTable, filterList);
-    private final SplitPane mainPane = new SplitPane(leftPane, tabs);
+    private final SplitPane leftPane = new SplitPane();
+    private final SplitPane mainPane = new SplitPane();
 
     private final VcfFile vcfFile;
 
@@ -66,12 +66,14 @@ public class VcfReader extends VBox implements Reader {
     }
 
     private void initializeLeftPane() {
+        leftPane.getItems().addAll(variantsTable, filterList);
         leftPane.setDividerPositions(0.75);
         SplitPane.setResizableWithParent(filterList, false);
         leftPane.setOrientation(Orientation.VERTICAL);
     }
 
     private void initializeThis() {
+        mainPane.getItems().addAll(leftPane, tabs);
         mainPane.setDividerPositions(0.75);
         SplitPane.setResizableWithParent(tabs, false);
         mainPane.setOrientation(Orientation.HORIZONTAL);

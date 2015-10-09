@@ -1,13 +1,23 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
  *                                                                            *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- *  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * This program is free software: you can redistribute it and/or modify it    *
+ * under the terms of the GNU General Public License as published by the      *
+ * Free Software Foundation, either version 3 of the License, or (at your     *
+ * option) any later version.                                                 *
+ *                                                                            *
+ * This program is distributed in the hope that it will be useful, but        *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
+ * See the GNU General Public License for more details.                       *
+ *                                                                            *
+ * You should have received a copy of the GNU General Public License          *
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
 package coat.view.graphic;
 
+import javafx.beans.property.Property;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -40,8 +50,6 @@ public class AutoFillComboBox extends TextField {
         initializePopup();
         addListenersToThis();
 
-        textProperty().addListener((observable, oldValue, newValue) -> filterAndShow());
-
         items.addListener((ListChangeListener<String>) c -> {
             list.getItems().setAll(items);
             this.setWidth(list.getWidth());
@@ -65,7 +73,8 @@ public class AutoFillComboBox extends TextField {
         if (event.getCode() == KeyCode.DOWN) {
             if (popup.isShowing()) list.requestFocus();
             else show();
-        }
+        } else if (event.getCode().isDigitKey() || event.getCode() == KeyCode.SPACE || event.getCode().isLetterKey())
+            filterAndShow();
     }
 
     private void editorMouseClicked(MouseEvent event) {
@@ -73,8 +82,10 @@ public class AutoFillComboBox extends TextField {
     }
 
     private void filterAndShow() {
-        filter();
-        show();
+        if (getText() != null) {
+            filter();
+            show();
+        }
     }
 
     private void listMouseClicked(MouseEvent event) {
@@ -97,10 +108,12 @@ public class AutoFillComboBox extends TextField {
     }
 
     private void show() {
-        final Point2D p = localToScene(0.0, 0.0);
-        popup.show(this,
-                p.getX() + getScene().getX() + getScene().getWindow().getX(),
-                p.getY() + getScene().getY() + getScene().getWindow().getY() + getHeight());
+        if (!list.getItems().isEmpty()) {
+            final Point2D p = localToScene(0.0, 0.0);
+            popup.show(this,
+                    p.getX() + getScene().getX() + getScene().getWindow().getX(),
+                    p.getY() + getScene().getY() + getScene().getWindow().getY() + getHeight());
+        }
     }
 
     public ObservableList<String> getItems() {
@@ -113,4 +126,7 @@ public class AutoFillComboBox extends TextField {
         popup.hide();
     }
 
+    public Property<String> valueProperty() {
+        return textProperty();
+    }
 }

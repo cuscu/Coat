@@ -1,3 +1,20 @@
+/******************************************************************************
+ * Copyright (C) 2015 UICHUIMI                                                *
+ *                                                                            *
+ * This program is free software: you can redistribute it and/or modify it    *
+ * under the terms of the GNU General Public License as published by the      *
+ * Free Software Foundation, either version 3 of the License, or (at your     *
+ * option) any later version.                                                 *
+ *                                                                            *
+ * This program is distributed in the hope that it will be useful, but        *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
+ * See the GNU General Public License for more details.                       *
+ *                                                                            *
+ * You should have received a copy of the GNU General Public License          *
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
+ ******************************************************************************/
+
 package coat.model.poirot.databases;
 
 import java.util.*;
@@ -76,11 +93,14 @@ public class Dataset {
         return indexes.get(position).getOrDefault(value, Collections.emptyList());
     }
 
-    public int getPositionOf(String column) {
+    public int indexOf(String column) {
         return columnPositions.getOrDefault(column, -1);
     }
 
-    public void printValue() {
+    /**
+     * Prints this table to the standard output.
+     */
+    public void printTable() {
         System.out.println(columnNames);
         for (Instance instance : instances) {
             for (int i = 0; i < columnNames.size(); i++) System.out.print(instance.getField(i) + " ");

@@ -15,26 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
-package coat.model.tool;
+package coat.model.vcfreader;
 
-import javafx.beans.property.Property;
-import javafx.scene.layout.VBox;
+import org.junit.Test;
 
 /**
- * Defines a tool to show in the main panel of the application. This class extends VBox, so you can place things by
- * using <code>getChildren().addAll(nodes)</code>.
- *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public abstract class Tool extends VBox {
+public class VcfLoaderToDatasetTest {
 
-    public abstract Property<String> titleProperty();
-
-    /**
-     * Implement this method if you want that something happens when user clicks on File->Save as...
-     */
-    public void saveAs() {
+    @Test
+    public void test() {
 
     }
-
 }

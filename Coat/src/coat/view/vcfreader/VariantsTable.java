@@ -1,9 +1,18 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
  *                                                                            *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- *  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * This program is free software: you can redistribute it and/or modify it    *
+ * under the terms of the GNU General Public License as published by the      *
+ * Free Software Foundation, either version 3 of the License, or (at your     *
+ * option) any later version.                                                 *
+ *                                                                            *
+ * This program is distributed in the hope that it will be useful, but        *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
+ * See the GNU General Public License for more details.                       *
+ *                                                                            *
+ * You should have received a copy of the GNU General Public License          *
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 package coat.view.vcfreader;
 
@@ -11,7 +20,6 @@ import coat.model.vcfreader.Variant;
 import coat.utils.OS;
 import coat.view.graphic.IndexCell;
 import coat.view.graphic.NaturalCell;
-import coat.view.graphic.SizableImage;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -20,11 +28,11 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.util.List;
@@ -38,8 +46,8 @@ public class VariantsTable extends VBox {
 
     private final TableView<Variant> table = new TableView<>();
     private final TextField searchBox = new TextField();
-    private final Button searchButton = new Button(null, new SizableImage("coat/img/search.png", SizableImage.SMALL_SIZE));
-    private final StackPane stackPane = new StackPane(table, searchBox, searchButton);
+//    private final Button searchButton = new Button(null, new SizableImage("coat/img/search.png", SizableImage.SMALL_SIZE));
+//    private final StackPane stackPane = new StackPane(table, searchBox, searchButton);
 
     private final TableColumn<Variant, Integer> lineNumber = new TableColumn<>();
     private final TableColumn<Variant, String> chrom
@@ -71,12 +79,12 @@ public class VariantsTable extends VBox {
 
     private void initStructure() {
         initTable();
-        HBox coordinateBox = initCoordinatesBox();
-        getChildren().addAll(stackPane, coordinateBox);
+        final HBox coordinateBox = initCoordinatesBox();
+        getChildren().addAll(coordinateBox, table);
     }
 
     private void initTable() {
-        VBox.setVgrow(stackPane, Priority.ALWAYS);
+        VBox.setVgrow(table, Priority.ALWAYS);
 //        table.getColumns().addAll(lineNumber, chrom, position, variant, rsId, geneColumn, qual);
         getStyleClass().add("variants-table");
         table.getColumns().addAll(chrom, position, geneColumn, variant, rsId, qual);
@@ -84,33 +92,15 @@ public class VariantsTable extends VBox {
         setTableCellFactories();
         setTableCellValueFactories();
         setTableColumnWidths();
-        table.setRowFactory(param -> new VcfRow());
         table.setTableMenuButtonVisible(true);
         initSearchBox();
     }
 
     private void initSearchBox() {
-        StackPane.setAlignment(searchBox, Pos.BOTTOM_RIGHT);
-        StackPane.setMargin(searchBox, new Insets(20));
         searchBox.setPromptText(OS.getResources().getString("search"));
-        searchBox.setMaxWidth(200);
-        searchBox.getStyleClass().add("search-box");
+//        searchBox.setMaxWidth(200);
+        searchBox.getStyleClass().add("fancy-text-field");
         searchBox.setOnAction(event -> search(table.getSelectionModel().getSelectedIndex()));
-        searchBox.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) {
-                searchBox.setVisible(false);
-                searchButton.setVisible(true);
-            }
-        });
-        StackPane.setAlignment(searchButton, Pos.BOTTOM_RIGHT);
-        StackPane.setMargin(searchButton, new Insets(20));
-        searchButton.setOnAction(event -> {
-            searchButton.setVisible(false);
-            searchBox.setVisible(true);
-            searchBox.requestFocus();
-        });
-        searchButton.getStyleClass().add("graphic-button");
-        searchBox.setVisible(false);
     }
 
     private void search(int from) {
@@ -128,7 +118,6 @@ public class VariantsTable extends VBox {
         table.getColumns().forEach(column -> column.setCellFactory(param -> new NaturalCell<>()));
         lineNumber.setCellFactory(param -> new IndexCell());
         variant.setCellFactory(param -> new VariantCard());
-//        chrom.setCellFactory(column -> new ChromosomeCell());
     }
 
     private void setTableCellValueFactories() {
@@ -155,7 +144,10 @@ public class VariantsTable extends VBox {
     }
 
     private HBox getCoordinatesBox() {
-        final HBox box = new HBox(5, coordinate, currentChromosome, currentPosition);
+        final Separator separator = new Separator(Orientation.HORIZONTAL);
+        separator.setVisible(false);
+        HBox.setHgrow(separator, Priority.ALWAYS);
+        final HBox box = new HBox(5, coordinate, currentChromosome, currentPosition, separator, searchBox);
         currentPosition.getStyleClass().add("fancy-text-field");
         box.setAlignment(Pos.CENTER);
         box.setPadding(new Insets(5));

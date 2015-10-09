@@ -1,3 +1,20 @@
+/******************************************************************************
+ * Copyright (C) 2015 UICHUIMI                                                *
+ *                                                                            *
+ * This program is free software: you can redistribute it and/or modify it    *
+ * under the terms of the GNU General Public License as published by the      *
+ * Free Software Foundation, either version 3 of the License, or (at your     *
+ * option) any later version.                                                 *
+ *                                                                            *
+ * This program is distributed in the hope that it will be useful, but        *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
+ * See the GNU General Public License for more details.                       *
+ *                                                                            *
+ * You should have received a copy of the GNU General Public License          *
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
+ ******************************************************************************/
+
 package coat.model.poirot.databases;
 
 import java.io.BufferedReader;
@@ -60,7 +77,7 @@ public class VcfLoader {
             final String[] infos = variant[7].split(";");
             for (String info : infos) {
                 final String[] pair = info.split("=");
-                final int position = dataset.getPositionOf(pair[0]);
+                final int position = dataset.indexOf(pair[0]);
                 if (position > 0) fields[position] = pair.length > 1 ? pair[1] : true;
             }
         }

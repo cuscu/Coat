@@ -1,9 +1,18 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
  *                                                                            *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- *  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * This program is free software: you can redistribute it and/or modify it    *
+ * under the terms of the GNU General Public License as published by the      *
+ * Free Software Foundation, either version 3 of the License, or (at your     *
+ * option) any later version.                                                 *
+ *                                                                            *
+ * This program is distributed in the hope that it will be useful, but        *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
+ * See the GNU General Public License for more details.                       *
+ *                                                                            *
+ * You should have received a copy of the GNU General Public License          *
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
 package coat.view.vcfreader;
@@ -11,6 +20,7 @@ package coat.view.vcfreader;
 import coat.model.vcfreader.Variant;
 import coat.model.vcfreader.VcfFilter;
 import coat.utils.OS;
+import coat.view.graphic.SizableImage;
 import coat.view.graphic.ThresholdDialog;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
@@ -41,7 +51,7 @@ public class FilterList extends VBox {
     private final ListView<VcfFilter> filters = new ListView<>();
     private ObservableList<Variant> inputVariants = FXCollections.observableArrayList();
     private final ObservableList<Variant> outputVariants = FXCollections.observableArrayList();
-    private final Button addFilter = new Button(OS.getResources().getString("add.filter"));
+    private final Button addFilter = new Button(OS.getResources().getString("add.filter"), new SizableImage("coat/img/add.png", SizableImage.SMALL_SIZE));
 
     private final Button addFrequencyFilters = new Button(OS.getResources().getString("add.frequency.filters"));
     private final ChangeListener<Object> applyFilters = (observable, oldValue, newValue) -> applyFilters();
@@ -67,7 +77,7 @@ public class FilterList extends VBox {
 
     private void configureFilters() {
         filters.setEditable(true);
-        filters.setCellFactory(param -> new FilterCell(infos));
+        filters.setCellFactory(param -> new FilterCell(outputVariants, infos));
         filters.getStyleClass().add("custom-list");
         filters.getItems().addListener((ListChangeListener<VcfFilter>) change -> {
             change.next();

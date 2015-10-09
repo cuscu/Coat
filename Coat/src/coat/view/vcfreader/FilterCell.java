@@ -1,9 +1,27 @@
+/******************************************************************************
+ * Copyright (C) 2015 UICHUIMI                                                *
+ *                                                                            *
+ * This program is free software: you can redistribute it and/or modify it    *
+ * under the terms of the GNU General Public License as published by the      *
+ * Free Software Foundation, either version 3 of the License, or (at your     *
+ * option) any later version.                                                 *
+ *                                                                            *
+ * This program is distributed in the hope that it will be useful, but        *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
+ * See the GNU General Public License for more details.                       *
+ *                                                                            *
+ * You should have received a copy of the GNU General Public License          *
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
+ ******************************************************************************/
+
 package coat.view.vcfreader;
 
+import coat.model.vcfreader.Variant;
 import coat.model.vcfreader.VcfFilter;
 import coat.utils.OS;
+import coat.view.graphic.AutoFillComboBox;
 import coat.view.graphic.SizableImage;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
@@ -12,10 +30,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -26,9 +41,11 @@ class FilterCell extends ListCell<VcfFilter> {
     private final static int SPACING = 2;
 
     private final ComboBox<VcfFilter.Field> field = new ComboBox<>();
-    private final ComboBox<String> info = new ComboBox<>();
+//    private final ComboBox<String> info = new ComboBox<>();
+    private final AutoFillComboBox info = new AutoFillComboBox();
     private final ComboBox<VcfFilter.Connector> connector = new ComboBox<>();
-    private final TextField value = new TextField();
+    //    private final TextField value = new TextField();
+    private final AutoFillComboBox value = new AutoFillComboBox();
     private final HBox filterBox = new HBox(SPACING, field, info, connector, value);
 
     private final Separator invisibleActiveSeparator = new Separator(Orientation.HORIZONTAL);
@@ -55,9 +72,11 @@ class FilterCell extends ListCell<VcfFilter> {
     private final List<String> infoItems = new ArrayList<>();
 
     private VcfFilter currentFilter;
+    private ObservableList<Variant> variants;
     private ObservableList<Map<String, String>> infos;
 
-    public FilterCell(ObservableList<Map<String, String>> infos) {
+    public FilterCell(ObservableList<Variant> variants, ObservableList<Map<String, String>> infos) {
+        this.variants = variants;
         this.infos = infos;
         infos.addListener((ListChangeListener<Map<String, String>>) c -> updateInfoList());
         initializeThis();
@@ -79,29 +98,57 @@ class FilterCell extends ListCell<VcfFilter> {
         initializeInfoBox();
         initializeConnectorBox();
         initializeFieldBox();
+        value.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) reloadValues();
+        });
+    }
+
+    private void reloadValues() {
+        final VcfFilter.Field fieldValue = field.getValue();
+        if (fieldValue == VcfFilter.Field.CHROMOSOME) {
+            final List<String> valueList = variants.stream().map(Variant::getChrom).distinct().collect(Collectors.toList());
+            Collections.sort(valueList);
+            value.getItems().setAll(valueList);
+        } else if (fieldValue == VcfFilter.Field.REF) {
+            final List<String> valueList = variants.stream().map(Variant::getRef).distinct().collect(Collectors.toList());
+            Collections.sort(valueList);
+            value.getItems().setAll(valueList);
+        } else if (fieldValue == VcfFilter.Field.INFO) {
+            final String infoValue = info.getText();
+            if (infoValue != null) {
+                final List<String> valueList = variants.stream()
+                        .filter(variant -> variant.getInfos().containsKey(infoValue))
+                        .map((variant) -> variant.getInfos().get(infoValue).toString())
+                        .distinct()
+                        .collect(Collectors.toList());
+                Collections.sort(valueList);
+                value.getItems().setAll(valueList);
+            }
+        }
+
     }
 
     private void initializeInfoBox() {
         info.setPromptText(OS.getResources().getString("info"));
         info.setDisable(true);
-        setSmartInfoBox();
+//        setSmartInfoBox();
     }
 
-    private void setSmartInfoBox() {
-        info.setEditable(true);
-        info.getEditor().setOnKeyReleased(event -> displayMatchingInfos());
-        final ChangeListener<Boolean> listener = (observable, oldValue, newValue) -> {
-            if (newValue) displayMatchingInfos();
-        };
-        info.getEditor().focusedProperty().addListener(listener);
-    }
+//    private void setSmartInfoBox() {
+//        info.setEditable(true);
+//        info.getEditor().setOnKeyReleased(event -> displayMatchingInfos());
+//        final ChangeListener<Boolean> listener = (observable, oldValue, newValue) -> {
+//            if (newValue) displayMatchingInfos();
+//        };
+//        info.getEditor().focusedProperty().addListener(listener);
+//    }
 
-    private void displayMatchingInfos() {
-        String text = info.getEditor().getText();
-        List<String> validCells = infoItems.stream().filter(s -> s.toLowerCase().contains(text.toLowerCase())).collect(Collectors.toList());
-        info.getItems().setAll(validCells);
-        info.show();
-    }
+//    private void displayMatchingInfos() {
+//        String text = info.getEditor().getText();
+//        List<String> validCells = infoItems.stream().filter(s -> s.toLowerCase().contains(text.toLowerCase())).collect(Collectors.toList());
+//        info.getItems().setAll(validCells);
+//        info.show();
+//    }
 
     private void initializeConnectorBox() {
         connector.setPromptText(OS.getResources().getString("connector"));
@@ -151,8 +198,7 @@ class FilterCell extends ListCell<VcfFilter> {
     }
 
     private void updateInfoList() {
-        infoItems.clear();
-        infoItems.addAll(infos.stream().map(info -> info.get("ID")).sorted().collect(Collectors.toList()));
+        info.getItems().setAll(infos.stream().map(info -> info.get("ID")).sorted().collect(Collectors.toList()));
     }
 
     private void delete() {
@@ -247,7 +293,7 @@ class FilterCell extends ListCell<VcfFilter> {
     public void commitEdit(VcfFilter ignored) {
         super.commitEdit(ignored);
         currentFilter.setValue(value.getText());
-        currentFilter.setSelectedInfo(info.getValue());
+        currentFilter.setSelectedInfo(info.getText());
         currentFilter.setConnector(connector.getValue());
         currentFilter.setField(field.getValue());
         toPassive();

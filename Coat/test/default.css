@@ -71,8 +71,6 @@
 
 .graphic-button:hover {
     -fx-opacity: 0.5;
-    /*-fx-border-color: black;*/
-    /*-fx-border-width: 0 1 1 0;*/
 }
 
 .graphic-button:pressed {
@@ -130,10 +128,6 @@
 /* Clear the bottom of tables*/
 .table-row-cell:empty {
     -fx-opacity: 0;
-}
-
-.table-row-cell:empty .table-cell {
-    -fx-border-width: 0;
 }
 
 .root {
@@ -240,12 +234,20 @@
 
 .table-view {
     -fx-background-color: transparent;
-    -fx-table-cell-border-color: transparent;
-    -fx-table-header-border-color: transparent;
+    /*-fx-table-cell-border-color: transparent;*/
+    /*-fx-table-cell-border-width: 0;*/
+    /*-fx-table-header-border-color: transparent;*/
 }
 
 .table-view .column-header-background {
     -fx-background-color: transparent;
+}
+
+.table-view .table-row-cell {
+    -fx-background-color: white;
+    /*-fx-border-color: white white grey grey;*/
+    /*-fx-border-width: 0 0 1 4;*/
+    /*-fx-text-fill: black;*/
 }
 
 .variants-table .table-row-cell {
@@ -258,23 +260,35 @@
 .variants-table .table-row-cell:selected {
     -fx-background-color: aliceblue;
     -fx-border-color: white white grey dodgerblue;
-    -fx-border-width: 0 0 1 4;
     -fx-text-fill: black;
+}
+
+.variants-table .table-row-cell:selected .text {
+    -fx-fill: black;
 }
 
 .variants-table .protein-coding {
     -fx-border-color: white white grey #1cfb00;
-    -fx-border-width: 0 0 1 4;
 }
 
 .variants-table .damaging {
     -fx-border-color: white white grey red;
-    -fx-border-width: 0 0 1 4;
+}
+
+.variants-table .column-header-background .table-column {
+    -fx-border-color:  white white grey red;
+    /*-fx-border-width: 1;*/
+    /*-fx-border-insets: 0;*/
+
+}
+
+.variant-column {
+    -fx-border-color: white white grey dodgerblue;
+    -fx-border-width: 0 0 0 4;
 }
 
 .variants-table .table-column {
-    -fx-border-width: 0 0 1 4;
-    -fx-border-color: transparent;
+    /*-fx-border-color: green;*/
 }
 
 .graph-info-box {
@@ -305,7 +319,7 @@
     -fx-padding: 0 0 0 0;
 }
 
-.headers-region {
+.tab-header-area .headers-region {
     -fx-background-color: transparent;
     /*    -fx-padding: 0 0 0 0;*/
 }
@@ -315,11 +329,11 @@
 }
 
 .tab {
+    -fx-border-width: 2 0 0 0;
     -fx-background-color: white;
 }
 
 .tab:hover {
-    -fx-border-width: 2 0 0 0;
     -fx-background-color: aliceblue;
     -fx-border-color: black;
     /*    -fx-background-color: transparent;*/
@@ -330,4 +344,3 @@
     -fx-border-color: dodgerblue;
     -fx-background-color: aliceblue;
 }
-
