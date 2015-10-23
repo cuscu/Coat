@@ -34,16 +34,21 @@ public class VariantStream {
 
     private final VcfSample vcfSample;
     private BufferedReader reader;
+    private BufferedReader mistReader;
     private Variant variant;
+    private String[] mistRegion;
 
     public VariantStream(VcfSample vcfSample) {
         this.vcfSample = vcfSample;
         try {
             reader = new BufferedReader(new FileReader(vcfSample.getVcfFile()));
+            if (vcfSample.getMistFile() != null)
+                mistReader = new BufferedReader(new FileReader(vcfSample.getMistFile()));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         loadFirstVariant();
+        loadFirstMistRegion();
     }
 
     private void loadFirstVariant() {
@@ -55,6 +60,16 @@ public class VariantStream {
                     break;
                 }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadFirstMistRegion() {
+        try {
+            mistReader.readLine();
+            String line = mistReader.readLine();
+            mistRegion = line == null ? null : line.split("\t");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -85,7 +100,32 @@ public class VariantStream {
             else break;
         }
         // The variant is not present
+        if (inMist(variant)) {
+            variant.getInfos().put("MistZone", true);
+            return true;
+        }
         return vcfSample.getLevel() == VcfSample.Level.UNAFFECTED;
+    }
+
+    private String[] nextMistRegion() {
+        try {
+            String line = mistReader.readLine(); // Skip header
+            return line == null ? null : line.split("\t");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private boolean inMist(Variant variant) {
+        while (mistRegion != null) {
+            final int start = Integer.valueOf(mistRegion[3]);
+            final int end = Integer.valueOf(mistRegion[4]);
+            if (start <= variant.getPos() && variant.getPos() < end) return true;
+            else if (start > variant.getPos()) return false;
+            else mistRegion = nextMistRegion();
+        }
+        return false;
     }
 
     private boolean checkZygotic(Variant variant) {
