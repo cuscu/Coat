@@ -14,12 +14,13 @@
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
+
 package coat.view.vcfreader;
 
 import coat.CoatView;
-import coat.model.reader.Reader;
-import coat.model.vcfreader.*;
-import coat.model.vep.EnsemblAPI;
+import coat.core.reader.Reader;
+import coat.core.vcfreader.*;
+import coat.core.vep.EnsemblAPI;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.SizableImage;

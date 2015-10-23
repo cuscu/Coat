@@ -34,8 +34,8 @@
     -fx-text-fill: black;
 }
 
-.custom-list .list-cell:selected .label {
-    -fx-text-fill: black;
+.custom-list .list-cell:selected .tex {
+    -fx-fill: black;
 }
 
 /* Clear the end of lists*/
@@ -239,11 +239,12 @@
     /*-fx-table-header-border-color: transparent;*/
 }
 
+
 .table-view .column-header-background {
     -fx-background-color: transparent;
 }
 
-.table-view .table-row-cell {
+.table-row-cell {
     -fx-background-color: white;
     /*-fx-border-color: white white grey grey;*/
     /*-fx-border-width: 0 0 1 4;*/
@@ -282,10 +283,6 @@
 
 }
 
-.variant-column {
-    -fx-border-color: white white grey dodgerblue;
-    -fx-border-width: 0 0 0 4;
-}
 
 .variants-table .table-column {
     /*-fx-border-color: green;*/
@@ -344,3 +341,33 @@
     -fx-border-color: dodgerblue;
     -fx-background-color: aliceblue;
 }
+
+.table-row-cell:selected {
+    -fx-background-color: aliceblue;
+}
+
+.damaging .variant-column {
+    -fx-border-color: red;
+}
+
+.protein-coding .variant-column {
+    -fx-border-color: limegreen;
+}
+
+.table-row-cell:selected .variant-column {
+    -fx-border-color: dodgerblue;
+}
+
+.table-row-cell:selected .text {
+    -fx-fill: black;
+}
+
+.table-column {
+    -fx-border-width: 0;
+}
+
+.variant-column:filled {
+    -fx-border-color: grey;
+    -fx-border-width: 0 0 0 4;
+}
+

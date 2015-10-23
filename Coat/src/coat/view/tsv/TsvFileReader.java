@@ -1,3 +1,20 @@
+/******************************************************************************
+ * Copyright (C) 2015 UICHUIMI                                                *
+ *                                                                            *
+ * This program is free software: you can redistribute it and/or modify it    *
+ * under the terms of the GNU General Public License as published by the      *
+ * Free Software Foundation, either version 3 of the License, or (at your     *
+ * option) any later version.                                                 *
+ *                                                                            *
+ * This program is distributed in the hope that it will be useful, but        *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
+ * See the GNU General Public License for more details.                       *
+ *                                                                            *
+ * You should have received a copy of the GNU General Public License          *
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
+ ******************************************************************************/
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -5,7 +22,7 @@
  */
 package coat.view.tsv;
 
-import coat.model.reader.Reader;
+import coat.core.reader.Reader;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.IndexCell;
@@ -37,7 +54,7 @@ public class TsvFileReader extends VBox implements Reader {
     private final File file;
     private final TableView<String[]> table = new TableView<>();
     private final VBox filtersPane = new VBox();
-    private final Button addFilter = new Button();
+    private final Button addFilter = new Button("Filter", new SizableImage("coat/img/new.png", SizableImage.SMALL_SIZE));
     private final Label infoLabel = new Label();
     private final VBox bottomVBox = new VBox(5, infoLabel, filtersPane, addFilter);
     private final SplitPane mainPane = new SplitPane(table, bottomVBox);
@@ -61,10 +78,8 @@ public class TsvFileReader extends VBox implements Reader {
     }
 
     private void initialize() {
-        addFilter.setGraphic(new SizableImage("coat/img/new.png", SizableImage.SMALL_SIZE));
-        //table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         addFilter.setOnAction(event -> {
-            TSVFilterPane filterPane = new TSVFilterPane(Arrays.asList(headers));
+            final TSVFilterPane filterPane = new TSVFilterPane(Arrays.asList(headers));
             filterPane.setOnAccept(e -> filter());
             filterPane.setOnDelete(e -> {
                 filtersPane.getChildren().remove(filterPane);
@@ -99,6 +114,7 @@ public class TsvFileReader extends VBox implements Reader {
             tc.setCellFactory(column -> new NaturalCell());
             table.getColumns().add(tc);
         }
+        table.getColumns().get(1).getStyleClass().add("first-column");
     }
 
     private void filter() {
@@ -109,7 +125,7 @@ public class TsvFileReader extends VBox implements Reader {
                 String[] row = line.split("\t");
                 boolean accepted = true;
                 for (Node node : filtersPane.getChildren()) {
-                    TSVFilterPane pane = (TSVFilterPane) node;
+                    final TSVFilterPane pane = (TSVFilterPane) node;
                     if (!pane.getFilter().filter(row)) {
                         accepted = false;
                         break;

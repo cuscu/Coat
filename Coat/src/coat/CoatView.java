@@ -17,10 +17,10 @@
 
 package coat;
 
-import coat.model.reader.Reader;
-import coat.model.tool.Tool;
-import coat.model.tool.ToolMenu;
-import coat.model.vcfreader.VcfFile;
+import coat.core.reader.Reader;
+import coat.core.tool.Tool;
+import coat.core.tool.ToolMenu;
+import coat.core.vcfreader.VcfFile;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.MemoryPane;

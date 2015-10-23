@@ -17,11 +17,11 @@
 
 package coat.view.vcfcombiner;
 
-import coat.model.tool.Tool;
-import coat.model.vcfcombiner.VcfCombineTask;
-import coat.model.vcfreader.Variant;
-import coat.model.vcfreader.VcfFile;
-import coat.model.vcfreader.VcfSaver;
+import coat.core.tool.Tool;
+import coat.core.vcfcombiner.VcfCombineTask;
+import coat.core.vcfreader.Variant;
+import coat.core.vcfreader.VcfFile;
+import coat.core.vcfreader.VcfSaver;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.SizableImage;

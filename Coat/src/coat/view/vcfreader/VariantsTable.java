@@ -14,9 +14,10 @@
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
+
 package coat.view.vcfreader;
 
-import coat.model.vcfreader.Variant;
+import coat.core.vcfreader.Variant;
 import coat.utils.OS;
 import coat.view.graphic.IndexCell;
 import coat.view.graphic.NaturalCell;
@@ -86,9 +87,9 @@ public class VariantsTable extends VBox {
     private void initTable() {
         VBox.setVgrow(table, Priority.ALWAYS);
 //        table.getColumns().addAll(lineNumber, chrom, position, variant, rsId, geneColumn, qual);
-        getStyleClass().add("variants-table");
         table.getColumns().addAll(chrom, position, geneColumn, variant, rsId, qual);
         table.getColumns().forEach(column -> column.setSortable(false));
+        chrom.getStyleClass().add("first-column");
         setTableCellFactories();
         setTableCellValueFactories();
         setTableColumnWidths();

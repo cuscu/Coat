@@ -1,9 +1,18 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
  *                                                                            *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- *  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * This program is free software: you can redistribute it and/or modify it    *
+ * under the terms of the GNU General Public License as published by the      *
+ * Free Software Foundation, either version 3 of the License, or (at your     *
+ * option) any later version.                                                 *
+ *                                                                            *
+ * This program is distributed in the hope that it will be useful, but        *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
+ * See the GNU General Public License for more details.                       *
+ *                                                                            *
+ * You should have received a copy of the GNU General Public License          *
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
 package coat.view.poirot;
@@ -17,6 +26,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 import java.util.List;
 
@@ -43,6 +53,7 @@ class PhenotypeSelector extends VBox {
 
         listView.getSelectionModel().selectedItemProperty().addListener((obs, previous, current) -> delete.setVisible(current != null));
         listView.getStyleClass().add("custom-list");
+        listView.setPlaceholder(new Text("Add phenotypes or expressions"));
 
         configureDeleteButton();
         configureAddButton();

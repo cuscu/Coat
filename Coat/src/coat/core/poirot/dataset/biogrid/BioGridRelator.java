@@ -1,0 +1,92 @@
+/******************************************************************************
+ * Copyright (C) 2015 UICHUIMI                                                *
+ *                                                                            *
+ * This program is free software: you can redistribute it and/or modify it    *
+ * under the terms of the GNU General Public License as published by the      *
+ * Free Software Foundation, either version 3 of the License, or (at your     *
+ * option) any later version.                                                 *
+ *                                                                            *
+ * This program is distributed in the hope that it will be useful, but        *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
+ * See the GNU General Public License for more details.                       *
+ *                                                                            *
+ * You should have received a copy of the GNU General Public License          *
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
+ ******************************************************************************/
+
+package coat.core.poirot.dataset.biogrid;
+
+import coat.core.poirot.Pearl;
+import coat.core.poirot.PearlDatabase;
+import coat.core.poirot.PearlRelationship;
+import coat.core.poirot.PoirotGraphAnalysis;
+import coat.core.poirot.dataset.Dataset;
+import coat.core.poirot.dataset.Instance;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+/**
+ * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
+ */
+public class BioGridRelator implements Relator {
+
+    private final Dataset bioGridDataset;
+    private PearlDatabase database;
+    private Pearl pearl;
+
+    public BioGridRelator() {
+        bioGridDataset = loadDataset();
+    }
+
+    public void expand(Pearl pearl, PearlDatabase database) {
+        this.database = database;
+        this.pearl = pearl;
+        try {
+            bioGridDataset.getInstances(pearl.getName(), 1).forEach(instance -> createRelationship(instance, 2));
+            bioGridDataset.getInstances(pearl.getName(), 2).forEach(instance -> createRelationship(instance, 1));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void createRelationship(Instance instance, int index) {
+        final String targetSymbol = (String) instance.getField(index);
+        if (PoirotGraphAnalysis.notInBlacklist(targetSymbol)) {
+            final Pearl target = database.getOrCreate(targetSymbol, "gene");
+            pearl.getRelationships().putIfAbsent(target, new ArrayList<>()); // Ensure not null value
+            final List<PearlRelationship> relationships = pearl.getRelationships().get(target);
+            final String id = (String) instance.getField(0);
+            if (!relationshipExists(id, relationships)) createRelationship(pearl, target, instance);
+
+        }
+
+    }
+
+    private boolean relationshipExists(String id, List<PearlRelationship> relationships) {
+        return relationships.stream()
+                .filter(pearlRelationship -> pearlRelationship.getProperties().containsKey("id"))
+                .anyMatch(pearlRelationship -> pearlRelationship.getProperties().get("id").equals(id));
+    }
+
+    private void createRelationship(Pearl pearl, Pearl target, Instance instance) {
+        final PearlRelationship relationship = pearl.createRelationshipTo(target);
+        relationship.getProperties().put("database", instance.getField(3));
+        relationship.getProperties().put("type", instance.getField(4));
+        relationship.getProperties().put("method", instance.getField(5));
+        relationship.getProperties().put("score", instance.getField(6));
+    }
+
+    private Dataset loadDataset() {
+        try {
+            final BioGridDatasetLoader loader = new BioGridDatasetLoader();
+            loader.run();
+            return loader.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+}

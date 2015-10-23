@@ -20,6 +20,9 @@ package coat.view;
 import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -45,28 +48,12 @@ public class TestApp extends Application {
     }
 
     public void testOne() {
-//        final Dataset dataset = VcfLoader.createDataset(new File("s002.vcf"));
-//
-//        final VariantsList variantsList = new VariantsList();
-//        final VcfFiltersPane vcfFiltersPane = new VcfFiltersPane();
-//        final InstanceProperties instanceProperties = new InstanceProperties();
-//
-//        vcfFiltersPane.setInputVariants(FXCollections.observableArrayList(dataset.getInstances()));
-//        variantsList.setInputVariants(vcfFiltersPane.getOutputVariants());
-//        variantsList.selectedVariantProperty().addListener((observable, oldValue, newValue) -> instanceProperties.setInstance(newValue));
-//
-//
-//        final SplitPane splitPane0 = new SplitPane(variantsList, vcfFiltersPane);
-//        splitPane0.setDividerPositions(0.7);
-//        SplitPane.setResizableWithParent(vcfFiltersPane, false);
-//        splitPane0.setOrientation(Orientation.VERTICAL);
-//
-//        final SplitPane splitPane = new SplitPane(splitPane0, instanceProperties);
-//        splitPane.setDividerPositions(0.7);
-//        SplitPane.setResizableWithParent(instanceProperties, false);
-
         final VariantsViewer variantsViewer = new VariantsViewer(new File("s002.vcf"));
-        setParent(variantsViewer);
+        final Button save = new Button("Save");
+        save.setOnAction(event -> variantsViewer.saveAs());
+        save.setMaxWidth(9999);
+        VBox.setVgrow(variantsViewer, Priority.ALWAYS);
+        setParent(new VBox(variantsViewer, save));
     }
 
 }

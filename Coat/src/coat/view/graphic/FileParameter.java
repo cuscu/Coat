@@ -1,9 +1,18 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
  *                                                                            *
- * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- *  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * This program is free software: you can redistribute it and/or modify it    *
+ * under the terms of the GNU General Public License as published by the      *
+ * Free Software Foundation, either version 3 of the License, or (at your     *
+ * option) any later version.                                                 *
+ *                                                                            *
+ * This program is distributed in the hope that it will be useful, but        *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
+ * See the GNU General Public License for more details.                       *
+ *                                                                            *
+ * You should have received a copy of the GNU General Public License          *
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
 package coat.view.graphic;
@@ -15,6 +24,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 
@@ -40,7 +50,6 @@ public class FileParameter extends StackPane {
         file.addListener((observable, oldValue, newValue) -> textField.setText(newValue.getAbsolutePath()));
 
         StackPane.setAlignment(button, Pos.CENTER_RIGHT);
-//        StackPane.setMargin(textField, new Insets(0, SizableImage.SMALL_SIZE, 0, 0));
         getChildren().addAll(textField, button);
 
     }
@@ -57,8 +66,13 @@ public class FileParameter extends StackPane {
         textField.setEditable(false);
         textField.setPromptText(title);
         textField.setTooltip(new Tooltip(title));
+        textField.setOnMouseClicked(this::mouseClicked);
         textField.getStyleClass().add("fancy-text-field");
         return textField;
+    }
+
+    private void mouseClicked(MouseEvent event) {
+        if (event.getClickCount() == 2) openFile();
     }
 
     private void openFile() {

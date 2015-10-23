@@ -1,13 +1,31 @@
+/******************************************************************************
+ * Copyright (C) 2015 UICHUIMI                                                *
+ *                                                                            *
+ * This program is free software: you can redistribute it and/or modify it    *
+ * under the terms of the GNU General Public License as published by the      *
+ * Free Software Foundation, either version 3 of the License, or (at your     *
+ * option) any later version.                                                 *
+ *                                                                            *
+ * This program is distributed in the hope that it will be useful, but        *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
+ * See the GNU General Public License for more details.                       *
+ *                                                                            *
+ * You should have received a copy of the GNU General Public License          *
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
+ ******************************************************************************/
+
 package coat.view.poirot;
 
-import coat.model.poirot.DatabaseEntry;
-import coat.model.poirot.GraphEvaluator;
-import coat.model.poirot.Pearl;
-import coat.model.poirot.PearlDatabase;
-import coat.model.poirot.databases.HGNCDatabase;
-import coat.model.poirot.databases.OmimDatabase;
-import coat.model.tool.Tool;
-import coat.model.vcfreader.Variant;
+import coat.core.poirot.Pearl;
+import coat.core.poirot.PearlDatabase;
+import coat.core.poirot.dataset.Dataset;
+import coat.core.poirot.dataset.Instance;
+import coat.core.poirot.dataset.hgnc.HGNCDatabase;
+import coat.core.poirot.dataset.omim.OmimDatasetLoader;
+import coat.core.poirot.graph.GraphEvaluator;
+import coat.core.tool.Tool;
+import coat.core.vcfreader.Variant;
 import coat.utils.OS;
 import coat.view.graphic.SizableImage;
 import javafx.beans.property.Property;
@@ -30,6 +48,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
@@ -58,16 +77,15 @@ public class PoirotView extends Tool {
     private final VBox infoBox = new VBox();
     private final StackPane stackPane = new StackPane(graphVBox, infoBox);
 
-
-    private final Button reload = new Button("Reload graph");
-    private final ToggleButton repeat = new ToggleButton("Show panel");
+    private final Button reload = new Button("Reload graph", new SizableImage("coat/img/poirot.png", SizableImage.SMALL_SIZE));
+    private final ToggleButton repeat = new ToggleButton("Show panel", new SizableImage("coat/img/form.png", SizableImage.SMALL_SIZE));
     private final HBox buttons = new HBox(5, repeat, reload);
 
     private final VBox listPane = new VBox(5, poirotPearlTable, buttons);
 
     private Property<String> title = new SimpleStringProperty("Poirot");
+    private Dataset omimDataset = null;
 //    private PearlDatabase database;
-
 
     public PoirotView() {
         initializeThis();
@@ -97,6 +115,9 @@ public class PoirotView extends Tool {
         });
         poirotInputPane.getSelectedPhenotypes().addListener((ListChangeListener<String>) c
                 -> start.setDisable(poirotInputPane.getSelectedPhenotypes().isEmpty()));
+        poirotPearlTable.setOnMouseClicked(event -> {
+            if (event.getClickCount() >= 2) reload();
+        });
     }
 
     private void initializeListPane() {
@@ -113,7 +134,6 @@ public class PoirotView extends Tool {
     }
 
     private void initializeReloadButton() {
-        reload.setGraphic(new SizableImage("coat/img/update.png", SizableImage.SMALL_SIZE));
         reload.setMaxWidth(9999);
         reload.setPadding(new Insets(10));
         reload.setOnAction(event -> reload());
@@ -121,7 +141,6 @@ public class PoirotView extends Tool {
     }
 
     private void initializeRepeatButton() {
-        repeat.setGraphic(new SizableImage("coat/img/form.png", SizableImage.SMALL_SIZE));
         repeat.setMaxWidth(9999);
         repeat.setPadding(new Insets(10));
         repeat.selectedProperty().addListener((observable, oldValue, selected) -> repeat.setText((selected) ? "Hide panel" : "Show panel"));
@@ -170,11 +189,7 @@ public class PoirotView extends Tool {
 
     private void showGeneDescription(Pearl pearl) {
         final String symbol = pearl.getName();
-        String description = HGNCDatabase.getName(symbol);
-        if (description == null) {
-            final List<DatabaseEntry> entries = OmimDatabase.getEntries(symbol);
-            if (!entries.isEmpty()) description = entries.get(0).getField(1);
-        }
+        String description = getDescription(symbol);
         infoBox.getChildren().add(new Label(symbol + "(" + description + ")"));
         if (pearl.getType().equals("gene")) {
             final String url = "http://v4.genecards.org/cgi-bin/carddisp.pl?gene=" + pearl.getName();
@@ -191,6 +206,30 @@ public class PoirotView extends Tool {
         final List<Variant> variants = (List<Variant>) pearl.getProperties().get("variants");
         if (variants != null)
             for (Variant variant : variants) infoBox.getChildren().add(new Label(simplified(variant)));
+    }
+
+    private String getDescription(String symbol) {
+        String description = HGNCDatabase.getName(symbol);
+        if (description == null) {
+            loadOmimDataset();
+            final List<Instance> instances = omimDataset.getInstances(symbol, 0);
+            if (!instances.isEmpty()) description = (String) instances.get(0).getField(1);
+        }
+        return description;
+    }
+
+    private void loadOmimDataset() {
+        if (omimDataset == null) {
+            try {
+                final OmimDatasetLoader loader = new OmimDatasetLoader();
+                loader.run();
+                omimDataset = loader.get();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private String simplified(Variant variant) {
@@ -212,6 +251,7 @@ public class PoirotView extends Tool {
         graphView.clear();
         start.setDisable(true);
         message.setText("Analyzing");
+        message.textProperty().bind(graphEvaluator.messageProperty());
         new Thread(graphEvaluator).start();
     }
 

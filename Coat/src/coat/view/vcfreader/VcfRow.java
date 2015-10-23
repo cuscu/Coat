@@ -1,31 +1,39 @@
+/******************************************************************************
+ * Copyright (C) 2015 UICHUIMI                                                *
+ *                                                                            *
+ * This program is free software: you can redistribute it and/or modify it    *
+ * under the terms of the GNU General Public License as published by the      *
+ * Free Software Foundation, either version 3 of the License, or (at your     *
+ * option) any later version.                                                 *
+ *                                                                            *
+ * This program is distributed in the hope that it will be useful, but        *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
+ * See the GNU General Public License for more details.                       *
+ *                                                                            *
+ * You should have received a copy of the GNU General Public License          *
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
+ ******************************************************************************/
+
 package coat.view.vcfreader;
 
-import coat.model.vcfreader.Variant;
+import coat.core.poirot.dataset.Instance;
 import javafx.scene.control.TableRow;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-class VcfRow extends TableRow<Variant> {
+public class VcfRow extends TableRow<Instance> {
 
     @Override
-    protected void updateItem(Variant item, boolean empty) {
+    protected void updateItem(Instance item, boolean empty) {
         super.updateItem(item, empty);
         if (!empty) {
             getStyleClass().removeAll("protein-coding", "damaging");
-            final String biotype = (String) item.getInfos().getOrDefault("BIO", "");
-            switch (biotype) {
-                case "protein_coding":
-                    getStyleClass().add("protein-coding");
-                    break;
-            }
-            final String siftp = (String) item.getInfos().getOrDefault("SIFTp", "");
-            switch (siftp) {
-                case "DAMAGING":
-                    getStyleClass().add("damaging");
-            }
-
-
+            final String bio = (String) item.getField("BIO");
+            if (bio != null && bio.equals("protein_coding")) getStyleClass().add("protein-coding");
+            final String siftp = (String) item.getField("SIFTp");
+            if (siftp != null && siftp.equals("DAMAGING")) getStyleClass().add("damaging");
         }
     }
 }

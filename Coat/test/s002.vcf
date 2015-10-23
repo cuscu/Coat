@@ -9,6 +9,8 @@
 ##INFO=<ID=AC,Number=A,Type=Integer,Description="Allele count in genotypes, for each ALT allele, in the same order as listed">
 ##INFO=<ID=AF,Number=A,Type=Float,Description="Allele Frequency, for each ALT allele, in the same order as listed">
 ##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
+##INFO=<ID=BIO,Number=1,Type=Integer,Description="Biotype">
+##INFO=<ID=SIFTp,Number=1,Type=Integer,Description="SIFT prediction">
 ##INFO=<ID=HaplotypeScore,Number=1,Type=Float,Description="Consistency of the site with at most two segregating haplotypes">
 ##INFO=<ID=ReadPosRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt vs. Ref read position bias">
 ##INFO=<ID=SOR,Number=1,Type=Float,Description="Symmetric Odds Ratio of 2x2 contingency table to detect strand bias">
@@ -112,7 +114,7 @@
 20	33610546	.	A	G	41.74	.	AC=2;AF=1.00;AN=2;DP=2;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=20.87;SOR=2.303	GT:AD:DP:GQ:PL	1/1:0,2:2:6:69,6,0
 20	33614145	.	G	A	42.74	.	AC=2;AF=1.00;AN=2;DP=2;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=21.37;SOR=0.693	GT:AD:DP:GQ:PL	1/1:0,2:2:6:70,6,0
 20	33616014	.	C	CTT	35.71	.	AC=2;AF=1.00;AN=2;DP=2;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=60.00;MQ0=0;QD=17.85;SOR=0.693	GT:AD:DP:GQ:PL	1/1:0,2:2:6:72,6,0
-X	23761122	.	A	C	169.77	.	AC=1;AF=0.500;AN=2;BaseQRankSum=2.435;ClippingRankSum=-0.423;DP=16;FS=6.726;MLEAC=1;MLEAF=0.500;MQ=60.00;MQ0=0;MQRankSum=0.318;QD=10.61;ReadPosRankSum=1.059;SOR=3.086	GT:AD:DP:GQ:PL	0/1:9,7:16:99:198,0,246
+X	23761122	.	A	C	169.77	.	AC=1;AF=0.500;AN=2;BIO=protein_coding;BaseQRankSum=2.435;ClippingRankSum=-0.423;DP=16;FS=6.726;MLEAC=1;MLEAF=0.500;MQ=60.00;MQ0=0;MQRankSum=0.318;QD=10.61;ReadPosRankSum=1.059;SOR=3.086	GT:AD:DP:GQ:PL	0/1:9,7:16:99:198,0,246
 X	23780622	.	T	A	52.77	.	AC=1;AF=0.500;AN=2;BaseQRankSum=-0.736;ClippingRankSum=0.736;DP=3;FS=0.000;MLEAC=1;MLEAF=0.500;MQ=60.00;MQ0=0;MQRankSum=-0.736;QD=17.59;ReadPosRankSum=-0.736;SOR=0.223	GT:AD:DP:GQ:PL	0/1:1,2:3:63:81,0,63
 X	23780626	.	A	G	52.77	.	AC=1;AF=0.500;AN=2;BaseQRankSum=-0.736;ClippingRankSum=0.736;DP=3;FS=0.000;MLEAC=1;MLEAF=0.500;MQ=60.00;MQ0=0;MQRankSum=0.736;QD=17.59;ReadPosRankSum=-0.736;SOR=0.223	GT:AD:DP:GQ:PL	0/1:1,2:3:63:81,0,63
-X	23780980	.	C	A	39.74	.	AC=2;AF=1.00;AN=2;DP=2;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=47.12;MQ0=0;QD=19.87;SOR=0.693	GT:AD:DP:GQ:PL	1/1:0,2:2:6:67,6,0
+X	23780980	.	C	A	39.74	.	AC=2;AF=1.00;AN=2;DP=2;FS=0.000;MLEAC=2;SIFTp=DAMAGING;MLEAF=1.00;MQ=47.12;MQ0=0;QD=19.87;SOR=0.693	GT:AD:DP:GQ:PL	1/1:0,2:2:6:67,6,0

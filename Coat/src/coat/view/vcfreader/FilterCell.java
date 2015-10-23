@@ -17,8 +17,8 @@
 
 package coat.view.vcfreader;
 
-import coat.model.vcfreader.Variant;
-import coat.model.vcfreader.VcfFilter;
+import coat.core.vcfreader.Variant;
+import coat.core.vcfreader.VcfFilter;
 import coat.utils.OS;
 import coat.view.graphic.AutoFillComboBox;
 import coat.view.graphic.SizableImage;
