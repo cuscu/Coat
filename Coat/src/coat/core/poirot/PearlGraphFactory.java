@@ -24,7 +24,7 @@ import coat.core.poirot.dataset.hprd.HPRDExpressionRelator;
 import coat.core.poirot.dataset.hprd.HPRDRelator;
 import coat.core.poirot.dataset.mentha.MenthaRelator;
 import coat.core.poirot.dataset.omim.OmimRelator;
-import coat.core.vcfreader.Variant;
+import coat.core.vcf.Variant;
 import javafx.concurrent.Task;
 
 import java.util.ArrayList;
@@ -32,12 +32,12 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Task (a long task) that analyzes a VCF file and a list of phenotype key words and returns a PearlDatabase with the
- * gene-gene-phenotype graph associated to the variants.
+ * Task (a long task) that analyzes a VCF file and returns a PearlDatabase with the gene-gene-phenotype graph
+ * associated to the variants.
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class PoirotGraphAnalysis extends Task<PearlDatabase> {
+public class PearlGraphFactory extends Task<PearlGraph> {
 
     public static final int CYCLES = 2;
 
@@ -51,7 +51,7 @@ public class PoirotGraphAnalysis extends Task<PearlDatabase> {
 
     private final List<Variant> variants;
 
-    private final PearlDatabase database = new PearlDatabase();
+    private final PearlGraph pearlGraph = new PearlGraph();
     private final List<Pearl> leafGenes = new ArrayList<>();
     private int processed;
     private int round;
@@ -63,29 +63,30 @@ public class PoirotGraphAnalysis extends Task<PearlDatabase> {
      *
      * @param variants the list of variants
      */
-    public PoirotGraphAnalysis(List<Variant> variants) {
+    public PearlGraphFactory(List<Variant> variants) {
         this.variants = variants;
     }
 
     @Override
-    protected PearlDatabase call() throws Exception {
+    protected PearlGraph call() throws Exception {
         addInitialGenes();
         expandGraph();
-        return database;
+        return pearlGraph;
     }
 
 
     private void addInitialGenes() {
         variants.forEach(variant -> {
-            final String gene = (String) variant.getInfos().get("GNAME");
+            String gene = variant.getInfo("GNAME");
+            if (gene == null) gene = variant.getInfo("SYMBOL");
             if (gene != null) addVariantGeneToDatabase(variant, gene);
         });
-        leafGenes.addAll(database.getPearls("gene"));
+        leafGenes.addAll(pearlGraph.getPearls(Pearl.Type.GENE));
     }
 
     private void addVariantGeneToDatabase(Variant variant, String gene) {
         final String GENE = HGNCDatabase.getStandardSymbol(gene);
-        final Pearl genePearl = database.getOrCreate(GENE, "gene");
+        final Pearl genePearl = pearlGraph.getOrCreate(Pearl.Type.GENE, GENE);
         genePearl.getProperties().putIfAbsent("variants", new ArrayList<>());
         final List<Variant> geneVariants = (List<Variant>) genePearl.getProperties().get("variants");
         geneVariants.add(variant);
@@ -118,7 +119,7 @@ public class PoirotGraphAnalysis extends Task<PearlDatabase> {
     }
 
     private void connect(Pearl pearl) {
-        Arrays.stream(relators).forEach(relator -> relator.expand(pearl, database));
+        Arrays.stream(relators).forEach(relator -> relator.expand(pearl, pearlGraph));
     }
 
 

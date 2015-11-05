@@ -15,34 +15,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
-package coat.core.vcfcombiner;
+package coat.view.graphic;
 
-import coat.core.vcfreader.Variant;
-import coat.view.vcfreader.VcfSample;
-import javafx.concurrent.Task;
-
-import java.util.List;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.Tooltip;
 
 /**
- * This task will score each variant with metadata generated from the bam and mist files related with the samples
- * genetic information.
+ * A button that only shows an icon. Text is displayed on mouse hover, as a Tooltip. Also, the "graphic-button" CSS class
+ * is added.
+ *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
- * @author Jacob
  */
-class VcfQualityTask extends Task<List<Variant>> {
+public class IconButton extends Button {
 
-    private final List<Variant> variants;
-    private final List<VcfSample> samples;
+    public static final String GRAPHIC_BUTTON = "graphic-button";
 
-    public VcfQualityTask(List<Variant> variants, List<VcfSample> samples) {
-        this.variants = variants;
-        this.samples = samples;
+    /**
+     * name is displayed on tooltip. This node has "graphic-button" CSS class.
+     *
+     * @param name button name/text to display
+     * @param icon image or graphic to show
+     */
+    public IconButton(String name, Node icon) {
+        super(null, icon);
+        setTooltip(new Tooltip(name));
+        getStyleClass().add(GRAPHIC_BUTTON);
     }
-
-
-    @Override
-    protected List<Variant> call() throws Exception {
-        return variants;
-    }
-
 }

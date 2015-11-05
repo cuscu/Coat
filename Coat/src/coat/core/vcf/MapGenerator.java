@@ -14,11 +14,11 @@
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
-package coat.core.vcfreader;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+package coat.core.vcf;
+
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Returns a LinkedHashMap with the content of the line parsed. So "ID=AC,Number=A,Type=Integer"
@@ -35,7 +35,7 @@ public class MapGenerator {
     private static int cursor;
     private static String key;
     private static String value;
-    private static Map<String, String> map = new LinkedHashMap<>();
+    private static Map<String, String> map;
     private static String line;
     private static boolean isKey;
 
@@ -45,7 +45,7 @@ public class MapGenerator {
      */
     public synchronized static Map<String, String> parse(String line) {
         MapGenerator.line = line;
-        map = new HashMap<>();
+        map = new TreeMap<>();
         cursor = 0;
         isKey = true;
         return start();

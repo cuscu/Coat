@@ -19,8 +19,7 @@ package coat.view.vcfreader;
 
 import coat.CoatView;
 import coat.core.reader.Reader;
-import coat.core.vcfreader.*;
-import coat.core.vep.EnsemblAPI;
+import coat.core.vcf.*;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.SizableImage;
@@ -35,7 +34,11 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * FXML Controller class
@@ -48,6 +51,7 @@ public class VcfReader extends VBox implements Reader {
     private final VariantsTable variantsTable = new VariantsTable();
     private final FilterList filterList = new FilterList();
     private final TabPane tabs = new TabPane();
+    private final SampleTable samplesTableView = new SampleTable();
 
     private final SplitPane leftPane = new SplitPane();
     private final SplitPane mainPane = new SplitPane();
@@ -83,9 +87,14 @@ public class VcfReader extends VBox implements Reader {
     }
 
     private void initializeTabs() {
-        Tab infoTab = new Tab(OS.getResources().getString("properties"), infoTable);
+        final Tab infoTab = new Tab(OS.getResources().getString("properties"), infoTable);
         infoTab.setClosable(false);
-        tabs.getTabs().addAll(infoTab);
+        final Tab sampleTab = new Tab(OS.getResources().getString("samples"), samplesTableView);
+        sampleTab.setClosable(false);
+        variantsTable.getVariantProperty().addListener((observable, oldValue, newValue) -> samplesTableView.setVariant(newValue));
+        final List<String> formats = vcfFile.getHeader().getIdList("FORMAT");
+        samplesTableView.setColumns(formats);
+        tabs.getTabs().addAll(infoTab, sampleTab);
     }
 
     @Override
@@ -130,7 +139,8 @@ public class VcfReader extends VBox implements Reader {
 
     private void viewHeaders() {
         TextArea area = new TextArea();
-        vcfFile.getUnformattedHeaders().forEach(header -> area.appendText(header + "\n"));
+//        vcfFile.getHeader().getUnformattedHeaders().forEach(header -> area.appendText(header + "\n"));
+        area.appendText(vcfFile.getHeader().toString());
         area.setEditable(false);
         area.setWrapText(true);
         area.home();
@@ -161,10 +171,9 @@ public class VcfReader extends VBox implements Reader {
      * Inserts LFS header alphabetically.
      */
     private void injectLFSHeader() {
-        // Let's check if LFS header is already stored
-        for (Map<String, String> map : vcfFile.getInfos()) if (map.get("ID").equals("LFS")) return;
+        final boolean match = vcfFile.getHeader().getComplexHeaders().get("INFO").stream().anyMatch(map -> map.get("ID").equals("LFS"));
         final String lfsInfo = "##INFO=<ID=LFS,Number=1,Type=Integer,Description=\"Low frequency codon substitution\">";
-        vcfFile.addInfoLines(lfsInfo);
+        if (!match) vcfFile.getHeader().addHeader(lfsInfo);
     }
 
     private Button getVepButton() {
@@ -175,17 +184,12 @@ public class VcfReader extends VBox implements Reader {
     }
 
     private void addVep() {
-        injectVEPHeaders();
-        Task task = EnsemblAPI.vepAnnotator(vcfFile.getVariants());
-        task.setOnSucceeded(event -> CoatView.printMessage(vcfFile.getVariants().size() + " variants annotated", "success"));
-        task.setOnFailed(event -> CoatView.printMessage("something wrong", "error"));
-        task.messageProperty().addListener((obs, old, current) -> CoatView.printMessage(current, "info"));
+        final Task annotator = new VepAnnotator(vcfFile);
+        annotator.setOnSucceeded(event -> CoatView.printMessage(vcfFile.getVariants().size() + " variants annotated", "success"));
+        annotator.setOnFailed(event -> CoatView.printMessage("something wrong", "error"));
+        annotator.messageProperty().addListener((obs, old, current) -> CoatView.printMessage(current, "info"));
         CoatView.printMessage("Annotating variants...", "info");
-        new Thread(task).start();
-    }
-
-    private void injectVEPHeaders() {
-        vcfFile.addInfoLines(EnsemblAPI.headers);
+        new Thread(annotator).start();
     }
 
     private Button getStatsButton() {
@@ -210,10 +214,10 @@ public class VcfReader extends VBox implements Reader {
 
     private void bindFile() {
         titleProperty.setValue(vcfFile.getFile().getName());
-        infoTable.setInfos(vcfFile.getInfos());
         infoTable.getVariantProperty().bind(variantsTable.getVariantProperty());
         filterList.setInputVariants(vcfFile.getVariants());
-        filterList.setInfos(vcfFile.getInfos());
+        final List<String> list = vcfFile.getHeader().getComplexHeaders().get("INFO").stream().map(map -> map.get("ID")).collect(Collectors.toList());
+        filterList.setInfos(list);
         variantsTable.setVariants(filterList.getOutputVariants());
     }
 }

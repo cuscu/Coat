@@ -15,8 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
-package coat.core.vcfreader;
+package coat.core.vcf;
 
+import coat.core.vcf.stats.InfoStats;
 import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
@@ -34,10 +35,9 @@ public class VcfStats extends VBox {
 
     public VcfStats(VcfFile vcfFile) {
         this.vcfFile = vcfFile;
-        vcfFile.getInfos().forEach(stringStringMap -> {
-            String id = stringStringMap.get("ID");
-            InfoStats infoStats = processInfo(id);
-            stats.put(id, infoStats);
+        vcfFile.getHeader().getComplexHeaders().get("INFO").stream().map(map -> map.get("ID")).forEach((info) -> {
+            InfoStats infoStats = processInfo(info);
+            stats.put(info, infoStats);
         });
     }
 
@@ -45,7 +45,7 @@ public class VcfStats extends VBox {
         TreeMap<String, Integer> counts = new TreeMap<>();
         List<Double> values = new ArrayList<>();
         vcfFile.getVariants().forEach(variant -> {
-            final Object o = variant.getInfos().get(id);
+            final Object o = variant.getInfo(id);
             if (o == null) return;
             if (o.getClass() == String.class) {
                 String value = (String) o;

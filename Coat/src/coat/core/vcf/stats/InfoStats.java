@@ -15,22 +15,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
-package coat.core.vcfreader;
+package coat.core.vcf.stats;
 
-import coat.core.poirot.dataset.Dataset;
-import coat.core.poirot.dataset.VcfLoader;
-import org.junit.Test;
-
-import java.io.File;
+import java.util.List;
+import java.util.TreeMap;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class VcfLoaderTest {
+public class InfoStats {
+    private List<Double> values;
+    private TreeMap<String, Integer> counts;
 
-    @Test
-    public void test() {
-        final Dataset dataset = VcfLoader.createDataset(new File("test/s002.vcf"));
-        dataset.printTable(System.out);
+    public void setCounts(TreeMap<String, Integer> counts) {
+        this.counts = counts;
+    }
+
+    public TreeMap<String, Integer> getCounts() {
+        return counts;
+    }
+
+    public void setValues(List<Double> values) {
+        this.values = values;
+    }
+
+    public List<Double> getValues() {
+        return values;
     }
 }

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
-package coat.core.vcfreader;
+package coat.core.vcf;
 
 import coat.utils.OS;
 
@@ -34,9 +34,9 @@ public class TsvSaver {
     private final VcfFile vcfFile;
     private final File output;
     private final List<Variant> variants;
-    private  List<String> infoNames;
-    private  String[] header;
-    private  int length;
+    private List<String> infoNames;
+    private String[] header;
+    private int length;
 
     private PrintWriter writer;
 
@@ -62,8 +62,8 @@ public class TsvSaver {
     }
 
     private void readInfoColumns() {
-        this.length = FIXED_COLUMNS + vcfFile.getInfos().size();
-        this.infoNames = vcfFile.getInfos().stream().map(info -> info.get("ID")).collect(Collectors.toList());
+        this.length = FIXED_COLUMNS + vcfFile.getHeader().getComplexHeaders().get("INFO").size();
+        this.infoNames = vcfFile.getHeader().getComplexHeaders().get("INFO").stream().map(map -> map.get("ID")).collect(Collectors.toList());
         this.header = createHeader();
     }
 
@@ -98,8 +98,11 @@ public class TsvSaver {
     }
 
     private void setInfoColumns(Variant var, String[] line) {
-        fillEmpties(line);
-        var.getInfos().forEach((key, val) -> setInfo(line, key, val));
+//        fillEmpties(line);
+        for (int i = 0; i < infoNames.size(); i++) {
+            final String info = var.getInfo(infoNames.get(i));
+            line[i + FIXED_COLUMNS] = info == null ? "." : info;
+        }
     }
 
     private void setInfo(String[] line, String key, Object val) {
@@ -119,7 +122,7 @@ public class TsvSaver {
         line[3] = var.getRef();
         line[4] = var.getAlt();
         line[5] = String.format("%.4f", var.getQual());
-        line[6] = (String) var.getInfos().get("FILTER");
+        line[6] = var.getFilter();
     }
 
 }

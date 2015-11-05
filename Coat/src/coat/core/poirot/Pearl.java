@@ -30,26 +30,26 @@ import java.util.Map;
  */
 public class Pearl {
 
-    private String type;
     private String name;
+    private Type type;
     private Map<String, Object> properties = new HashMap<>();
 
     private Map<Pearl, List<PearlRelationship>> relationships = new HashMap<>();
 
     private int distanceToPhenotype = -1;
-    private Double score;
+    private double score;
     private boolean active;
 
-    public Pearl(String name, String type) {
-        this.name = name;
+    public Pearl(Type type, String name) {
         this.type = type;
+        this.name = name;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getType() {
+    public Type getType() {
         return type;
     }
 
@@ -101,5 +101,9 @@ public class Pearl {
 
     public boolean isActive() {
         return active;
+    }
+
+    public enum Type {
+        GENE, DISEASE, EXPRESSION
     }
 }

@@ -17,7 +17,7 @@
 
 package coat.view.vcfreader;
 
-import coat.core.vcfreader.Variant;
+import coat.core.vcf.Variant;
 import javafx.geometry.Insets;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TextField;
@@ -51,13 +51,13 @@ class VariantCard extends TableCell<Variant, Variant> {
     protected void updateItem(Variant item, boolean empty) {
         super.updateItem(item, empty);
         if (!empty && item != null) {
-            String codon = (String) item.getInfos().get("COD");
+            String codon = item.getInfo("COD");
             if (codon == null){
                 ref.setText(item.getRef());
                 alt.setText(item.getAlt());
             } else {
                 String [] cods = codon.split("[-/]");
-                String amino = (String) item.getInfos().get("AMINO");
+                String amino = item.getInfo("AMINO");
                 if (amino == null){
                     ref.setText(cods[0]);
                     alt.setText(cods[1]);

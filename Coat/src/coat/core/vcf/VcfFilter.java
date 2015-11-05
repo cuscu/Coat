@@ -14,15 +14,13 @@
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
-package coat.core.vcfreader;
+package coat.core.vcf;
 
 import coat.utils.OS;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-
-import java.util.Map;
 
 /**
  * This class represents a filter for a VCF file. The filter is characterized by a field (CHROM, POS,
@@ -149,28 +147,37 @@ public class VcfFilter {
                 break;
             case INFO:
                 if (info == null) return true;
-                Map<String, Object> map = variant.getInfos();
-                if (map.containsKey(info)) {
-                    final Object val = map.get(info);
-                    if (val != null) {
-                        if (val.getClass() == String.class) {
-                            stringValue = (String) val;
-                            try {
-                                doubleValue = Double.valueOf(stringValue);
-                            } catch (NumberFormatException e) {
-                                // If not a number
-                            }
-                        } else {
-                            try {
-                                doubleValue = (Double) map.get(info);
-                            } catch (NumberFormatException e) {
-                                // If not a number
-                            }
-                        }
-                    }
-                }
-                break;
+                stringValue = variant.getInfo(info);
+
+
+////                Map<String, Object> map = variant.getInfoValues();
+//                if (map.containsKey(info)) {
+//                    final Object val = map.get(info);
+//                    if (val != null) {
+//                        if (val.getClass() == String.class) {
+//                            stringValue = (String) val;
+//                            try {
+//                                doubleValue = Double.valueOf(stringValue);
+//                            } catch (NumberFormatException e) {
+//                                // If not a number
+//                            }
+//                        } else {
+//                            try {
+//                                doubleValue = (Double) map.get(info);
+//                            } catch (NumberFormatException e) {
+//                                // If not a number
+//                            }
+//                        }
+//                    }
+//                }
+//                break;
         }
+        if (stringValue != null)
+            try {
+                doubleValue = Double.valueOf(stringValue);
+            } catch (NumberFormatException ignored) {
+
+            }
         final Connector connector = connectorProperty.getValue();
         if (connector == null) return true;
         switch (connector) {
@@ -211,9 +218,9 @@ public class VcfFilter {
                 if (stringValue != null) return stringValue.matches(value);
                 break;
             case PRESENT:
-                return variant.getInfos().containsKey(info);
+                return variant.getInfo(info) != null;
             case NOT_PRESENT:
-                return !variant.getInfos().containsKey(info);
+                return variant.getInfo(info) == null;
         }
         return strictProperty.getValue();
     }

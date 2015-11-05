@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
-package coat.core.vcfreader;
+package coat.core.vcf;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,9 +22,6 @@ import javafx.collections.ObservableList;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Stores in memory a Vcf file data.
@@ -34,14 +31,22 @@ import java.util.Map;
 public class VcfFile {
 
     private final ObservableList<Variant> variants = FXCollections.observableArrayList();
-    private final ObservableList<Map<String, String>> infos = FXCollections.observableArrayList();
-    private final List<Map<String, String>> formats = new ArrayList<>();
-    private final List<String> unformattedHeaders = new ArrayList<>();
+    private final VcfHeader header;
+
     private File file;
 
     public VcfFile(File file) {
         this.file = file;
+        this.header = new VcfHeader();
         readFile(file);
+    }
+
+    public VcfFile() {
+        this.header = new VcfHeader();
+    }
+
+    public VcfFile(VcfHeader header) {
+        this.header = header;
     }
 
     private void readFile(File file) {
@@ -54,55 +59,21 @@ public class VcfFile {
 
     private void readLines(final BufferedReader reader) {
         reader.lines().forEach(line -> {
-            if (!line.startsWith("#")) variants.add(new Variant(line));
-            else processMetaLine(line);
+            if (!line.startsWith("#")) variants.add(new Variant(line, this));
+            else header.addHeader(line);
         });
     }
 
-    private void processMetaLine(String line) {
-        unformattedHeaders.add(line);
-        if (line.startsWith("##INFO=<"))
-            infos.add(MapGenerator.parse(line.substring(8, line.length() - 1)));
-        else if (line.startsWith("##FORMAT=<"))
-            formats.add(MapGenerator.parse(line.substring(10, line.length() - 1)));
-    }
 
     public ObservableList<Variant> getVariants() {
         return variants;
     }
 
-    public ObservableList<Map<String, String>> getInfos() {
-        return infos;
-    }
-
-    public List<String> getUnformattedHeaders() {
-        return unformattedHeaders;
-    }
-
-    public void addInfoLines(String... lines) {
-        for (String line : lines) {
-            infos.add(MapGenerator.parse(line.substring(8, line.length() - 1)));
-            addToUnformattedHeaders(line);
-        }
-    }
-
-    private void addToUnformattedHeaders(String line) {
-        if (unformattedHeaders.contains(line)) return;
-        int posOfLastInfoLine = -1;
-        for (int i = 0; i < unformattedHeaders.size(); i++)
-            if (unformattedHeaders.get(i).startsWith("##INFO=")) {
-                posOfLastInfoLine = i;
-                if (unformattedHeaders.get(i).compareTo(line) > 0) {
-                    unformattedHeaders.add(i, line);
-                    return;
-                }
-            }
-        if (posOfLastInfoLine != -1) unformattedHeaders.add(posOfLastInfoLine + 1, line);
-        else unformattedHeaders.add(1, line);
-    }
-
-
     public File getFile() {
         return file;
+    }
+
+    public VcfHeader getHeader() {
+        return header;
     }
 }

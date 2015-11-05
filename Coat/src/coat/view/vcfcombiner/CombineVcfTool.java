@@ -18,12 +18,13 @@
 package coat.view.vcfcombiner;
 
 import coat.core.tool.Tool;
-import coat.core.vcfcombiner.VcfCombineTask;
-import coat.core.vcfreader.Variant;
-import coat.core.vcfreader.VcfFile;
-import coat.core.vcfreader.VcfSaver;
+import coat.core.vcf.Variant;
+import coat.core.vcf.VcfFile;
+import coat.core.vcf.VcfSaver;
+import coat.core.vcf.combine.VcfCombineTask;
 import coat.utils.FileManager;
 import coat.utils.OS;
+import coat.view.graphic.IconButton;
 import coat.view.graphic.SizableImage;
 import coat.view.vcfreader.VariantsTable;
 import coat.view.vcfreader.VcfSample;
@@ -59,12 +60,12 @@ public class CombineVcfTool extends Tool {
 
     private final VariantsTable variantsTable = new VariantsTable();
 
-    private final Button addFiles = new Button(OS.getString("add.files"), new SizableImage("coat/img/add.png", SizableImage.SMALL_SIZE));
-    private final Button combine = new Button(OS.getString("combine"), new SizableImage("coat/img/combine.png", SizableImage.SMALL_SIZE));
-    private final Button delete = new Button(OS.getString("delete"), new SizableImage("coat/img/delete.png", SizableImage.SMALL_SIZE));
-//    private final Button save = new Button(OS.getString("save"), new SizableImage("coat/img/save.png", SizableImage.SMALL_SIZE));
+    private final Button addFiles = new IconButton(OS.getString("add.files"), new SizableImage("coat/img/add.png", SizableImage.SMALL_SIZE));
+    private final Button delete = new IconButton(OS.getString("delete"), new SizableImage("coat/img/delete.png", SizableImage.SMALL_SIZE));
+    private final VBox topButtonsBox = new VBox(5, addFiles, delete);
+    private final HBox samplesHBox = new HBox(5, topButtonsBox, vcfSampleTableView);
 
-    private final HBox topButtonsBox = new HBox(5, addFiles, delete, combine);
+    private final Button combine = new Button(OS.getString("combine"), new SizableImage("coat/img/combine.png", SizableImage.SMALL_SIZE));
 
     private final Label message = new Label();
     private final ProgressBar progressBar = new ProgressBar();
@@ -73,7 +74,8 @@ public class CombineVcfTool extends Tool {
     private final Property<String> title = new SimpleStringProperty(OS.getString("combine.vcf"));
 
     private final ObservableList<Variant> resultVariants = FXCollections.observableArrayList();
-    private Task<List<Variant>> combiner;
+    private VcfFile resultVcfFile;
+    private Task<VcfFile> combiner;
 
     public CombineVcfTool() {
         configureRoot();
@@ -83,8 +85,10 @@ public class CombineVcfTool extends Tool {
     }
 
     private void configureRoot() {
-        getChildren().addAll(topButtonsBox, vcfSampleTableView, variantsTable, progressPane);
+        getChildren().addAll(samplesHBox, combine, variantsTable, progressPane);
+        HBox.setHgrow(vcfSampleTableView, Priority.ALWAYS);
         setPadding(new Insets(10));
+        setTopButton(combine);
         setSpacing(5);
         HBox.setHgrow(progressBar, Priority.ALWAYS);
         progressBar.setMaxWidth(9999);
@@ -92,8 +96,6 @@ public class CombineVcfTool extends Tool {
     }
 
     private void configureButtonsPane() {
-        topButtonsBox.getChildren().stream().map(node -> (Button) node).forEach(this::setTopButton);
-//        save.setOnAction(event -> saveAs());
         addFiles.setOnAction(event -> addFiles());
         combine.setOnAction(event -> combine());
         delete.setOnAction(event -> deleteFile());
@@ -136,11 +138,8 @@ public class CombineVcfTool extends Tool {
     public void saveAs() {
         final File file = FileManager.saveFile("Select ouptut file", FileManager.VCF_FILTER);
         if (file != null) {
-            final VcfSample referenceSample = getReferenceSample(vcfSampleTableView.getItems());
-            if (referenceSample != null) {
-                VcfSaver saver = new VcfSaver(new VcfFile(referenceSample.getVcfFile()), file, resultVariants);
+                VcfSaver saver = new VcfSaver(resultVcfFile, file, resultVariants);
                 saver.invoke();
-            }
         }
     }
 
@@ -175,12 +174,17 @@ public class CombineVcfTool extends Tool {
         combiner = new VcfCombineTask(vcfSampleTableView.getItems());
         combiner.setOnSucceeded(event -> combinerSucceeded());
         progressBar.progressProperty().bind(combiner.progressProperty());
-        new Thread(combiner).start();
+        try {
+            new Thread(combiner).start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void combinerSucceeded() {
         restoreGUI();
-        resultVariants.setAll(combiner.getValue());
+        resultVcfFile = combiner.getValue();
+        resultVariants.setAll(resultVcfFile.getVariants());
     }
 
     private void restoreGUI() {

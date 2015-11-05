@@ -18,9 +18,9 @@
 package coat.core.poirot.dataset.hprd;
 
 import coat.core.poirot.Pearl;
-import coat.core.poirot.PearlDatabase;
+import coat.core.poirot.PearlGraph;
+import coat.core.poirot.PearlGraphFactory;
 import coat.core.poirot.PearlRelationship;
-import coat.core.poirot.PoirotGraphAnalysis;
 import coat.core.poirot.dataset.Dataset;
 import coat.core.poirot.dataset.Instance;
 import coat.core.poirot.dataset.biogrid.Relator;
@@ -36,7 +36,7 @@ public class HPRDRelator implements Relator {
 
 
     private final Dataset hprdDataset;
-    private PearlDatabase database;
+    private PearlGraph database;
     private Pearl pearl;
 
     public HPRDRelator() {
@@ -54,7 +54,7 @@ public class HPRDRelator implements Relator {
         return null;
     }
 
-    public void expand(Pearl pearl, PearlDatabase database) {
+    public void expand(Pearl pearl, PearlGraph database) {
         this.database = database;
         this.pearl = pearl;
         try {
@@ -67,8 +67,8 @@ public class HPRDRelator implements Relator {
 
     private void createRelationship(Instance instance, int index) {
         final String targetSymbol = (String) instance.getField(index);
-        if (PoirotGraphAnalysis.notInBlacklist(targetSymbol)) {
-            final Pearl target = database.getOrCreate(targetSymbol, "gene");
+        if (PearlGraphFactory.notInBlacklist(targetSymbol)) {
+            final Pearl target = database.getOrCreate(Pearl.Type.GENE, targetSymbol);
             pearl.getRelationships().putIfAbsent(target, new ArrayList<>()); // Ensure not null value
             final List<PearlRelationship> relationships = pearl.getRelationships().get(target);
             final String id = (String) instance.getField(0);

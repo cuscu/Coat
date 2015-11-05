@@ -18,14 +18,14 @@
 package coat.view.poirot;
 
 import coat.core.poirot.Pearl;
-import coat.core.poirot.PearlDatabase;
+import coat.core.poirot.PearlGraph;
 import coat.core.poirot.dataset.Dataset;
 import coat.core.poirot.dataset.Instance;
 import coat.core.poirot.dataset.hgnc.HGNCDatabase;
 import coat.core.poirot.dataset.omim.OmimDatasetLoader;
 import coat.core.poirot.graph.GraphEvaluator;
 import coat.core.tool.Tool;
-import coat.core.vcfreader.Variant;
+import coat.core.vcf.Variant;
 import coat.utils.OS;
 import coat.view.graphic.SizableImage;
 import javafx.beans.property.Property;
@@ -178,7 +178,7 @@ public class PoirotView extends Tool {
     private void selected(Pearl pearl) {
         infoBox.getChildren().clear();
         if (pearl != null) {
-            if (pearl.getType().equals("gene")) showGeneDescription(pearl);
+            if (pearl.getType() == Pearl.Type.GENE) showGeneDescription(pearl);
             else showNonGeneDescription(pearl);
         }
     }
@@ -191,7 +191,7 @@ public class PoirotView extends Tool {
         final String symbol = pearl.getName();
         String description = getDescription(symbol);
         infoBox.getChildren().add(new Label(symbol + "(" + description + ")"));
-        if (pearl.getType().equals("gene")) {
+        if (pearl.getType() == Pearl.Type.GENE) {
             final String url = "http://v4.genecards.org/cgi-bin/carddisp.pl?gene=" + pearl.getName();
             final Hyperlink hyperlink = new Hyperlink("GeneCards");
             hyperlink.setOnAction(event -> new Thread(() -> {
@@ -233,18 +233,20 @@ public class PoirotView extends Tool {
     }
 
     private String simplified(Variant variant) {
-        double af = Double.valueOf((String) variant.getInfos().get("AF"));
-        String value = String.format("%s:%d %s/%s AF=%.1f", variant.getChrom(), variant.getPos(), variant.getRef(), variant.getAlt(), af);
-        final String bio = (String) variant.getInfos().get("BIO");
+        String af = variant.getInfo("AF");
+        String value = String.format("%s:%d %s/%s", variant.getChrom(), variant.getPos(), variant.getRef(), variant.getAlt());
+        final String bio = variant.getInfo("BIO");
         if (bio != null) value += " BIO=" + bio;
-        final String cons = (String) variant.getInfos().get("CONS");
+        final String cons = variant.getInfo("CONS");
         if (cons != null) value += " CONS=" + cons;
+        final String sifts = variant.getInfo("SIFTs");
+        if (sifts != null) value += " SIFTs=" + sifts;
         return value;
     }
 
     private void start() {
         final List<String> phenotypes = poirotInputPane.getSelectedPhenotypes();
-        final PearlDatabase database = poirotInputPane.getDatabase();
+        final PearlGraph database = poirotInputPane.getDatabase();
         final GraphEvaluator graphEvaluator = new GraphEvaluator(database, phenotypes);
         graphEvaluator.setOnSucceeded(event -> end(database));
         poirotPearlTable.getItems().clear();
@@ -255,7 +257,7 @@ public class PoirotView extends Tool {
         new Thread(graphEvaluator).start();
     }
 
-    private void end(PearlDatabase database) {
+    private void end(PearlGraph database) {
         toGraphView();
         createGraph(database);
     }
@@ -269,7 +271,7 @@ public class PoirotView extends Tool {
         if (!content.getChildren().contains(listPane)) content.getChildren().addAll(listPane, stackPane);
     }
 
-    private void createGraph(PearlDatabase database) {
+    private void createGraph(PearlGraph database) {
         if (database != null) {
             final List<Pearl> candidates = getCandidates(database);
             poirotPearlTable.getItems().setAll(candidates);
@@ -280,8 +282,8 @@ public class PoirotView extends Tool {
         }
     }
 
-    private List<Pearl> getCandidates(PearlDatabase database) {
-        return database.getPearls("gene").stream()
+    private List<Pearl> getCandidates(PearlGraph database) {
+        return database.getPearls(Pearl.Type.GENE).stream()
                 .filter(pearl -> pearl.getProperties().containsKey("variants"))
                 .filter(pearl -> pearl.getDistanceToPhenotype() > 0)
                 .collect(Collectors.toList());

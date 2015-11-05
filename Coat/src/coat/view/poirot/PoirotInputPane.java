@@ -18,9 +18,9 @@
 package coat.view.poirot;
 
 import coat.core.poirot.Pearl;
-import coat.core.poirot.PearlDatabase;
-import coat.core.poirot.PoirotGraphAnalysis;
-import coat.core.vcfreader.VcfFile;
+import coat.core.poirot.PearlGraph;
+import coat.core.poirot.PearlGraphFactory;
+import coat.core.vcf.VcfFile;
 import coat.utils.FileManager;
 import coat.view.graphic.FileParameter;
 import javafx.beans.property.Property;
@@ -32,8 +32,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Used to select the input VCF file and the list of phenotypes.
@@ -45,22 +45,22 @@ public class PoirotInputPane extends VBox {
     private final FileParameter inputVcf = new FileParameter("Input VCF");
     private final PhenotypeSelector phenotypeSelector = new PhenotypeSelector();
     private final ProgressIndicator loading = new ProgressIndicator();
-    private final StackPane phenotypeSelectorStackPane = new StackPane(phenotypeSelector, loading);
 
-    private Property<PearlDatabase> database = new SimpleObjectProperty<>();
+    private Property<PearlGraph> database = new SimpleObjectProperty<>();
 
     PoirotInputPane() {
         inputVcf.getFilters().add(FileManager.VCF_FILTER);
         inputVcf.fileProperty().addListener((observable, oldValue, file) -> loadGraph(file));
         phenotypeSelector.setDisable(true);
         loading.setVisible(false);
+        final StackPane phenotypeSelectorStackPane = new StackPane(phenotypeSelector, loading);
         getChildren().addAll(inputVcf, phenotypeSelectorStackPane);
         setSpacing(5);
     }
 
     private void loadGraph(File file) {
         final VcfFile vcfFile = new VcfFile(file);
-        final PoirotGraphAnalysis analysis = new PoirotGraphAnalysis(vcfFile.getVariants());
+        final PearlGraphFactory analysis = new PearlGraphFactory(vcfFile.getVariants());
         phenotypeSelector.setDisable(true);
         loading.setVisible(true);
         StackPane.setMargin(loading, new Insets(20, 20, 20, 20));
@@ -68,20 +68,19 @@ public class PoirotInputPane extends VBox {
         new Thread(analysis).start();
     }
 
-    private void fileLoaded(PoirotGraphAnalysis analysis) {
-        final PearlDatabase pearlDatabase = analysis.getValue();
+    private void fileLoaded(PearlGraphFactory analysis) {
+        final PearlGraph pearlDatabase = analysis.getValue();
         database.setValue(pearlDatabase);
-        final List<String> list = pearlDatabase.getPearls("phenotype").stream().map(Pearl::getName).collect(Collectors.toList());
+
+        final List<String> list = new ArrayList<>();
+        pearlDatabase.getPearls(Pearl.Type.EXPRESSION).stream().map(Pearl::getName).forEach(list::add);
+        pearlDatabase.getPearls(Pearl.Type.DISEASE).stream().map(Pearl::getName).forEach(list::add);
         phenotypeSelector.setPhenotypes(list);
         phenotypeSelector.setDisable(false);
         loading.setVisible(false);
     }
 
-    public Property<PearlDatabase> databaseProperty() {
-        return database;
-    }
-
-    public PearlDatabase getDatabase() {
+    public PearlGraph getDatabase() {
         return database.getValue();
     }
 

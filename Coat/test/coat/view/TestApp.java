@@ -20,12 +20,7 @@ package coat.view;
 import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
-import java.io.File;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
@@ -48,12 +43,7 @@ public class TestApp extends Application {
     }
 
     public void testOne() {
-        final VariantsViewer variantsViewer = new VariantsViewer(new File("s002.vcf"));
-        final Button save = new Button("Save");
-        save.setOnAction(event -> variantsViewer.saveAs());
-        save.setMaxWidth(9999);
-        VBox.setVgrow(variantsViewer, Priority.ALWAYS);
-        setParent(new VBox(variantsViewer, save));
+
     }
 
 }

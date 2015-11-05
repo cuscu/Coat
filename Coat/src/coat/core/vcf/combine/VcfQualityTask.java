@@ -15,17 +15,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
-package coat.core.vcfreader;
+package coat.core.vcf.combine;
 
-import org.junit.Test;
+import coat.core.vcf.Variant;
+import coat.view.vcfreader.VcfSample;
+import javafx.concurrent.Task;
+
+import java.util.List;
 
 /**
+ * This task will score each variant with metadata generated from the bam and mist files related with the samples
+ * genetic information.
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
+ * @author Jacob
  */
-public class VcfLoaderToDatasetTest {
+class VcfQualityTask extends Task<List<Variant>> {
 
-    @Test
-    public void test() {
+    private final List<Variant> variants;
+    private final List<VcfSample> samples;
 
+    public VcfQualityTask(List<Variant> variants, List<VcfSample> samples) {
+        this.variants = variants;
+        this.samples = samples;
     }
+
+
+    @Override
+    protected List<Variant> call() throws Exception {
+        return variants;
+    }
+
 }

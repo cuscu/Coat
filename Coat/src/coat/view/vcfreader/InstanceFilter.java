@@ -18,7 +18,7 @@
 package coat.view.vcfreader;
 
 import coat.core.poirot.dataset.Instance;
-import coat.core.vcfreader.VcfFilter;
+import coat.core.vcf.VcfFilter;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)

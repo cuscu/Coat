@@ -16,7 +16,8 @@
  ******************************************************************************/
 package coat.view.vcfreader;
 
-import coat.core.vcfreader.Variant;
+import coat.core.vcf.Variant;
+import coat.core.vcf.VcfFile;
 import coat.utils.OS;
 import coat.view.graphic.NaturalCell;
 import javafx.beans.property.Property;
@@ -29,12 +30,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 /**
- *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class InfoTable extends VBox {
@@ -48,8 +44,6 @@ public class InfoTable extends VBox {
             = new TableColumn<>(OS.getResources().getString("value"));
 
     private final TextFlow description = new TextFlow();
-
-    private List<Map<String, String>> infos = new ArrayList<>();
 
     public InfoTable() {
         initTable();
@@ -77,10 +71,6 @@ public class InfoTable extends VBox {
         value.setCellFactory(param -> new NaturalCell());
     }
 
-    public void setInfos(List<Map<String, String>> infos){
-        this.infos = infos;
-    }
-
     public Property<Variant> getVariantProperty() {
         return variantProperty;
     }
@@ -92,15 +82,13 @@ public class InfoTable extends VBox {
     }
 
     private void addInfos() {
-        variantProperty.getValue().getInfos().forEach((key, val) -> table.getItems().add(new Info(key, val == null ? "true" : val.toString(), getDescription(key))));
-    }
-
-    private String getDescription(String key) {
-        if (infos != null)
-            for (Map<String, String> info : infos)
-                if (info.get("ID").equals(key))
-                    return info.get("Description");
-        return "";
+        final VcfFile vcfFile = variantProperty.getValue().getVcfFile();
+        vcfFile.getHeader().getComplexHeaders().get("INFO").forEach(map -> {
+            String id = map.get("ID");
+            String description = map.get("Description");
+            String value = variantProperty.getValue().getInfo(id);
+            table.getItems().add(new Info(id, value, description));
+        });
     }
 
 }

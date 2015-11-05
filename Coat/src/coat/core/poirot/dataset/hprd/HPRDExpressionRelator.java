@@ -18,7 +18,7 @@
 package coat.core.poirot.dataset.hprd;
 
 import coat.core.poirot.Pearl;
-import coat.core.poirot.PearlDatabase;
+import coat.core.poirot.PearlGraph;
 import coat.core.poirot.PearlRelationship;
 import coat.core.poirot.dataset.Dataset;
 import coat.core.poirot.dataset.Instance;
@@ -32,7 +32,7 @@ import java.util.concurrent.ExecutionException;
 public class HPRDExpressionRelator implements Relator {
 
     private final Dataset hprdExpressionDataset;
-    private PearlDatabase database;
+    private PearlGraph database;
 
     public HPRDExpressionRelator() {
         hprdExpressionDataset = loadHPRDExpressionDataset();
@@ -50,7 +50,7 @@ public class HPRDExpressionRelator implements Relator {
     }
 
     @Override
-    public void expand(Pearl pearl, PearlDatabase database) {
+    public void expand(Pearl pearl, PearlGraph database) {
         this.database = database;
         hprdExpressionDataset.getInstances(pearl.getName(), 2).forEach(instance -> {
             final Pearl phenotype = getHPRDExpressionPearl(instance);
@@ -64,7 +64,7 @@ public class HPRDExpressionRelator implements Relator {
 
     private Pearl getHPRDExpressionPearl(Instance instance) {
         final String expression = (String) instance.getField(3);
-        final Pearl phenotype = database.getOrCreate(expression, "phenotype");
+        final Pearl phenotype = database.getOrCreate(Pearl.Type.EXPRESSION, expression);
         phenotype.getProperties().putIfAbsent("database", "HPRD");
         phenotype.getProperties().putIfAbsent("name", instance.getField(3));
         return phenotype;

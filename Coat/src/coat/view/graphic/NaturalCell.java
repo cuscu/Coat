@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
+
 package coat.view.graphic;
 
 import javafx.geometry.Insets;
@@ -52,7 +53,6 @@ public class NaturalCell<S, T> extends TableCell<S, T> {
     @Override
     protected void updateItem(T item, boolean empty) {
         super.updateItem(item, empty);
-        super.updateItem(item, empty);
         if (!empty) writeItem(item);
         else setGraphic(null);
     }
@@ -62,7 +62,7 @@ public class NaturalCell<S, T> extends TableCell<S, T> {
         if (item != null) {
             textField.setText(item.toString());
             setTooltip(new Tooltip(item.toString()));
-        }
+        } else textField.setText(null);
         setGraphic(box);
     }
 

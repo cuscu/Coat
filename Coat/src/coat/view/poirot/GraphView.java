@@ -22,7 +22,7 @@ import coat.core.poirot.Pearl;
 import coat.core.poirot.PearlRelationship;
 import coat.core.poirot.graph.Graph;
 import coat.core.poirot.graph.GraphEvaluator;
-import coat.core.vcfreader.Variant;
+import coat.core.vcf.Variant;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.Property;
@@ -421,7 +421,7 @@ class GraphView extends Canvas {
     private Color getRelationshipColor(GraphRelationship graphRelationship) {
         final double score = graphRelationship.getRelationships().stream().
                 mapToDouble(this::getRelationshipScore).max().getAsDouble();
-        Color baseColor = Color.BLACK.interpolate(Color.DODGERBLUE, score * 0.2);
+        Color baseColor = Color.BLACK.interpolate(Color.DODGERBLUE, score);
         if (graphRelationship.isMouseOver()) baseColor = baseColor.interpolate(Color.WHITE, 0.5);
         return baseColor;
     }
@@ -491,9 +491,11 @@ class GraphView extends Canvas {
      */
     private Color getFillColor(GraphNode graphNode) {
         switch (graphNode.getPearl().getType()) {
-            case "phenotype":
+            case DISEASE:
                 return Color.ORANGE;
-            case "gene":
+            case EXPRESSION:
+                return Color.DARKORANGE;
+            case GENE:
                 return new Color(1.0 - graphNode.getPearl().getDistanceToPhenotype() / maxWeight, 0, 0, 1);
             default:
                 return Color.GRAY;
@@ -512,11 +514,11 @@ class GraphView extends Canvas {
             final double VARIANT_RADIUS = radiusProperty.get() * 0.15;
             final double VARIANT_DIAMETER = 2 * VARIANT_RADIUS;
             for (int i = 0; i < consequences.size(); i++) {
-                final double angle = 6.28318 * i / consequences.size() + 1.570795; // radians
+                final double angle = 6.28318 * i / consequences.size() + 1.570795; // must be radians
                 final double x = graphNode.getPosition().getX() + Math.cos(angle) * (radiusProperty.get() - VARIANT_DIAMETER) - VARIANT_RADIUS;
                 final double y = graphNode.getPosition().getY() - Math.sin(angle) * (radiusProperty.get() - VARIANT_DIAMETER) - VARIANT_RADIUS;
                 final double score = GraphEvaluator.CONSEQUENCE_SCORE.getOrDefault(consequences.get(i), 0.0);
-                Color color = Color.WHITE.interpolate(Color.RED, score * 0.2);
+                Color color = Color.WHITE.interpolate(Color.RED, score);
                 screen.setFill(color);
                 screen.fillOval(x, y, VARIANT_DIAMETER, VARIANT_DIAMETER);
             }
@@ -545,7 +547,7 @@ class GraphView extends Canvas {
     private List<String> getConsequences(List<Variant> variants) {
         List<String> consequences = new ArrayList<>();
         variants.forEach(variant -> {
-            final String cons = (String) variant.getInfos().get("CONS");
+            final String cons = variant.getInfo("CONS");
             if (cons != null) Collections.addAll(consequences, cons.split(","));
         });
         return consequences;
@@ -564,7 +566,7 @@ class GraphView extends Canvas {
 
     private void writeNodeText(GraphNode graphNode) {
         String name;
-        if (graphNode.getPearl().getType().equals("phenotype")) {
+        if (graphNode.getPearl().getType() == Pearl.Type.DISEASE || graphNode.getPearl().getType() == Pearl.Type.EXPRESSION) {
             screen.setFill(Color.BLACK);
             name = simplifyName(graphNode);
         } else {
@@ -572,6 +574,7 @@ class GraphView extends Canvas {
             name = graphNode.getPearl().getName();
         }
         screen.fillText(name, graphNode.getPosition().getX(), graphNode.getPosition().getY());
+        screen.fillText(String.format("%.3f",graphNode.getPearl().getScore()), graphNode.getPosition().getX(), graphNode.getPosition().getY() + 12);
     }
 
     private String simplifyName(GraphNode graphNode) {

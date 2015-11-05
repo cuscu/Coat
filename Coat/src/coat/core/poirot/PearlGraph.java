@@ -29,14 +29,14 @@ import java.util.stream.Collectors;
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class PearlDatabase {
+public class PearlGraph {
 
-    private HashMap<String, HashMap<String, Pearl>> types = new HashMap<>();
+    private Map<Pearl.Type, Map<String, Pearl>> typeMap = new HashMap<>();
 
     /**
      * Creates a new empty PearlDatabase
      */
-    public PearlDatabase() {
+    public PearlGraph() {
 
     }
 
@@ -46,8 +46,8 @@ public class PearlDatabase {
      * @param type type to count
      * @return number of pearls of the given type, 0 if the type is not in the PearlDatabase
      */
-    public int numberOfPearls(String type) {
-        return types.containsKey(type) ? types.get(type).size() : 0;
+    public int numberOfPearls(Pearl.Type type) {
+        return typeMap.getOrDefault(type, Collections.emptyMap()).size();
     }
 
     /**
@@ -57,10 +57,11 @@ public class PearlDatabase {
      * @param type type of the Pearl
      * @return true if a Pearl with the same name and type exists
      */
-    public boolean contains(String name, String type) {
-        final HashMap<String, Pearl> typeMap = types.get(type);
-        return typeMap != null && typeMap.containsKey(name);
+    public boolean contains(Pearl.Type type, String name) {
+        final Map<String, Pearl> map = typeMap.get(type);
+        return map != null && map.containsKey(name);
     }
+
 
     /**
      * Gets a specific Pearl by giving its type and name. If the Pearl is not in the PearlDatabase returns null.
@@ -69,9 +70,9 @@ public class PearlDatabase {
      * @param type type of the pearl
      * @return the Pearl or null
      */
-    public Pearl getPearl(String name, String type) {
-        final HashMap<String, Pearl> typeMap = types.get(type);
-        return typeMap == null ? null : typeMap.get(name);
+    public Pearl getPearl(Pearl.Type type, String name) {
+        final Map<String, Pearl> map = typeMap.get(type);
+        return map == null ? null : map.get(name);
     }
 
     /**
@@ -82,22 +83,13 @@ public class PearlDatabase {
      * @param type type of the pearl
      * @return the Pearl with the given name and type
      */
-    public synchronized Pearl getOrCreate(String name, String type) {
-        final HashMap<String, Pearl> typeMap = getTypeMap(type);
-        typeMap.putIfAbsent(name, new Pearl(name, type));
-        return typeMap.get(name);
+    public synchronized Pearl getOrCreate(Pearl.Type type, String name) {
+        typeMap.putIfAbsent(type, new HashMap<>());
+        final Map<String, Pearl> map = typeMap.get(type);
+        map.putIfAbsent(name, new Pearl(type, name));
+        return map.get(name);
     }
 
-    /**
-     * Gets the map of the given type
-     *
-     * @param type the type
-     * @return a map
-     */
-    private HashMap<String, Pearl> getTypeMap(String type) {
-        types.putIfAbsent(type, new HashMap<>());
-        return types.get(type);
-    }
 
     /**
      * Get a list of Pearls with the type of the argument.
@@ -105,10 +97,11 @@ public class PearlDatabase {
      * @param type type of the Pearls
      * @return the list of Pearls, or an empty list
      */
-    public synchronized List<Pearl> getPearls(String type) {
-        final HashMap<String, Pearl> pearls = types.get(type);
+    public synchronized List<Pearl> getPearls(Pearl.Type type) {
+        final Map<String, Pearl> pearls = typeMap.get(type);
         return (pearls == null) ? Collections.emptyList() : pearls.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
     }
+
 
     /**
      * Delete this Pearl and its relationships from the PearlDatabase.
@@ -132,7 +125,8 @@ public class PearlDatabase {
     }
 
     private void removePearl(Pearl pearl) {
-        getTypeMap(pearl.getType()).remove(pearl.getName());
+        if (typeMap.containsKey(pearl.getType()))
+            typeMap.get(pearl.getType()).remove(pearl.getName());
     }
 
     /**
@@ -141,6 +135,7 @@ public class PearlDatabase {
      * @param pearl the pearl
      */
     public void add(Pearl pearl) {
-        getTypeMap(pearl.getType()).put(pearl.getName(), pearl);
+        typeMap.putIfAbsent(pearl.getType(), new HashMap<>());
+        typeMap.get(pearl.getType()).put(pearl.getName(), pearl);
     }
 }

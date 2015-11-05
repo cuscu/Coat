@@ -15,22 +15,51 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
-package coat.core.vcfreader;
+package coat.core.vcf;
 
-import coat.core.poirot.dataset.VcfLoader;
-import org.junit.Test;
-
-import java.io.File;
+import coat.core.poirot.dataset.Dataset;
+import coat.core.poirot.dataset.Instance;
 
 /**
+ * Custom instance for a Variant. The Dataset must contain the meta info of a VCF file.
+ *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class VcfHeaderTest {
+public class VariantInstance extends Instance {
 
-    @Test
-    public void test() {
-        final VcfHeader header = VcfLoader.loadHeader(new File("test/sample.vcf"));
-        VcfSaver.saveToVcf(null, null, new File("test/save.vcf"), new File("test/sample.vcf"));
-        System.out.println(header);
+    public VariantInstance(Dataset dataset, Object[] fields) {
+        super(dataset, fields);
     }
+
+    public String getChromosome() {
+        return (String) getField(0);
+    }
+
+    public int getPosition() {
+        return (int) getField(1);
+    }
+
+    public String getId() {
+        return (String) getField(2);
+    }
+
+    public String getReference() {
+        return (String) getField(3);
+    }
+
+    public String getAlternative() {
+        return (String) getField(4);
+    }
+
+    public double getQuality() {
+        return (double) getField(5);
+    }
+
+    public String getFilter() {
+        return (String) getField(6);
+    }
+
+    //#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	sqz_001
+
+
 }

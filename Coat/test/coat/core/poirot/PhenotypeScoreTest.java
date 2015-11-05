@@ -15,31 +15,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
-package coat.core.vcfreader;
+package coat.core.poirot;
 
+import coat.core.vcf.VcfFile;
+import de.saxsys.javafx.test.JfxRunner;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.io.File;
+import java.util.Collections;
 import java.util.List;
-import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class InfoStats {
-    private List<Double> values;
-    private TreeMap<String, Integer> counts;
+@RunWith(JfxRunner.class)
+public class PhenotypeScoreTest {
 
-    public void setCounts(TreeMap<String, Integer> counts) {
-        this.counts = counts;
-    }
+    private final File file = new File("/home/unidad03/Copy/DAM.VEP.05.prefino.vcf");
 
-    public TreeMap<String, Integer> getCounts() {
-        return counts;
-    }
+    @Test
+    public void test() {
+        final VcfFile vcfFile = new VcfFile(file);
+        final PearlGraphFactory generator = new PearlGraphFactory(vcfFile.getVariants());
+        try {
+            generator.run();
+            final PearlGraph pearlDatabase = generator.get();
+            PhenotypeScore.score(pearlDatabase);
+            final List<Pearl> pearls = pearlDatabase.getPearls(Pearl.Type.DISEASE);
+            pearlDatabase.getPearls(Pearl.Type.EXPRESSION).forEach(pearls::add);
+            Collections.sort(pearls, (p2, p1) -> Double.compare(p1.getScore(), p2.getScore()));
+            final AtomicInteger count = new AtomicInteger();
+            pearls.forEach(pearl -> System.out.println(count.incrementAndGet() + " \t" + pearl.getScore() + " \t" + pearl.getName()));
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
 
-    public void setValues(List<Double> values) {
-        this.values = values;
-    }
-
-    public List<Double> getValues() {
-        return values;
     }
 }

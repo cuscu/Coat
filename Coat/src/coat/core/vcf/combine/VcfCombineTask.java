@@ -15,15 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
-package coat.core.vcfcombiner;
+package coat.core.vcf.combine;
 
-import coat.core.vcfreader.Variant;
-import coat.view.vcfcombiner.VariantStream;
+import coat.core.vcf.Variant;
+import coat.core.vcf.VcfFile;
 import coat.view.vcfreader.VcfSample;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -35,7 +34,7 @@ import java.util.stream.Collectors;
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class VcfCombineTask extends Task<List<Variant>> {
+public class VcfCombineTask extends Task<VcfFile> {
 
     private ObservableList<VcfSample> vcfSamples;
     private int size;
@@ -52,12 +51,19 @@ public class VcfCombineTask extends Task<List<Variant>> {
     }
 
     @Override
-    protected List<Variant> call() throws Exception {
-        createStreams();
-        final VariantStream reference = getReferenceStream();
-        if (reference == null) return Collections.emptyList();
-        size = reference.getVariants().size();
-        return reference.getVariants().stream().filter(this::filter).collect(Collectors.toList());
+    protected VcfFile call() throws Exception {
+        try {
+            createStreams();
+            final VariantStream reference = getReferenceStream();
+            if (reference == null) return null;
+            size = reference.getVariants().size();
+            final List<Variant> variants = reference.getVariants().stream().filter(this::filter).collect(Collectors.toList());
+            reference.getVcfFile().getVariants().setAll(variants);
+            return reference.getVcfFile();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private void createStreams() {

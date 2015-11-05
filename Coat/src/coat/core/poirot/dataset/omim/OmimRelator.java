@@ -18,7 +18,7 @@
 package coat.core.poirot.dataset.omim;
 
 import coat.core.poirot.Pearl;
-import coat.core.poirot.PearlDatabase;
+import coat.core.poirot.PearlGraph;
 import coat.core.poirot.PearlRelationship;
 import coat.core.poirot.dataset.Dataset;
 import coat.core.poirot.dataset.Instance;
@@ -32,7 +32,7 @@ import java.util.concurrent.ExecutionException;
 public class OmimRelator implements Relator {
 
     private final Dataset omimDataset;
-    private PearlDatabase database;
+    private PearlGraph database;
 
     public OmimRelator() {
         this.omimDataset = loadOmimDataset();
@@ -51,7 +51,7 @@ public class OmimRelator implements Relator {
     }
 
     @Override
-    public void expand(Pearl pearl, PearlDatabase database) {
+    public void expand(Pearl pearl, PearlGraph database) {
         this.database = database;
         omimDataset.getInstances(pearl.getName(), 0).forEach(instance -> {
             final Pearl phenotype = getOmimPhenotypePearl(instance);
@@ -64,7 +64,7 @@ public class OmimRelator implements Relator {
 
     private Pearl getOmimPhenotypePearl(Instance instance) {
         final String name = (String) instance.getField(4);
-        final Pearl phenotype = database.getOrCreate(name, "phenotype");
+        final Pearl phenotype = database.getOrCreate(Pearl.Type.DISEASE, name);
         putProperties(instance, phenotype);
         return phenotype;
     }

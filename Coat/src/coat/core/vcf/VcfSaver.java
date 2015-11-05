@@ -15,51 +15,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
-package coat.core.vcfreader;
+package coat.core.vcf;
 
-import coat.core.poirot.dataset.Dataset;
-import coat.core.poirot.dataset.Instance;
+import java.io.*;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * Custom instance for a Variant. The Dataset must contain the meta info of a VCF file.
- *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class VariantInstance extends Instance {
+public class VcfSaver {
 
-    public VariantInstance(Dataset dataset, Object[] fields) {
-        super(dataset, fields);
+    private VcfFile vcfFile;
+    private File output;
+    private List<Variant> saveVariants;
+
+    public VcfSaver(VcfFile vcfFile, File output, List<Variant> variants) {
+        this.vcfFile = vcfFile;
+        this.output = output;
+        this.saveVariants = variants;
     }
 
-    public String getChromosome() {
-        return (String) getField(0);
+    public void invoke() {
+        try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(output)))) {
+            writer.write(vcfFile.getHeader().toString());
+            saveVariants.forEach(writer::println);
+        } catch (IOException ex) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
+        }
     }
-
-    public int getPosition() {
-        return (int) getField(1);
-    }
-
-    public String getId() {
-        return (String) getField(2);
-    }
-
-    public String getReference() {
-        return (String) getField(3);
-    }
-
-    public String getAlternative() {
-        return (String) getField(4);
-    }
-
-    public double getQuality() {
-        return (double) getField(5);
-    }
-
-    public String getFilter() {
-        return (String) getField(6);
-    }
-
-    //#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	sqz_001
-
 
 }

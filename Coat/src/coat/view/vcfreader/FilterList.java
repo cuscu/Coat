@@ -17,8 +17,8 @@
 
 package coat.view.vcfreader;
 
-import coat.core.vcfreader.Variant;
-import coat.core.vcfreader.VcfFilter;
+import coat.core.vcf.Variant;
+import coat.core.vcf.VcfFilter;
 import coat.utils.OS;
 import coat.view.graphic.SizableImage;
 import coat.view.graphic.ThresholdDialog;
@@ -39,7 +39,6 @@ import javafx.scene.layout.VBox;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -63,9 +62,10 @@ public class FilterList extends VBox {
 
     private final HBox buttons = new HBox(5, addFilter, addFrequencyFilters, infoLabel, stackPane);
 
-    private final ObservableList<Map<String, String>> infos = FXCollections.observableArrayList();
+    private final ObservableList<String> infos = FXCollections.observableArrayList();
     private final ListChangeListener<Variant> variantsChangedListener = (ListChangeListener<Variant>) c -> applyFilters();
     private final static String[] FREQUENCY_IDS = {"AA_F", "EUR_F", "AFR_F", "AMR_F", "EA_F", "ASN_F",
+            "AA_MAF", "EUR_MAF", "AFR_MAF", "AMR_MAF", "EA_MAF", "ASN_MAF",
             "afr_maf", "eur_maf", "amr_maf", "ea_maf", "asn_maf", "GMAF", "1KG14"};
 
     public FilterList() {
@@ -133,7 +133,7 @@ public class FilterList extends VBox {
         applyFilters();
     }
 
-    public void setInfos(ObservableList<Map<String, String>> infos) {
+    public void setInfos(List<String> infos) {
         this.infos.setAll(infos);
     }
 
@@ -148,7 +148,6 @@ public class FilterList extends VBox {
 
     private void addFrequencyFilters(String threshold) {
         final List<String> frequencyInfoIds = infos.stream().
-                map(info -> info.get("ID")).
                 filter(value -> Arrays.binarySearch(FREQUENCY_IDS, value) >= 0).
                 collect(Collectors.toList());
         for (String id : frequencyInfoIds)

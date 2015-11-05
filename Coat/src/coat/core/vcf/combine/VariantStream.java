@@ -15,15 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
-package coat.view.vcfcombiner;
+package coat.core.vcf.combine;
 
-import coat.core.vcfreader.Variant;
+import coat.core.vcf.Variant;
+import coat.core.vcf.VcfFile;
+import coat.core.vcf.VcfHeader;
 import coat.view.vcfreader.VcfSample;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,9 +36,23 @@ public class VariantStream {
     private BufferedReader mistReader;
     private Variant variant;
     private String[] mistRegion;
+    private VcfFile vcfFile;
 
     public VariantStream(VcfSample vcfSample) {
         this.vcfSample = vcfSample;
+        loadHeaders();
+        openReaders();
+        loadFirstVariant();
+        loadFirstMistRegion();
+    }
+
+    private void loadHeaders() {
+        final VcfHeader vcfHeader = loadHeader(vcfSample.getVcfFile());
+        vcfHeader.addHeader("##INFO=<ID=MistZone,Type=Flag,Description=\"If present, indicates that the position is in an MIST Zone\">");
+        this.vcfFile = new VcfFile(vcfHeader);
+    }
+
+    private void openReaders() {
         try {
             reader = new BufferedReader(new FileReader(vcfSample.getVcfFile()));
             if (vcfSample.getMistFile() != null)
@@ -47,8 +60,17 @@ public class VariantStream {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        loadFirstVariant();
-        loadFirstMistRegion();
+    }
+
+    public static VcfHeader loadHeader(File reference) {
+        final VcfHeader header = new VcfHeader();
+        try (BufferedReader reader = new BufferedReader(new FileReader(reference))) {
+            reader.lines().filter(line -> line.startsWith("#")).forEach(header::addHeader);
+            return header;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return header;
     }
 
     private void loadFirstVariant() {
@@ -56,7 +78,7 @@ public class VariantStream {
         try {
             while ((line = reader.readLine()) != null) {
                 if (!line.startsWith("#")) {
-                    variant = new Variant(line);
+                    variant = new Variant(line, vcfFile);
                     break;
                 }
             }
@@ -66,13 +88,14 @@ public class VariantStream {
     }
 
     private void loadFirstMistRegion() {
-        try {
-            mistReader.readLine();
-            String line = mistReader.readLine();
-            mistRegion = line == null ? null : line.split("\t");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        if (mistReader != null)
+            try {
+                mistReader.readLine();
+                String line = mistReader.readLine();
+                mistRegion = line == null ? null : line.split("\t");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
     }
 
     public VcfSample getVcfSample() {
@@ -81,7 +104,7 @@ public class VariantStream {
 
     public List<Variant> getVariants() {
         try (BufferedReader reader = new BufferedReader(new FileReader(vcfSample.getVcfFile()))) {
-            return reader.lines().filter(line -> !line.startsWith("#")).map(Variant::new).collect(Collectors.toList());
+            return reader.lines().filter(line -> !line.startsWith("#")).map(s -> new Variant(s, vcfFile)).collect(Collectors.toList());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -92,19 +115,30 @@ public class VariantStream {
         Variant currentVariant = this.variant;
         while (currentVariant != null) {
             final int compareTo = currentVariant.compareTo(variant);
-            // The variant is present
-            if (compareTo == 0) return checkZygotic(currentVariant);
-                // Current variant is lower
-            else if (compareTo < 0) currentVariant = nextVariant();
+            // Current variant is lower
+            if (compareTo < 0) currentVariant = nextVariant();
+                // The variant is present
+            else if (compareTo == 0) return checkZygotic(currentVariant, variant);
                 // Current variant is higher
             else break;
         }
         // The variant is not present
-        if (inMist(variant)) {
-            variant.getInfos().put("MistZone", true);
+        if (inMist(variant) && vcfSample.getLevel() != VcfSample.Level.UNAFFECTED) {
+            addMistInfo(variant);
             return true;
         }
         return vcfSample.getLevel() == VcfSample.Level.UNAFFECTED;
+    }
+
+    private void addMistInfo(Variant variant) {
+        variant.resizeInfoValues();
+        variant.setInfo("MistZone", "true");
+        for (int i = 0; i < vcfFile.getHeader().getSamples().size(); i++) {
+            final String[] values = new String[vcfFile.getHeader().getComplexHeaders().get("FORMAT").size()];
+            for (int j = 0; j < values.length; j++) values[j] = ".";
+            final String name = vcfFile.getHeader().getSamples().get(i);
+            variant.addSample(name, values);
+        }
     }
 
     private String[] nextMistRegion() {
@@ -128,12 +162,21 @@ public class VariantStream {
         return false;
     }
 
-    private boolean checkZygotic(Variant variant) {
+    private boolean checkZygotic(Variant localVariant, Variant variant) {
         if (vcfSample.getLevel() == VcfSample.Level.UNAFFECTED) return false;
+        mergeInfo(localVariant, variant);
         if (vcfSample.getLevel() == VcfSample.Level.AFFECTED) return true;
-        final String AF = (String) variant.getInfos().get("AF");
+        final String AF = localVariant.getInfo("AF");
         if (AF.equals("0.500")) return vcfSample.getLevel() == VcfSample.Level.HETEROZYGOUS;
         else return vcfSample.getLevel() == VcfSample.Level.HOMOZYGOUS;
+    }
+
+    private void mergeInfo(Variant localVariant, Variant variant) {
+        for (int i = 0; i < localVariant.getSamples().size(); i++) {
+            final String[] values = localVariant.getSamples().get(i);
+            final String name = vcfFile.getHeader().getSamples().get(i);
+            variant.addSample(name, values);
+        }
     }
 
 
@@ -142,11 +185,15 @@ public class VariantStream {
         try {
             final Variant v = variant;
             final String line = reader.readLine();
-            variant = (line == null) ? null : new Variant(line);
+            variant = (line == null) ? null : new Variant(line, vcfFile);
             return v;
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public VcfFile getVcfFile() {
+        return vcfFile;
     }
 }

@@ -42,7 +42,7 @@ public class PoirotPearlTable extends TableView<Pearl> {
         setContextMenu(menu);
         menuItem.setOnAction(event -> copy());
         distanceColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getDistanceToPhenotype()));
-        scoreColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(String.format("%.2f", param.getValue().getScore())));
+        scoreColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(String.format("%.3f", param.getValue().getScore())));
         nameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getName()));
         indexColumn.setCellFactory(param -> new IndexCell());
 
@@ -53,7 +53,7 @@ public class PoirotPearlTable extends TableView<Pearl> {
         getSelectionModel().getSelectedItems()
                 .forEach(pearl -> builder
                         .append(pearl.getName()).append("\t")
-                        .append(String.format("%.2f", pearl.getScore())).append("\t")
+                        .append(String.format("%.3f", pearl.getScore())).append("\t")
                         .append(pearl.getDistanceToPhenotype()).append("\n"));
         final ClipboardContent content = new ClipboardContent();
         content.putString(builder.toString());

@@ -36,7 +36,7 @@ import java.util.logging.Logger;
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-class Web {
+public class Web {
 
     public static String httpRequest(URL url, Map<String, String> properties, JSONObject message) {
 //        System.out.println(url);

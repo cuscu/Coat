@@ -18,7 +18,7 @@
 package coat.core.poirot;
 
 import coat.core.poirot.graph.GraphEvaluator;
-import coat.core.vcfreader.VcfFile;
+import coat.core.vcf.VcfFile;
 import de.saxsys.javafx.test.JfxRunner;
 import javafx.application.Platform;
 import org.junit.Assert;
@@ -38,13 +38,13 @@ import java.util.concurrent.ExecutionException;
 public class PoirotTest {
 
 
-    PearlDatabase database;
+    PearlGraph database;
 
     @Before
     public void start() {
         final File file = new File("test/coat/core/poirot/agua.vcf");
         final VcfFile vcfFile = new VcfFile(file);
-        final PoirotGraphAnalysis analysis = new PoirotGraphAnalysis(vcfFile.getVariants());
+        final PearlGraphFactory analysis = new PearlGraphFactory(vcfFile.getVariants());
         Platform.runLater(analysis);
         try {
             database = analysis.get();
@@ -55,7 +55,7 @@ public class PoirotTest {
 
     @Test
     public void testDatabaseLoaded() {
-        Assert.assertEquals(969, database.numberOfPearls("gene"));
+        Assert.assertEquals(1138, database.numberOfPearls(Pearl.Type.GENE));
     }
 
     @Test
@@ -68,7 +68,7 @@ public class PoirotTest {
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
-        Assert.assertEquals(0, database.getPearl("Brain", "phenotype").getDistanceToPhenotype());
+        Assert.assertEquals(0, database.getPearl(Pearl.Type.EXPRESSION, "Brain").getDistanceToPhenotype());
     }
 
 }

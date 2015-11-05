@@ -20,7 +20,7 @@ package coat;
 import coat.core.reader.Reader;
 import coat.core.tool.Tool;
 import coat.core.tool.ToolMenu;
-import coat.core.vcfreader.VcfFile;
+import coat.core.vcf.VcfFile;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.MemoryPane;
@@ -274,15 +274,15 @@ public class CoatView {
 
     private void addVCFReaderToWorkspace(File f) throws IOException {
         printMessage("Loading " + f, "info");
-        Task<VcfFile> vcfLoader = new Task<VcfFile>() {
+        final Task<VcfFile> vcfLoader = new Task<VcfFile>() {
             @Override
             protected VcfFile call() throws Exception {
                 return new VcfFile(f);
             }
         };
         vcfLoader.setOnSucceeded(event -> {
-            VcfFile vcfFile = vcfLoader.getValue();
-            VcfReader vcfReader = new VcfReader(vcfFile);
+            final VcfFile vcfFile = vcfLoader.getValue();
+            final VcfReader vcfReader = new VcfReader(vcfFile);
             addReaderToWorkspace(vcfReader, vcfReader);
             printMessage(f + " loaded", "success");
         });
@@ -295,10 +295,14 @@ public class CoatView {
     }
 
     private void addReaderToWorkspace(Reader reader, Node content) {
-        Tab t = new Tab();
+        final Tab t = new Tab();
         t.textProperty().bind(reader.getTitle());
         t.setContent(content);
         t.setUserData(reader);
+        t.setOnClosed(event -> {
+            t.setContent(null);
+            t.setUserData(null);
+        });
         // Add and select tab
         workspace.getTabs().add(t);
         workspace.getSelectionModel().select(t);

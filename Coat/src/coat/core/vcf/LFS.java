@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
-package coat.core.vcfreader;
+package coat.core.vcf;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -172,8 +172,8 @@ public class LFS {
 
     public static void addLFS(Variant variant) {
         try {
-            Map<String, Object> infos = variant.getInfos();
-            String codons = (String) infos.get("COD");
+//            Map<String, Object> infos = variant.getInfoValues();
+            String codons = variant.getInfo("COD");
             if (codons != null) {
                 String[] cods = codons.split("[/-]");
                 // Only supports 2 structures: aaT/aaC and tta-Gta
@@ -191,7 +191,7 @@ public class LFS {
                     double source = frequencies.get(cods[0].toUpperCase());
                     double destiny = frequencies.get(cods[1].toUpperCase());
                     double score = source / destiny;
-                    if (score > 1) infos.put("LFS", score);
+                    if (score > 1) variant.setInfo("LFS", String.valueOf(score));
                 }
             }
         } catch (Exception ex) {

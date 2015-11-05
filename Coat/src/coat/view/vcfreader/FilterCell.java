@@ -17,8 +17,8 @@
 
 package coat.view.vcfreader;
 
-import coat.core.vcfreader.Variant;
-import coat.core.vcfreader.VcfFilter;
+import coat.core.vcf.Variant;
+import coat.core.vcf.VcfFilter;
 import coat.utils.OS;
 import coat.view.graphic.AutoFillComboBox;
 import coat.view.graphic.SizableImage;
@@ -30,7 +30,10 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -41,7 +44,7 @@ class FilterCell extends ListCell<VcfFilter> {
     private final static int SPACING = 2;
 
     private final ComboBox<VcfFilter.Field> field = new ComboBox<>();
-//    private final ComboBox<String> info = new ComboBox<>();
+    //    private final ComboBox<String> info = new ComboBox<>();
     private final AutoFillComboBox info = new AutoFillComboBox();
     private final ComboBox<VcfFilter.Connector> connector = new ComboBox<>();
     //    private final TextField value = new TextField();
@@ -73,12 +76,12 @@ class FilterCell extends ListCell<VcfFilter> {
 
     private VcfFilter currentFilter;
     private ObservableList<Variant> variants;
-    private ObservableList<Map<String, String>> infos;
+    private ObservableList<String> infos;
 
-    public FilterCell(ObservableList<Variant> variants, ObservableList<Map<String, String>> infos) {
+    public FilterCell(ObservableList<Variant> variants, ObservableList<String> infos) {
         this.variants = variants;
         this.infos = infos;
-        infos.addListener((ListChangeListener<Map<String, String>>) c -> updateInfoList());
+        infos.addListener((ListChangeListener< String>) c -> updateInfoList());
         initializeThis();
         initializeActiveBox();
         initializePassiveBox();
@@ -117,8 +120,8 @@ class FilterCell extends ListCell<VcfFilter> {
             final String infoValue = info.getText();
             if (infoValue != null) {
                 final List<String> valueList = variants.stream()
-                        .filter(variant -> variant.getInfos().containsKey(infoValue))
-                        .map((variant) -> variant.getInfos().get(infoValue).toString())
+                        .map(variant -> variant.getInfo(infoValue))
+                        .filter(val -> val != null)
                         .distinct()
                         .collect(Collectors.toList());
                 Collections.sort(valueList);
@@ -198,7 +201,7 @@ class FilterCell extends ListCell<VcfFilter> {
     }
 
     private void updateInfoList() {
-        info.getItems().setAll(infos.stream().map(info -> info.get("ID")).sorted().collect(Collectors.toList()));
+        info.getItems().setAll(infos.stream().sorted().collect(Collectors.toList()));
     }
 
     private void delete() {

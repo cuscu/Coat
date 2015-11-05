@@ -26,7 +26,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
@@ -40,6 +42,15 @@ import java.util.zip.GZIPInputStream;
 public class OmimDatasetLoader extends Task<Dataset> {
 
     private Dataset dataset = new Dataset();
+
+    private final static Map<String, String> CONFIDENCE_NAME = new HashMap<>();
+
+    static {
+        CONFIDENCE_NAME.put("C", "Confirmed");
+        CONFIDENCE_NAME.put("P", "Provisional");
+        CONFIDENCE_NAME.put("I", "Inconsistent");
+        CONFIDENCE_NAME.put("L", "Limbo");
+    }
 
     @Override
     protected Dataset call() throws Exception {
@@ -74,16 +85,9 @@ public class OmimDatasetLoader extends Task<Dataset> {
     }
 
     private Instance getFields(String[] line) {
-        final Object[] fields = {
-                HGNCDatabase.getStandardSymbol(line[0]),
-                line[1],
-                getIntegerOrNull(line[2]),
-                line[3],
-                line[4],
-                getIntegerOrNull(line[5]),
-                getIntegerOrNull(line[6])
-        };
-        return new Instance(dataset, fields);
+        line[0] = HGNCDatabase.getStandardSymbol(line[0]);
+        line[3] = CONFIDENCE_NAME.get(line[3]);
+        return new Instance(dataset, line);
     }
 
     private Integer getIntegerOrNull(String value) {

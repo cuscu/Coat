@@ -17,8 +17,8 @@
 
 package coat.view.vcfreader;
 
-import coat.core.vcfreader.InfoStats;
-import coat.core.vcfreader.VcfStats;
+import coat.core.vcf.VcfStats;
+import coat.core.vcf.stats.InfoStats;
 import javafx.geometry.Pos;
 import javafx.scene.chart.*;
 import javafx.scene.control.Label;

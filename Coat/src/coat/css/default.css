@@ -15,9 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
-.background {
-    -fx-background-color: #1d1d1d;
+/*-fx-background-color: #1d1d1d;*/
+.root {
+    -fx-background-color: white;
 }
+
+/*.background {*/
+
+/*}*/
 
 .custom-list .list-cell {
     -fx-background-color: white;
@@ -37,8 +42,8 @@
 .custom-list .list-cell:selected .label {
     -fx-text-fill: black;
 }
-
 /* Clear the end of lists*/
+
 .list-view .list-cell:empty {
     -fx-background-color: transparent;
     -fx-border-width: 0;
@@ -63,17 +68,17 @@
     -fx-border-width: 1 0 0 0;
     -fx-border-color: whitesmoke;
 }
-
 /* Buttons that only show an icon, hover and pressed are only made by decreasing the opacity*/
+
 .graphic-button {
     -fx-background-color: transparent;
 }
-
 .graphic-button:hover {
     -fx-opacity: 0.5;
-    /*-fx-border-color: black;*/
-    /*-fx-border-width: 0 1 1 0;*/
+/*-fx-border-color: black;*/
+/*-fx-border-width: 0 1 1 0;*/
 }
+
 
 .graphic-button:pressed {
     -fx-opacity: 0.25;
@@ -100,20 +105,20 @@
 #nameColumn, #codeColumn {
     -fx-alignment: CENTER;
 }
-
 /* Filtering boxes in TSVReader/VCFReader*/
 .filter-box {
     -fx-background-color: ghostwhite;
     -fx-text-alignment: left;
-    /* -fx-border-color : darkgray;*/
-    -fx-padding: 5px;
+/* -fx-border-color : darkgray;*/
+-fx-padding: 5px;
 }
+
 
 .filter-box:hover {
     -fx-background-color: white;
 }
-
 /* A button that is in a filter box */
+
 .filter-box .button {
     -fx-background-color: transparent;
 }
@@ -126,8 +131,8 @@
     -fx-background-radius: 8px;
     -fx-border-radius: 16px;
 }
-
 /* Clear the bottom of tables*/
+
 .table-row-cell:empty {
     -fx-opacity: 0;
 }
@@ -136,13 +141,9 @@
     -fx-border-width: 0;
 }
 
-.root {
-    -fx-background-color: white;
-}
-
-.text-area {
-    -fx-font: 1em monospace;
-}
+/*.text-area {*/
+    /*-fx-font: 1em monospace;*/
+/*}*/
 
 /* Isabel Castillo http://isabelcastillo.com/error-info-messages-css */
 .info-label {
@@ -236,9 +237,9 @@
 
 
 .table-view {
-    -fx-background-color: transparent;
-    -fx-table-cell-border-color: transparent;
-    -fx-table-header-border-color: transparent;
+    /*-fx-background-color: transparent;*/
+    /*-fx-table-cell-border-color: transparent;*/
+    /*-fx-table-header-border-color: transparent;*/
 }
 
 .table-row-cell:selected {

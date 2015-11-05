@@ -18,12 +18,12 @@
 package coat.core.poirot.dataset.biogrid;
 
 import coat.core.poirot.Pearl;
-import coat.core.poirot.PearlDatabase;
+import coat.core.poirot.PearlGraph;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public interface Relator {
 
-    void expand(Pearl pearl, PearlDatabase database);
+    void expand(Pearl pearl, PearlGraph database);
 }

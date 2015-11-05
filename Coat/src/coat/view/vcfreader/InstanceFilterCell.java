@@ -17,7 +17,7 @@
 
 package coat.view.vcfreader;
 
-import coat.core.vcfreader.VcfFilter;
+import coat.core.vcf.VcfFilter;
 import coat.view.graphic.AutoFillComboBox;
 import coat.view.graphic.SizableImage;
 import javafx.collections.FXCollections;

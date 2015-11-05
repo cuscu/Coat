@@ -39,8 +39,9 @@ public class ShortestPath {
         final int distance = pearl.getDistanceToPhenotype();
         final List<List<PearlRelationship>> paths = new ArrayList<>();
         pearl.getRelationships().forEach((other, relationships) -> {
-            if (other.getType().equals("phenotype") && other.isActive()) paths.addAll(createSubPaths(relationships));
-            else if (other.getType().equals("gene") && other.getDistanceToPhenotype() < distance) {
+            if (other.isActive() && (other.getType() == Pearl.Type.EXPRESSION || other.getType() == Pearl.Type.DISEASE))
+                paths.addAll(createSubPaths(relationships));
+            else if (other.getType() == Pearl.Type.GENE && other.getDistanceToPhenotype() < distance) {
                 final List<List<PearlRelationship>> subPaths = getPaths(other);
                 subPaths.forEach(subPath -> relationships.forEach(pearlRelationship -> {
                     final List<PearlRelationship> path = new ArrayList<>(subPath);
@@ -54,7 +55,7 @@ public class ShortestPath {
 
     private static List<List<PearlRelationship>> createSubPaths(List<PearlRelationship> relationships) {
         return relationships.stream()
-                .map(pearlRelationship -> Arrays.asList(pearlRelationship))
+                .map(Arrays::asList)
                 .collect(Collectors.toList());
     }
 
