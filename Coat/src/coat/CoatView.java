@@ -1,16 +1,16 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
+ * *
  * This program is free software: you can redistribute it and/or modify it    *
  * under the terms of the GNU General Public License as published by the      *
  * Free Software Foundation, either version 3 of the License, or (at your     *
  * option) any later version.                                                 *
- *                                                                            *
+ * *
  * This program is distributed in the hope that it will be useful, but        *
  * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
  * See the GNU General Public License for more details.                       *
- *                                                                            *
+ * *
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
@@ -59,6 +59,12 @@ import java.util.logging.Logger;
  */
 public class CoatView {
 
+    private final static DateFormat df = new SimpleDateFormat("HH:mm:ss");
+    private final static List<String> AVAILABLE_MESSAGE_TYPES = Arrays.asList("info", "error", "success", "warning");
+    private static VBox bigConsole = new VBox();
+    private static Label staticInfo;
+    private final List<ToolMenu> toolsMenuClasses = new ArrayList<>();
+    private final TabPane workspace = new TabPane();
     @FXML
     private Menu toolsMenu;
     @FXML
@@ -73,9 +79,9 @@ public class CoatView {
     private MenuBar menu;
     @FXML
     private Label info;
-
-    private final List<ToolMenu> toolsMenuClasses = new ArrayList<>();
     private ChangeListener<? super String> toolListener = (observable, oldValue, newValue) -> Coat.setTitle(newValue);
+    private Menu customMenu;
+    private Tool selectedTool;
 
     {
         toolsMenuClasses.add(new CombineMistMenu());
@@ -83,20 +89,33 @@ public class CoatView {
         toolsMenuClasses.add(new PoirotMenu());
     }
 
-    private static VBox bigConsole = new VBox();
+    /**
+     * Adds a message to the log. Messages will be show in the bottom line of the application, and will be also
+     * available in a history window. This method is run in the JavaFx main thread, so there is no need to encapsulate
+     * it in a <code>Platform.runLater()</code> block.
+     *
+     * @param message What you want to say
+     * @param level "info", "warning", "error" or "success", but it is possible to use any String
+     */
+    public static void printMessage(String message, String level) {
+        final String date = df.format(new Date());
+        final String type = level.toLowerCase();
+        staticInfo.getStyleClass().clear();
+        setMessageLabel(message, date, staticInfo, type);
+        final Label label = new Label();
+        setMessageLabel(message, date, label, type);
+        bigConsole.getChildren().add(label);
+    }
 
-    private Menu customMenu;
-
-    private static Label staticInfo;
-
-    private final static DateFormat df = new SimpleDateFormat("HH:mm:ss");
-
-    private final TabPane workspace = new TabPane();
-
-    private final static List<String> AVAILABLE_MESSAGE_TYPES = Arrays.asList("info", "error", "success", "warning");
-
-    private Tool selectedTool;
-
+    private static void setMessageLabel(String message, String date, Label label, String type) {
+        Platform.runLater(() -> {
+            if (AVAILABLE_MESSAGE_TYPES.contains(type)) {
+                label.setText(date + ": " + message);
+                label.setGraphic(new SizableImage("coat/img/" + type + ".png", SizableImage.SMALL_SIZE));
+                label.getStyleClass().add(type + "-label");
+            } else label.setText(date + " (" + type + "): " + message);
+        });
+    }
 
     public void initialize() {
         createToolsMenu();
@@ -166,11 +185,13 @@ public class CoatView {
 
     private void addTool(ToolMenu toolMenu) {
         final Tool tool = toolMenu.getTool();
-        final Tab tab = new Tab();
-        tab.setContent(tool);
-        tab.textProperty().bind(tool.titleProperty());
-        workspace.getTabs().add(tab);
-        workspace.getSelectionModel().select(tab);
+        if (tool != null) {
+            final Tab tab = new Tab();
+            tab.setContent(tool);
+            tab.textProperty().bind(tool.titleProperty());
+            workspace.getTabs().add(tab);
+            workspace.getSelectionModel().select(tab);
+        }
     }
 
     private MenuItem getMenuItem(Button button) {
@@ -199,34 +220,6 @@ public class CoatView {
             if (tab.getUserData() != null) ((Reader) tab.getUserData()).saveAs();
             else if (tab.getContent() != null) ((Tool) tab.getContent()).saveAs();
         }
-    }
-
-    /**
-     * Adds a message to the log. Messages will be show in the bottom line of the application, and will be also
-     * available in a history window. This method is run in the JavaFx main thread, so there is no need to encapsulate
-     * it in a <code>Platform.runLater()</code> block.
-     *
-     * @param message What you want to say
-     * @param level "info", "warning", "error" or "success", but it is possible to use any String
-     */
-    public static void printMessage(String message, String level) {
-        final String date = df.format(new Date());
-        final String type = level.toLowerCase();
-        staticInfo.getStyleClass().clear();
-        setMessageLabel(message, date, staticInfo, type);
-        final Label label = new Label();
-        setMessageLabel(message, date, label, type);
-        bigConsole.getChildren().add(label);
-    }
-
-    private static void setMessageLabel(String message, String date, Label label, String type) {
-        Platform.runLater(() -> {
-            if (AVAILABLE_MESSAGE_TYPES.contains(type)) {
-                label.setText(date + ": " + message);
-                label.setGraphic(new SizableImage("coat/img/" + type + ".png", SizableImage.SMALL_SIZE));
-                label.getStyleClass().add(type + "-label");
-            } else label.setText(date + " (" + type + "): " + message);
-        });
     }
 
     private void openFileInWorkspace(File f) {

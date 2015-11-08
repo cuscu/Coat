@@ -154,14 +154,23 @@ public class GraphEvaluator extends Task<Void> {
     }
 
     private final PearlGraph database;
-    private final List<String> phenotypes;
+    private final List<Pearl> phenotypes;
     private int processed;
     private int total;
 
-    public GraphEvaluator(PearlGraph database, List<String> phenotypes) {
+    public GraphEvaluator(PearlGraph database, List<Pearl> phenotypes) {
         this.database = database;
         this.phenotypes = phenotypes;
     }
+
+    public GraphEvaluator(PearlGraph database) {
+        this.database = database;
+        this.phenotypes = new ArrayList<>();
+        database.getPearls(Pearl.Type.DISEASE).forEach(phenotypes::add);
+        database.getPearls(Pearl.Type.EXPRESSION).forEach(phenotypes::add);
+    }
+
+
 
     @Override
     protected Void call() throws Exception {
@@ -195,8 +204,8 @@ public class GraphEvaluator extends Task<Void> {
     }
 
     private void activatePhenotypes() {
-        database.getPearls(Pearl.Type.EXPRESSION).stream().forEach(pearl -> pearl.setActive(phenotypes.contains(pearl.getName())));
-        database.getPearls(Pearl.Type.DISEASE).stream().forEach(pearl -> pearl.setActive(phenotypes.contains(pearl.getName())));
+        database.getPearls(Pearl.Type.EXPRESSION).stream().forEach(pearl -> pearl.setActive(phenotypes.contains(pearl)));
+        database.getPearls(Pearl.Type.DISEASE).stream().forEach(pearl -> pearl.setActive(phenotypes.contains(pearl)));
     }
 
     private void setDistances() {

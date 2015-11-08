@@ -41,18 +41,12 @@ class VcfSampleTableView extends TableView<VcfSample> {
 
         getColumns().addAll(Arrays.asList(enableColumn, numberOfVariantsColumn, levelColumn, bamFileColumn, mistFileColumn));
         setEditable(true);
-//        setId("sample-table");
         setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY);
 
         enableColumn.setCellValueFactory(param -> param.getValue().enabledProperty());
-//        enableColumn.setCellFactory(param -> new CheckBoxTableCell<>());
         enableColumn.setCellFactory(param -> new SampleCheckBoxTableCell());
         enableColumn.getStyleClass().add("text-column");
         enableColumn.setPrefWidth(200);
-
-//        nameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getFile().getName()));
-//        nameColumn.getStyleClass().add("text-column");
-//        nameColumn.setPrefWidth(150);
 
         numberOfVariantsColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getNumberOfVariants()));
         numberOfVariantsColumn.getStyleClass().add("text-column");

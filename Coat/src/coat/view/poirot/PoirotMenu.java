@@ -19,7 +19,10 @@ package coat.view.poirot;
 
 import coat.core.tool.Tool;
 import coat.core.tool.ToolMenu;
+import coat.utils.FileManager;
 import coat.utils.OS;
+
+import java.io.File;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
@@ -37,6 +40,8 @@ public class PoirotMenu implements ToolMenu {
 
     @Override
     public Tool getTool() {
-        return new PoirotView();
+        final File file = FileManager.openFile("VCF", FileManager.VCF_FILTER);
+        if (file == null) return null;
+        return new PoirotView(file);
     }
 }

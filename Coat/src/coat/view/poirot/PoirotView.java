@@ -1,16 +1,16 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
+ * *
  * This program is free software: you can redistribute it and/or modify it    *
  * under the terms of the GNU General Public License as published by the      *
  * Free Software Foundation, either version 3 of the License, or (at your     *
  * option) any later version.                                                 *
- *                                                                            *
+ * *
  * This program is distributed in the hope that it will be useful, but        *
  * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
  * See the GNU General Public License for more details.                       *
- *                                                                            *
+ * *
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
@@ -30,19 +30,18 @@ import coat.utils.OS;
 import coat.view.graphic.SizableImage;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.ListChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -63,31 +62,32 @@ import java.util.stream.Collectors;
  */
 public class PoirotView extends Tool {
 
-    private final HBox content = new HBox();
-
     private final PoirotInputPane poirotInputPane = new PoirotInputPane();
-    private final PoirotPearlTable poirotPearlTable = new PoirotPearlTable();
-    private final GraphView graphView = new GraphView();
-
-    private final Button start = new Button(OS.getResources().getString("start"), new SizableImage("coat/img/start.png", SizableImage.SMALL_SIZE));
+    private final Button start = new Button(OS.getResources().getString("show").toUpperCase(), new SizableImage("coat/img/start.png", SizableImage.SMALL_SIZE));
     private final Label message = new Label();
-
     private final VBox inputPane = new VBox(5, poirotInputPane, start, message);
-    private final VBox graphVBox = new VBox(graphView);
+
+
+    private final PoirotPearlTable poirotPearlTable = new PoirotPearlTable();
+
+    private final GraphView graphView = new GraphView();
     private final VBox infoBox = new VBox();
-    private final StackPane stackPane = new StackPane(graphVBox, infoBox);
+    private final StackPane stackPane = new StackPane(graphView, infoBox);
 
     private final Button reload = new Button("Reload graph", new SizableImage("coat/img/poirot.png", SizableImage.SMALL_SIZE));
-    private final ToggleButton repeat = new ToggleButton("Show panel", new SizableImage("coat/img/form.png", SizableImage.SMALL_SIZE));
-    private final HBox buttons = new HBox(5, repeat, reload);
+    private final Button back = new Button(OS.getString("back").toUpperCase(), new SizableImage("coat/img/back.png", SizableImage.SMALL_SIZE));
+    private final VBox listPane = new VBox(5, back, poirotPearlTable, reload);
 
-    private final VBox listPane = new VBox(5, poirotPearlTable, buttons);
+    private final HBox graphHBox = new HBox(listPane, stackPane);
 
     private Property<String> title = new SimpleStringProperty("Poirot");
     private Dataset omimDataset = null;
+    private File file;
 //    private PearlDatabase database;
 
-    public PoirotView() {
+    public PoirotView(File file) {
+        this.file = file;
+        title.setValue("Poirot (" + file.getName() + ")");
         initializeThis();
         initializeInputPane();
         initializeListPane();
@@ -95,11 +95,12 @@ public class PoirotView extends Tool {
     }
 
     private void initializeThis() {
-        getChildren().add(content);
-        VBox.setVgrow(content, Priority.ALWAYS);
-        content.setSpacing(5);
-        content.setPadding(new Insets(5, 5, 5, 5));
-        content.getChildren().addAll(inputPane);
+        getChildren().setAll(inputPane);
+        setSpacing(5);
+        setPadding(new Insets(5, 5, 5, 5));
+        VBox.setVgrow(inputPane, Priority.ALWAYS);
+        VBox.setVgrow(graphHBox, Priority.ALWAYS);
+
     }
 
     private void initializeInputPane() {
@@ -108,13 +109,8 @@ public class PoirotView extends Tool {
     }
 
     private void initializeFileInput() {
-        poirotInputPane.getInputVcf().fileProperty().addListener((observable1, oldValue1, file) -> {
-            title.setValue("Poirot (" + file.getName() + ")");
-            poirotPearlTable.getItems().clear();
-            graphView.clear();
-        });
-        poirotInputPane.getSelectedPhenotypes().addListener((ListChangeListener<String>) c
-                -> start.setDisable(poirotInputPane.getSelectedPhenotypes().isEmpty()));
+        VBox.setVgrow(poirotInputPane, Priority.ALWAYS);
+        poirotInputPane.setFile(file);
         poirotPearlTable.setOnMouseClicked(event -> {
             if (event.getClickCount() >= 2) reload();
         });
@@ -130,7 +126,6 @@ public class PoirotView extends Tool {
         start.setOnAction(event -> start());
         start.setMaxWidth(9999);
         start.setPadding(new Insets(10));
-        start.setDisable(true);
     }
 
     private void initializeReloadButton() {
@@ -141,14 +136,12 @@ public class PoirotView extends Tool {
     }
 
     private void initializeRepeatButton() {
-        repeat.setMaxWidth(9999);
-        repeat.setPadding(new Insets(10));
-        repeat.selectedProperty().addListener((observable, oldValue, selected) -> repeat.setText((selected) ? "Hide panel" : "Show panel"));
-        repeat.selectedProperty().addListener((observable, oldValue, selected) -> {
-            if (!selected) content.getChildren().remove(inputPane);
-            else if (!content.getChildren().contains(inputPane)) content.getChildren().add(0, inputPane);
+        back.setOnAction(event -> {
+            new GraphEvaluator(poirotInputPane.getDatabase()).run();
+            getChildren().setAll(inputPane);
         });
-        HBox.setHgrow(repeat, Priority.ALWAYS);
+        back.setPadding(new Insets(10));
+        back.setMaxWidth(9999);
     }
 
     private void initializePearlListView() {
@@ -157,8 +150,8 @@ public class PoirotView extends Tool {
 
     private void initializeGraphView() {
         HBox.setHgrow(stackPane, Priority.ALWAYS);
-        graphVBox.widthProperty().addListener((observable, oldValue, newValue) -> graphView.setWidth(newValue.doubleValue()));
-        graphVBox.heightProperty().addListener((observable, oldValue, newValue) -> graphView.setHeight(newValue.doubleValue()));
+        stackPane.widthProperty().addListener((observable, oldValue, newValue) -> graphView.setWidth(newValue.doubleValue()));
+        stackPane.heightProperty().addListener((observable, oldValue, newValue) -> graphView.setHeight(newValue.doubleValue()));
         graphView.setManaged(false);
         graphView.getSelectedPearlProperty().addListener((observable, oldValue, pearl) -> selected(pearl));
         graphView.getSelectedRelationship().addListener((observable, oldValue, relationship) -> selected(relationship));
@@ -233,7 +226,6 @@ public class PoirotView extends Tool {
     }
 
     private String simplified(Variant variant) {
-        String af = variant.getInfo("AF");
         String value = String.format("%s:%d %s/%s", variant.getChrom(), variant.getPos(), variant.getRef(), variant.getAlt());
         final String bio = variant.getInfo("BIO");
         if (bio != null) value += " BIO=" + bio;
@@ -245,7 +237,7 @@ public class PoirotView extends Tool {
     }
 
     private void start() {
-        final List<String> phenotypes = poirotInputPane.getSelectedPhenotypes();
+        final List<Pearl> phenotypes = poirotInputPane.getSelectedPhenotypes();
         final PearlGraph database = poirotInputPane.getDatabase();
         final GraphEvaluator graphEvaluator = new GraphEvaluator(database, phenotypes);
         graphEvaluator.setOnSucceeded(event -> end(database));
@@ -264,11 +256,9 @@ public class PoirotView extends Tool {
 
     private void toGraphView() {
         start.setDisable(false);
-        repeat.setSelected(false);
         message.textProperty().unbind();
         message.setText("Done");
-        content.getChildren().remove(inputPane);
-        if (!content.getChildren().contains(listPane)) content.getChildren().addAll(listPane, stackPane);
+        getChildren().setAll(graphHBox);
     }
 
     private void createGraph(PearlGraph database) {
