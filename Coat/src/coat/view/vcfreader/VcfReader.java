@@ -23,6 +23,7 @@ import coat.core.vcf.*;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.SizableImage;
+import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
@@ -98,7 +99,7 @@ public class VcfReader extends VBox implements Reader {
     }
 
     @Override
-    public Property<String> getTitle() {
+    public Property<String> titleProperty() {
         return titleProperty;
     }
 
@@ -108,8 +109,10 @@ public class VcfReader extends VBox implements Reader {
                 vcfFile.getFile().getName(), FileManager.VCF_FILTER, FileManager.TSV_FILTER);
         List<Variant> toSaveVariants = new ArrayList<>(filterList.getOutputVariants());
         if (output != null)
-            if (output.getName().endsWith(".vcf")) new VcfSaver(vcfFile, output, toSaveVariants).invoke();
-            else new TsvSaver(vcfFile, output, toSaveVariants).invoke();
+            if (output.getName().endsWith(".vcf")) {
+                new VcfSaver(vcfFile, output, toSaveVariants).invoke();
+                vcfFile.setChanged(false);
+            } else new TsvSaver(vcfFile, output, toSaveVariants).invoke();
     }
 
     @Override
@@ -219,5 +222,9 @@ public class VcfReader extends VBox implements Reader {
         final List<String> list = vcfFile.getHeader().getComplexHeaders().get("INFO").stream().map(map -> map.get("ID")).collect(Collectors.toList());
         filterList.setInfos(list);
         variantsTable.setVariants(filterList.getOutputVariants());
+        vcfFile.changedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) Platform.runLater(() -> titleProperty.setValue(vcfFile.getFile().getName() + " *"));
+            else titleProperty.setValue(vcfFile.getFile().getName());
+        });
     }
 }

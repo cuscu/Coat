@@ -30,6 +30,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
@@ -83,10 +86,12 @@ public class InfoTable extends VBox {
 
     private void addInfos() {
         final VcfFile vcfFile = variantProperty.getValue().getVcfFile();
-        vcfFile.getHeader().getComplexHeaders().get("INFO").forEach(map -> {
-            String id = map.get("ID");
-            String description = map.get("Description");
-            String value = variantProperty.getValue().getInfo(id);
+        final List<Map<String, String>> idList = vcfFile.getHeader().getComplexHeaders().get("INFO");
+        final Map<String, String> map = variantProperty.getValue().getInfo();
+        idList.forEach(info -> {
+            String id = info.get("ID");
+            String description = info.get("Description");
+            String value = map.get(id);
             table.getItems().add(new Info(id, value, description));
         });
     }

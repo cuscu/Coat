@@ -17,10 +17,11 @@
 
 package coat.core.vcf;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
@@ -38,12 +39,18 @@ public class VcfSaver {
     }
 
     public void invoke() {
-        try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(output)))) {
-            writer.write(vcfFile.getHeader().toString());
-            saveVariants.forEach(writer::println);
-        } catch (IOException ex) {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
+        vcfFile.saveToTemp(saveVariants);
+        try {
+            Files.copy(vcfFile.getTemp().toPath(), output.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+//        try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(output)))) {
+//            writer.write(vcfFile.getHeader().toString());
+//            saveVariants.forEach(writer::println);
+//        } catch (IOException ex) {
+//            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
+//        }
     }
 
 }

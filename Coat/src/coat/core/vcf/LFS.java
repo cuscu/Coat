@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
+
 package coat.core.vcf;
 
 import java.util.Map;
@@ -191,7 +192,7 @@ public class LFS {
                     double source = frequencies.get(cods[0].toUpperCase());
                     double destiny = frequencies.get(cods[1].toUpperCase());
                     double score = source / destiny;
-                    if (score > 1) variant.setInfo("LFS", String.valueOf(score));
+//                    if (score > 1) variant.setInfo("LFS", String.valueOf(score));
                 }
             }
         } catch (Exception ex) {

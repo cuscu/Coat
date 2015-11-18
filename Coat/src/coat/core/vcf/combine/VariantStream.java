@@ -131,14 +131,14 @@ public class VariantStream {
     }
 
     private void addMistInfo(Variant variant) {
-        variant.resizeInfoValues();
-        variant.setInfo("MistZone", "true");
-        for (int i = 0; i < vcfFile.getHeader().getSamples().size(); i++) {
-            final String[] values = new String[vcfFile.getHeader().getComplexHeaders().get("FORMAT").size()];
-            for (int j = 0; j < values.length; j++) values[j] = ".";
-            final String name = vcfFile.getHeader().getSamples().get(i);
-            variant.addSample(name, values);
-        }
+//        variant.resizeInfoValues();
+//        variant.setInfo("MistZone", "true");
+//        for (int i = 0; i < vcfFile.getHeader().getSamples().size(); i++) {
+//            final String[] values = new String[vcfFile.getHeader().getComplexHeaders().get("FORMAT").size()];
+//            for (int j = 0; j < values.length; j++) values[j] = ".";
+//            final String name = vcfFile.getHeader().getSamples().get(i);
+//            variant.addSample(name, values);
+//        }
     }
 
     private String[] nextMistRegion() {
@@ -165,10 +165,11 @@ public class VariantStream {
     private boolean checkZygotic(Variant localVariant, Variant variant) {
         if (vcfSample.getLevel() == VcfSample.Level.UNAFFECTED) return false;
         mergeInfo(localVariant, variant);
-        if (vcfSample.getLevel() == VcfSample.Level.AFFECTED) return true;
-        final String AF = localVariant.getInfo("AF");
-        if (AF.equals("0.500")) return vcfSample.getLevel() == VcfSample.Level.HETEROZYGOUS;
-        else return vcfSample.getLevel() == VcfSample.Level.HOMOZYGOUS;
+        return true;
+//        if (vcfSample.getLevel() == VcfSample.Level.AFFECTED) return true;
+//        final String AF = localVariant.getInfo("AF");
+//        if (AF.equals("0.500")) return vcfSample.getLevel() == VcfSample.Level.HETEROZYGOUS;
+//        else return vcfSample.getLevel() == VcfSample.Level.HOMOZYGOUS;
     }
 
     private void mergeInfo(Variant localVariant, Variant variant) {

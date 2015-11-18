@@ -17,8 +17,14 @@
 package coat.core.vcf;
 
 import coat.utils.OS;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Stores a variant. chrom, pos, ref, alt, filter and format are Strings. pos is an integer, qual a
@@ -28,14 +34,19 @@ import java.util.*;
  */
 public class Variant implements Comparable<Variant> {
 
+    private static final String TRUE = OS.getString("true");
     private String chrom, ref, alt, filter;
     private int pos;
     private double qual;
     private String id;
 
+
     private final List<String[]> samples = new ArrayList<>();
-    private String[] infoValues;
     private final VcfFile vcfFile;
+
+    private final Map<String, String> info = new HashMap<>();
+
+    private String temp = null;
 
     private int chromIndex;
 
@@ -59,29 +70,25 @@ public class Variant implements Comparable<Variant> {
         } catch (Exception ignored) {
         }
         filter = v[6];
-        setInfos(vcfFile, v);
+        preloadInfos(v[7]);
         setFormats(vcfFile, v);
     }
 
-    private void setInfos(VcfFile vcfFile, String[] v) {
-        infoValues = new String[vcfFile.getHeader().getComplexHeaders().get("INFO").size()];
-        // Split by ;
-        Arrays.stream(v[7].split(";")).forEach(i -> {
-            if (i.contains("=")) {
-                String[] pair = i.split("=");
-                final int index = getInfoIndex(pair[0]);
-                if (index >= 0) infoValues[index] = pair[1];
-            } else {
-                final int index = getInfoIndex(i);
-                if (index >= 0) infoValues[index] = "true";
-            }
-        });
+    private void preloadInfos(String infoField) {
+        final String symbol = guessInfo("SYMBOL", infoField);
+        if (symbol != null) info.put("SYMBOL", symbol);
+        final String cod = guessInfo("COD", infoField);
+        if (cod != null) info.put("COD", cod);
     }
 
-    private int getInfoIndex(String key) {
-        final List<Map<String, String>> info = vcfFile.getHeader().getComplexHeaders().get("INFO");
-        for (int i = 0; i < info.size(); i++) if (info.get(i).get("ID").equals(key)) return i;
-        return -1;
+    private String guessInfo(String key, String info) {
+        final Pattern pattern = Pattern.compile(".*" + key + "=([^;]*)[;]?.*");
+        final Matcher matcher = pattern.matcher(info);
+        return matcher.matches() ? matcher.group(1) : null;
+    }
+
+    public void setInfo(Map<String, String> info) {
+        temp = toString(info);
     }
 
     private void setFormats(VcfFile vcfFile, String[] v) {
@@ -103,6 +110,14 @@ public class Variant implements Comparable<Variant> {
      */
     public String getChrom() {
         return chrom;
+    }
+
+    public String getTemp() {
+        return temp;
+    }
+
+    public void setTemp(String temp) {
+        this.temp = temp;
     }
 
     /**
@@ -170,19 +185,13 @@ public class Variant implements Comparable<Variant> {
         return samples;
     }
 
-    public String[] getInfoValues() {
-        return infoValues;
-    }
+//    }
 
-    public String getInfo(String id) {
-        final int index = getInfoIndex(id);
-        return index >= 0 ? infoValues[index] : null;
-    }
+//    }
 
-    @Override
-    public String toString() {
+    public String toString(Map<String, String> info) {
         final String formats = getFormatString();
-        final String inf = infosToString();
+        final String inf = infosToString(info);
         return String.format(Locale.US, "%s\t%d\t%s\t%s\t%s\t%.4f\t%s\t%s%s",
                 chrom, pos, id, ref, alt, qual, filter, inf, formats);
     }
@@ -199,20 +208,14 @@ public class Variant implements Comparable<Variant> {
         return builder.toString();
     }
 
-    private String infosToString() {
-        final List<String> plainValues = new ArrayList<>();
-        final List<String> infos = vcfFile.getHeader().getIdList("INFO");
-        for (int i = 0; i < infos.size(); i++) {
-            final String id = infos.get(i);
-            final String value = infoValues[i];
-            if (value == null) continue;
-            if (value.equals("true")) plainValues.add(id);
-            else plainValues.add(id + "=" + value);
-        }
-        Collections.sort(plainValues);
-        final StringBuilder builder = new StringBuilder(plainValues.get(0));
-        for (int i = 1; i < plainValues.size(); i++) builder.append(";").append(plainValues.get(i));
-        return builder.toString();
+    private String infosToString(Map<String, String> map) {
+        final List<String> pairs = new ArrayList<>();
+        map.forEach((key, value) -> {
+            if (value.equals(TRUE)) pairs.add(key);
+            else pairs.add(key + "=" + value);
+        });
+        return OS.asString(";", pairs);
+
     }
 
     @Override
@@ -232,21 +235,13 @@ public class Variant implements Comparable<Variant> {
         return filter;
     }
 
-    public void setInfo(String key, String value) {
-        int index = getInfoIndex(key);
-        if (index >= 0) infoValues[index] = value;
-    }
+//    }
 
     public VcfFile getVcfFile() {
         return vcfFile;
     }
 
-    public void resizeInfoValues() {
-        final List<String> idList = vcfFile.getHeader().getIdList("INFO");
-        final String[] values = new String[idList.size()];
-        System.arraycopy(infoValues, 0, values, 0, infoValues.length);
-        infoValues = values;
-    }
+//    }
 
     public String getSampleValue(String name, String id) {
         final int sampleIndex = getSampleIndex(name);
@@ -280,5 +275,48 @@ public class Variant implements Comparable<Variant> {
             while (index >= samples.size()) samples.add(null);
             samples.set(index, values);
         }
+    }
+
+    public Map<String, String> getInfo() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(vcfFile.getTemp()))) {
+            final String pattern = chrom + "\t" + pos + "\t.*";
+            final Optional<String> first = reader.lines().filter(line -> line.matches(pattern)).findFirst();
+            if (first.isPresent()) return toInfoMap(first.get().split("\t")[7]);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public String getInfo(String key) {
+        if (info.containsKey(key)) return info.get(key);
+        else {
+            loadInfo(key);
+            return info.get(key);
+
+        }
+    }
+
+    private void loadInfo(String key) {
+        final Map<String, String> map = getInfo();
+        try {
+            final String value = map.get(key);
+            info.putIfAbsent(key, value);
+        } catch (Exception e) {
+            System.err.println(key);
+            e.printStackTrace();
+        }
+    }
+
+    @NotNull
+    private Map<String, String> toInfoMap(String s) {
+        final Map<String, String> map = new HashMap<>();
+        Arrays.stream(s.split(";")).forEach(i -> {
+            if (i.contains("=")) {
+                final String[] pair = i.split("=");
+                map.put(pair[0], pair[1]);
+            } else map.put(i, TRUE);
+        });
+        return map;
     }
 }

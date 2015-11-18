@@ -26,6 +26,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 
 /**
  * This Cell is a TextField that can be read but not written.
@@ -43,6 +44,7 @@ public class NaturalCell<S, T> extends TableCell<S, T> {
     public NaturalCell() {
         textField.styleProperty().bind(styleProperty());
         box.setAlignment(Pos.CENTER);
+        HBox.setHgrow(textField, Priority.ALWAYS);
         textField.setEditable(false);
         textField.setBackground(Background.EMPTY);
         textField.setPadding(new Insets(0));

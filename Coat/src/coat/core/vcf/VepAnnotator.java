@@ -85,12 +85,10 @@ public class VepAnnotator extends Task<Boolean> {
             "##INFO=<ID=PUBM,Number=1,Type=String,Description=\"Pubmed ID(s) of publications that cite existing variant\">",
             "##INFO=<ID=SOMA,Number=1,Type=String,Description=\"Somatic status of existing variation(s)\">"
     };
-    private final List<Variant> variants;
     private final VcfFile vcfFile;
 
     public VepAnnotator(VcfFile vcfFile) {
         this.vcfFile = vcfFile;
-        this.variants = vcfFile.getVariants();
     }
 
     @Override
@@ -102,20 +100,20 @@ public class VepAnnotator extends Task<Boolean> {
 
     private void injectVEPHeaders() {
         Arrays.stream(HEADERS).forEach(vcfFile.getHeader()::addHeader);
-        vcfFile.getVariants().forEach(Variant::resizeInfoValues);
     }
 
     private boolean annotateVariants() {
+        vcfFile.setChanged(true);
         final List<Integer> froms = new ArrayList<>();
         AtomicInteger total = new AtomicInteger();
-        for (int i = 0; i < variants.size(); i+= 1000) froms.add(i);
+        for (int i = 0; i < vcfFile.getVariants().size(); i += 1000) froms.add(i);
         froms.parallelStream().forEach(from -> {
             try {
                 annotate(from);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            updateProgress(total.addAndGet(1000), variants.size());
+            updateProgress(total.addAndGet(1000), vcfFile.getVariants().size());
             updateMessage(total.toString() + " variants annotated");
         });
         return true;
@@ -123,31 +121,32 @@ public class VepAnnotator extends Task<Boolean> {
 
 
     private void annotate(int from) throws Exception {
-        final String response = makeHttpRequest(from);
-        annotateVariants(response);
+        final List<Variant> variants = new LinkedList<>();
+        for (int i = from; i < from + 1000 && i < vcfFile.getVariants().size(); i++) variants.add(vcfFile.getVariants().get(i));
+        final String response = makeHttpRequest(variants);
+        annotateVariants(response, variants);
     }
 
-    private String makeHttpRequest(int from) throws MalformedURLException {
+    private String makeHttpRequest(List<Variant> variants) throws MalformedURLException {
         final URL url = new URL("http://grch37.rest.ensembl.org/vep/human/region");
         final Map<String, String> requestMap = getRequestMap();
-        final JSONObject message = getJsonMessage(from);
+        final JSONObject message = getJsonMessage(variants);
         return Web.httpRequest(url, requestMap, message);
     }
 
-    private JSONObject getJsonMessage(int from) {
-        final JSONArray array = getJsonVariantArray(from);
-        // {"variants":array}
+    private JSONObject getJsonMessage(List<Variant> variants) {
+        final JSONArray array = getJsonVariantArray(variants);
         final JSONObject message = new JSONObject();
+        // {"variants":array}
         message.put("variants", array);
         return message;
     }
 
-    private JSONArray getJsonVariantArray(int from) {
+    private JSONArray getJsonVariantArray(List<Variant> variants) {
         // Translate list into JSON
         // ["1 156897 156897 A/C","2 3547966 3547968 TCC/T"]
         final JSONArray array = new JSONArray();
-        for (int j = from; j < from + 1000 && j < variants.size(); j++) {
-            Variant v = variants.get(j);
+        for (Variant v : variants) {
             int start = v.getPos();
             int end = v.getPos() + v.getRef().length() - 1;
             // 1 156897 156897 A/C
@@ -163,15 +162,15 @@ public class VepAnnotator extends Task<Boolean> {
         return requestMap;
     }
 
-    private void annotateVariants(String response) {
+    private void annotateVariants(String response, List<Variant> variants) {
         if (response != null) {
             JSONArray json = new JSONArray(response);
-            new Thread(() -> mapVepInfo(json, variants)).start();
+            mapVepInfo(json, variants);
         }
     }
 
-    private static void mapVepInfo(JSONArray json, List<Variant> variants) {
-        // To go faster, as Vep do not guaranties the order of variants, I will copy the list of variants
+    private void mapVepInfo(JSONArray json, List<Variant> variants) {
+        // To go faster, as Vep do not guarantees the order of variants, I will copy the list of variants
         // Then, each located variant will be removed from list
         final List<Variant> copy = new LinkedList<>(variants);
         for (int i = 0; i < json.length(); i++)
@@ -188,24 +187,25 @@ public class VepAnnotator extends Task<Boolean> {
                 ex.printStackTrace();
 
             }
+        vcfFile.saveToTemp(vcfFile.getVariants());
     }
 
-    private static Variant getVariant(List<Variant> copy, String[] input) {
-        return copy.stream()
+    private static Variant getVariant(List<Variant> variants, String[] input) {
+        return variants.stream()
                 .filter(variant -> variant.getChrom().equals(input[0]))
                 .filter(variant -> variant.getPos() == Integer.valueOf(input[1]))
                 .findFirst().orElse(null);
     }
 
-    private static void incorporateData(Variant variant, JSONObject json) {
-        addFrequencyData(variant, json);
-        addTranscriptConsequences(variant, json);
-        addIntergenicConsequences(variant, json);
-
-
+    private static synchronized void incorporateData(Variant variant, JSONObject json) {
+        final Map<String, String> map = variant.getInfo();
+        addFrequencyData(variant, json, map);
+        addTranscriptConsequences(variant, json, map);
+        addIntergenicConsequences(variant, json, map);
+        variant.setInfo(map);
     }
 
-    private static void addFrequencyData(Variant variant, JSONObject json) {
+    private static void addFrequencyData(Variant variant, JSONObject json, Map<String, String> map) {
     /*
      - "id":"temp"
      - "input":"1 1534738 1534738 G/A"
@@ -257,19 +257,19 @@ public class VepAnnotator extends Task<Boolean> {
                 variant.setId(id);
 
 //            GMAF|AFR_MAF|AMR_MAF|EAS_MAF|EUR_MAF|SAS_MAF|AA_MAF|EA_MAF
-            findAndPut(var, "minor_allele_freq", variant, "GMAF", Double.class);
-            findAndPut(var, "amr_maf", variant, "AMR_MAF", Double.class);
-            findAndPut(var, "asn_maf", variant, "ASN_MAF", Double.class);
-            findAndPut(var, "eur_maf", variant, "EUR_MAF", Double.class);
-            findAndPut(var, "afr_maf", variant, "AFR_MAF", Double.class);
-            findAndPut(var, "ea_maf", variant, "EA_MAF", Double.class);
-            findAndPut(var, "aa_maf", variant, "AA_MAF", Double.class);
+            findAndPut(var, "minor_allele_freq", map, "GMAF", Double.class);
+            findAndPut(var, "amr_maf", map, "AMR_MAF", Double.class);
+            findAndPut(var, "asn_maf", map, "ASN_MAF", Double.class);
+            findAndPut(var, "eur_maf", map, "EUR_MAF", Double.class);
+            findAndPut(var, "afr_maf", map, "AFR_MAF", Double.class);
+            findAndPut(var, "ea_maf", map, "EA_MAF", Double.class);
+            findAndPut(var, "aa_maf", map, "AA_MAF", Double.class);
         } catch (JSONException ex) {
             // No colocated_variants
         }
     }
 
-    private static void addTranscriptConsequences(Variant variant, JSONObject json) {
+    private static void addTranscriptConsequences(Variant variant, JSONObject json, Map<String, String> map) {
     /*
      Second: "transcript_consequences" : [ array ]
      - "variant_allele":"A"
@@ -307,13 +307,13 @@ public class VepAnnotator extends Task<Boolean> {
             // Only take the first one
             JSONObject first = cons.getJSONObject(0);
 
-            findAndPut(first, "gene_symbol", variant, "SYMBOL", String.class);
-            findAndPut(first, "gene_id", variant, "GENE", String.class);
-            findAndPut(first, "distance", variant, "DIST", Integer.class);
-            findAndPut(first, "biotype", variant, "BIO", String.class);
-            findAndPut(first, "transcript_id", variant, "FEAT", String.class);
-            findAndPut(first, "codons", variant, "COD", String.class);
-            findAndPut(first, "amino_acids", variant, "AMINO", String.class);
+            findAndPut(first, "gene_symbol", map, "SYMBOL", String.class);
+            findAndPut(first, "gene_id", map, "GENE", String.class);
+            findAndPut(first, "distance", map, "DIST", Integer.class);
+            findAndPut(first, "biotype", map, "BIO", String.class);
+            findAndPut(first, "transcript_id", map, "FEAT", String.class);
+            findAndPut(first, "codons", map, "COD", String.class);
+            findAndPut(first, "amino_acids", map, "AMINO", String.class);
             // Unnecessary
 //            findAndPut(first, "protein_start", v, "PROTS", Integer.class);
 //            findAndPut(first, "protein_end", v, "PROTE", Integer.class);
@@ -321,18 +321,18 @@ public class VepAnnotator extends Task<Boolean> {
 //            findAndPut(first, "cds_end", v, "CDSE", Integer.class);
 //            findAndPut(first, "cdna_start", v, "CDNAS", Integer.class);
 //            findAndPut(first, "cdna_end", v, "CDNAE", Integer.class);
-            findAndPut(first, "sift_score", variant, "SIFTs", Double.class);
-            findAndPut(first, "sift_prediction", variant, "SIFTp", String.class);
-            findAndPut(first, "polyphen_score", variant, "PPHs", Double.class);
-            findAndPut(first, "polyphen_prediction", variant, "PPHp", String.class);
-            findAndPutArray(first, "consequence_terms", variant, "CONS", String.class);
+            findAndPut(first, "sift_score", map, "SIFTs", Double.class);
+            findAndPut(first, "sift_prediction", map, "SIFTp", String.class);
+            findAndPut(first, "polyphen_score", map, "PPHs", Double.class);
+            findAndPut(first, "polyphen_prediction", map, "PPHp", String.class);
+            findAndPutArray(first, "consequence_terms", map, "CONS", String.class);
 
         } catch (JSONException e) {
             // NO transcript_consequences
         }
     }
 
-    private static void addIntergenicConsequences(Variant variant, JSONObject json) {
+    private static void addIntergenicConsequences(Variant variant, JSONObject json, Map<String, String> map) {
     /*
      Third try: intergenic consequences:[array]
      - "variant_allele":"G"
@@ -341,7 +341,7 @@ public class VepAnnotator extends Task<Boolean> {
      */
         try {
             JSONArray cons = json.getJSONArray("intergenic_consequences");
-            findAndPut(cons.getJSONObject(0), "consequence_terms", variant, "CONS", String.class);
+            findAndPut(cons.getJSONObject(0), "consequence_terms", map, "CONS", String.class);
         } catch (JSONException e) {
             // NO intergenic_consequences
 
@@ -351,53 +351,55 @@ public class VepAnnotator extends Task<Boolean> {
     /**
      * Checks if sourceKey is present in the source JSONObject. In that case, reads a classType
      * object and puts it into target variant with targetKey.
-     *
-     * @param source    source JSONObject
+     *  @param source    source JSONObject
      * @param sourceKey key in the source JSONObject
-     * @param target    target variant
+     * @param map    target variant
      * @param targetKey key in the target variant
      * @param classType type of value in source JSONObject
      */
-    private static void findAndPut(JSONObject source, String sourceKey, Variant target,
+    private static void findAndPut(JSONObject source, String sourceKey, Map<String, String> map,
                                    String targetKey, Class classType) {
         if (source.containsKey(sourceKey))
             if (classType == String.class)
-                target.setInfo(targetKey, source.getString(sourceKey));
+                map.put(targetKey, source.getString(sourceKey));
             else if (classType == Integer.class)
-                target.setInfo(targetKey, source.getInt(sourceKey) + "");
+                map.put(targetKey, source.getInt(sourceKey) + "");
             else if (classType == Double.class)
-                target.setInfo(targetKey, source.getDouble(sourceKey) + "");
+                map.put(targetKey, source.getDouble(sourceKey) + "");
             else if (classType == Boolean.class)
-                target.setInfo(targetKey, source.getBoolean(sourceKey) + "");
+                map.put(targetKey, source.getBoolean(sourceKey) + "");
             else if (classType == Long.class)
-                target.setInfo(targetKey, source.getLong(sourceKey) + "");
+                map.put(targetKey, source.getLong(sourceKey) + "");
             else
-                target.setInfo(targetKey, String.valueOf(source.get(sourceKey)));
+                map.put(targetKey, String.valueOf(source.get(sourceKey)));
     }
 
-    private static void findAndPutArray(JSONObject source, String sourceKey, Variant target,
+    private static void findAndPutArray(JSONObject source, String sourceKey, Map<String, String> target,
                                         String targetKey, Class classType) {
         if (source.containsKey(sourceKey)) {
             JSONArray terms = source.getJSONArray(sourceKey);
             if (terms.length() > 0) {
-                String result = "";
-                for (int i = 0; i < terms.length(); i++)
-                    if (classType == String.class)
-                        result += terms.getString(i) + ",";
-                    else if (classType == Integer.class)
-                        result += terms.getInt(i) + ",";
-                    else if (classType == Double.class)
-                        result += terms.getDouble(i) + ",";
-                    else if (classType == Boolean.class)
-                        result += terms.getBoolean(i) + ",";
-                    else if (classType == Long.class)
-                        result += terms.getLong(i) + ",";
-                    else
-                        result += String.valueOf(terms.get(i)) + ",";
-                if (!result.isEmpty()) {
-                    result = result.substring(0, result.length() - 1);
-                    target.setInfo(targetKey, result);
-                }
+                final StringBuilder builder = new StringBuilder(terms.get(0).toString());
+                for (int i = 1; i < terms.length(); i++) builder.append(",").append(terms.get(i).toString());
+                target.put(targetKey, builder.toString());
+//                String result = "";
+//                for (int i = 0; i < terms.length(); i++)
+//                    if (classType == String.class)
+//                        result += terms.getString(i) + ",";
+//                    else if (classType == Integer.class)
+//                        result += terms.getInt(i) + ",";
+//                    else if (classType == Double.class)
+//                        result += terms.getDouble(i) + ",";
+//                    else if (classType == Boolean.class)
+//                        result += terms.getBoolean(i) + ",";
+//                    else if (classType == Long.class)
+//                        result += terms.getLong(i) + ",";
+//                    else
+//                        result += String.valueOf(terms.get(i)) + ",";
+//                if (!result.isEmpty()) {
+//                    result = result.substring(0, result.length() - 1);
+//                    target.put(targetKey, result);
+//                }
             }
         }
     }

@@ -169,7 +169,7 @@ public class TsvFileReader extends VBox implements Reader {
     }
 
     @Override
-    public Property<String> getTitle() {
+    public Property<String> titleProperty() {
         return titleProperty;
     }
 

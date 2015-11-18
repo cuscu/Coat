@@ -36,7 +36,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -120,7 +119,8 @@ public class VariantsTable extends VBox {
         if (variant.getRef().contains(searchValue)) return true;
         if (variant.getAlt().contains(searchValue)) return true;
         if (variant.getFilter().contains(searchValue)) return true;
-        return Arrays.stream(variant.getInfoValues()).filter(s -> s != null).anyMatch(s1 -> s1.toLowerCase().contains(searchValue));
+        return variant.getInfo("SYMBOL") != null && variant.getInfo("SYMBOL").toLowerCase().contains(searchValue);
+        //        return Arrays.stream(variant.getInfoValues()).filter(s -> s != null).anyMatch(s1 -> s1.toLowerCase().contains(searchValue));
     }
 
     private void setTableCellFactories() {
@@ -136,7 +136,7 @@ public class VariantsTable extends VBox {
         qual.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getQual() + ""));
         position.setCellValueFactory(param
                 -> new SimpleStringProperty(String.format("%,d", param.getValue().getPos())));
-        geneColumn.setCellValueFactory(param -> new SimpleStringProperty((String) param.getValue().getInfo("SYMBOL")));
+        geneColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getInfo("SYMBOL")));
     }
 
     private void setTableColumnWidths() {

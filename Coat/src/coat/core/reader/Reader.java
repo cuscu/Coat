@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
+
 package coat.core.reader;
 
 import javafx.beans.property.Property;
@@ -31,7 +32,7 @@ import java.util.List;
  */
 public interface Reader {
 
-    Property<String> getTitle();
+    Property<String> titleProperty();
 
     /**
      * This method will be called when user clicks on save as button.
