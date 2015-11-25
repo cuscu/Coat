@@ -40,16 +40,16 @@ public class InstanceFilterCell extends ListCell<InstanceFilter> {
     private final ComboBox<VcfFilter.Connector> connectorBox = new ComboBox<>();
     private final AutoFillComboBox valueBox = new AutoFillComboBox();
 
-    private final SizableImage circleIcon = new SizableImage("coat/img/circle.png", SizableImage.SMALL_SIZE);
-    private final SizableImage noCircleIcon = new SizableImage("coat/img/nocircle.png", SizableImage.SMALL_SIZE);
+    private final SizableImage circleIcon = new SizableImage("coat/img/black/circle.png", SizableImage.SMALL_SIZE);
+    private final SizableImage noCircleIcon = new SizableImage("coat/img/black/nocircle.png", SizableImage.SMALL_SIZE);
 
 
     private final Separator separator = new Separator(Orientation.HORIZONTAL);
-    private final Button cancel = new Button(null, new SizableImage("coat/img/cancel.png", SizableImage.SMALL_SIZE));
-    private final Button ok = new Button(null, new SizableImage("coat/img/accept.png", SizableImage.SMALL_SIZE));
+    private final Button cancel = new Button(null, new SizableImage("coat/img/black/cancel.png", SizableImage.SMALL_SIZE));
+    private final Button ok = new Button(null, new SizableImage("coat/img/black/accept.png", SizableImage.SMALL_SIZE));
 
-    private final Button delete = new Button(null, new SizableImage("coat/img/delete.png", SizableImage.SMALL_SIZE));
-    private final Button strict = new Button(null, new SizableImage("coat/img/circle.png", SizableImage.SMALL_SIZE));
+    private final Button delete = new Button(null, new SizableImage("coat/img/black/delete.png", SizableImage.SMALL_SIZE));
+    private final Button strict = new Button(null, new SizableImage("coat/img/black/circle.png", SizableImage.SMALL_SIZE));
     private final HBox buttonsBox = new HBox(delete, strict);
 
     private final HBox box = new HBox(5, fieldBox, connectorBox, valueBox, separator, ok);

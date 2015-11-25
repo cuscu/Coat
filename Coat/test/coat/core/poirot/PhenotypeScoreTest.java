@@ -39,7 +39,7 @@ public class PhenotypeScoreTest {
     @Test
     public void test() {
         final VcfFile vcfFile = new VcfFile(file);
-        final PearlGraphFactory generator = new PearlGraphFactory(vcfFile.getVariants());
+        final GraphFactory generator = new GraphFactory(vcfFile.getVariants());
         try {
             generator.run();
             final PearlGraph pearlDatabase = generator.get();

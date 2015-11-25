@@ -151,6 +151,13 @@ public class GraphEvaluator extends Task<Void> {
         RELATIONSHIP_SCORE.put("General", 0.4);
         RELATIONSHIP_SCORE.put("Isoform_specific", 0.8);
 
+        // ProteinAtlas
+        RELATIONSHIP_SCORE.put("High", 0.8);
+        RELATIONSHIP_SCORE.put("Medium", 0.6);
+        RELATIONSHIP_SCORE.put("Low", 0.4);
+        RELATIONSHIP_SCORE.put("-", 0.5);
+
+
     }
 
     private final PearlGraph database;
@@ -260,7 +267,7 @@ public class GraphEvaluator extends Task<Void> {
         final double vScore = getVariantScore(pearl);
         final double maxNScore = getMaxNeighbourScore(pearl);
         if (pearl.getType() == Pearl.Type.GENE)
-            pearl.setScore((0.8 * vScore + 0.2 * maxNScore) / pearl.getDistanceToPhenotype());
+            pearl.setScore((0.9 * vScore + 0.1 * maxNScore) / pearl.getDistanceToPhenotype());
         else pearl.setScore(maxNScore);
     }
 

@@ -38,6 +38,6 @@ public class CombineMistMenu implements ToolMenu {
 
     @Override
     public String getIconPath() {
-        return "coat/img/documents_mist.png";
+        return "coat/img/black/documents_mist.png";
     }
 }

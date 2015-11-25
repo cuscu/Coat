@@ -62,7 +62,7 @@ public class VariantStream {
         }
     }
 
-    public static VcfHeader loadHeader(File reference) {
+    private static VcfHeader loadHeader(File reference) {
         final VcfHeader header = new VcfHeader();
         try (BufferedReader reader = new BufferedReader(new FileReader(reference))) {
             reader.lines().filter(line -> line.startsWith("#")).forEach(header::addHeader);

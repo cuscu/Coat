@@ -19,7 +19,7 @@ package coat.core.poirot.dataset.omim;
 
 import coat.core.poirot.dataset.Dataset;
 import coat.core.poirot.dataset.Instance;
-import coat.core.poirot.dataset.hgnc.HGNCDatabase;
+import coat.core.poirot.dataset.hgnc.HGNC;
 import javafx.concurrent.Task;
 
 import java.io.BufferedReader;
@@ -85,7 +85,7 @@ public class OmimDatasetLoader extends Task<Dataset> {
     }
 
     private Instance getFields(String[] line) {
-        line[0] = HGNCDatabase.getStandardSymbol(line[0]);
+        line[0] = HGNC.getStandardSymbol(line[0]);
         line[3] = CONFIDENCE_NAME.get(line[3]);
         return new Instance(dataset, line);
     }

@@ -136,7 +136,7 @@ public class VcfReader extends VBox implements Reader {
     private Button getViewHeadersButton() {
         Button viewheaders = new Button(OS.getResources().getString("headers"));
         viewheaders.setOnAction(event -> viewHeaders());
-        viewheaders.setGraphic(new SizableImage("coat/img/headers.png", SizableImage.SMALL_SIZE));
+        viewheaders.setGraphic(new SizableImage("coat/img/black/headers.png", SizableImage.SMALL_SIZE));
         return viewheaders;
     }
 
@@ -160,7 +160,7 @@ public class VcfReader extends VBox implements Reader {
     private Button getLfsButton() {
         Button lfs = new Button("LFS");
         lfs.setOnAction(event -> addLFS());
-        lfs.setGraphic(new SizableImage("coat/img/lfs.png", SizableImage.SMALL_SIZE));
+        lfs.setGraphic(new SizableImage("coat/img/black/lfs.png", SizableImage.SMALL_SIZE));
         return lfs;
     }
 
@@ -181,7 +181,7 @@ public class VcfReader extends VBox implements Reader {
 
     private Button getVepButton() {
         Button vep = new Button("VEP");
-        vep.setGraphic(new SizableImage("coat/img/vep_logo.png", SizableImage.SMALL_SIZE));
+        vep.setGraphic(new SizableImage("coat/img/black/vep_logo.png", SizableImage.SMALL_SIZE));
         vep.setOnAction(e -> addVep());
         return vep;
     }
@@ -197,7 +197,7 @@ public class VcfReader extends VBox implements Reader {
 
     private Button getStatsButton() {
         Button statsButton = new Button("View stats");
-        statsButton.setGraphic(new SizableImage("coat/img/stats.png", SizableImage.SMALL_SIZE));
+        statsButton.setGraphic(new SizableImage("coat/img/black/stats.png", SizableImage.SMALL_SIZE));
         statsButton.setOnAction(event -> showStats());
         return statsButton;
     }

@@ -149,4 +149,22 @@ public class OS {
         return resources.getString(key);
     }
 
+    /**
+     *
+     * @param millis milliseconds
+     * @return
+     */
+    public static String humanReadableTime(long millis) {
+        final long years = millis / 31536000000L;
+        millis = millis - years * 31536000000L;
+        final long days = millis / 86400000L;
+        millis = millis - days * 86400000L;
+        final long hours = millis / 3600000L;
+        millis = millis - hours * 3600000L;
+        final long minutes = millis / 60000L;
+        millis = millis - minutes * 60000L;
+        final long seconds = millis / 1000L;
+        millis = millis - seconds * 1000L;
+        return String.format("%d y, %d d, %d:%d:%d %d ms", years, days, hours, minutes, seconds, millis);
+    }
 }

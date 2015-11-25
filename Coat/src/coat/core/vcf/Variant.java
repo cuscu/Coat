@@ -14,14 +14,12 @@
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
+
 package coat.core.vcf;
 
 import coat.utils.OS;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -76,9 +74,13 @@ public class Variant implements Comparable<Variant> {
 
     private void preloadInfos(String infoField) {
         final String symbol = guessInfo("SYMBOL", infoField);
-        if (symbol != null) info.put("SYMBOL", symbol);
+        info.put("SYMBOL", symbol);
         final String cod = guessInfo("COD", infoField);
-        if (cod != null) info.put("COD", cod);
+        info.put("COD", cod);
+        final String sifts = guessInfo("SIFTs", infoField);
+        info.put("SIFTs", sifts);
+        final String cons = guessInfo("CONS", infoField);
+        info.put("CONS", cons);
     }
 
     private String guessInfo(String key, String info) {
@@ -214,6 +216,7 @@ public class Variant implements Comparable<Variant> {
             if (value.equals(TRUE)) pairs.add(key);
             else pairs.add(key + "=" + value);
         });
+        Collections.sort(pairs);
         return OS.asString(";", pairs);
 
     }
@@ -278,14 +281,9 @@ public class Variant implements Comparable<Variant> {
     }
 
     public Map<String, String> getInfo() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(vcfFile.getTemp()))) {
-            final String pattern = chrom + "\t" + pos + "\t.*";
-            final Optional<String> first = reader.lines().filter(line -> line.matches(pattern)).findFirst();
-            if (first.isPresent()) return toInfoMap(first.get().split("\t")[7]);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+        String[] line = vcfFile.getLine(chrom, pos);
+        if (line == null) System.err.println(chrom + ":" + pos + " not found");
+        return line == null ? null : toInfoMap(line[7]);
     }
 
     public String getInfo(String key) {

@@ -17,17 +17,13 @@
 
 package coat.view.poirot;
 
+import coat.core.poirot.GraphFactory;
 import coat.core.poirot.Pearl;
 import coat.core.poirot.PearlGraph;
-import coat.core.poirot.PearlGraphFactory;
 import coat.core.poirot.graph.GraphEvaluator;
 import coat.core.vcf.VcfFile;
-import coat.utils.FileManager;
-import coat.view.graphic.FileParameter;
-import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.Priority;
@@ -65,13 +61,14 @@ public class PoirotInputPane extends VBox {
         StackPane.setMargin(loading, new Insets(20, 20, 20, 20));
         new Thread(() -> {
             final VcfFile vcfFile = new VcfFile(file);
-            final PearlGraphFactory analysis = new PearlGraphFactory(vcfFile.getVariants());
+            System.out.println("Variants loaded");
+            final GraphFactory analysis = new GraphFactory(vcfFile.getVariants());
             analysis.setOnSucceeded(event -> fileLoaded(analysis));
             new Thread(analysis).start();
         }).start();
     }
 
-    private void fileLoaded(PearlGraphFactory analysis) {
+    private void fileLoaded(GraphFactory analysis) {
         final PearlGraph pearlDatabase = analysis.getValue();
         database.setValue(pearlDatabase);
         new GraphEvaluator(pearlDatabase).run();

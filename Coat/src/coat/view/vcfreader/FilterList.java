@@ -50,7 +50,7 @@ public class FilterList extends VBox {
     private final ListView<VcfFilter> filters = new ListView<>();
     private ObservableList<Variant> inputVariants = FXCollections.observableArrayList();
     private final ObservableList<Variant> outputVariants = FXCollections.observableArrayList();
-    private final Button addFilter = new Button(OS.getResources().getString("add.filter"), new SizableImage("coat/img/add.png", SizableImage.SMALL_SIZE));
+    private final Button addFilter = new Button(OS.getResources().getString("add.filter"), new SizableImage("coat/img/black/add.png", SizableImage.SMALL_SIZE));
 
     private final Button addFrequencyFilters = new Button(OS.getResources().getString("add.frequency.filters"));
     private final ChangeListener<Object> applyFilters = (observable, oldValue, newValue) -> applyFilters();

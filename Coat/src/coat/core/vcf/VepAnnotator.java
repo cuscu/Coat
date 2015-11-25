@@ -85,6 +85,7 @@ public class VepAnnotator extends Task<Boolean> {
             "##INFO=<ID=PUBM,Number=1,Type=String,Description=\"Pubmed ID(s) of publications that cite existing variant\">",
             "##INFO=<ID=SOMA,Number=1,Type=String,Description=\"Somatic status of existing variation(s)\">"
     };
+    public static final int MAX_VARIANTS = 1000;
     private final VcfFile vcfFile;
 
     public VepAnnotator(VcfFile vcfFile) {
@@ -104,25 +105,33 @@ public class VepAnnotator extends Task<Boolean> {
 
     private boolean annotateVariants() {
         vcfFile.setChanged(true);
-        final List<Integer> froms = new ArrayList<>();
         AtomicInteger total = new AtomicInteger();
-        for (int i = 0; i < vcfFile.getVariants().size(); i += 1000) froms.add(i);
-        froms.parallelStream().forEach(from -> {
-            try {
-                annotate(from);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            updateProgress(total.addAndGet(1000), vcfFile.getVariants().size());
-            updateMessage(total.toString() + " variants annotated");
-        });
+        for (int i = 0; i < vcfFile.getVariants().size(); i += 10 * MAX_VARIANTS) {
+            final List<Integer> starts = new ArrayList<>();
+            for (int j = i; j < i + 10 * MAX_VARIANTS && j < vcfFile.getVariants().size(); j += MAX_VARIANTS)
+                starts.add(j);
+            System.out.println(starts);
+            starts.parallelStream().forEachOrdered(start -> {
+                try {
+                    System.out.println(start + "-" + (start + MAX_VARIANTS));
+                    annotate(start);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                updateProgress(total.addAndGet(MAX_VARIANTS), vcfFile.getVariants().size());
+                updateMessage(total.toString() + " variants annotated");
+
+            });
+            vcfFile.saveToTemp(vcfFile.getVariants());
+        }
         return true;
     }
 
 
     private void annotate(int from) throws Exception {
         final List<Variant> variants = new LinkedList<>();
-        for (int i = from; i < from + 1000 && i < vcfFile.getVariants().size(); i++) variants.add(vcfFile.getVariants().get(i));
+        for (int i = from; i < from + MAX_VARIANTS && i < vcfFile.getVariants().size(); i++)
+            variants.add(vcfFile.getVariants().get(i));
         final String response = makeHttpRequest(variants);
         annotateVariants(response, variants);
     }
@@ -170,10 +179,11 @@ public class VepAnnotator extends Task<Boolean> {
     }
 
     private void mapVepInfo(JSONArray json, List<Variant> variants) {
-        // To go faster, as Vep do not guarantees the order of variants, I will copy the list of variants
+        // To go faster, as Vep does not guarantee the order of variants, I will copy the list of variants
         // Then, each located variant will be removed from list
         final List<Variant> copy = new LinkedList<>(variants);
-        for (int i = 0; i < json.length(); i++)
+        for (int i = 0; i < json.length(); i++) {
+//            System.out.println(copy.hashCode() + " " + i);
             try {
                 JSONObject object = json.getJSONObject(i);
                 // 1 156897 156897 A/C
@@ -187,13 +197,12 @@ public class VepAnnotator extends Task<Boolean> {
                 ex.printStackTrace();
 
             }
-        vcfFile.saveToTemp(vcfFile.getVariants());
+        }
     }
 
     private static Variant getVariant(List<Variant> variants, String[] input) {
         return variants.stream()
-                .filter(variant -> variant.getChrom().equals(input[0]))
-                .filter(variant -> variant.getPos() == Integer.valueOf(input[1]))
+                .filter(variant -> variant.getPos() == Integer.valueOf(input[1])&& variant.getChrom().equals(input[0]))
                 .findFirst().orElse(null);
     }
 
@@ -351,9 +360,10 @@ public class VepAnnotator extends Task<Boolean> {
     /**
      * Checks if sourceKey is present in the source JSONObject. In that case, reads a classType
      * object and puts it into target variant with targetKey.
-     *  @param source    source JSONObject
+     *
+     * @param source    source JSONObject
      * @param sourceKey key in the source JSONObject
-     * @param map    target variant
+     * @param map       target variant
      * @param targetKey key in the target variant
      * @param classType type of value in source JSONObject
      */

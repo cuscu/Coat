@@ -42,8 +42,8 @@ public class NaturalCell<S, T> extends TableCell<S, T> {
      * Creates a new NaturalCell, which replaces the cell with a non-editable TextField.
      */
     public NaturalCell() {
-        textField.styleProperty().bind(styleProperty());
         box.setAlignment(Pos.CENTER);
+        textField.styleProperty().bind(styleProperty());
         HBox.setHgrow(textField, Priority.ALWAYS);
         textField.setEditable(false);
         textField.setBackground(Background.EMPTY);

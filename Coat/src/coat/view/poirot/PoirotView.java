@@ -1,16 +1,16 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
- * *
+ *                                                                            *
  * This program is free software: you can redistribute it and/or modify it    *
  * under the terms of the GNU General Public License as published by the      *
  * Free Software Foundation, either version 3 of the License, or (at your     *
  * option) any later version.                                                 *
- * *
+ *                                                                            *
  * This program is distributed in the hope that it will be useful, but        *
  * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
  * See the GNU General Public License for more details.                       *
- * *
+ *                                                                            *
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
@@ -21,7 +21,7 @@ import coat.core.poirot.Pearl;
 import coat.core.poirot.PearlGraph;
 import coat.core.poirot.dataset.Dataset;
 import coat.core.poirot.dataset.Instance;
-import coat.core.poirot.dataset.hgnc.HGNCDatabase;
+import coat.core.poirot.dataset.hgnc.HGNC;
 import coat.core.poirot.dataset.omim.OmimDatasetLoader;
 import coat.core.poirot.graph.GraphEvaluator;
 import coat.core.tool.Tool;
@@ -33,6 +33,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -63,7 +64,7 @@ import java.util.stream.Collectors;
 public class PoirotView extends Tool {
 
     private final PoirotInputPane poirotInputPane = new PoirotInputPane();
-    private final Button start = new Button(OS.getResources().getString("show").toUpperCase(), new SizableImage("coat/img/start.png", SizableImage.SMALL_SIZE));
+    private final Button start = new Button(OS.getString("show").toUpperCase(), new SizableImage("coat/img/white/arrow-right.png", SizableImage.SMALL_SIZE));
     private final Label message = new Label();
     private final VBox inputPane = new VBox(5, poirotInputPane, start, message);
 
@@ -74,8 +75,8 @@ public class PoirotView extends Tool {
     private final VBox infoBox = new VBox();
     private final StackPane stackPane = new StackPane(graphView, infoBox);
 
-    private final Button reload = new Button("Reload graph", new SizableImage("coat/img/poirot.png", SizableImage.SMALL_SIZE));
-    private final Button back = new Button(OS.getString("back").toUpperCase(), new SizableImage("coat/img/back.png", SizableImage.SMALL_SIZE));
+    private final Button reload = new Button(OS.getString("reload").toUpperCase(), new SizableImage("coat/img/white/poirot.png", SizableImage.SMALL_SIZE));
+    private final Button back = new Button(OS.getString("back").toUpperCase(), new SizableImage("coat/img/white/arrow-left.png", SizableImage.SMALL_SIZE));
     private final VBox listPane = new VBox(5, back, poirotPearlTable, reload);
 
     private final HBox graphHBox = new HBox(listPane, stackPane);
@@ -126,6 +127,7 @@ public class PoirotView extends Tool {
         start.setOnAction(event -> start());
         start.setMaxWidth(9999);
         start.setPadding(new Insets(10));
+        start.setContentDisplay(ContentDisplay.RIGHT);
     }
 
     private void initializeReloadButton() {
@@ -202,7 +204,7 @@ public class PoirotView extends Tool {
     }
 
     private String getDescription(String symbol) {
-        String description = HGNCDatabase.getName(symbol);
+        String description = HGNC.getName(symbol);
         if (description == null) {
             loadOmimDataset();
             final List<Instance> instances = omimDataset.getInstances(symbol, 0);

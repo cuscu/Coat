@@ -1,16 +1,16 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
- * *
+ *                                                                            *
  * This program is free software: you can redistribute it and/or modify it    *
  * under the terms of the GNU General Public License as published by the      *
  * Free Software Foundation, either version 3 of the License, or (at your     *
  * option) any later version.                                                 *
- * *
+ *                                                                            *
  * This program is distributed in the hope that it will be useful, but        *
  * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
  * See the GNU General Public License for more details.                       *
- * *
+ *                                                                            *
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
@@ -19,18 +19,19 @@ package coat.view.poirot;
 
 import coat.core.poirot.Pearl;
 import coat.utils.OS;
+import coat.view.graphic.NaturalCell;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
@@ -61,7 +62,7 @@ class PhenotypeSelector extends VBox {
 
     private final ListView<String> leftMenu = new ListView<>();
     private final TextField searchBox = new TextField();
-    private final ImageView searchIcon = new ImageView("coat/img/search.png");
+    private final ImageView searchIcon = new ImageView("coat/img/black/search.png");
 
 
     private final TableView<Phenotype> phenotypeTable = new TableView<>();
@@ -82,6 +83,7 @@ class PhenotypeSelector extends VBox {
         leftMenu.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, selected) -> filter());
         leftMenu.getStyleClass().add("custom-list");
         leftMenu.getSelectionModel().select(OPTION_ALL);
+        leftMenu.setCellFactory(param -> new MenuCell());
     }
 
     private StackPane getSearchPane() {
@@ -101,12 +103,21 @@ class PhenotypeSelector extends VBox {
         phenotypeTable.getColumns().addAll(selected, score, name);
         phenotypeTable.setEditable(true);
         phenotypeTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        phenotypeTable.setOnMouseClicked(this::phenotypeClicked);
+        phenotypeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         HBox.setHgrow(phenotypeTable, Priority.ALWAYS);
+    }
+
+    private void phenotypeClicked(MouseEvent mouseEvent) {
+        final ObservableList<Phenotype> items = phenotypeTable.getSelectionModel().getSelectedItems();
+        if (mouseEvent.getClickCount() >= 2)
+            items.forEach(phenotype -> phenotype.selected.setValue(!phenotype.selected.getValue()));
     }
 
     private TableColumn<Phenotype, String> getNameColumn() {
         final TableColumn<Phenotype, String> name = new TableColumn<>(OS.getString("name"));
         name.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().pearl.getName()));
+        name.setCellFactory(param -> new NaturalCell<>());
         name.setPrefWidth(400);
         return name;
     }
@@ -143,6 +154,7 @@ class PhenotypeSelector extends VBox {
         final List<Phenotype> list = getFilteredPhenotypes(selectedType, searchValue);
         phenotypeTable.getItems().setAll(list);
         phenotypeTable.sort();
+        leftMenu.refresh();
     }
 
     private List<Phenotype> getFilteredPhenotypes(String selectedType, String searchValue) {
@@ -187,6 +199,18 @@ class PhenotypeSelector extends VBox {
         private Phenotype(Pearl pearl, boolean selected) {
             this.pearl = pearl;
             this.selected.setValue(selected);
+            this.selected.addListener((observable, oldValue, newValue) -> leftMenu.refresh());
+        }
+    }
+
+    private class MenuCell extends TextFieldListCell<String> {
+        @Override
+        public void updateItem(String item, boolean empty) {
+            super.updateItem(item, empty);
+            if (!empty) {
+                final int size = getFilteredPhenotypes(item, searchBox.getText()).size();
+                setText(item + " (" + size + ")");
+            } else setText(null);
         }
     }
 }

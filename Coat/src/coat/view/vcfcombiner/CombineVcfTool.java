@@ -60,12 +60,12 @@ public class CombineVcfTool extends Tool {
 
     private final VariantsTable variantsTable = new VariantsTable();
 
-    private final Button addFiles = new IconButton(OS.getString("add.files"), new SizableImage("coat/img/add.png", SizableImage.SMALL_SIZE));
-    private final Button delete = new IconButton(OS.getString("delete"), new SizableImage("coat/img/delete.png", SizableImage.SMALL_SIZE));
+    private final Button addFiles = new IconButton(OS.getString("add.files"), new SizableImage("coat/img/black/add.png", SizableImage.SMALL_SIZE));
+    private final Button delete = new IconButton(OS.getString("delete"), new SizableImage("coat/img/black/delete.png", SizableImage.SMALL_SIZE));
     private final VBox topButtonsBox = new VBox(5, addFiles, delete);
     private final HBox samplesHBox = new HBox(5, topButtonsBox, vcfSampleTableView);
 
-    private final Button combine = new Button(OS.getString("combine"), new SizableImage("coat/img/combine.png", SizableImage.SMALL_SIZE));
+    private final Button combine = new Button(OS.getString("combine"), new SizableImage("coat/img/black/combine.png", SizableImage.SMALL_SIZE));
 
     private final Label message = new Label();
     private final ProgressBar progressBar = new ProgressBar();

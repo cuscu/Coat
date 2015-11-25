@@ -35,7 +35,7 @@ public class PoirotMenu implements ToolMenu {
 
     @Override
     public String getIconPath() {
-        return "coat/img/poirot.png";
+        return "coat/img/black/poirot.png";
     }
 
     @Override

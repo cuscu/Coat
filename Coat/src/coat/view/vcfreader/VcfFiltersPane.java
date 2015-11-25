@@ -40,7 +40,7 @@ public class VcfFiltersPane extends VBox {
     private ObservableList<Instance> inputVariants = FXCollections.observableArrayList();
     private ObservableList<Instance> outputVariants = FXCollections.observableArrayList();
     private final ListView<InstanceFilter> filterListView = new ListView<>();
-    private final Button addFilter = new Button("Filter", new SizableImage("coat/img/add.png", SizableImage.SMALL_SIZE));
+    private final Button addFilter = new Button("Filter", new SizableImage("coat/img/black/add.png", SizableImage.SMALL_SIZE));
     private final ProgressBar progressBar = new ProgressBar();
     private final Label progressText = new Label();
     private final StackPane progressPane = new StackPane(progressBar, progressText);

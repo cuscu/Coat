@@ -34,7 +34,7 @@ public class CombineVcfMenu implements ToolMenu {
 
     @Override
     public String getIconPath() {
-        return "coat/img/documents_vcf.png";
+        return "coat/img/black/documents_vcf.png";
     }
 
     @Override

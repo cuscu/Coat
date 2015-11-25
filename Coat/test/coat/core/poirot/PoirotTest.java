@@ -17,7 +17,6 @@
 
 package coat.core.poirot;
 
-import coat.core.poirot.graph.GraphEvaluator;
 import coat.core.vcf.VcfFile;
 import de.saxsys.javafx.test.JfxRunner;
 import javafx.application.Platform;
@@ -27,8 +26,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -44,7 +41,7 @@ public class PoirotTest {
     public void start() {
         final File file = new File("test/coat/core/poirot/agua.vcf");
         final VcfFile vcfFile = new VcfFile(file);
-        final PearlGraphFactory analysis = new PearlGraphFactory(vcfFile.getVariants());
+        final GraphFactory analysis = new GraphFactory(vcfFile.getVariants());
         Platform.runLater(analysis);
         try {
             database = analysis.get();

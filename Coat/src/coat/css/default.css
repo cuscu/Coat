@@ -15,6 +15,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
+.button {
+    /*-fx-background-color: deepskyblue, cornflowerblue;*/
+    -fx-background-color: cornflowerblue;
+}
+
+.button .text {
+    -fx-fill: white;
+}
+
+.button:hover {
+    -fx-opacity: 75%;
+}
+
+.button:pressed {
+    -fx-opacity: 50%;
+}
+
 /*-fx-background-color: #1d1d1d;*/
 .root {
     -fx-background-color: white;

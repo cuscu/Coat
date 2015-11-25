@@ -111,7 +111,7 @@ public class CoatView {
         Platform.runLater(() -> {
             if (AVAILABLE_MESSAGE_TYPES.contains(type)) {
                 label.setText(date + ": " + message);
-                label.setGraphic(new SizableImage("coat/img/" + type + ".png", SizableImage.SMALL_SIZE));
+                label.setGraphic(new SizableImage("coat/img/black/" + type + ".png", SizableImage.SMALL_SIZE));
                 label.getStyleClass().add(type + "-label");
             } else label.setText(date + " (" + type + "): " + message);
         });
@@ -202,8 +202,8 @@ public class CoatView {
     }
 
     private void assignMenuIcons() {
-        openFileMenu.setGraphic(new SizableImage("coat/img/open.png", SizableImage.MEDIUM_SIZE));
-        saveFileMenu.setGraphic(new SizableImage("coat/img/save.png", SizableImage.MEDIUM_SIZE));
+        openFileMenu.setGraphic(new SizableImage("coat/img/black/open.png", SizableImage.MEDIUM_SIZE));
+        saveFileMenu.setGraphic(new SizableImage("coat/img/black/save.png", SizableImage.MEDIUM_SIZE));
     }
 
     @FXML

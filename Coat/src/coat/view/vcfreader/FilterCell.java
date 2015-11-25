@@ -52,17 +52,17 @@ class FilterCell extends ListCell<VcfFilter> {
     private final HBox filterBox = new HBox(SPACING, field, info, connector, value);
 
     private final Separator invisibleActiveSeparator = new Separator(Orientation.HORIZONTAL);
-    private final Button accept = new Button(null, new SizableImage("coat/img/accept.png", SizableImage.SMALL_SIZE));
-    private final Button cancel = new Button(null, new SizableImage("coat/img/cancel.png", SizableImage.SMALL_SIZE));
+    private final Button accept = new Button(null, new SizableImage("coat/img/black/accept.png", SizableImage.SMALL_SIZE));
+    private final Button cancel = new Button(null, new SizableImage("coat/img/black/cancel.png", SizableImage.SMALL_SIZE));
     private final HBox activeBox = new HBox(SPACING, filterBox, invisibleActiveSeparator, accept, cancel);
 
     private final Label passiveInfo = new Label();
 
-    private final SizableImage circle = new SizableImage("coat/img/circle.png", SizableImage.SMALL_SIZE);
-    private final SizableImage nocircle = new SizableImage("coat/img/nocircle.png", SizableImage.SMALL_SIZE);
-    private final SizableImage viewImg = new SizableImage("coat/img/view.png", SizableImage.SMALL_SIZE);
-    private final SizableImage noview = new SizableImage("coat/img/noview.png", SizableImage.SMALL_SIZE);
-    private final SizableImage deleteImg = new SizableImage("coat/img/delete.png", SizableImage.SMALL_SIZE);
+    private final SizableImage circle = new SizableImage("coat/img/black/circle.png", SizableImage.SMALL_SIZE);
+    private final SizableImage nocircle = new SizableImage("coat/img/black/nocircle.png", SizableImage.SMALL_SIZE);
+    private final SizableImage viewImg = new SizableImage("coat/img/black/view.png", SizableImage.SMALL_SIZE);
+    private final SizableImage noview = new SizableImage("coat/img/black/noview.png", SizableImage.SMALL_SIZE);
+    private final SizableImage deleteImg = new SizableImage("coat/black/img/delete.png", SizableImage.SMALL_SIZE);
 
     private final ToggleButton strict = new ToggleButton(null, circle);
     private final ToggleButton view = new ToggleButton(null, viewImg);

@@ -20,11 +20,16 @@ import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Stores in memory a Vcf file data.
@@ -33,12 +38,14 @@ import java.util.List;
  */
 public class VcfFile {
 
+    public static final int BUFFER_LINES = 15000;
     private final ObservableList<Variant> variants = FXCollections.observableArrayList();
     private final VcfHeader header;
 
     private File file;
     private File temp;
     private Property<Boolean> changed = new SimpleBooleanProperty(false);
+    private List<String> bufferedLines = new ArrayList<>();
 
     public VcfFile(File file) {
         this.file = file;
@@ -54,6 +61,10 @@ public class VcfFile {
 
     public VcfFile(VcfHeader header) {
         this.header = header;
+        this.file = new File(System.currentTimeMillis() + ".vcf");
+        temp = new File(file.getParentFile(), ".~" + file.getName());
+        temp.deleteOnExit();
+        this.file.deleteOnExit();
     }
 
     private void readFile(File file) {
@@ -104,6 +115,9 @@ public class VcfFile {
     }
 
     public synchronized void saveToTemp(List<Variant> variants) {
+        System.out.print("Escribiendo en disco... ");
+        final long startTime = System.currentTimeMillis();
+        final List<Variant> tempList = new ArrayList<>(variants);
         final File temp = getTemp();
         final File temper = new File(temp.getAbsolutePath() + ".temp");
         try (BufferedReader reader = new BufferedReader(new FileReader(temp));
@@ -112,8 +126,9 @@ public class VcfFile {
             reader.lines().forEach(line -> {
                 try {
                     if (!line.startsWith("#")) {
-                        final Variant variant = getVariant(line, variants);
+                        final Variant variant = getVariant(line, tempList);
                         if (variant == null) return;
+                        tempList.remove(variant);
                         if (variant.getTemp() != null) {
                             writer.write(variant.getTemp());
                             variant.setTemp(null);
@@ -127,6 +142,9 @@ public class VcfFile {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        final DateFormat dateFormat = new SimpleDateFormat("mm:ss:SS");
+        String time = dateFormat.format(System.currentTimeMillis() - startTime);
+        System.out.println("hecho (" + time + ")");
         replaceTemp(temp, temper);
     }
 
@@ -143,6 +161,48 @@ public class VcfFile {
         String[] split = line.split("\t");
         final String chrom = split[0];
         final Integer pos = Integer.valueOf(split[1]);
-        return variants.stream().filter(variant -> variant.getChrom().equals(chrom) && variant.getPos() == pos).findFirst().orElse(null);
+        return variants.stream()
+                .filter(variant -> variant.getPos() == pos && variant.getChrom().equals(chrom))
+                .findFirst().orElse(null);
+    }
+
+    public synchronized String[] getLine(String chrom, int pos) {
+        final String pattern = chrom + "\t" + pos + "\t.*";
+        final Optional<String> first = bufferedLines.stream().filter(line -> line.matches(pattern)).findFirst();
+        if (first.isPresent()) return first.get().split("\t");
+        return reloadBuffer(pattern);
+    }
+
+    @Nullable
+    private String[] reloadBuffer(String pattern) {
+        if (bufferedLines.isEmpty()) System.out.println("Cargando buffer");
+        else System.out.println("Fallo de página. " + pattern + " (" + bufferedLines.get(0) + ")");
+        final long startTime = System.currentTimeMillis();
+        bufferedLines.clear();
+        try (BufferedReader reader = new BufferedReader(new FileReader(getTemp()))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.matches(pattern)) {
+                    loadNextLines(reader, line);
+                    final DateFormat dateFormat = new SimpleDateFormat("mm:ss:SS");
+                    String time = dateFormat.format(System.currentTimeMillis() - startTime);
+                    System.out.println(bufferedLines.size() + " variantes cargadas (" + time + ")");
+                    return line.split("\t");
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void loadNextLines(BufferedReader reader, String line) throws IOException {
+        String currentLine = line;
+        int i = 0;
+        while (i < BUFFER_LINES && currentLine != null) {
+            bufferedLines.add(currentLine);
+            currentLine = reader.readLine();
+            i++;
+        }
     }
 }

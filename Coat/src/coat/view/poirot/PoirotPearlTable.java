@@ -45,7 +45,6 @@ public class PoirotPearlTable extends TableView<Pearl> {
         scoreColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(String.format("%.3f", param.getValue().getScore())));
         nameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getName()));
         indexColumn.setCellFactory(param -> new IndexCell());
-
     }
 
     private void copy() {

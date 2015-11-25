@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
+
 package coat.view.tsv;
 
 import coat.core.tsv.TSVFilter;
@@ -41,11 +42,11 @@ class TSVFilterPane extends VBox {
     private final ComboBox<String> field = new ComboBox<>();
     private final ComboBox<TSVFilter.Connector> connector = new ComboBox<>();
     private final TextField value = new TextField();
-    private final Button delete = new Button(null, new SizableImage("coat/img/delete.png", SizableImage.SMALL_SIZE));
-    private final Button accept = new Button(null, new SizableImage("coat/img/accept.png", SizableImage.SMALL_SIZE));
-    private final Button cancel = new Button(null, new SizableImage("coat/img/cancel.png", SizableImage.SMALL_SIZE));
-    private final Button view = new Button(null, new SizableImage("coat/img/view.png", SizableImage.SMALL_SIZE));
-    private final Button voids = new Button(null, new SizableImage("coat/img/circle.png", SizableImage.SMALL_SIZE));
+    private final Button delete = new Button(null, new SizableImage("coat/img/black/delete.png", SizableImage.SMALL_SIZE));
+    private final Button accept = new Button(null, new SizableImage("coat/img/black/accept.png", SizableImage.SMALL_SIZE));
+    private final Button cancel = new Button(null, new SizableImage("coat/img/black/cancel.png", SizableImage.SMALL_SIZE));
+    private final Button view = new Button(null, new SizableImage("coat/img/black/view.png", SizableImage.SMALL_SIZE));
+    private final Button voids = new Button(null, new SizableImage("coat/img/black/circle.png", SizableImage.SMALL_SIZE));
     private EventHandler onAccept, onDelete;
     private final HBox center = new HBox(field, connector, value, accept, cancel);
     private TSVFilter filter;
@@ -175,16 +176,16 @@ class TSVFilterPane extends VBox {
     private void view() {
         boolean b = filter.isActive();
         filter.setActive(!b);
-        view.setGraphic(b ? new SizableImage("coat/img/noview.png", SizableImage.SMALL_SIZE)
-                : new SizableImage("coat/img/view.png", SizableImage.SMALL_SIZE));
+        view.setGraphic(b ? new SizableImage("coat/img/black/noview.png", SizableImage.SMALL_SIZE)
+                : new SizableImage("coat/img/black/view.png", SizableImage.SMALL_SIZE));
         if (onAccept != null) onAccept.handle(new ActionEvent());
     }
 
     private void voids() {
         boolean b = filter.isAceptingVoids();
         filter.setAceptingVoids(!b);
-        voids.setGraphic(b ? new SizableImage("coat/img/nocircle.png", SizableImage.SMALL_SIZE)
-                : new SizableImage("coat/img/circle.png", SizableImage.SMALL_SIZE));
+        voids.setGraphic(b ? new SizableImage("coat/img/black/nocircle.png", SizableImage.SMALL_SIZE)
+                : new SizableImage("coat/img/black/circle.png", SizableImage.SMALL_SIZE));
         if (onAccept != null) onAccept.handle(new ActionEvent());
     }
 
