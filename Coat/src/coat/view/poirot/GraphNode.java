@@ -18,11 +18,13 @@
 package coat.view.poirot;
 
 import coat.core.poirot.Pearl;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleObjectProperty;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class GraphNode {
+public class GraphNode implements Selectable{
 
 //    private List<GraphRelationship> relationships = new ArrayList<>();
 
@@ -30,7 +32,7 @@ public class GraphNode {
 
     private Vector position = new Vector();
     private Vector direction = new Vector();
-    private boolean selected;
+    private Property<Boolean> selected = new SimpleObjectProperty<>(false);
     private boolean mouseMoving;
     private boolean mouseOver;
 
@@ -56,11 +58,16 @@ public class GraphNode {
     }
 
     public void setSelected(boolean selected) {
-        this.selected = selected;
+        this.selected.setValue(selected);
+    }
+
+    @Override
+    public Property<Boolean> selectedProperty() {
+        return selected;
     }
 
     public boolean isSelected() {
-        return selected;
+        return selected.getValue();
     }
 
     public void setMouseMoving(boolean mouseMoving) {

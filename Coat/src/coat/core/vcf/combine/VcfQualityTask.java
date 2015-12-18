@@ -17,7 +17,7 @@
 
 package coat.core.vcf.combine;
 
-import coat.core.vcf.Variant;
+import coat.core.variant.Variant;
 import coat.view.vcfreader.VcfSample;
 import javafx.concurrent.Task;
 

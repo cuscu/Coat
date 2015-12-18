@@ -31,6 +31,8 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -106,6 +108,27 @@ class PhenotypeSelector extends VBox {
         phenotypeTable.setOnMouseClicked(this::phenotypeClicked);
         phenotypeTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         HBox.setHgrow(phenotypeTable, Priority.ALWAYS);
+        addCopyOption();
+    }
+
+    private void addCopyOption() {
+        final MenuItem copyItem = new MenuItem("Copy table");
+        copyItem.setOnAction(event -> copyTable());
+        final ContextMenu contextMenu = new ContextMenu(copyItem);
+        phenotypeTable.setContextMenu(contextMenu);
+    }
+
+    private void copyTable() {
+        final Clipboard systemClipboard = Clipboard.getSystemClipboard();
+        final ClipboardContent content = new ClipboardContent();
+        content.putString(getTableAsString());
+        systemClipboard.setContent(content);
+    }
+
+    private String getTableAsString() {
+        final StringBuilder builder = new StringBuilder();
+        phenotypeTable.getItems().forEach(phenotype -> builder.append(phenotype.pearl.getScore()).append("\t").append(phenotype.pearl.getName()).append(System.lineSeparator()));
+        return builder.toString();
     }
 
     private void phenotypeClicked(MouseEvent mouseEvent) {

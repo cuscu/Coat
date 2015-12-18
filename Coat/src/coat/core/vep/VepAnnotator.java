@@ -15,13 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
-package coat.core.vcf;
+package coat.core.vep;
 
-import coat.core.vep.Web;
+import coat.core.variant.Variant;
+import coat.core.vcf.VcfFile;
 import coat.json.JSONArray;
 import coat.json.JSONException;
 import coat.json.JSONObject;
 import javafx.concurrent.Task;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -87,9 +89,16 @@ public class VepAnnotator extends Task<Boolean> {
     };
     public static final int MAX_VARIANTS = 1000;
     private final VcfFile vcfFile;
+    private List<Variant> variants;
 
     public VepAnnotator(VcfFile vcfFile) {
         this.vcfFile = vcfFile;
+        this.variants = vcfFile.getVariants();
+    }
+
+    public VepAnnotator(List<Variant> variants) {
+        this.variants = variants;
+        vcfFile = variants.get(0).getVcfFile();
     }
 
     @Override
@@ -105,35 +114,35 @@ public class VepAnnotator extends Task<Boolean> {
 
     private boolean annotateVariants() {
         vcfFile.setChanged(true);
-        AtomicInteger total = new AtomicInteger();
-        for (int i = 0; i < vcfFile.getVariants().size(); i += 10 * MAX_VARIANTS) {
-            final List<Integer> starts = new ArrayList<>();
-            for (int j = i; j < i + 10 * MAX_VARIANTS && j < vcfFile.getVariants().size(); j += MAX_VARIANTS)
-                starts.add(j);
-            System.out.println(starts);
-            starts.parallelStream().forEachOrdered(start -> {
-                try {
-                    System.out.println(start + "-" + (start + MAX_VARIANTS));
-                    annotate(start);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                updateProgress(total.addAndGet(MAX_VARIANTS), vcfFile.getVariants().size());
-                updateMessage(total.toString() + " variants annotated");
-
-            });
-            vcfFile.saveToTemp(vcfFile.getVariants());
-        }
+        final List<Integer> starts = getStarts();
+        final AtomicInteger total = new AtomicInteger();
+        starts.parallelStream().forEachOrdered(start -> {
+            try {
+                System.out.println(start + "-" + (start + MAX_VARIANTS));
+                annotate(start);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+//            updateProgress(total.addAndGet(MAX_VARIANTS), vcfFile.getVariants().size());
+//            updateMessage(total.toString() + " variants annotated");
+        });
         return true;
+    }
+
+    @NotNull
+    private List<Integer> getStarts() {
+        final List<Integer> starts = new ArrayList<>();
+        for (int j = 0; j < variants.size(); j += MAX_VARIANTS) starts.add(j);
+        return starts;
     }
 
 
     private void annotate(int from) throws Exception {
-        final List<Variant> variants = new LinkedList<>();
-        for (int i = from; i < from + MAX_VARIANTS && i < vcfFile.getVariants().size(); i++)
-            variants.add(vcfFile.getVariants().get(i));
-        final String response = makeHttpRequest(variants);
-        annotateVariants(response, variants);
+        int to = from + MAX_VARIANTS;
+        if (to >= variants.size()) to = variants.size();
+        final List<Variant> subList = variants.subList(from, to);
+        final String response = makeHttpRequest(subList);
+        annotateVariants(response, subList);
     }
 
     private String makeHttpRequest(List<Variant> variants) throws MalformedURLException {
@@ -202,19 +211,19 @@ public class VepAnnotator extends Task<Boolean> {
 
     private static Variant getVariant(List<Variant> variants, String[] input) {
         return variants.stream()
-                .filter(variant -> variant.getPos() == Integer.valueOf(input[1])&& variant.getChrom().equals(input[0]))
+                .filter(variant -> variant.getPos() == Integer.valueOf(input[1]) && variant.getChrom().equals(input[0]))
                 .findFirst().orElse(null);
     }
 
     private static synchronized void incorporateData(Variant variant, JSONObject json) {
-        final Map<String, String> map = variant.getInfo();
-        addFrequencyData(variant, json, map);
-        addTranscriptConsequences(variant, json, map);
-        addIntergenicConsequences(variant, json, map);
-        variant.setInfo(map);
+//        final Map<String, String> map = variant.getInfo();
+        addFrequencyData(variant, json);
+        addTranscriptConsequences(variant, json);
+        addIntergenicConsequences(variant, json);
+//        variant.setInfo(map);
     }
 
-    private static void addFrequencyData(Variant variant, JSONObject json, Map<String, String> map) {
+    private static void addFrequencyData(Variant variant, JSONObject json) {
     /*
      - "id":"temp"
      - "input":"1 1534738 1534738 G/A"
@@ -266,19 +275,19 @@ public class VepAnnotator extends Task<Boolean> {
                 variant.setId(id);
 
 //            GMAF|AFR_MAF|AMR_MAF|EAS_MAF|EUR_MAF|SAS_MAF|AA_MAF|EA_MAF
-            findAndPut(var, "minor_allele_freq", map, "GMAF", Double.class);
-            findAndPut(var, "amr_maf", map, "AMR_MAF", Double.class);
-            findAndPut(var, "asn_maf", map, "ASN_MAF", Double.class);
-            findAndPut(var, "eur_maf", map, "EUR_MAF", Double.class);
-            findAndPut(var, "afr_maf", map, "AFR_MAF", Double.class);
-            findAndPut(var, "ea_maf", map, "EA_MAF", Double.class);
-            findAndPut(var, "aa_maf", map, "AA_MAF", Double.class);
+            findAndPut(var, "minor_allele_freq", variant, "GMAF", Double.class);
+            findAndPut(var, "amr_maf", variant, "AMR_MAF", Double.class);
+            findAndPut(var, "asn_maf", variant, "ASN_MAF", Double.class);
+            findAndPut(var, "eur_maf", variant, "EUR_MAF", Double.class);
+            findAndPut(var, "afr_maf", variant, "AFR_MAF", Double.class);
+            findAndPut(var, "ea_maf", variant, "EA_MAF", Double.class);
+            findAndPut(var, "aa_maf", variant, "AA_MAF", Double.class);
         } catch (JSONException ex) {
             // No colocated_variants
         }
     }
 
-    private static void addTranscriptConsequences(Variant variant, JSONObject json, Map<String, String> map) {
+    private static void addTranscriptConsequences(Variant variant, JSONObject json) {
     /*
      Second: "transcript_consequences" : [ array ]
      - "variant_allele":"A"
@@ -316,13 +325,13 @@ public class VepAnnotator extends Task<Boolean> {
             // Only take the first one
             JSONObject first = cons.getJSONObject(0);
 
-            findAndPut(first, "gene_symbol", map, "SYMBOL", String.class);
-            findAndPut(first, "gene_id", map, "GENE", String.class);
-            findAndPut(first, "distance", map, "DIST", Integer.class);
-            findAndPut(first, "biotype", map, "BIO", String.class);
-            findAndPut(first, "transcript_id", map, "FEAT", String.class);
-            findAndPut(first, "codons", map, "COD", String.class);
-            findAndPut(first, "amino_acids", map, "AMINO", String.class);
+            findAndPut(first, "gene_symbol", variant, "SYMBOL", String.class);
+            findAndPut(first, "gene_id", variant, "GENE", String.class);
+            findAndPut(first, "distance", variant, "DIST", Integer.class);
+            findAndPut(first, "biotype", variant, "BIO", String.class);
+            findAndPut(first, "transcript_id", variant, "FEAT", String.class);
+            findAndPut(first, "codons", variant, "COD", String.class);
+            findAndPut(first, "amino_acids", variant, "AMINO", String.class);
             // Unnecessary
 //            findAndPut(first, "protein_start", v, "PROTS", Integer.class);
 //            findAndPut(first, "protein_end", v, "PROTE", Integer.class);
@@ -330,18 +339,18 @@ public class VepAnnotator extends Task<Boolean> {
 //            findAndPut(first, "cds_end", v, "CDSE", Integer.class);
 //            findAndPut(first, "cdna_start", v, "CDNAS", Integer.class);
 //            findAndPut(first, "cdna_end", v, "CDNAE", Integer.class);
-            findAndPut(first, "sift_score", map, "SIFTs", Double.class);
-            findAndPut(first, "sift_prediction", map, "SIFTp", String.class);
-            findAndPut(first, "polyphen_score", map, "PPHs", Double.class);
-            findAndPut(first, "polyphen_prediction", map, "PPHp", String.class);
-            findAndPutArray(first, "consequence_terms", map, "CONS", String.class);
+            findAndPut(first, "sift_score", variant, "SIFTs", Double.class);
+            findAndPut(first, "sift_prediction", variant, "SIFTp", String.class);
+            findAndPut(first, "polyphen_score", variant, "PPHs", Double.class);
+            findAndPut(first, "polyphen_prediction", variant, "PPHp", String.class);
+            findAndPutArray(first, "consequence_terms", variant, "CONS", String.class);
 
         } catch (JSONException e) {
             // NO transcript_consequences
         }
     }
 
-    private static void addIntergenicConsequences(Variant variant, JSONObject json, Map<String, String> map) {
+    private static void addIntergenicConsequences(Variant variant, JSONObject json) {
     /*
      Third try: intergenic consequences:[array]
      - "variant_allele":"G"
@@ -350,7 +359,7 @@ public class VepAnnotator extends Task<Boolean> {
      */
         try {
             JSONArray cons = json.getJSONArray("intergenic_consequences");
-            findAndPut(cons.getJSONObject(0), "consequence_terms", map, "CONS", String.class);
+            findAndPut(cons.getJSONObject(0), "consequence_terms", variant, "CONS", String.class);
         } catch (JSONException e) {
             // NO intergenic_consequences
 
@@ -363,35 +372,35 @@ public class VepAnnotator extends Task<Boolean> {
      *
      * @param source    source JSONObject
      * @param sourceKey key in the source JSONObject
-     * @param map       target variant
+     * @param variant       target variant
      * @param targetKey key in the target variant
      * @param classType type of value in source JSONObject
      */
-    private static void findAndPut(JSONObject source, String sourceKey, Map<String, String> map,
+    private static void findAndPut(JSONObject source, String sourceKey, Variant variant,
                                    String targetKey, Class classType) {
         if (source.containsKey(sourceKey))
             if (classType == String.class)
-                map.put(targetKey, source.getString(sourceKey));
+                variant.setInfo(targetKey, source.getString(sourceKey));
             else if (classType == Integer.class)
-                map.put(targetKey, source.getInt(sourceKey) + "");
+                variant.setInfo(targetKey, source.getInt(sourceKey) + "");
             else if (classType == Double.class)
-                map.put(targetKey, source.getDouble(sourceKey) + "");
+                variant.setInfo(targetKey, source.getDouble(sourceKey) + "");
             else if (classType == Boolean.class)
-                map.put(targetKey, source.getBoolean(sourceKey) + "");
+                variant.setInfo(targetKey, source.getBoolean(sourceKey) + "");
             else if (classType == Long.class)
-                map.put(targetKey, source.getLong(sourceKey) + "");
+                variant.setInfo(targetKey, source.getLong(sourceKey) + "");
             else
-                map.put(targetKey, String.valueOf(source.get(sourceKey)));
+                variant.setInfo(targetKey, String.valueOf(source.get(sourceKey)));
     }
 
-    private static void findAndPutArray(JSONObject source, String sourceKey, Map<String, String> target,
+    private static void findAndPutArray(JSONObject source, String sourceKey, Variant target,
                                         String targetKey, Class classType) {
         if (source.containsKey(sourceKey)) {
             JSONArray terms = source.getJSONArray(sourceKey);
             if (terms.length() > 0) {
                 final StringBuilder builder = new StringBuilder(terms.get(0).toString());
                 for (int i = 1; i < terms.length(); i++) builder.append(",").append(terms.get(i).toString());
-                target.put(targetKey, builder.toString());
+                target.setInfo(targetKey, builder.toString());
 //                String result = "";
 //                for (int i = 0; i < terms.length(); i++)
 //                    if (classType == String.class)

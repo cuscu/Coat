@@ -17,9 +17,14 @@
 package coat.core.vcf;
 
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -27,92 +32,181 @@ import java.util.*;
  */
 public class VcfFileTest {
 
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Test
     public void size() {
         // Given
-        final File file = new File("test/agua.vcf");
+        final File file = new File("test/coat/files/Sample1.vcf");
         // When
         final VcfFile vcfFile = new VcfFile(file);
         // Then
-        Assert.assertEquals(86, vcfFile.getVariants().size());
+        Assert.assertEquals(15, vcfFile.getVariants().size());
+        Assert.assertEquals(file, vcfFile.getFile());
     }
 
     @Test
-    public void size2() {
+    public void testWithOneSample() {
         // Given
-        final File file = new File("test/s002.vcf");
-        // When
-        final VcfFile vcfFile = new VcfFile(file);
+        final VcfFile vcfFile = new VcfFile(new File("test/coat/files/Sample1.vcf"));
+        final List<String> expected = new ArrayList<>(Collections.singletonList("sample01"));
+        final List<String> samples = vcfFile.getHeader().getSamples();
         // Then
-        Assert.assertEquals(18, vcfFile.getVariants().size());
+        Assert.assertEquals(expected, samples);
     }
 
     @Test
-    public void infos() {
-        final File file = new File("test/agua.vcf");
-        // When
-        final VcfFile vcfFile = new VcfFile(file);
+    public void testWithNoSample() {
+        // Given
+        final VcfFile vcfFile = new VcfFile(new File("test/coat/files/NoSample.vcf"));
+        final List<String> expected = new ArrayList<>();
+        final List<String> samples = vcfFile.getHeader().getSamples();
         // Then
-        Assert.assertEquals(111, vcfFile.getHeader().getComplexHeaders().get("INFO").size());
+        Assert.assertEquals(expected, samples);
     }
 
     @Test
-    public void infos2() {
-        final File file = new File("test/s002.vcf");
-        // When
-        final VcfFile vcfFile = new VcfFile(file);
+    public void testWithMultipleSample() {
+        // Given
+        final VcfFile vcfFile = new VcfFile(new File("test/coat/files/MultiSample.vcf"));
+        final List<String> expected = Arrays.asList("S_7", "S_75", "S_42", "S_81", "S_8", "S_76", "S_53", "S_82", "S_30", "S_77", "S_70", "S_83", "S_36", "S_78", "S_71", "S_84", "S_37", "S_79", "S_72", "S_85", "S_39", "S_80", "S_73", "S_86", "S_87", "S_99", "S_93", "S_110", "S_88", "S_100", "S_94", "S_111", "S_89", "S_102", "S_95", "S_120", "S_90", "S_103", "S_96", "S_185", "S_91", "S_104", "S_97", "PM", "S_92", "S_105", "S_98", "DAM");
+        final List<String> samples = vcfFile.getHeader().getSamples();
         // Then
-        Assert.assertEquals(8, vcfFile.getHeader().getComplexHeaders().get("INFO").size());
+        Assert.assertEquals(expected, samples);
+    }
+
+    //@Test
+    public void testLarge() {
+        final File longFile = new File("/home/unidad03/DNA_Sequencing/exomeSuite/DAM/DAM.vep.vcf");
+        final VcfFile vcfFile = new VcfFile(longFile);
+        Assert.assertEquals(540510, vcfFile.getVariants().size());
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
-    public void testGetInfos() {
-        File testFile = new File("test/s002.vcf");
-
-        VcfFile vcfFile = new VcfFile(testFile);
-
+    public void testComplexHeader() {
+        final VcfFile vcfFile = new VcfFile(new File("test/coat/files/HeaderTest.vcf"));
+        final Map<String, List<Map<String, String>>> expected = new HashMap<>();
+        final Map<String, String> filter1 = new HashMap<>();
+        filter1.put("Description", "Low quality");
+        filter1.put("ID", "LowQual");
+        final Map<String, String> info1 = new HashMap<>();
+        info1.put("Description", "If present, indicates that the position is in an MIST Zone");
+        info1.put("ID", "MistZone");
+        info1.put("Type", "Flag");
+        final Map<String, String> info2 = new HashMap<>();
+        info2.put("Description", "Allele Frequency, for each ALT allele, in the same order as listed");
+        info2.put("ID", "AF");
+        info2.put("Type", "Float");
+        info2.put("Number", "A");
+        final Map<String, String> contig1 = new HashMap<>();
+        contig1.put("assembly", "b37");
+        contig1.put("ID", "1");
+        contig1.put("length", "249250621");
+        final Map<String, String> contig2 = new HashMap<>();
+        contig2.put("assembly", "b37");
+        contig2.put("ID", "2");
+        contig2.put("length", "243199373");
+        expected.put("FILTER", Arrays.asList(filter1));
+        expected.put("INFO", Arrays.asList(info1, info2));
+        expected.put("contig", Arrays.asList(contig1, contig2));
         /*
-         ##INFO=<ID=AC,Number=A,Type=Integer,Description="Allele count in genotypes, for each ALT allele, in the same order as listed">
-         ##INFO=<ID=AF,Number=A,Type=Float,Description="Allele Frequency, for each ALT allele, in the same order as listed">
-         ##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
-         ##INFO=<ID=HaplotypeScore,Number=1,Type=Float,Description="Consistency of the site with at most two segregating haplotypes">
-         ##INFO=<ID=ReadPosRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt vs. Ref read position bias">
-         ##INFO=<ID=SOR,Number=1,Type=Float,Description="Symmetric Odds Ratio of 2x2 contingency table to detect strand bias">
+         * ##fileformat=VCFv4.1
+         * ##reference=file:///home/unidad03/DNA_Sequencing/HomoSapiensGRCh37/human_g1k_v37.fasta
+         * ##FILTER=<Description="Low quality",ID=LowQual>
+         * ##INFO=<Description="If present, indicates that the position is in an MIST Zone",ID=MistZone,Type=Flag>
+         * ##INFO=<Description="Allele Frequency, for each ALT allele, in the same order as listed",ID=AF,Number=A,Type=Float>
+         * ##contig=<ID=1,assembly=b37,length=249250621>
+         * ##contig=<ID=2,assembly=b37,length=243199373>
          */
-        Map<String, String> ac = new LinkedHashMap<>();
-        ac.put("ID", "AC");
-        ac.put("Number", "A");
-        ac.put("Type", "Integer");
-        ac.put("Description", "Allele count in genotypes, for each ALT allele, in the same order as listed");
-        Map<String, String> af = new LinkedHashMap<>();
-        af.put("ID", "AF");
-        af.put("Number", "A");
-        af.put("Type", "Float");
-        af.put("Description", "Allele Frequency, for each ALT allele, in the same order as listed");
-        Map<String, String> an = new LinkedHashMap<>();
-        an.put("ID", "AN");
-        an.put("Number", "1");
-        an.put("Type", "Integer");
-        an.put("Description", "Total number of alleles in called genotypes");
-        Map<String, String> hs = new LinkedHashMap<>();
-        hs.put("ID", "HaplotypeScore");
-        hs.put("Number", "1");
-        hs.put("Type", "Float");
-        hs.put("Description", "Consistency of the site with at most two segregating haplotypes");
-        Map<String, String> rp = new LinkedHashMap<>();
-        rp.put("ID", "ReadPosRankSum");
-        rp.put("Number", "1");
-        rp.put("Type", "Float");
-        rp.put("Description", "Z-score from Wilcoxon rank sum test of Alt vs. Ref read position bias");
-        Map<String, String> sor = new LinkedHashMap<>();
-        sor.put("ID", "SOR");
-        sor.put("Number", "1");
-        sor.put("Type", "Float");
-        sor.put("Description", "Symmetric Odds Ratio of 2x2 contingency table to detect strand bias");
-        List<Map<String, String>> expResult = new ArrayList<>();
-        expResult.addAll(Arrays.asList(ac, af, an, hs, rp, sor));
-//        final Set<Map<String, String>> result = vcfFile.getInfos().keySet();
-
+        final Map<String, List<Map<String, String>>> complexHeaders = vcfFile.getHeader().getComplexHeaders();
+        Assert.assertEquals(expected, complexHeaders);
     }
+
+    @Test
+    public void testSimpleHeader() {
+        /*
+         * ##fileformat=VCFv4.1
+         * ##reference=file:///home/unidad03/DNA_Sequencing/HomoSapiensGRCh37/human_g1k_v37.fasta
+         */
+        final VcfFile vcfFile = new VcfFile(new File("test/coat/files/HeaderTest.vcf"));
+        final Map<String, String> expected = new HashMap<>();
+        expected.put("fileformat", "VCFv4.1");
+        expected.put("reference", "file:///home/unidad03/DNA_Sequencing/HomoSapiensGRCh37/human_g1k_v37.fasta");
+        final Map<String, String> simpleHeaders = vcfFile.getHeader().getSimpleHeaders();
+        Assert.assertEquals(expected, simpleHeaders);
+    }
+
+    @Test
+    public void testSaveFile() {
+        final VcfFile vcfFile = new VcfFile(new File("test/coat/files/Sample1.vcf"));
+        final File expected = new File("test/coat/files/ExpectedSample1.vcf");
+        final File saveFile;
+        try {
+            saveFile = temporaryFolder.newFile("saveFile.vcf");
+            vcfFile.save(saveFile);
+            Assert.assertTrue(filesAreEqual(expected, saveFile));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testFormats() {
+        final VcfFile vcfFile = new VcfFile(new File("test/coat/files/Sample1.vcf"));
+        Assert.assertEquals(Arrays.asList("GT", "AD", "DP", "GQ", "PL"), vcfFile.getHeader().getFormats());
+    }
+
+    private boolean filesAreEqual(File expected, File file) {
+        try (BufferedReader expectedReader = new BufferedReader(new FileReader(expected));
+             BufferedReader fileReader = new BufferedReader(new FileReader(file))) {
+            String expectedLine;
+            String fileLine;
+            int lineNumber = 0;
+            while ((expectedLine = expectedReader.readLine()) != null) {
+                fileLine = fileReader.readLine();
+                if (lineIsNull(expectedLine, fileLine, lineNumber)) return false;
+                if (lineIsDifferent(expectedLine, fileLine, lineNumber)) return false;
+                lineNumber++;
+            }
+            fileLine = fileReader.readLine();
+            if (fileLine != null) {
+                System.err.println("At line " + lineNumber);
+                System.err.println("No more lines expected");
+
+            }
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private boolean lineIsDifferent(String expectedLine, String fileLine, int lineNumber) {
+        if (!fileLine.equals(expectedLine)) {
+            printError(expectedLine, fileLine, lineNumber);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean lineIsNull(String expectedLine, String fileLine, int lineNumber) {
+        if (fileLine == null) {
+            printError(expectedLine, null, lineNumber);
+            return true;
+        }
+        return false;
+    }
+
+    private void printError(String expectedLine, String fileLine, int lineNumber) {
+        System.err.println("At line " + lineNumber);
+        System.err.println("Expected: " + expectedLine);
+        System.err.println("Current : " + fileLine);
+    }
+
 }

@@ -17,7 +17,7 @@
 
 package coat.core.vcf.combine;
 
-import coat.core.vcf.Variant;
+import coat.core.variant.Variant;
 import coat.core.vcf.VcfFile;
 import coat.core.vcf.VcfHeader;
 import coat.view.vcfreader.VcfSample;
@@ -173,11 +173,11 @@ public class VariantStream {
     }
 
     private void mergeInfo(Variant localVariant, Variant variant) {
-        for (int i = 0; i < localVariant.getSamples().size(); i++) {
-            final String[] values = localVariant.getSamples().get(i);
-            final String name = vcfFile.getHeader().getSamples().get(i);
-            variant.addSample(name, values);
-        }
+//        for (int i = 0; i < localVariant.getSamples().size(); i++) {
+//            final String[] values = localVariant.getSamples().get(i);
+//            final String name = vcfFile.getHeader().getSamples().get(i);
+//            variant.addSample(name, values);
+//        }
     }
 
 

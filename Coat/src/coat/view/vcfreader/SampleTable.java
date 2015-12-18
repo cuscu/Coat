@@ -17,7 +17,7 @@
 
 package coat.view.vcfreader;
 
-import coat.core.vcf.Variant;
+import coat.core.variant.Variant;
 import coat.utils.OS;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.TableColumn;
@@ -39,7 +39,8 @@ public class SampleTable extends TableView<String[]> {
         for (String name : sampleNames) {
             final String[] row = new String[formats.size() + 1];
             row[0] = name;
-            for (int i = 0; i < formats.size(); i++) row[1 + i] = variant.getSampleValue(name, formats.get(i));
+            for (int i = 0; i < formats.size(); i++) row[1 + i] = (String) variant.getFormat(name, formats.get(i));
+//            for (int i = 0; i < formats.size(); i++) row[1 + i] = variant.getSampleValue(name, formats.get(i));
             getItems().add(row);
         }
     }

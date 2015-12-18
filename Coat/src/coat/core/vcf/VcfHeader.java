@@ -17,6 +17,8 @@
 
 package coat.core.vcf;
 
+import coat.core.Dictionary;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,14 +29,18 @@ import java.util.stream.Collectors;
  */
 public class VcfHeader {
 
-    private final static Pattern META_LINE = Pattern.compile("##([^=]+)=(.+)");
-    private final static Pattern META_LINE_CONTENT = Pattern.compile("<(.*)>");
-    private final static Pattern FIELDS_LINE = Pattern.compile("#CHROM(.*)");
+    private static final Pattern META_LINE = Pattern.compile("##([^=]+)=(.+)");
+    private static final Pattern META_LINE_CONTENT = Pattern.compile("<(.*)>");
+    private static final Pattern FIELDS_LINE = Pattern.compile("#CHROM(.*)");
 
     private final Map<String, List<Map<String, String>>> complexHeaders = new TreeMap<>();
-    private final Map<String, List<String>> singleHeaders = new TreeMap<>();
+    private final Map<String, String> singleHeaders = new TreeMap<>();
 
     private final List<String> samples = new ArrayList<>();
+
+
+    private Dictionary infoDictionary = new Dictionary();
+    private Dictionary formatDictionary = new Dictionary();
 
     public void addHeader(String line) {
         final Matcher metaLine = META_LINE.matcher(line);
@@ -54,7 +60,10 @@ public class VcfHeader {
         complexHeaders.putIfAbsent(key, new ArrayList<>());
         final List<Map<String, String>> headers = complexHeaders.get(key);
         final Map<String, String> map = MapGenerator.parse(value);
-        if (!headerContainsId(key, headers)) headers.add(map);
+        if (!headerContainsId(key, headers)){
+            headers.add(map);
+            if (key.equals("INFO")) addInfo(map.get("ID"));
+        }
     }
 
     private boolean headerContainsId(String key, List<Map<String, String>> headers) {
@@ -63,8 +72,7 @@ public class VcfHeader {
     }
 
     private void addSingleHeader(String key, String value) {
-        singleHeaders.putIfAbsent(key, new ArrayList<>());
-        singleHeaders.get(key).add(value);
+        singleHeaders.putIfAbsent(key, value);
     }
 
     private void addFormatLine(String line) {
@@ -84,7 +92,7 @@ public class VcfHeader {
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
-        builder.append("##fileformat=").append(singleHeaders.get("fileformat").get(0)).append(System.lineSeparator());
+        builder.append("##fileformat=").append(singleHeaders.get("fileformat")).append(System.lineSeparator());
         appendSingleHeaders(builder);
         appendComplexHeaders(builder);
         appendFormatLine(builder);
@@ -94,12 +102,12 @@ public class VcfHeader {
     private void appendSingleHeaders(StringBuilder builder) {
         singleHeaders.entrySet().stream()
                 .filter(entry -> !entry.getKey().equals("fileformat"))
-                .forEach(entry -> entry.getValue().forEach(value -> {
+                .forEach(entry -> {
                     builder.append("##").append(entry.getKey()).append("=");
-                    if (value.contains(" ")) builder.append("\"").append(value).append("\"");
-                    else builder.append(value);
+                    if (entry.getValue().contains(" ")) builder.append("\"").append(entry.getValue()).append("\"");
+                    else builder.append(entry.getValue());
                     builder.append(System.lineSeparator());
-                }));
+                });
     }
 
     private void appendComplexHeaders(StringBuilder builder) {
@@ -107,12 +115,10 @@ public class VcfHeader {
                 .forEach(entry -> {
                     final String type = entry.getKey();
                     entry.getValue().forEach(map -> {
-                        builder.append("##").append(type).append("=<");
-                        boolean first = true;
+                        builder.append("##").append(type).append("=<ID=").append(map.get("ID"));
                         for (Map.Entry<String, String> pair : map.entrySet()) {
-                            if (first) first = false;
-                            else builder.append(",");
-                            builder.append(pair.getKey()).append("=");
+                            if (pair.getKey().equals("ID")) continue;
+                            builder.append(",").append(pair.getKey()).append("=");
                             if (pair.getValue().contains(" "))
                                 builder.append("\"").append(pair.getValue()).append("\"");
                             else builder.append(pair.getValue());
@@ -139,5 +145,42 @@ public class VcfHeader {
         final List<Map<String, String>> list = complexHeaders.get(type);
         if (list == null) return Collections.emptyList();
         return list.stream().map(map -> map.get("ID")).collect(Collectors.toList());
+    }
+
+    public int getSampleIndex(String sample) {
+        return samples.indexOf(sample);
+    }
+
+    public Map<String, String> getSimpleHeaders() {
+        return singleHeaders;
+    }
+
+
+    public int addInfo(String key) {
+        return infoDictionary.addWord(key);
+    }
+
+    public int addFormat(String id) {
+        return formatDictionary.addWord(id);
+    }
+
+    public int getFormatIndex(String id) {
+        return formatDictionary.getCode(id);
+    }
+
+    public int getInfoIndex(String id) {
+        return infoDictionary.getCode(id);
+    }
+
+    public String getInfo(int code) {
+        return infoDictionary.getWord(code);
+    }
+
+    public String getFormat(int code) {
+        return formatDictionary.getWord(code);
+    }
+
+    public List<String> getFormats() {
+        return formatDictionary.getWordList();
     }
 }

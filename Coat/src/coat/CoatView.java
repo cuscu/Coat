@@ -293,6 +293,7 @@ public class CoatView {
         t.setContent(content);
         t.setUserData(reader);
         t.setOnClosed(event -> {
+            System.out.println("Tab closed " + t.getText());
             t.setContent(null);
             t.setUserData(null);
         });

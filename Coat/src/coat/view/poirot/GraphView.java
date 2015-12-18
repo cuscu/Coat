@@ -22,7 +22,7 @@ import coat.core.poirot.Pearl;
 import coat.core.poirot.PearlRelationship;
 import coat.core.poirot.graph.Graph;
 import coat.core.poirot.graph.GraphEvaluator;
-import coat.core.vcf.Variant;
+import coat.core.variant.Variant;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.Property;
@@ -40,7 +40,7 @@ import javafx.scene.text.TextAlignment;
 import java.util.*;
 
 /**
- * This is the graph view. Input is a list of Pearls, output are selectedPearl and selectedRelationship. Pearls (logical
+ * This is the graph view. Input is a list of Pearls, output are selectedItem and selectedRelationship. Pearls (logical
  * graph) are stored on a <code>Graph</code> object.
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
@@ -52,14 +52,14 @@ class GraphView extends Canvas {
 
     private final Graph graph = new Graph();
 
-    private final Property<Pearl> selectedPearl = new SimpleObjectProperty<>();
+    private final Property<Selectable> selectedItem = new SimpleObjectProperty<>();
 
-    private final Property<GraphRelationship> selectedRelationship = new SimpleObjectProperty<>();
+    //    private final Property<GraphRelationship> selectedRelationship = new SimpleObjectProperty<>();
     private Timer timer;
 
 
-    private double diameter;
     private final DoubleProperty radiusProperty = new SimpleDoubleProperty();
+    private double diameter;
     private double margin;
     private double maxWeight;
     private double effectiveWidth;
@@ -102,17 +102,8 @@ class GraphView extends Canvas {
      *
      * @return the selected pearl property
      */
-    public Property<Pearl> getSelectedPearlProperty() {
-        return selectedPearl;
-    }
-
-    /**
-     * Get the current selected Relationship property. You can add listeners.
-     *
-     * @return the current selected relationship property
-     */
-    public Property<GraphRelationship> getSelectedRelationship() {
-        return selectedRelationship;
+    public Property<Selectable> selectedItemProperty() {
+        return selectedItem;
     }
 
     private void setMouseEvents() {
@@ -132,27 +123,34 @@ class GraphView extends Canvas {
     private void clicked(MouseEvent event) {
         if (movingNode == null) {
             final Vector click = new Vector(event.getX(), event.getY());
-            selectNode(click);
-            selectRelationship(click);
-            if (selectedRelationship.getValue() == null && selectedPearl.getValue() == null)
-                lastMousePosition.set(event.getX(), event.getY());
+            final GraphNode node = getFirstSelectedNode(click);
+            if (node != null) {
+                if (selectedItem.getValue() != null) selectedItem.getValue().setSelected(false);
+                selectedItem.setValue(node);
+                node.setSelected(true);
+            } else {
+                final GraphRelationship relationship = findFirstSelectedRelationship(click);
+                if (relationship != null) {
+                    if (selectedItem.getValue() != null) selectedItem.getValue().setSelected(false);
+                    selectedItem.setValue(relationship);
+                    relationship.setSelected(true);
+                } else lastMousePosition.set(event.getX(), event.getY());
+            }
         }
     }
 
-    private void selectRelationship(Vector clickPosition) {
-        selectedRelationship.setValue(null);
-        for (Map.Entry<NodePairKey, GraphRelationship> entry : graph.getRelationships().entrySet()) {
-            entry.getValue().setSelected(clickPosition.distance(entry.getValue().getPosition()) < RELATIONSHIP_RADIUS);
-            if (entry.getValue().isSelected()) selectedRelationship.setValue(entry.getValue());
-        }
+    private GraphRelationship findFirstSelectedRelationship(Vector clickPosition) {
+        final Optional<Map.Entry<NodePairKey, GraphRelationship>> first = graph.getRelationships().entrySet().stream()
+                .filter(entry -> clickPosition.distance(entry.getValue().getPosition()) < RELATIONSHIP_RADIUS
+                ).findFirst();
+        return first.isPresent() ? first.get().getValue() : null;
     }
 
-    private void selectNode(Vector clickPosition) {
-        selectedPearl.setValue(null);
-        for (GraphNode node : graph.getNodes()) {
-            node.setSelected(clickPosition.distance(node.getPosition()) < radiusProperty.getValue());
-            if (node.isSelected()) selectedPearl.setValue(node.getPearl());
-        }
+    private GraphNode getFirstSelectedNode(Vector clickPosition) {
+        final Optional<GraphNode> first = graph.getNodes().stream()
+                .filter(node -> clickPosition.distance(node.getPosition()) < radiusProperty.getValue())
+                .findFirst();
+        return first.isPresent() ? first.get() : null;
     }
 
     /**
@@ -547,7 +545,7 @@ class GraphView extends Canvas {
     private List<String> getConsequences(List<Variant> variants) {
         List<String> consequences = new ArrayList<>();
         variants.forEach(variant -> {
-            final String cons = variant.getInfo("CONS");
+            final String cons = (String) variant.getInfo("CONS");
             if (cons != null) Collections.addAll(consequences, cons.split(","));
         });
         return consequences;
@@ -574,7 +572,7 @@ class GraphView extends Canvas {
             name = graphNode.getPearl().getName();
         }
         screen.fillText(name, graphNode.getPosition().getX(), graphNode.getPosition().getY());
-        screen.fillText(String.format("%.3f",graphNode.getPearl().getScore()), graphNode.getPosition().getX(), graphNode.getPosition().getY() + 12);
+        screen.fillText(String.format("%.3f", graphNode.getPearl().getScore()), graphNode.getPosition().getX(), graphNode.getPosition().getY() + 12);
     }
 
     private String simplifyName(GraphNode graphNode) {

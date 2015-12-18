@@ -21,7 +21,7 @@ import coat.core.poirot.Pearl;
 import coat.core.poirot.PearlGraph;
 import coat.core.poirot.PearlRelationship;
 import coat.core.poirot.ShortestPath;
-import coat.core.vcf.Variant;
+import coat.core.variant.Variant;
 import javafx.concurrent.Task;
 
 import java.util.*;
@@ -52,6 +52,9 @@ public class GraphEvaluator extends Task<Void> {
     private static final int MAX_DISTANCE = 20;
     public static final Map<String, Double> CONSEQUENCE_SCORE = new HashMap<>();
     public static final Map<String, Double> RELATIONSHIP_SCORE = new HashMap<>();
+    private final static String BRACES = "\\{([^\\{\\}]*)\\}";
+    private final static String QUESTION = "\\[\\?.*|\\{\\?.*|\\?.*";
+    private static final String BRACKETS = "\\[([^\\[\\]]*)\\]";
 
     static {
         CONSEQUENCE_SCORE.put("transcript_ablation", 1.0);
@@ -61,17 +64,21 @@ public class GraphEvaluator extends Task<Void> {
         CONSEQUENCE_SCORE.put("frameshift_variant", 1.0);
         CONSEQUENCE_SCORE.put("stop_lost", 1.0);
         CONSEQUENCE_SCORE.put("transcript_amplification", 1.0);
-        CONSEQUENCE_SCORE.put("inframe_insertion", 0.8);
-        CONSEQUENCE_SCORE.put("inframe_deletion", 0.8);
+
+        CONSEQUENCE_SCORE.put("inframe_insertion", 0.9);
+        CONSEQUENCE_SCORE.put("inframe_deletion", 0.9);
+
         CONSEQUENCE_SCORE.put("missense_variant", 0.8);
         CONSEQUENCE_SCORE.put("protein_altering_variant", 0.8);
         CONSEQUENCE_SCORE.put("TFBS_ablation", 0.8);
         CONSEQUENCE_SCORE.put("regulatory_region_ablation", 0.8);
+
         CONSEQUENCE_SCORE.put("splice_region_variant", 0.4);
         CONSEQUENCE_SCORE.put("start_lost", 0.4);
         CONSEQUENCE_SCORE.put("incomplete_terminal_codon_variant", 0.4);
         CONSEQUENCE_SCORE.put("stop_retained_variant", 0.4);
         CONSEQUENCE_SCORE.put("synonymous_variant", 0.4);
+
         CONSEQUENCE_SCORE.put("coding_sequence_variant", 0.2);
         CONSEQUENCE_SCORE.put("mature_miRNA_variant", 0.2);
         CONSEQUENCE_SCORE.put("5_prime_UTR_variant", 0.2);
@@ -91,21 +98,27 @@ public class GraphEvaluator extends Task<Void> {
         CONSEQUENCE_SCORE.put("intergenic_variant", 0.2);
 
         // type from BioGrid
-        RELATIONSHIP_SCORE.put("direct interaction", 1.0);
-        RELATIONSHIP_SCORE.put("physical association", 0.4);
-        RELATIONSHIP_SCORE.put("additive genetic interaction defined by inequality", 0.4);
-        RELATIONSHIP_SCORE.put("suppressive genetic interaction defined by inequality", 0.4);
-        RELATIONSHIP_SCORE.put("synthetic genetic interaction defined by inequality", 0.4);
+        RELATIONSHIP_SCORE.put("additive genetic interaction defined by inequality", 0.9);
+        RELATIONSHIP_SCORE.put("suppressive genetic interaction defined by inequality", 0.9);
+        RELATIONSHIP_SCORE.put("synthetic genetic interaction defined by inequality", 0.9);
+        RELATIONSHIP_SCORE.put("genetic inequality", 0.9);
+
+
+        RELATIONSHIP_SCORE.put("direct interaction", 0.6);
+        RELATIONSHIP_SCORE.put("direct_interaction", 0.6);
+        RELATIONSHIP_SCORE.put("Association", 0.6);
+        RELATIONSHIP_SCORE.put("association", 0.6);
+        RELATIONSHIP_SCORE.put("physical association", 0.6);
+        RELATIONSHIP_SCORE.put("physical_association", 0.6);
+
         RELATIONSHIP_SCORE.put("colocalization", 0.2);
-        RELATIONSHIP_SCORE.put("association", 0.2);
+
 
         // method from mentha
         RELATIONSHIP_SCORE.put("phosphorylation reaction", 0.2);
         RELATIONSHIP_SCORE.put("dephosphorylation reaction", 0.2);
         RELATIONSHIP_SCORE.put("ubiquitination reaction", 0.2);
-        RELATIONSHIP_SCORE.put("direct_interaction", 0.2);
         RELATIONSHIP_SCORE.put("cleavage reaction", 0.2);
-        RELATIONSHIP_SCORE.put("physical_association", 0.2);
         RELATIONSHIP_SCORE.put("adp ribosylation reaction", 0.2);
         RELATIONSHIP_SCORE.put("enzymatic reaction", 0.2);
         RELATIONSHIP_SCORE.put("protein cleavage", 0.2);
@@ -114,7 +127,6 @@ public class GraphEvaluator extends Task<Void> {
         RELATIONSHIP_SCORE.put("acetylation reaction", 0.2);
         RELATIONSHIP_SCORE.put("disulfide bond", 0.2);
         RELATIONSHIP_SCORE.put("protein_cleavage", 0.2);
-        RELATIONSHIP_SCORE.put("Association", 0.2);
         RELATIONSHIP_SCORE.put("deubiquitination reaction", 0.2);
         RELATIONSHIP_SCORE.put("neddylation reaction", 0.2);
         RELATIONSHIP_SCORE.put("enzymatic_reaction", 0.2);
@@ -132,11 +144,11 @@ public class GraphEvaluator extends Task<Void> {
         RELATIONSHIP_SCORE.put("proline isomerization  reaction", 0.2);
         RELATIONSHIP_SCORE.put("transglutamination_reaction", 0.2);
         RELATIONSHIP_SCORE.put("isomerase reaction", 0.2);
-        RELATIONSHIP_SCORE.put("genetic inequality", 0.2);
         RELATIONSHIP_SCORE.put("deneddylation reaction", 0.2);
         RELATIONSHIP_SCORE.put("glycosylation reaction", 0.2);
         RELATIONSHIP_SCORE.put("dna strand elongation", 0.2);
 
+        // HPRD disease relationship
         RELATIONSHIP_SCORE.put("linkage", 0.2);
         RELATIONSHIP_SCORE.put("mutation", 0.4);
         RELATIONSHIP_SCORE.put("deletion or duplication", 0.6);
@@ -156,8 +168,6 @@ public class GraphEvaluator extends Task<Void> {
         RELATIONSHIP_SCORE.put("Medium", 0.6);
         RELATIONSHIP_SCORE.put("Low", 0.4);
         RELATIONSHIP_SCORE.put("-", 0.5);
-
-
     }
 
     private final PearlGraph database;
@@ -176,8 +186,6 @@ public class GraphEvaluator extends Task<Void> {
         database.getPearls(Pearl.Type.DISEASE).forEach(phenotypes::add);
         database.getPearls(Pearl.Type.EXPRESSION).forEach(phenotypes::add);
     }
-
-
 
     @Override
     protected Void call() throws Exception {
@@ -268,7 +276,17 @@ public class GraphEvaluator extends Task<Void> {
         final double maxNScore = getMaxNeighbourScore(pearl);
         if (pearl.getType() == Pearl.Type.GENE)
             pearl.setScore((0.9 * vScore + 0.1 * maxNScore) / pearl.getDistanceToPhenotype());
-        else pearl.setScore(maxNScore);
+        else pearl.setScore(maxNScore * getPhenotypeScore(pearl));
+    }
+
+    private double getPhenotypeScore(Pearl pearl) {
+        if (pearl.getType() == Pearl.Type.DISEASE) {
+            if (pearl.getName().matches(BRACES)) return 0.6;
+            if (pearl.getName().matches(BRACKETS)) return 0.2;
+            if (pearl.getName().matches(QUESTION)) return 0.1;
+
+        }
+        return 1;
     }
 
     private double getMaxNeighbourScore(Pearl pearl) {
@@ -302,14 +320,21 @@ public class GraphEvaluator extends Task<Void> {
     }
 
     private double getMaxVariantScore(List<Variant> variants) {
-        return variants.stream().mapToDouble(variant -> 0.5 * getConsequenceScore(variant) + 0.5 * getSiftScore(variant)).max().orElse(0.0);
+        return variants.stream().mapToDouble(variant -> getConsequenceScore(variant) - getSiftScore(variant)).max().orElse(0.0);
     }
 
     private double getSiftScore(Variant variant) {
-        final String sifTs = variant.getInfo("SIFTs");
+        final String sifTs = (String) variant.getInfo("SIFTs");
         if (sifTs == null) return 0;
         try {
-            return 1 - Double.valueOf(sifTs);
+            final double score = Double.valueOf(sifTs);
+            return score;
+//            return score <= 0.05 ? 1 : 0;
+//            return 1 - score;
+            // I will leave this by here, just in case: 1-(1 / (1 + 10^(10*(0.05-score))))
+//            final double value = 1.24 - (1 / (1 + Math.pow(10, 100 * (0.05 - score))));
+//            System.out.println(score + " \t-> " + value);
+//            return value;
         } catch (NumberFormatException ignored) {
         }
         return 0;
@@ -322,7 +347,7 @@ public class GraphEvaluator extends Task<Void> {
     }
 
     private double getConsequenceScore(Variant variant) {
-        final String cons = variant.getInfo("CONS");
+        final String cons = (String) variant.getInfo("CONS");
         if (cons != null) {
             return Arrays.stream(cons.split(","))
                     .mapToDouble(consequence -> CONSEQUENCE_SCORE.getOrDefault(consequence, 0.0))

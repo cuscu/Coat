@@ -17,7 +17,7 @@
 
 package coat.core.vcf.combine;
 
-import coat.core.vcf.Variant;
+import coat.core.variant.Variant;
 import coat.core.vcf.VcfFile;
 import coat.view.vcfreader.VcfSample;
 import javafx.collections.ObservableList;
@@ -60,7 +60,7 @@ public class VcfCombineTask extends Task<VcfFile> {
             final List<Variant> variants = reference.getVariants().stream().filter(this::filter).collect(Collectors.toList());
             final VcfFile vcfFile = new VcfFile();
             vcfFile.getVariants().setAll(variants);
-            variants.forEach(variant -> variant.setTemp(variant.toString(variant.getInfo())));
+//            variants.forEach(variant -> variant.setTemp(variant.toString(variant.getInfo())));
             return vcfFile;
         }catch (Exception e){
             e.printStackTrace();

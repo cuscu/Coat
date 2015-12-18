@@ -18,7 +18,7 @@
 package coat.core.poirot;
 
 import coat.core.poirot.graph.GraphEvaluator;
-import coat.core.vcf.Variant;
+import coat.core.variant.Variant;
 
 import java.util.Arrays;
 import java.util.List;
@@ -95,7 +95,7 @@ public class PhenotypeScore {
     }
 
     private static double score(Variant variant) {
-        final String cons = variant.getInfo("CONS");
+        final String cons = (String) variant.getInfo("CONS");
         if (cons == null) return 1;
         return Arrays.stream(cons.split(",")).mapToDouble(consequence -> GraphEvaluator.CONSEQUENCE_SCORE.getOrDefault(consequence, 1.0)).max().orElse(1.0);
     }

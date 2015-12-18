@@ -17,6 +17,8 @@
 
 package coat.core.vcf;
 
+import coat.core.variant.Variant;
+
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -174,7 +176,7 @@ public class LFS {
     public static void addLFS(Variant variant) {
         try {
 //            Map<String, Object> infos = variant.getInfoValues();
-            String codons = variant.getInfo("COD");
+            String codons = (String) variant.getInfo("COD");
             if (codons != null) {
                 String[] cods = codons.split("[/-]");
                 // Only supports 2 structures: aaT/aaC and tta-Gta

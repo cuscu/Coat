@@ -14,15 +14,18 @@
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
+
 package coat.view.vcfreader;
 
-import coat.core.vcf.Variant;
+import coat.core.variant.Variant;
 import coat.core.vcf.VcfFile;
 import coat.utils.OS;
 import coat.view.graphic.NaturalCell;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.geometry.Insets;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.Priority;
@@ -40,6 +43,8 @@ public class InfoTable extends VBox {
 
     private final Property<Variant> variantProperty = new SimpleObjectProperty<>();
 
+    private final CheckBox showAllCheckBox = new CheckBox("Show all properties");
+
     private final TableView<Info> table = new TableView<>();
     private final TableColumn<Info, String> property
             = new TableColumn<>(OS.getResources().getString("property"));
@@ -51,7 +56,8 @@ public class InfoTable extends VBox {
     public InfoTable() {
         initTable();
         initDescription();
-        getChildren().addAll(table, description);
+        initShowAll();
+        getChildren().addAll(showAllCheckBox, table, description);
         variantProperty.addListener((obs, previous, current) -> updateTable());
     }
 
@@ -68,6 +74,12 @@ public class InfoTable extends VBox {
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
+    private void initShowAll() {
+        showAllCheckBox.setSelected(true);
+        showAllCheckBox.setOnAction(event -> updateTable());
+        showAllCheckBox.setPadding(new Insets(5));
+    }
+
     private void setCellValueFactories() {
         property.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getName()));
         value.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getValue()));
@@ -80,18 +92,19 @@ public class InfoTable extends VBox {
 
     private void updateTable() {
         table.getItems().clear();
-        if (variantProperty.getValue() != null)
-            addInfos();
+        if (variantProperty.getValue() != null) addInfos();
     }
 
     private void addInfos() {
-        final VcfFile vcfFile = variantProperty.getValue().getVcfFile();
+        final Variant variant = variantProperty.getValue();
+        final VcfFile vcfFile = variant.getVcfFile();
         final List<Map<String, String>> idList = vcfFile.getHeader().getComplexHeaders().get("INFO");
-        final Map<String, String> map = variantProperty.getValue().getInfo();
-        idList.forEach(info -> {
-            String id = info.get("ID");
-            String description = info.get("Description");
-            String value = map.get(id);
+        idList.forEach(map -> {
+            final String id = map.get("ID");
+            final String description = map.get("Description");
+            final Object val = variant.getInfo(id);
+            final String value = val == null ? null : variant.getInfo(id).toString();
+            if (value == null && !showAllCheckBox.isSelected()) return;
             table.getItems().add(new Info(id, value, description));
         });
     }

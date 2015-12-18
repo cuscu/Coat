@@ -14,8 +14,10 @@
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
+
 package coat.core.vcf;
 
+import coat.core.variant.Variant;
 import coat.utils.OS;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -147,7 +149,7 @@ public class VcfFilter {
                 break;
             case INFO:
                 if (info == null) return true;
-                stringValue = variant.getInfo(info);
+                stringValue = (String) variant.getInfo(info);
 
 
 ////                Map<String, Object> map = variant.getInfoValues();

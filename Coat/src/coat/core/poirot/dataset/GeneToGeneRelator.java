@@ -66,15 +66,22 @@ public class GeneToGeneRelator implements Relator {
             final Pearl target = database.getOrCreate(Pearl.Type.GENE, (String) instance.getField(2));
             createRelationship(pearl, instance, target);
         });
-
     }
 
     private void createRelationship(Pearl pearl, Instance instance, Pearl target) {
+        if (relationshipExists(pearl, instance, target)) return;
         final PearlRelationship relationship = pearl.createRelationshipTo(target);
         relationship.getProperties().put("database", instance.getField(0));
         relationship.getProperties().put("id", instance.getField(1));
         relationship.getProperties().put("method", instance.getField(4));
         relationship.getProperties().put("type", instance.getField(5));
         relationship.getProperties().put("score", instance.getField(6));
+    }
+
+    private boolean relationshipExists(Pearl pearl, Instance instance, Pearl target) {
+        if (pearl.getRelationships().containsKey(target))
+            for (PearlRelationship relationship : pearl.getRelationships().get(target))
+                if (relationship.getProperties().get("id").equals(instance.getField(1))) return true;
+        return false;
     }
 }

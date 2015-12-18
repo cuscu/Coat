@@ -18,6 +18,8 @@
 package coat.view.poirot;
 
 import coat.core.poirot.PearlRelationship;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleObjectProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,12 +27,12 @@ import java.util.List;
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class GraphRelationship {
+public class GraphRelationship implements Selectable{
 
     private List<PearlRelationship> relationships = new ArrayList<>();
     private Vector position = new Vector();
     private boolean mouseOver;
-    private boolean selected;
+    private Property<Boolean> selected = new SimpleObjectProperty<>(false);
 
 
     public List<PearlRelationship> getRelationships() {
@@ -50,10 +52,15 @@ public class GraphRelationship {
     }
 
     public void setSelected(boolean selected) {
-        this.selected = selected;
+        this.selected.setValue(selected);
     }
 
     public boolean isSelected() {
+        return selected.getValue();
+    }
+
+    @Override
+    public Property<Boolean> selectedProperty() {
         return selected;
     }
 }

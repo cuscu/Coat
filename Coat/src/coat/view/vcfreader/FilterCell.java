@@ -17,7 +17,7 @@
 
 package coat.view.vcfreader;
 
-import coat.core.vcf.Variant;
+import coat.core.variant.Variant;
 import coat.core.vcf.VcfFilter;
 import coat.utils.OS;
 import coat.view.graphic.AutoFillComboBox;
@@ -62,7 +62,7 @@ class FilterCell extends ListCell<VcfFilter> {
     private final SizableImage nocircle = new SizableImage("coat/img/black/nocircle.png", SizableImage.SMALL_SIZE);
     private final SizableImage viewImg = new SizableImage("coat/img/black/view.png", SizableImage.SMALL_SIZE);
     private final SizableImage noview = new SizableImage("coat/img/black/noview.png", SizableImage.SMALL_SIZE);
-    private final SizableImage deleteImg = new SizableImage("coat/black/img/delete.png", SizableImage.SMALL_SIZE);
+    private final SizableImage deleteImg = new SizableImage("coat/img/black/delete.png", SizableImage.SMALL_SIZE);
 
     private final ToggleButton strict = new ToggleButton(null, circle);
     private final ToggleButton view = new ToggleButton(null, viewImg);
@@ -120,7 +120,7 @@ class FilterCell extends ListCell<VcfFilter> {
             final String infoValue = info.getText();
             if (infoValue != null) {
                 final List<String> valueList = variants.stream()
-                        .map(variant -> variant.getInfo(infoValue))
+                        .map(variant -> (String) variant.getInfo(infoValue))
                         .filter(val -> val != null)
                         .distinct()
                         .collect(Collectors.toList());
@@ -128,30 +128,12 @@ class FilterCell extends ListCell<VcfFilter> {
                 value.getItems().setAll(valueList);
             }
         }
-
     }
 
     private void initializeInfoBox() {
         info.setPromptText(OS.getResources().getString("info"));
         info.setDisable(true);
-//        setSmartInfoBox();
     }
-
-//    private void setSmartInfoBox() {
-//        info.setEditable(true);
-//        info.getEditor().setOnKeyReleased(event -> displayMatchingInfos());
-//        final ChangeListener<Boolean> listener = (observable, oldValue, newValue) -> {
-//            if (newValue) displayMatchingInfos();
-//        };
-//        info.getEditor().focusedProperty().addListener(listener);
-//    }
-
-//    private void displayMatchingInfos() {
-//        String text = info.getEditor().getText();
-//        List<String> validCells = infoItems.stream().filter(s -> s.toLowerCase().contains(text.toLowerCase())).collect(Collectors.toList());
-//        info.getItems().setAll(validCells);
-//        info.show();
-//    }
 
     private void initializeConnectorBox() {
         connector.setPromptText(OS.getResources().getString("connector"));

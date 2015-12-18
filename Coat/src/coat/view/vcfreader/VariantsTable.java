@@ -17,7 +17,7 @@
 
 package coat.view.vcfreader;
 
-import coat.core.vcf.Variant;
+import coat.core.variant.Variant;
 import coat.utils.OS;
 import coat.view.graphic.IndexCell;
 import coat.view.graphic.NaturalCell;
@@ -119,7 +119,7 @@ public class VariantsTable extends VBox {
         if (variant.getRef().contains(searchValue)) return true;
         if (variant.getAlt().contains(searchValue)) return true;
         if (variant.getFilter().contains(searchValue)) return true;
-        return variant.getInfo("SYMBOL") != null && variant.getInfo("SYMBOL").toLowerCase().contains(searchValue);
+        return variant.getInfo("SYMBOL") != null && ((String) variant.getInfo("SYMBOL")).toLowerCase().contains(searchValue);
         //        return Arrays.stream(variant.getInfoValues()).filter(s -> s != null).anyMatch(s1 -> s1.toLowerCase().contains(searchValue));
     }
 
@@ -136,7 +136,7 @@ public class VariantsTable extends VBox {
         qual.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getQual() + ""));
         position.setCellValueFactory(param
                 -> new SimpleStringProperty(String.format("%,d", param.getValue().getPos())));
-        geneColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getInfo("SYMBOL")));
+        geneColumn.setCellValueFactory(param -> new SimpleStringProperty((String) param.getValue().getInfo("SYMBOL")));
     }
 
     private void setTableColumnWidths() {
@@ -224,4 +224,7 @@ public class VariantsTable extends VBox {
         currentChromosome.getItems().setAll(list);
     }
 
+    public ObservableList<Variant> getVariants() {
+        return table.getItems();
+    }
 }

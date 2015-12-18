@@ -19,7 +19,12 @@ package coat.view.vcfreader;
 
 import coat.CoatView;
 import coat.core.reader.Reader;
-import coat.core.vcf.*;
+import coat.core.variant.Variant;
+import coat.core.vcf.LFS;
+import coat.core.vcf.TsvSaver;
+import coat.core.vcf.VcfFile;
+import coat.core.vcf.VcfStats;
+import coat.core.vep.VepAnnotator;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.SizableImage;
@@ -110,8 +115,7 @@ public class VcfReader extends VBox implements Reader {
         List<Variant> toSaveVariants = new ArrayList<>(filterList.getOutputVariants());
         if (output != null)
             if (output.getName().endsWith(".vcf")) {
-                new VcfSaver(vcfFile, output, toSaveVariants).invoke();
-                vcfFile.setChanged(false);
+                vcfFile.save(output);
             } else new TsvSaver(vcfFile, output, toSaveVariants).invoke();
     }
 
@@ -142,7 +146,6 @@ public class VcfReader extends VBox implements Reader {
 
     private void viewHeaders() {
         TextArea area = new TextArea();
-//        vcfFile.getHeader().getUnformattedHeaders().forEach(header -> area.appendText(header + "\n"));
         area.appendText(vcfFile.getHeader().toString());
         area.setEditable(false);
         area.setWrapText(true);

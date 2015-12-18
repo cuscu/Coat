@@ -18,9 +18,8 @@
 package coat.view.vcfcombiner;
 
 import coat.core.tool.Tool;
-import coat.core.vcf.Variant;
+import coat.core.variant.Variant;
 import coat.core.vcf.VcfFile;
-import coat.core.vcf.VcfSaver;
 import coat.core.vcf.combine.VcfCombineTask;
 import coat.utils.FileManager;
 import coat.utils.OS;
@@ -137,10 +136,7 @@ public class CombineVcfTool extends Tool {
     @Override
     public void saveAs() {
         final File file = FileManager.saveFile("Select ouptut file", FileManager.VCF_FILTER);
-        if (file != null) {
-                VcfSaver saver = new VcfSaver(resultVcfFile, file, resultVariants);
-                saver.invoke();
-        }
+        if (file != null) resultVcfFile.save(file, resultVariants);
     }
 
     @Override

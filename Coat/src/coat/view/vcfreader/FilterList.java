@@ -17,7 +17,7 @@
 
 package coat.view.vcfreader;
 
-import coat.core.vcf.Variant;
+import coat.core.variant.Variant;
 import coat.core.vcf.VcfFilter;
 import coat.utils.OS;
 import coat.view.graphic.SizableImage;

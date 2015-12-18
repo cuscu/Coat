@@ -21,7 +21,7 @@ import coat.core.poirot.dataset.GeneToDiseaseRelator;
 import coat.core.poirot.dataset.GeneToExpressionRelator;
 import coat.core.poirot.dataset.GeneToGeneRelator;
 import coat.core.poirot.dataset.Relator;
-import coat.core.vcf.Variant;
+import coat.core.variant.Variant;
 import javafx.concurrent.Task;
 
 import java.util.ArrayList;
@@ -72,7 +72,7 @@ public class GraphFactory extends Task<PearlGraph> {
 
     private void addInitialGenes() {
         variants.stream().forEachOrdered(variant -> {
-            String gene = variant.getInfo("SYMBOL");
+            String gene = (String) variant.getInfo("SYMBOL");
             if (gene != null) addVariantGeneToDatabase(variant, gene);
         });
         leafGenes.addAll(pearlGraph.getPearls(Pearl.Type.GENE));

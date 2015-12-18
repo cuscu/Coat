@@ -19,36 +19,26 @@ package coat.view.poirot;
 
 import coat.core.poirot.Pearl;
 import coat.core.poirot.PearlGraph;
-import coat.core.poirot.dataset.Dataset;
-import coat.core.poirot.dataset.Instance;
-import coat.core.poirot.dataset.hgnc.HGNC;
-import coat.core.poirot.dataset.omim.OmimDatasetLoader;
 import coat.core.poirot.graph.GraphEvaluator;
 import coat.core.tool.Tool;
-import coat.core.vcf.Variant;
 import coat.utils.OS;
 import coat.view.graphic.SizableImage;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
+import javafx.geometry.Orientation;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
-import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
+import javafx.scene.control.SplitPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
-import java.awt.*;
 import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
@@ -68,23 +58,24 @@ public class PoirotView extends Tool {
     private final Label message = new Label();
     private final VBox inputPane = new VBox(5, poirotInputPane, start, message);
 
+    private final PoirotInfo poirotInfo = new PoirotInfo();
 
     private final PoirotPearlTable poirotPearlTable = new PoirotPearlTable();
 
     private final GraphView graphView = new GraphView();
-    private final VBox infoBox = new VBox();
-    private final StackPane stackPane = new StackPane(graphView, infoBox);
+    private final StackPane stackPane = new StackPane(graphView);
+
+//    private final VBox graphVBox = new VBox(stackPane, new Separator(Orientation.HORIZONTAL), poirotInfo);
+    private SplitPane graphSplitPane = new SplitPane(stackPane, poirotInfo);
 
     private final Button reload = new Button(OS.getString("reload").toUpperCase(), new SizableImage("coat/img/white/poirot.png", SizableImage.SMALL_SIZE));
     private final Button back = new Button(OS.getString("back").toUpperCase(), new SizableImage("coat/img/white/arrow-left.png", SizableImage.SMALL_SIZE));
     private final VBox listPane = new VBox(5, back, poirotPearlTable, reload);
 
-    private final HBox graphHBox = new HBox(listPane, stackPane);
+    private final HBox graphHBox = new HBox(listPane, graphSplitPane);
 
     private Property<String> title = new SimpleStringProperty("Poirot");
-    private Dataset omimDataset = null;
     private File file;
-//    private PearlDatabase database;
 
     public PoirotView(File file) {
         this.file = file;
@@ -141,6 +132,7 @@ public class PoirotView extends Tool {
         back.setOnAction(event -> {
             new GraphEvaluator(poirotInputPane.getDatabase()).run();
             getChildren().setAll(inputPane);
+            poirotInfo.clear();
         });
         back.setPadding(new Insets(10));
         back.setMaxWidth(9999);
@@ -151,91 +143,15 @@ public class PoirotView extends Tool {
     }
 
     private void initializeGraphView() {
-        HBox.setHgrow(stackPane, Priority.ALWAYS);
+        HBox.setHgrow(graphSplitPane, Priority.ALWAYS);
+        graphSplitPane.setOrientation(Orientation.VERTICAL);
+        graphSplitPane.setDividerPositions(0.7);
+        SplitPane.setResizableWithParent(poirotInfo, false);
         stackPane.widthProperty().addListener((observable, oldValue, newValue) -> graphView.setWidth(newValue.doubleValue()));
         stackPane.heightProperty().addListener((observable, oldValue, newValue) -> graphView.setHeight(newValue.doubleValue()));
+        VBox.setVgrow(stackPane, Priority.ALWAYS);
         graphView.setManaged(false);
-        graphView.getSelectedPearlProperty().addListener((observable, oldValue, pearl) -> selected(pearl));
-        graphView.getSelectedRelationship().addListener((observable, oldValue, relationship) -> selected(relationship));
-        StackPane.setAlignment(infoBox, Pos.BOTTOM_LEFT);
-        infoBox.setMaxWidth(USE_PREF_SIZE);
-        infoBox.setMaxHeight(USE_PREF_SIZE);
-        infoBox.getStyleClass().add("graph-info-box");
-    }
-
-    private void selected(GraphRelationship relationship) {
-        if (relationship != null) {
-            relationship.getRelationships().forEach(pearlRelationship
-                    -> infoBox.getChildren().add(new Label(pearlRelationship.getProperties().toString())));
-        } else if (graphView.getSelectedPearlProperty().getValue() == null) infoBox.getChildren().clear();
-    }
-
-    private void selected(Pearl pearl) {
-        infoBox.getChildren().clear();
-        if (pearl != null) {
-            if (pearl.getType() == Pearl.Type.GENE) showGeneDescription(pearl);
-            else showNonGeneDescription(pearl);
-        }
-    }
-
-    private void showNonGeneDescription(Pearl pearl) {
-        infoBox.getChildren().add(new Label(pearl.getProperties().toString()));
-    }
-
-    private void showGeneDescription(Pearl pearl) {
-        final String symbol = pearl.getName();
-        String description = getDescription(symbol);
-        infoBox.getChildren().add(new Label(symbol + "(" + description + ")"));
-        if (pearl.getType() == Pearl.Type.GENE) {
-            final String url = "http://v4.genecards.org/cgi-bin/carddisp.pl?gene=" + pearl.getName();
-            final Hyperlink hyperlink = new Hyperlink("GeneCards");
-            hyperlink.setOnAction(event -> new Thread(() -> {
-                try {
-                    Desktop.getDesktop().browse(new URI(url));
-                } catch (IOException | URISyntaxException e1) {
-                    e1.printStackTrace();
-                }
-            }).start());
-            infoBox.getChildren().add(hyperlink);
-        }
-        final List<Variant> variants = (List<Variant>) pearl.getProperties().get("variants");
-        if (variants != null)
-            for (Variant variant : variants) infoBox.getChildren().add(new Label(simplified(variant)));
-    }
-
-    private String getDescription(String symbol) {
-        String description = HGNC.getName(symbol);
-        if (description == null) {
-            loadOmimDataset();
-            final List<Instance> instances = omimDataset.getInstances(symbol, 0);
-            if (!instances.isEmpty()) description = (String) instances.get(0).getField(1);
-        }
-        return description;
-    }
-
-    private void loadOmimDataset() {
-        if (omimDataset == null) {
-            try {
-                final OmimDatasetLoader loader = new OmimDatasetLoader();
-                loader.run();
-                omimDataset = loader.get();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private String simplified(Variant variant) {
-        String value = String.format("%s:%d %s/%s", variant.getChrom(), variant.getPos(), variant.getRef(), variant.getAlt());
-        final String bio = variant.getInfo("BIO");
-        if (bio != null) value += " BIO=" + bio;
-        final String cons = variant.getInfo("CONS");
-        if (cons != null) value += " CONS=" + cons;
-        final String sifts = variant.getInfo("SIFTs");
-        if (sifts != null) value += " SIFTs=" + sifts;
-        return value;
+        graphView.selectedItemProperty().addListener((observable, oldValue, item) -> poirotInfo.setItem(item));
     }
 
     private void start() {
@@ -282,8 +198,8 @@ public class PoirotView extends Tool {
     }
 
     private void reload() {
-        infoBox.getChildren().clear();
         graphView.setRootGenes(poirotPearlTable.getSelectionModel().getSelectedItems());
+        poirotInfo.clear();
     }
 
     @Override
