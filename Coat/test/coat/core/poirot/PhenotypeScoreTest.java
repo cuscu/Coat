@@ -18,7 +18,7 @@
 package coat.core.poirot;
 
 import coat.core.vcf.VcfFile;
-import de.saxsys.javafx.test.JfxRunner;
+import de.saxsys.mvvmfx.testingutils.jfxrunner.JfxRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

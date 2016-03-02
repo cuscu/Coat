@@ -134,16 +134,6 @@ public class VcfSample {
             public String toString() {
                 return OS.getString("affected");
             }
-        }, HETEROZYGOUS {
-            @Override
-            public String toString() {
-                return OS.getString("heterozygous");
-            }
-        }, HOMOZYGOUS {
-            @Override
-            public String toString() {
-                return OS.getString("homozygous");
-            }
         }
     }
 

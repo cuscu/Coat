@@ -320,10 +320,14 @@ public class GraphEvaluator extends Task<Void> {
     }
 
     private double getMaxVariantScore(List<Variant> variants) {
-        return variants.stream().mapToDouble(variant -> getConsequenceScore(variant) - getSiftScore(variant)).max().orElse(0.0);
+        return variants.stream().mapToDouble(GraphEvaluator::getScore).max().orElse(0.0);
     }
 
-    private double getSiftScore(Variant variant) {
+    public static double getScore(Variant variant) {
+        return getConsequenceScore(variant) - getSiftScore(variant);
+    }
+
+    private static double getSiftScore(Variant variant) {
         final String sifTs = (String) variant.getInfo("SIFTs");
         if (sifTs == null) return 0;
         try {
@@ -346,7 +350,7 @@ public class GraphEvaluator extends Task<Void> {
         return 0;
     }
 
-    private double getConsequenceScore(Variant variant) {
+    private static double getConsequenceScore(Variant variant) {
         final String cons = (String) variant.getInfo("CONS");
         if (cons != null) {
             return Arrays.stream(cons.split(","))

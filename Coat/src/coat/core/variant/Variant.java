@@ -31,7 +31,7 @@ import java.util.*;
  */
 public class Variant implements Comparable<Variant> {
 
-    private static final String TRUE = OS.getString("true");
+    public static final String TRUE = OS.getString("true");
     private String chrom, ref, alt, filter;
     private int pos;
     private double qual;

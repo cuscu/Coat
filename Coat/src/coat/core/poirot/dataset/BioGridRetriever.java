@@ -14,30 +14,21 @@
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
+package coat.core.poirot.dataset;
 
-package coat.view.vcfcombiner;
-
-import coat.view.graphic.SizableImage;
-import coat.view.vcfreader.VcfSample;
-import javafx.scene.control.ListCell;
+import java.sql.Connection;
 
 /**
- * Cell for ListView that shows the level of affection. The image is taken from coat/img/black/ plus level name plus .png.
- * For instance: HETEROZYGOUS -> coat/img/black/heterozygous.png
- *
- * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
+ * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
-class LevelCell extends ListCell<VcfSample.Level> {
+public class BioGridRetriever {
 
-    @Override
-    protected void updateItem(VcfSample.Level item, boolean empty) {
-        super.updateItem(item, empty);
-        if (!empty) {
-            setText(item.toString());
-            setGraphic(new SizableImage("coat/img/black/" + item.name().toLowerCase() + ".png", SizableImage.SMALL_SIZE));
-        } else {
-            setText(null);
-            setGraphic(null);
-        }
+
+    private final static String API_KEY = "e2d2aa59b5dd3f6ec3a45bcbafd0211d";
+    private final static String BASE_URL = "http://webservice.thebiogrid.org/interactions/?";
+    private Connection connection;
+
+    public void updateData(Connection connection) {
+        this.connection = connection;
     }
 }

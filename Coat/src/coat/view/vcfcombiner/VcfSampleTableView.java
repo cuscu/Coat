@@ -39,7 +39,7 @@ class VcfSampleTableView extends TableView<VcfSample> {
         final TableColumn<VcfSample, File> bamFileColumn = new TableColumn<>(OS.getString("bam.file"));
         final TableColumn<VcfSample, File> mistFileColumn = new TableColumn<>(OS.getString("mist.file"));
 
-        getColumns().addAll(Arrays.asList(enableColumn, numberOfVariantsColumn, mistFileColumn));
+        getColumns().addAll(Arrays.asList(enableColumn, numberOfVariantsColumn, levelColumn, mistFileColumn));
         setEditable(true);
         setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY);
 

@@ -25,6 +25,7 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.io.IOException;
@@ -59,17 +60,8 @@ public class PoirotInfo extends VBox {
     private void showGeneDescription(Pearl pearl) {
         final String symbol = pearl.getName();
         String description = getDescription(symbol);
-//        getChildren().add(new Label());
         if (pearl.getType() == Pearl.Type.GENE) {
-            final String url = "http://v4.genecards.org/cgi-bin/carddisp.pl?gene=" + pearl.getName();
-            final Hyperlink hyperlink = new Hyperlink(symbol + " (" + description + ")");
-            hyperlink.setOnAction(event -> new Thread(() -> {
-                try {
-                    Desktop.getDesktop().browse(new URI(url));
-                } catch (IOException | URISyntaxException e1) {
-                    e1.printStackTrace();
-                }
-            }).start());
+            final Hyperlink hyperlink = getHyperlink(symbol, description);
             getChildren().add(hyperlink);
         }
         final java.util.List<Variant> variants = (java.util.List<Variant>) pearl.getProperties().get("variants");
@@ -78,6 +70,20 @@ public class PoirotInfo extends VBox {
             getChildren().add(poirotVariantTable);
         }
 //            for (Variant variant : variants) infoBox.getChildren().add(new Label(simplified(variant)));
+    }
+
+    @NotNull
+    private Hyperlink getHyperlink(String symbol, String description) {
+        final String url = "http://v4.genecards.org/cgi-bin/carddisp.pl?gene=" + symbol;
+        final Hyperlink hyperlink = new Hyperlink(symbol + " (" + description + ")");
+        hyperlink.setOnAction(event -> new Thread(() -> {
+            try {
+                Desktop.getDesktop().browse(new URI(url));
+            } catch (IOException | URISyntaxException e1) {
+                e1.printStackTrace();
+            }
+        }).start());
+        return hyperlink;
     }
 
     private String getDescription(String symbol) {

@@ -32,13 +32,13 @@ import java.util.zip.ZipInputStream;
  */
 public class DatabaseGenerator {
 
-    private final static File BIOGRIDFILE = new File("/home/unidad03/PoirotDatabases/BIOGRID_GENE_TO_GENE.txt.gz");
-    private final static File HPRD = new File("/home/unidad03/PoirotDatabases/HPRD_GENE_TO_GENE.txt.gz");
-    private final static File HPRD_EXPRESSION = new File("/home/unidad03/PoirotDatabases/HPRD_GENE_TO_PHENOTYPE.txt.gz");
-    private final static File HPRD_DISEASE = new File("/home/unidad03/PoirotDatabases/HPRD_GENE_TO_DISEASE.tsv.gz");
-    private final static File MENTHA = new File("/home/unidad03/PoirotDatabases/MENTHA_GENE_TO_GENE.gz");
-    private final static File OMIM = new File("/home/unidad03/PoirotDatabases/OMIM_GENE_TO_PHENOTYPE.txt.gz");
-    private final static File PROTEIN_ATLAS = new File("/home/unidad03/PoirotDatabases/PROTEINATLAS_GENE_TO_DISEASE.csv.gz");
+    private final static File BIOGRIDFILE = new File("/home/uichuimi/PoirotDatabases/BIOGRID_GENE_TO_GENE.txt.gz");
+    private final static File HPRD = new File("/home/uichuimi/PoirotDatabases/HPRD_GENE_TO_GENE.txt.gz");
+    private final static File HPRD_EXPRESSION = new File("/home/uichuimi/PoirotDatabases/HPRD_GENE_TO_PHENOTYPE.txt.gz");
+    private final static File HPRD_DISEASE = new File("/home/uichuimi/PoirotDatabases/HPRD_GENE_TO_DISEASE.tsv.gz");
+    private final static File MENTHA = new File("/home/uichuimi/PoirotDatabases/MENTHA_GENE_TO_GENE.gz");
+    private final static File OMIM = new File("/home/uichuimi/PoirotDatabases/OMIM_GENE_TO_PHENOTYPE.txt.gz");
+    private final static File PROTEIN_ATLAS = new File("/home/uichuimi/PoirotDatabases/PROTEINATLAS_GENE_TO_DISEASE.csv.gz");
 
 
     public static final String EMPTY = "-";
