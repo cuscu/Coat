@@ -380,17 +380,17 @@ public class VepAnnotator extends Task<Boolean> {
                                    String targetKey, Class classType) {
         if (source.containsKey(sourceKey))
             if (classType == String.class)
-                variant.setInfo(targetKey, source.getString(sourceKey));
+                variant.getInfo().setInfo(targetKey, source.getString(sourceKey));
             else if (classType == Integer.class)
-                variant.setInfo(targetKey, source.getInt(sourceKey) + "");
+                variant.getInfo().setInfo(targetKey, source.getInt(sourceKey) + "");
             else if (classType == Double.class)
-                variant.setInfo(targetKey, source.getDouble(sourceKey) + "");
+                variant.getInfo().setInfo(targetKey, source.getDouble(sourceKey) + "");
             else if (classType == Boolean.class)
-                variant.setInfo(targetKey, source.getBoolean(sourceKey) + "");
+                variant.getInfo().setInfo(targetKey, source.getBoolean(sourceKey) + "");
             else if (classType == Long.class)
-                variant.setInfo(targetKey, source.getLong(sourceKey) + "");
+                variant.getInfo().setInfo(targetKey, source.getLong(sourceKey) + "");
             else
-                variant.setInfo(targetKey, String.valueOf(source.get(sourceKey)));
+                variant.getInfo().setInfo(targetKey, String.valueOf(source.get(sourceKey)));
     }
 
     private static void findAndPutArray(JSONObject source, String sourceKey, Variant target,
@@ -400,7 +400,7 @@ public class VepAnnotator extends Task<Boolean> {
             if (terms.length() > 0) {
                 final StringBuilder builder = new StringBuilder(terms.get(0).toString());
                 for (int i = 1; i < terms.length(); i++) builder.append(",").append(terms.get(i).toString());
-                target.setInfo(targetKey, builder.toString());
+                target.getInfo().setInfo(targetKey, builder.toString());
 //                String result = "";
 //                for (int i = 0; i < terms.length(); i++)
 //                    if (classType == String.class)

@@ -102,8 +102,8 @@ public class InfoTable extends VBox {
         idList.forEach(map -> {
             final String id = map.get("ID");
             final String description = map.get("Description");
-            final Object val = variant.getInfo(id);
-            final String value = val == null ? null : variant.getInfo(id).toString();
+            final Object val = variant.getInfo().getInfo(id);
+            final String value = val == null ? null : variant.getInfo().getInfo(id).toString();
             if (value == null && !showAllCheckBox.isSelected()) return;
             table.getItems().add(new Info(id, value, description));
         });

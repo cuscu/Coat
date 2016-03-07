@@ -1,16 +1,16 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
+ * *
  * This program is free software: you can redistribute it and/or modify it    *
  * under the terms of the GNU General Public License as published by the      *
  * Free Software Foundation, either version 3 of the License, or (at your     *
  * option) any later version.                                                 *
- *                                                                            *
+ * *
  * This program is distributed in the hope that it will be useful, but        *
  * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
  * See the GNU General Public License for more details.                       *
- *                                                                            *
+ * *
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
@@ -22,6 +22,7 @@ import coat.core.vcf.VcfFilter;
 import coat.utils.OS;
 import coat.view.graphic.SizableImage;
 import coat.view.graphic.ThresholdDialog;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -47,26 +48,23 @@ import java.util.stream.Collectors;
 public class FilterList extends VBox {
 
 
+    private final static String[] FREQUENCY_IDS = {"AA_F", "EUR_F", "AFR_F", "AMR_F", "EA_F", "ASN_F",
+            "AA_MAF", "EUR_MAF", "AFR_MAF", "AMR_MAF", "EA_MAF", "ASN_MAF",
+            "afr_maf", "eur_maf", "amr_maf", "ea_maf", "asn_maf", "GMAF", "1KG14"};
     private final ListView<VcfFilter> filters = new ListView<>();
-    private ObservableList<Variant> inputVariants = FXCollections.observableArrayList();
     private final ObservableList<Variant> outputVariants = FXCollections.observableArrayList();
     private final Button addFilter = new Button(OS.getResources().getString("add.filter"), new SizableImage("coat/img/black/add.png", SizableImage.SMALL_SIZE));
 
     private final Button addFrequencyFilters = new Button(OS.getResources().getString("add.frequency.filters"));
-    private final ChangeListener<Object> applyFilters = (observable, oldValue, newValue) -> applyFilters();
-
     private final Label infoLabel = new Label();
     private final ProgressBar progressBar = new ProgressBar(0);
     private final Label progressLabel = new Label("0/0");
     private final StackPane stackPane = new StackPane(progressBar, progressLabel);
-
     private final HBox buttons = new HBox(5, addFilter, addFrequencyFilters, infoLabel, stackPane);
-
     private final ObservableList<String> infos = FXCollections.observableArrayList();
+    private ObservableList<Variant> inputVariants = FXCollections.observableArrayList();
+    private final ChangeListener<Object> applyFilters = (observable, oldValue, newValue) -> applyFilters();
     private final ListChangeListener<Variant> variantsChangedListener = (ListChangeListener<Variant>) c -> applyFilters();
-    private final static String[] FREQUENCY_IDS = {"AA_F", "EUR_F", "AFR_F", "AMR_F", "EA_F", "ASN_F",
-            "AA_MAF", "EUR_MAF", "AFR_MAF", "AMR_MAF", "EA_MAF", "ASN_MAF",
-            "afr_maf", "eur_maf", "amr_maf", "ea_maf", "asn_maf", "GMAF", "1KG14"};
 
     public FilterList() {
         Arrays.sort(FREQUENCY_IDS);
@@ -166,9 +164,11 @@ public class FilterList extends VBox {
 
     private void setProgress(int filtered, int total) {
         double progress = (double) filtered / total;
-        infoLabel.setText(String.format("%,d / %,d", filtered, total));
-        progressLabel.setText(String.format("%.2f%%", progress * 100.0));
-        progressBar.setProgress(progress);
+        Platform.runLater(() -> {
+            infoLabel.setText(String.format("%,d / %,d", filtered, total));
+            progressLabel.setText(String.format("%.2f%%", progress * 100.0));
+            progressBar.setProgress(progress);
+        });
     }
 
     private boolean pass(Variant variant) {

@@ -58,9 +58,8 @@ public class VcfCombineTask extends Task<VcfFile> {
             if (reference == null) return null;
             size = reference.getVariants().size();
             final List<Variant> variants = reference.getVariants().stream().filter(this::filter).collect(Collectors.toList());
-            final VcfFile vcfFile = new VcfFile();
+            final VcfFile vcfFile = new VcfFile(reference.getVcfFile().getHeader());
             vcfFile.getVariants().setAll(variants);
-//            variants.forEach(variant -> variant.setTemp(variant.toString(variant.getInfo())));
             return vcfFile;
         }catch (Exception e){
             e.printStackTrace();

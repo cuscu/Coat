@@ -149,7 +149,7 @@ public class VcfFilter {
                 break;
             case INFO:
                 if (info == null) return true;
-                stringValue = (String) variant.getInfo(info);
+                stringValue = (String) variant.getInfo().getInfo(info);
 
 
 ////                Map<String, Object> map = variant.getInfoValues();
@@ -220,9 +220,9 @@ public class VcfFilter {
                 if (stringValue != null) return stringValue.matches(value);
                 break;
             case PRESENT:
-                return variant.getInfo(info) != null;
+                return variant.getInfo().getInfo(info) != null;
             case NOT_PRESENT:
-                return variant.getInfo(info) == null;
+                return variant.getInfo().getInfo(info) == null;
         }
         return strictProperty.getValue();
     }

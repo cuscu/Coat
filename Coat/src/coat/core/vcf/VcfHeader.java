@@ -1,23 +1,21 @@
-/******************************************************************************
- * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
- * This program is free software: you can redistribute it and/or modify it    *
- * under the terms of the GNU General Public License as published by the      *
- * Free Software Foundation, either version 3 of the License, or (at your     *
- * option) any later version.                                                 *
- *                                                                            *
- * This program is distributed in the hope that it will be useful, but        *
- * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
- * See the GNU General Public License for more details.                       *
- *                                                                            *
- * You should have received a copy of the GNU General Public License          *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
- ******************************************************************************/
+/*
+ * Copyright (c) UICHUIMI 2016
+ *
+ * This file is part of Coat.
+ *
+ * Coat is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * Coat is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Foobar.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package coat.core.vcf;
-
-import coat.core.Dictionary;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -25,6 +23,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
+ * Stores headers of Variant Call Format Version 4.2.
+ *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class VcfHeader {
@@ -32,16 +32,15 @@ public class VcfHeader {
     private static final Pattern META_LINE = Pattern.compile("##([^=]+)=(.+)");
     private static final Pattern META_LINE_CONTENT = Pattern.compile("<(.*)>");
     private static final Pattern FIELDS_LINE = Pattern.compile("#CHROM(.*)");
-
     private final Map<String, List<Map<String, String>>> complexHeaders = new TreeMap<>();
     private final Map<String, String> singleHeaders = new TreeMap<>();
-
     private final List<String> samples = new ArrayList<>();
 
-
-    private Dictionary infoDictionary = new Dictionary();
-    private Dictionary formatDictionary = new Dictionary();
-
+    /**
+     * Adds a header line
+     *
+     * @param line
+     */
     public void addHeader(String line) {
         final Matcher metaLine = META_LINE.matcher(line);
         if (metaLine.matches()) addMetaLine(metaLine);
@@ -60,9 +59,8 @@ public class VcfHeader {
         complexHeaders.putIfAbsent(key, new ArrayList<>());
         final List<Map<String, String>> headers = complexHeaders.get(key);
         final Map<String, String> map = MapGenerator.parse(value);
-        if (!headerContainsId(key, headers)){
+        if (!headerContainsId(key, headers)) {
             headers.add(map);
-            if (key.equals("INFO")) addInfo(map.get("ID"));
         }
     }
 
@@ -156,31 +154,4 @@ public class VcfHeader {
     }
 
 
-    public int addInfo(String key) {
-        return infoDictionary.addWord(key);
-    }
-
-    public int addFormat(String id) {
-        return formatDictionary.addWord(id);
-    }
-
-    public int getFormatIndex(String id) {
-        return formatDictionary.getCode(id);
-    }
-
-    public int getInfoIndex(String id) {
-        return infoDictionary.getCode(id);
-    }
-
-    public String getInfo(int code) {
-        return infoDictionary.getWord(code);
-    }
-
-    public String getFormat(int code) {
-        return formatDictionary.getWord(code);
-    }
-
-    public List<String> getFormats() {
-        return formatDictionary.getWordList();
-    }
 }

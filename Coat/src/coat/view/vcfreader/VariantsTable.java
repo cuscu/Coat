@@ -1,16 +1,16 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
+ * *
  * This program is free software: you can redistribute it and/or modify it    *
  * under the terms of the GNU General Public License as published by the      *
  * Free Software Foundation, either version 3 of the License, or (at your     *
  * option) any later version.                                                 *
- *                                                                            *
+ * *
  * This program is distributed in the hope that it will be useful, but        *
  * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
  * See the GNU General Public License for more details.                       *
- *                                                                            *
+ * *
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
@@ -84,7 +84,6 @@ public class VariantsTable extends VBox {
 
     private void initTable() {
         VBox.setVgrow(table, Priority.ALWAYS);
-//        table.getColumns().addAll(lineNumber, chrom, position, variant, rsId, geneColumn, qual);
         table.getColumns().addAll(chrom, position, geneColumn, variant, rsId, qual);
         table.getColumns().forEach(column -> column.setSortable(false));
         chrom.getStyleClass().add("first-column");
@@ -119,8 +118,8 @@ public class VariantsTable extends VBox {
         if (variant.getRef().contains(searchValue)) return true;
         if (variant.getAlt().contains(searchValue)) return true;
         if (variant.getFilter().contains(searchValue)) return true;
-        return variant.getInfo("SYMBOL") != null && ((String) variant.getInfo("SYMBOL")).toLowerCase().contains(searchValue);
-        //        return Arrays.stream(variant.getInfoValues()).filter(s -> s != null).anyMatch(s1 -> s1.toLowerCase().contains(searchValue));
+        if (variant.getInfo().hasInfo("SYMBOL")) return variant.getInfo().getInfo("SYMBOL").toString().toLowerCase().contains(searchValue);
+        return variant.getInfo().hasInfo("GNAME") && variant.getInfo().getInfo("GNAME").toString().toLowerCase().contains(searchValue);
     }
 
     private void setTableCellFactories() {
@@ -136,7 +135,7 @@ public class VariantsTable extends VBox {
         qual.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getQual() + ""));
         position.setCellValueFactory(param
                 -> new SimpleStringProperty(String.format("%,d", param.getValue().getPos())));
-        geneColumn.setCellValueFactory(param -> new SimpleStringProperty((String) param.getValue().getInfo("SYMBOL")));
+        geneColumn.setCellValueFactory(param -> new SimpleStringProperty((String) param.getValue().getInfo().getInfo(param.getValue().getInfo().hasInfo("SYMBOL") ? "SYMBOL" : "GNAME")));
     }
 
     private void setTableColumnWidths() {
@@ -186,14 +185,6 @@ public class VariantsTable extends VBox {
         return table.getSelectionModel().selectedItemProperty();
     }
 
-    public void setVariants(ObservableList<Variant> variants) {
-        table.getItems().removeListener(progressInfoUpdater);
-        table.setItems(variants);
-        table.getItems().addListener(progressInfoUpdater);
-        tableHasChanged();
-        table.getSelectionModel().select(0);
-    }
-
     private void selectVariant() {
         try {
             String cChromosome = currentChromosome.getValue();
@@ -217,6 +208,7 @@ public class VariantsTable extends VBox {
     }
 
     private void updateChromosomeComboBox() {
+        if (table.getItems().isEmpty()) return;
         final List<String> list = table.getItems().stream()
                 .map(Variant::getChrom)
                 .distinct()
@@ -226,5 +218,13 @@ public class VariantsTable extends VBox {
 
     public ObservableList<Variant> getVariants() {
         return table.getItems();
+    }
+
+    public void setVariants(ObservableList<Variant> variants) {
+        table.getItems().removeListener(progressInfoUpdater);
+        table.setItems(variants);
+        table.getItems().addListener(progressInfoUpdater);
+        tableHasChanged();
+        table.getSelectionModel().select(0);
     }
 }

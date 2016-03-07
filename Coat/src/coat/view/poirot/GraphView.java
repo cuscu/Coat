@@ -545,7 +545,7 @@ class GraphView extends Canvas {
     private List<String> getConsequences(List<Variant> variants) {
         List<String> consequences = new ArrayList<>();
         variants.forEach(variant -> {
-            final String cons = (String) variant.getInfo("CONS");
+            final String cons = (String) variant.getInfo().getInfo("CONS");
             if (cons != null) Collections.addAll(consequences, cons.split(","));
         });
         return consequences;

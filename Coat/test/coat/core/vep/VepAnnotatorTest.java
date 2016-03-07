@@ -45,7 +45,7 @@ public class VepAnnotatorTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Assert.assertEquals("processed_transcript", variant.getInfo("BIO"));
+        Assert.assertEquals("processed_transcript", variant.getInfo().getInfo("BIO"));
 
     }
 }

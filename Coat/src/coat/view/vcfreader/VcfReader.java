@@ -132,9 +132,9 @@ public class VcfReader extends VBox implements Reader {
     private void initializeButtons() {
         Button viewheaders = getViewHeadersButton();
         Button lfs = getLfsButton();
-        Button vep = getVepButton();
+//        Button vep = getVepButton();
         Button statsButton = getStatsButton();
-        actions.addAll(Arrays.asList(viewheaders, vep, lfs, statsButton));
+        actions.addAll(Arrays.asList(viewheaders, lfs, statsButton));
     }
 
     private Button getViewHeadersButton() {

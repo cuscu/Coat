@@ -1,24 +1,23 @@
-/******************************************************************************
- * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
- * This program is free software: you can redistribute it and/or modify it    *
- * under the terms of the GNU General Public License as published by the      *
- * Free Software Foundation, either version 3 of the License, or (at your     *
- * option) any later version.                                                 *
- *                                                                            *
- * This program is distributed in the hope that it will be useful, but        *
- * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
- * See the GNU General Public License for more details.                       *
- *                                                                            *
- * You should have received a copy of the GNU General Public License          *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
- ******************************************************************************/
+/*
+ * Copyright (c) UICHUIMI 2016
+ *
+ * This file is part of Coat.
+ *
+ * Coat is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * Coat is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Foobar.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package coat.core.variant;
 
 import coat.core.vcf.VcfFile;
-import coat.utils.OS;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -27,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
+ * @author Lorente-Arencibia Pascual (pasculorente@gmail.com)
  */
 public class VariantTest {
 
@@ -52,9 +51,7 @@ public class VariantTest {
 
     @Test
     public void testVcfFile() {
-        for (Variant variant : file.getVariants()) {
-            Assert.assertEquals(file, variant.getVcfFile());
-        }
+        for (Variant variant : file.getVariants()) Assert.assertEquals(file, variant.getVcfFile());
     }
 
     @Test
@@ -115,16 +112,14 @@ public class VariantTest {
 
     @Test
     public void testInfo() {
-
         final Map<String, Object[]> values = new HashMap<>();
         values.put("AC", new String[]{"1", "2", "1", "1", "1", "2", "2", "2", "2", "2", "2", "2", "2", "1", "1"});
         values.put("AF", new String[]{"0.500", "1.00", "0.500", "0.500", "0.500", "1.00", "1.00", "1.00", "1.00", "1.00", "1.00", "1.00", "1.00", "0.500", "0.500"});
         values.put("AN", new String[]{"2", "2", "2", "2", "2", "2", "2", "2", "2", "2", "2", "2", "2", "2", "2"});
-        final String trueValue = OS.getString("true");
-        values.put("DB", new String[]{null, trueValue, null, null, null, null, trueValue, trueValue, trueValue, trueValue, trueValue, trueValue, null, null, null});
+        values.put("DB", new Boolean[]{null, true, null, null, null, null, true, true, true, true, true, true, null, null, null});
         for (Map.Entry<String, Object[]> entry : values.entrySet()) {
             for (int i = 0; i < entry.getValue().length; i++) {
-                Assert.assertEquals(entry.getValue()[i], file.getVariants().get(i).getInfo(entry.getKey()));
+                Assert.assertEquals(entry.getValue()[i], file.getVariants().get(i).getInfo().getInfo(entry.getKey()));
             }
         }
     }
@@ -139,7 +134,7 @@ public class VariantTest {
         values.put("PL", new String[]{"153,0,428", "1621,176,0", "147,0,89", "96,0,334", "98,0,308", "68,6,0", "113,9,0", "219,18,0", "1257,114,0", "469,45,0", "90,6,0", "90,6,0", "86,9,0", "696,0,1021", "104,0,25"});
         for (Map.Entry<String, Object[]> entry : values.entrySet()) {
             for (int i = 0; i < entry.getValue().length; i++) {
-                Assert.assertEquals(entry.getValue()[i], file.getVariants().get(i).getFormat("sample01", entry.getKey()));
+                Assert.assertEquals(entry.getValue()[i], file.getVariants().get(i).getSamples().getFormat(file.getHeader().getSampleIndex("sample01"), entry.getKey()));
             }
         }
     }
@@ -174,15 +169,8 @@ public class VariantTest {
     @Test
     public void testAddInfo() {
         final Variant variant = file.getVariants().get(0);
-        variant.setInfo("DP", "23");
-        Assert.assertEquals("23", variant.getInfo("DP"));
-    }
-
-    @Test
-    public void testAddInvalidInfo() {
-        final Variant variant = file.getVariants().get(0);
-        variant.setInfo("jjj", "23");
-        Assert.assertNull(variant.getInfo("jjj"));
+        variant.getInfo().setInfo("DP", "23");
+        Assert.assertEquals("23", variant.getInfo().getInfo("DP"));
     }
 
 }

@@ -120,7 +120,7 @@ class FilterCell extends ListCell<VcfFilter> {
             final String infoValue = info.getText();
             if (infoValue != null) {
                 final List<String> valueList = variants.stream()
-                        .map(variant -> (String) variant.getInfo(infoValue))
+                        .map(variant -> (String) variant.getInfo().getInfo(infoValue))
                         .filter(val -> val != null)
                         .distinct()
                         .collect(Collectors.toList());

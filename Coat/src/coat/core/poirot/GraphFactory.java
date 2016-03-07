@@ -72,7 +72,7 @@ public class GraphFactory extends Task<PearlGraph> {
 
     private void addInitialGenes() {
         variants.stream().forEachOrdered(variant -> {
-            String gene = (String) variant.getInfo("SYMBOL");
+            String gene = (String) variant.getInfo().getInfo("SYMBOL");
             if (gene != null) addVariantGeneToDatabase(variant, gene);
         });
         leafGenes.addAll(pearlGraph.getPearls(Pearl.Type.GENE));

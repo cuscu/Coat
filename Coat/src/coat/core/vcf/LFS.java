@@ -176,7 +176,7 @@ public class LFS {
     public static void addLFS(Variant variant) {
         try {
 //            Map<String, Object> infos = variant.getInfoValues();
-            String codons = (String) variant.getInfo("COD");
+            String codons = (String) variant.getInfo().getInfo("COD");
             if (codons != null) {
                 String[] cods = codons.split("[/-]");
                 // Only supports 2 structures: aaT/aaC and tta-Gta

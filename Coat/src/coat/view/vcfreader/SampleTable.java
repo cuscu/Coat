@@ -1,16 +1,16 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
+ * *
  * This program is free software: you can redistribute it and/or modify it    *
  * under the terms of the GNU General Public License as published by the      *
  * Free Software Foundation, either version 3 of the License, or (at your     *
  * option) any later version.                                                 *
- *                                                                            *
+ * *
  * This program is distributed in the hope that it will be useful, but        *
  * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
  * See the GNU General Public License for more details.                       *
- *                                                                            *
+ * *
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
@@ -36,11 +36,10 @@ public class SampleTable extends TableView<String[]> {
         if (variant == null) return;
         final List<String> sampleNames = variant.getVcfFile().getHeader().getSamples();
         final List<String> formats = variant.getVcfFile().getHeader().getIdList("FORMAT");
-        for (String name : sampleNames) {
+        for (int sampleIndex = 0; sampleIndex < sampleNames.size(); sampleIndex++) {
             final String[] row = new String[formats.size() + 1];
-            row[0] = name;
-            for (int i = 0; i < formats.size(); i++) row[1 + i] = (String) variant.getFormat(name, formats.get(i));
-//            for (int i = 0; i < formats.size(); i++) row[1 + i] = variant.getSampleValue(name, formats.get(i));
+            row[0] = sampleNames.get(sampleIndex);
+            for (int i = 0; i < formats.size(); i++) row[i + 1] = variant.getSamples().getFormat(sampleIndex, formats.get(i));
             getItems().add(row);
         }
     }

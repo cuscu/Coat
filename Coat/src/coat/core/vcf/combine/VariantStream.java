@@ -18,6 +18,7 @@
 package coat.core.vcf.combine;
 
 import coat.core.variant.Variant;
+import coat.core.variant.VariantFactory;
 import coat.core.vcf.VcfFile;
 import coat.core.vcf.VcfHeader;
 import coat.view.vcfreader.VcfSample;
@@ -78,7 +79,7 @@ public class VariantStream {
         try {
             while ((line = reader.readLine()) != null) {
                 if (!line.startsWith("#")) {
-                    variant = new Variant(line, vcfFile);
+                    variant = VariantFactory.createVariant(line, vcfFile);
                     break;
                 }
             }
@@ -104,7 +105,7 @@ public class VariantStream {
 
     public List<Variant> getVariants() {
         try (BufferedReader reader = new BufferedReader(new FileReader(vcfSample.getVcfFile()))) {
-            return reader.lines().filter(line -> !line.startsWith("#")).map(s -> new Variant(s, vcfFile)).collect(Collectors.toList());
+            return reader.lines().filter(line -> !line.startsWith("#")).map(s -> VariantFactory.createVariant(s, vcfFile)).collect(Collectors.toList());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -131,7 +132,7 @@ public class VariantStream {
     }
 
     private void addMistInfo(Variant variant) {
-        variant.setInfo("MistZone", Variant.TRUE);
+        variant.getInfo().setInfo("MistZone", true);
     }
 
     private String[] nextMistRegion() {
@@ -175,7 +176,7 @@ public class VariantStream {
         try {
             final Variant v = variant;
             final String line = reader.readLine();
-            variant = (line == null) ? null : new Variant(line, vcfFile);
+            variant = (line == null) ? null : VariantFactory.createVariant(line, vcfFile);
             return v;
         } catch (IOException e) {
             e.printStackTrace();
