@@ -18,6 +18,7 @@
 package coat.view.vcfreader;
 
 import coat.core.variant.Variant;
+import coat.core.vcf.VcfFile;
 import coat.utils.OS;
 import coat.view.graphic.IndexCell;
 import coat.view.graphic.NaturalCell;
@@ -35,6 +36,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Locale;
@@ -58,7 +60,6 @@ public class VariantsTable extends VBox {
     private final TableColumn<Variant, String> rsId = new TableColumn<>("ID");
     private final TableColumn<Variant, String> qual
             = new TableColumn<>(OS.getResources().getString("quality"));
-    private final TableColumn<Variant, String> geneColumn = new TableColumn<>(OS.getResources().getString("gene"));
 
     private final ComboBox<String> currentChromosome = new ComboBox<>();
     private final TextField currentPosition = new TextField();
@@ -84,7 +85,7 @@ public class VariantsTable extends VBox {
 
     private void initTable() {
         VBox.setVgrow(table, Priority.ALWAYS);
-        table.getColumns().addAll(chrom, position, geneColumn, variant, rsId, qual);
+        table.getColumns().addAll(chrom, position, variant, rsId, qual);
         table.getColumns().forEach(column -> column.setSortable(false));
         chrom.getStyleClass().add("first-column");
         setTableCellFactories();
@@ -96,30 +97,39 @@ public class VariantsTable extends VBox {
 
     private void initSearchBox() {
         searchBox.setPromptText(OS.getResources().getString("search"));
-//        searchBox.setMaxWidth(200);
         searchBox.getStyleClass().add("fancy-text-field");
         searchBox.setOnAction(event -> search(table.getSelectionModel().getSelectedIndex()));
     }
 
     private void search(int from) {
+        if (searchBox.getText().isEmpty()) return;
         if (from < -1) from = -1;
         for (int i = 0; i < table.getItems().size(); i++) {
             int index = (i + from + 1) % table.getItems().size();
             final Variant variant = table.getItems().get(index);
-            if (mathces(variant, searchBox.getText().toLowerCase())) {
+            if (matches(variant, searchBox.getText().toLowerCase())) {
                 select(table.getItems().get(index));
                 break;
             }
         }
     }
 
-    private boolean mathces(Variant variant, String searchValue) {
-        if (variant.getChrom().contains(searchValue)) return true;
-        if (variant.getRef().contains(searchValue)) return true;
-        if (variant.getAlt().contains(searchValue)) return true;
-        if (variant.getFilter().contains(searchValue)) return true;
-        if (variant.getInfo().hasInfo("SYMBOL")) return variant.getInfo().getInfo("SYMBOL").toString().toLowerCase().contains(searchValue);
-        return variant.getInfo().hasInfo("GNAME") && variant.getInfo().getInfo("GNAME").toString().toLowerCase().contains(searchValue);
+    private boolean matches(Variant variant, String searchValue) {
+        for (TableColumn column : table.getColumns()) {
+            if (column.isVisible()) {
+                if (column.getCellObservableValue(variant) == null) return false;
+                String value = String.valueOf(column.getCellObservableValue(variant).getValue());
+                if (value.toLowerCase().contains(searchValue.toLowerCase())) return true;
+            }
+        }
+        return false;
+//        if (variant.getChrom().contains(searchValue)) return true;
+//        if (variant.getRef().contains(searchValue)) return true;
+//        if (variant.getAlt().contains(searchValue)) return true;
+//        if (variant.getFilter().contains(searchValue)) return true;
+//        if (variant.getInfo().hasInfo("SYMBOL"))
+//            return variant.getInfo().getInfo("SYMBOL").toString().toLowerCase().contains(searchValue);
+//        return variant.getInfo().hasInfo("GNAME") && variant.getInfo().getInfo("GNAME").toString().toLowerCase().contains(searchValue);
     }
 
     private void setTableCellFactories() {
@@ -135,7 +145,7 @@ public class VariantsTable extends VBox {
         qual.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getQual() + ""));
         position.setCellValueFactory(param
                 -> new SimpleStringProperty(String.format("%,d", param.getValue().getPos())));
-        geneColumn.setCellValueFactory(param -> new SimpleStringProperty((String) param.getValue().getInfo().getInfo(param.getValue().getInfo().hasInfo("SYMBOL") ? "SYMBOL" : "GNAME")));
+//        geneColumn.setCellValueFactory(param -> new SimpleStringProperty((String) param.getValue().getInfo().getInfo(param.getValue().getInfo().hasInfo("SYMBOL") ? "SYMBOL" : "GNAME")));
     }
 
     private void setTableColumnWidths() {
@@ -226,5 +236,20 @@ public class VariantsTable extends VBox {
         table.getItems().addListener(progressInfoUpdater);
         tableHasChanged();
         table.getSelectionModel().select(0);
+        redoColumns(variants.get(0).getVcfFile());
+    }
+
+    private void redoColumns(VcfFile vcfFile) {
+        table.getColumns().setAll(chrom, position, variant, rsId, qual);
+        vcfFile.getHeader().getIdList("INFO").stream().map(this::createInfoColumn).forEach(table.getColumns()::add);
+    }
+
+    @NotNull
+    private TableColumn<Variant, String> createInfoColumn(String info) {
+        final TableColumn<Variant, String> column = new TableColumn<>(info);
+        column.setCellValueFactory(param -> new SimpleStringProperty(
+                param.getValue().getInfo().hasInfo(info) ? param.getValue().getInfo().getInfo(info).toString() : ""));
+        column.setVisible(info.matches("GNAME|SYMBOL"));
+        return column;
     }
 }

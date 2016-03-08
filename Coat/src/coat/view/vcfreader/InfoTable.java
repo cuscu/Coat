@@ -75,7 +75,7 @@ public class InfoTable extends VBox {
     }
 
     private void initShowAll() {
-        showAllCheckBox.setSelected(true);
+        showAllCheckBox.setSelected(false);
         showAllCheckBox.setOnAction(event -> updateTable());
         showAllCheckBox.setPadding(new Insets(5));
     }
