@@ -220,7 +220,6 @@ public class OmimRetriever {
         final String mappingMethod = geneMap.getString("mappingMethod");
         final long geneId = addNewGene(name, title, dateUpdated, confidence, mappingMethod);
         if (geneMap.containsKey("phenotypeMapList")) addRelatePhenotypes(mimEntry, geneMap, geneId);
-        //        addGeneToSqLite(mimEntry[3], result);
 
     }
 

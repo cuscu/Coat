@@ -20,110 +20,47 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import java.io.File;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class PoirotDatabaseUpdater {
 
-//    private Connection connection;
 
     private GraphDatabaseService graphDatabase;
 
     public void start() {
-//        connection = createConnection();
         graphDatabase = new GraphDatabaseFactory().newEmbeddedDatabase(new File("graphDatabase"));
-//        registerShutdownHook();
-//        createStructure();
+        shutdownWithSystem(graphDatabase);
         performSomeTasks();
         closeConnection();
     }
 
-    private void registerShutdownHook() {
-        Runtime.getRuntime().addShutdownHook(new Thread(){
-            @Override
-            public void run() {
-                graphDatabase.shutdown();
-            }
-        });
-    }
-
-//    private Connection createConnection() {
-//        createDatabaseIfNotExists();
-//        try {
-//            Class.forName("org.sqlite.JDBC");
-//            return DriverManager.getConnection("jdbc:sqlite:poirot.sqlite");
-//        } catch (ClassNotFoundException | SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-//
-//    private void createDatabaseIfNotExists() {
-//        try {
-//            final File file = new File("poirot.sqlite");
-//            if (!file.exists()) file.createNewFile();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-//    private void createStructure() {
-//        try {
-//            final Statement statement = connection.createStatement();
-//            statement.addBatch("CREATE TABLE IF NOT EXISTS Genes (" +
-//                    "id INTEGER NOT NULL PRIMARY KEY," +
-//                    "name UNIQUE" +
-//                    ")");
-//            statement.addBatch("CREATE TABLE IF NOT EXISTS Phenotypes (" +
-//                    "id INTEGER NOT NULL PRIMARY KEY," +
-//                    "name UNIQUE," +
-//                    "database TEXT," +
-//                    "database_id TEXT," +
-//                    "status TEXT," +
-//                    "date_updated TEXT" +
-//                    ")");
-//            statement.addBatch("CREATE TABLE IF NOT EXISTS Gene2Phenotype (" +
-//                    "id INTEGER NOT NULL PRIMARY KEY," +
-//                    "gene_id INTEGER," +
-//                    "phenotype_id INTEGER," +
-//                    "database TEXT," +
-//                    "database_id TEXT," +
-//                    "status TEXT" +
-//                    ")");
-//            statement.executeBatch();
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
     private void performSomeTasks() {
-        addOmimData();
+//        addOmimData();
         addBioGridData();
     }
 
     private void addOmimData() {
         final OmimNeo omimNeo = new OmimNeo(graphDatabase);
         omimNeo.start();
-//        new OmimRetriever().updateData(connection, graphDatabase);
     }
 
     private void addBioGridData() {
-//        new BioGridRetriever().updateData(connection);
+        BioGridNeo.update(graphDatabase);
     }
 
     private void closeConnection() {
-//        try {
-//            connection.close();
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
         graphDatabase.shutdown();
+    }
+
+    private void shutdownWithSystem(final GraphDatabaseService databaseService) {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public synchronized void start() {
+                if (databaseService.isAvailable(1000)) databaseService.shutdown();
+            }
+        });
     }
 
 }

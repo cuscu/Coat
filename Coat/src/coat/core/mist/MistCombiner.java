@@ -100,8 +100,10 @@ public class MistCombiner extends Task<Integer> {
     private Map<String, String[]> readExons(File file) {
         final Map<String, String[]> exons = new LinkedHashMap<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            reader.readLine(); // header line
-            reader.lines().forEach(line -> storeExonLine(exons, line));
+            reader.lines()
+                    .filter(line -> !line.startsWith("#"))
+                    .filter(line -> !line.startsWith("chrom"))
+                    .forEach(line -> storeExonLine(exons, line));
         } catch (IOException ex) {
             Logger.getLogger(MistCombiner.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -125,14 +127,16 @@ public class MistCombiner extends Task<Integer> {
      * @return a Set with all unique identifiers
      */
     private Set<String> readExonIDs(File file) {
-        final Set<String> ids = new TreeSet<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            reader.readLine();
-            reader.lines().forEach(line -> ids.add(line.split("\t")[ID_COLUMN]));
+            return reader.lines()
+                    .filter(line -> !line.startsWith("#"))
+                    .filter(line -> !line.startsWith("chrom"))
+                    .map(line -> line.split("\t")[ID_COLUMN])
+                    .collect(Collectors.toSet());
         } catch (IOException ex) {
             Logger.getLogger(MistCombiner.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return ids;
+        return Collections.emptySet();
     }
 
     private void saveToFile(Map<String, String[]> exons) {
@@ -154,16 +158,16 @@ public class MistCombiner extends Task<Integer> {
     }
 
     private void writeToFile(BufferedWriter bw, String[] row) throws IOException {
-        bw.write(arrayToString(row));
+        bw.write(OS.asString(row));
         bw.newLine();
     }
 
-    private String arrayToString(String[] array) {
-        if (array.length == 0) return "";
-        String ret = array[0];
-        for (int i = 1; i < array.length; i++) ret += "\t" + array[i];
-        return ret;
-    }
+//    private String arrayToString(String[] array) {
+//        if (array.length == 0) return "";
+//        String ret = array[0];
+//        for (int i = 1; i < array.length; i++) ret += "\t" + array[i];
+//        return ret;
+//    }
 
 
 }

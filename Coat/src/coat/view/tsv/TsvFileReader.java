@@ -63,7 +63,7 @@ public class TsvFileReader extends VBox implements Reader {
     private final AtomicInteger currentLines = new AtomicInteger();
     private Property<String> titleProperty = new SimpleStringProperty();
 
-    private String[] headers;
+    private String[] headers = null;
 
     public TsvFileReader(File file) {
         this.file = file;
@@ -92,9 +92,18 @@ public class TsvFileReader extends VBox implements Reader {
 
     private void loadFile() {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            headers = reader.readLine().split("\t");
+            // skip # lines
+            String line = reader.readLine();
+            while (line.startsWith("#")) {
+                if (line.startsWith("#chrom")){
+                    headers = line.substring(1).split("\t");
+                    break;
+                }
+                line = reader.readLine();
+            }
+            if (headers == null) headers = line.split("\t");
             generateColumns();
-            reader.lines().forEachOrdered(line -> table.getItems().add(line.split("\t")));
+            reader.lines().forEachOrdered(line1 -> table.getItems().add(line1.split("\t")));
             totalLines.set(table.getItems().size());
             currentLines.set(totalLines.get());
         } catch (Exception e) {

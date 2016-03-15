@@ -17,11 +17,16 @@
 package coat.core.poirot.database;
 
 import coat.core.poirot.dataset.PoirotDatabaseUpdater;
+import coat.core.poirot.dataset.graph.PoirotGraphLabels;
 import org.junit.Test;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import java.io.File;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
@@ -30,14 +35,14 @@ public class PoirotDatabaseUpdaterTest {
 
     @Test
     public void test() {
-//        new DatabaseGenerator().start();
-        clearDatabase();
+//        clearDatabase();
         populateDatabase();
         testDatabase();
     }
 
     private void clearDatabase() {
         final GraphDatabaseService databaseService = new GraphDatabaseFactory().newEmbeddedDatabase(new File("graphDatabase"));
+        shutdownWithSystem(databaseService);
         try (Transaction transaction = databaseService.beginTx()) {
             databaseService.getAllNodes().forEach((node) -> {
                 node.getRelationships().forEach(Relationship::delete);
@@ -54,14 +59,46 @@ public class PoirotDatabaseUpdaterTest {
 
     private void testDatabase() {
         final GraphDatabaseService databaseService = new GraphDatabaseFactory().newEmbeddedDatabase(new File("graphDatabase"));
+        shutdownWithSystem(databaseService);
         // Check
         try (Transaction transaction = databaseService.beginTx()) {
-            ResourceIterable<Node> nodes = databaseService.getAllNodes();
-            nodes.forEach((node) -> System.out.println(node + " " +node.getLabels() + ":" + node.getAllProperties()));
-            ResourceIterable<Relationship> allRelationships = databaseService.getAllRelationships();
-            allRelationships.forEach((x) -> System.out.println(x + " " + x.getAllProperties()));
+            final AtomicInteger phenotypeCounter = new AtomicInteger();
+            final AtomicInteger geneCount = new AtomicInteger();
+            final AtomicInteger diseaseCount = new AtomicInteger();
+            final AtomicInteger tissueCount = new AtomicInteger();
+            final AtomicInteger relationshipCount = new AtomicInteger();
+            databaseService.findNodes(PoirotGraphLabels.GENE).forEachRemaining(node -> {
+                geneCount.incrementAndGet();
+                node.getRelationships(Direction.OUTGOING).forEach(relationship -> relationshipCount.incrementAndGet());
+            });
+            databaseService.findNodes(PoirotGraphLabels.PHENOTYPE).forEachRemaining(node -> {
+                phenotypeCounter.incrementAndGet();
+                node.getRelationships(Direction.OUTGOING).forEach(relationship -> relationshipCount.incrementAndGet());
+            });
+            databaseService.findNodes(PoirotGraphLabels.DISEASE).forEachRemaining(node -> {
+                diseaseCount.incrementAndGet();
+                node.getRelationships(Direction.OUTGOING).forEach(relationship -> relationshipCount.incrementAndGet());
+            });
+            databaseService.findNodes(PoirotGraphLabels.TISSUE).forEachRemaining(node -> {
+                tissueCount.incrementAndGet();
+                node.getRelationships(Direction.OUTGOING).forEach(relationship -> relationshipCount.incrementAndGet());
+            });
+            System.out.println("Genes: " + geneCount.toString());
+            System.out.println("Phenotypes: " + phenotypeCounter.toString());
+            System.out.println("Diseases: " + diseaseCount.toString());
+            System.out.println("Tissues: " + tissueCount.toString());
+            System.out.println("Relationships: " + relationshipCount.toString());
             transaction.success();
         }
         databaseService.shutdown();
+    }
+
+    private void shutdownWithSystem(final GraphDatabaseService databaseService) {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public synchronized void start() {
+                if (databaseService.isAvailable(1000)) databaseService.shutdown();
+            }
+        });
     }
 }

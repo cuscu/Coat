@@ -20,6 +20,8 @@
  */
 package coat.core.poirot.dataset;
 
+import coat.utils.OS;
+
 /**
  * @author Lorente-Arencibia, Pascual (pasculorente@gmail.com)
  */
@@ -52,5 +54,8 @@ public class OmimEntry {
         return values.length > 4 ? values[4] : null;
     }
 
-
+    @Override
+    public String toString() {
+        return "[" + OS.asString(",", values) + "]";
+    }
 }

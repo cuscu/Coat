@@ -161,7 +161,7 @@ public class VcfReader extends VBox implements Reader {
     }
 
     private Button getLfsButton() {
-        Button lfs = new Button("LFS");
+        final Button lfs = new Button("LFS");
         lfs.setOnAction(event -> addLFS());
         lfs.setGraphic(new SizableImage("coat/img/black/lfs.png", SizableImage.SMALL_SIZE));
         return lfs;

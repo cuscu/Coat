@@ -1,16 +1,16 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
+ * *
  * This program is free software: you can redistribute it and/or modify it    *
  * under the terms of the GNU General Public License as published by the      *
  * Free Software Foundation, either version 3 of the License, or (at your     *
  * option) any later version.                                                 *
- *                                                                            *
+ * *
  * This program is distributed in the hope that it will be useful, but        *
  * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
  * See the GNU General Public License for more details.                       *
- *                                                                            *
+ * *
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
@@ -21,7 +21,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.io.File;
+import java.text.DateFormat;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -32,6 +34,7 @@ import java.util.*;
  */
 public class OS {
 
+    private final static DateFormat df = new SimpleDateFormat("HH:mm:ss");
     private final static ResourceBundle resources = ResourceBundle.getBundle("coat.language.Texts");
 
     private static final ObservableList<String> standardChromosomes = FXCollections.observableArrayList();
@@ -71,19 +74,15 @@ public class OS {
      * Converts an Array to String using tab as separator. Omits the last separator. [value1 value2
      * value3] to value1,value2,value3
      *
-     * @param values    a list of values
+     * @param values a list of values
      * @return the stringified list
      */
     public static String asString(String... values) {
-        if (values.length == 0) {
-            return "";
-        }
-        String s = values[0];
-        int i = 1;
-        while (i < values.length) {
-            s += "\t" + values[i++];
-        }
-        return s;
+        return asString("\t", values);
+    }
+
+    public static String asString(String separator, String[] values) {
+        return asString(separator, Arrays.asList(values));
     }
 
     /**
@@ -95,15 +94,10 @@ public class OS {
      * @return the stringified list
      */
     public static String asString(String separator, List<String> values) {
-        if (values.isEmpty()) {
-            return "";
-        }
-        String s = "";
-        int i = 0;
-        while (i < values.size() - 1) {
-            s += values.get(i++) + separator;
-        }
-        return s + values.get(i);
+        if (values.isEmpty()) return "";
+        final StringBuilder builder = new StringBuilder(values.get(0));
+        for (int i = 1; i < values.size(); i++) builder.append(separator).append(values.get(i));
+        return builder.toString();
     }
 
     /**
@@ -151,21 +145,24 @@ public class OS {
     }
 
     /**
-     *
      * @param millis milliseconds
      * @return
      */
     public static String humanReadableTime(long millis) {
-        final long years = millis / 31536000000L;
-        millis = millis - years * 31536000000L;
-        final long days = millis / 86400000L;
-        millis = millis - days * 86400000L;
-        final long hours = millis / 3600000L;
-        millis = millis - hours * 3600000L;
-        final long minutes = millis / 60000L;
-        millis = millis - minutes * 60000L;
-        final long seconds = millis / 1000L;
-        millis = millis - seconds * 1000L;
-        return String.format("%d y, %d d, %d:%d:%d %d ms", years, days, hours, minutes, seconds, millis);
+//        final long years = millis / 31536000000L;
+//        millis = millis - years * 31536000000L;
+//        final long days = millis / 86400000L;
+//        millis = millis - days * 86400000L;
+//        final long hours = millis / 3600000L;
+//        millis = millis - hours * 3600000L;
+//        final long minutes = millis / 60000L;
+//        millis = millis - minutes * 60000L;
+//        final long seconds = millis / 1000L;
+//        millis = millis - seconds * 1000L;
+//        final StringBuilder builder = new StringBuilder();
+//        if (years > 0) builder.append(years).append(" y ");
+//        if (days > 0) builder.append(days).append(" d ");
+        return df.format(millis);
+//        return String.format("%d y, %d d, %d:%d:%d %d ms", years, days, hours, minutes, seconds, millis);
     }
 }

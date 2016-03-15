@@ -123,13 +123,6 @@ public class VariantsTable extends VBox {
             }
         }
         return false;
-//        if (variant.getChrom().contains(searchValue)) return true;
-//        if (variant.getRef().contains(searchValue)) return true;
-//        if (variant.getAlt().contains(searchValue)) return true;
-//        if (variant.getFilter().contains(searchValue)) return true;
-//        if (variant.getInfo().hasInfo("SYMBOL"))
-//            return variant.getInfo().getInfo("SYMBOL").toString().toLowerCase().contains(searchValue);
-//        return variant.getInfo().hasInfo("GNAME") && variant.getInfo().getInfo("GNAME").toString().toLowerCase().contains(searchValue);
     }
 
     private void setTableCellFactories() {
@@ -145,7 +138,6 @@ public class VariantsTable extends VBox {
         qual.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getQual() + ""));
         position.setCellValueFactory(param
                 -> new SimpleStringProperty(String.format("%,d", param.getValue().getPos())));
-//        geneColumn.setCellValueFactory(param -> new SimpleStringProperty((String) param.getValue().getInfo().getInfo(param.getValue().getInfo().hasInfo("SYMBOL") ? "SYMBOL" : "GNAME")));
     }
 
     private void setTableColumnWidths() {
@@ -236,7 +228,7 @@ public class VariantsTable extends VBox {
         table.getItems().addListener(progressInfoUpdater);
         tableHasChanged();
         table.getSelectionModel().select(0);
-        redoColumns(variants.get(0).getVcfFile());
+        if (!variants.isEmpty()) redoColumns(variants.get(0).getVcfFile());
     }
 
     private void redoColumns(VcfFile vcfFile) {

@@ -23,5 +23,8 @@ import org.neo4j.graphdb.RelationshipType;
  * @author Lorente-Arencibia, Pascual (pasculorente@gmail.com)
  */
 public enum PoirotGraphRelationships implements RelationshipType {
+    /**
+     * Gene to disease
+     */
     G2D
 }

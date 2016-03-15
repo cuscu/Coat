@@ -17,10 +17,13 @@
 
 package coat.core.poirot.dataset;
 
+import coat.Coat;
 import coat.core.poirot.dataset.graph.PoirotGraphLabels;
 import coat.core.poirot.dataset.graph.PoirotGraphRelationships;
 import coat.json.JSONArray;
 import coat.json.JSONObject;
+import coat.utils.OS;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -33,31 +36,55 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * Call <code>start()</code> to update the OMIM cache.
+ * <p>
  * Created by uichuimi on 29/02/16.
  */
 public class OmimNeo {
 
     private final static String BASE_URL = "http://api.europe.omim.org";
     private final static String API_KEY = "85BA467CB41C620BA51F185E7D81150AF619BE7A";
-
     private final static String MIM_LIST = "http://www.omim.org/static/omim/data/mim2gene.txt";
-    final Set<String> values = new HashSet<>();
-    private final AtomicInteger counter = new AtomicInteger();
+
+    private final static int MAX_MIM_NUMBERS = 20;
+
     private final GraphDatabaseService graphDatabase;
+    private long SYSTEM_EPOCH_UPDATED;
+    private long SESSION_EPOCH_UPDATE;
+
+    private long webTime = 0L;
+    private long processTime = 0L;
+
+    private int totalEntries;
+    private int processedEntries = 0;
 
     public OmimNeo(GraphDatabaseService graphDatabase) {
         this.graphDatabase = graphDatabase;
     }
 
     public void start() {
-        final List<OmimEntry> mimNumbers = readMimNumbers();
-        for (int i = 0; i < 200; i++) updateMimEntry(mimNumbers.get(i));
-        final List<String> toSort = new ArrayList<>(values);
+        System.out.println("Updating OMIM data...");
+        fetchLastOmimUpdate();
+        System.out.println("Downloading OMIM list...");
+        final List<OmimEntry> omimEntries = readMimNumbers();
+        totalEntries = omimEntries.size();
+        System.out.println("List updated");
+//        final List<Integer> toUpdate = getMimEntriesToUpdate(omimEntries);
+        update(omimEntries);
+        Coat.getProperties().setProperty("last_omim_epoch_update", String.valueOf(SESSION_EPOCH_UPDATE));
+        System.out.println("Updated to epoch: " + SESSION_EPOCH_UPDATE);
+    }
+
+    private void fetchLastOmimUpdate() {
+        final String last_omim_epoch_update = Coat.getProperties().getProperty("last_omim_epoch_update", "1457683200");
+        SYSTEM_EPOCH_UPDATED = Long.valueOf(last_omim_epoch_update);
+        SESSION_EPOCH_UPDATE = SYSTEM_EPOCH_UPDATED;
+        System.out.println("last system epoch: " + SYSTEM_EPOCH_UPDATED);
     }
 
     private List<OmimEntry> readMimNumbers() {
@@ -72,55 +99,71 @@ public class OmimNeo {
         return Collections.emptyList();
     }
 
-    private void updateMimEntry(OmimEntry mimEntry) {
-        if (!isInLocalDatabase(mimEntry)) {
-            final String result = getDataFromServer(mimEntry);
-//            System.out.println(result);
-            addEntry(mimEntry, result);
-//            addDataToDatabase(mimEntry, result);
-        }
 
+    private void update(List<OmimEntry> toUpdate) {
+        System.out.println(toUpdate.size() + " entries must be updated");
+        for (int i = 0; i < toUpdate.size(); i += MAX_MIM_NUMBERS) {
+            int to = i + MAX_MIM_NUMBERS;
+            if (to > toUpdate.size()) to = toUpdate.size();
+            final JSONObject root = fetchWholeEntries(toUpdate.subList(i, to));
+            addEntries(root);
+        }
     }
 
-    private boolean isInLocalDatabase(OmimEntry mimEntry) {
-        try (Transaction transaction = graphDatabase.beginTx()) {
-            final String id = "omim:" + mimEntry.getMimNumber();
-            switch (mimEntry.getType()) {
-                case "gene":
-                case "gene/phenotype":
-                    final Node geneNode = graphDatabase.findNode(PoirotGraphLabels.GENE, "id", id);
-                    return geneNode != null;
-                case "phenotype":
-                case "predominatly phenotypes":
-                    final Node diseaseNode = graphDatabase.findNode(PoirotGraphLabels.DISEASE, "id", id);
-                    return diseaseNode != null;
-                case "moved/removed":
-                    return true;
-                default:
-                    return false;
-            }
-        }
+    private JSONObject fetchWholeEntries(List<OmimEntry> omimEntryList) {
+        final StringBuilder builder = new StringBuilder(BASE_URL);
+        builder.append("/api/entry?include=dates,geneMap&format=json&apiKey=").append(API_KEY).append("&mimNumber=").append(omimEntryList.get(0).getMimNumber());
+        for (int i = 1; i < omimEntryList.size(); i++) builder.append(",").append(omimEntryList.get(i).getMimNumber());
+        return new JSONObject(getUrlResult(builder.toString()));
+    }
+
+    @NotNull
+    private String generateId(String mimNumber) {
+        return "omim:" + mimNumber;
     }
 
     @Nullable
-    private String getDataFromServer(OmimEntry mimEntry) {
-        if (counter.incrementAndGet() % 100 == 0) System.out.println(counter.get() + "\t" + mimEntry.getMimNumber());
+    private String getUrlResult(String textUrl) {
+        long startTime = System.currentTimeMillis();
         String result = null;
         try {
-            final String textUrl = BASE_URL + "/api/entry?include=dates,geneMap&format=json&mimNumber=" + mimEntry.getMimNumber() + "&apiKey=" + API_KEY;
             final URL url = new URL(textUrl);
             url.openConnection();
-            BufferedReader reader = new BufferedReader(new InputStreamReader((InputStream) url.getContent()));
-            StringBuilder builder = new StringBuilder();
+            final BufferedReader reader = new BufferedReader(new InputStreamReader((InputStream) url.getContent()));
+            final StringBuilder builder = new StringBuilder();
             reader.lines().forEach(builder::append);
             result = builder.toString();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        webTime += System.currentTimeMillis() - startTime;
         return result;
     }
 
-    private void addEntry(OmimEntry mimEntry, String result) {
+    private void printProgress() {
+        if (++processedEntries % 1000 == 0) {
+            if (processedEntries == 1000) System.out.println("Progress\tWebTime\tCpuTime");
+            System.out.println(String.format("%d/%d (%.2f%%)\t%s\t%s", processedEntries, totalEntries,
+                    (processedEntries * 100.0 / totalEntries),
+                    OS.humanReadableTime(webTime), OS.humanReadableTime(processTime)));
+        }
+    }
+
+    private void addEntries(JSONObject root) {
+        final long startTime = System.currentTimeMillis();
+        final JSONArray entryList = root.getJSONObject("omim").getJSONArray("entryList");
+        for (int i = 0; i < entryList.length(); i++) addEntry(entryList.getJSONObject(i).getJSONObject("entry"));
+        processTime += System.currentTimeMillis() - startTime;
+    }
+
+    private void addEntry(JSONObject entry) {
+        printProgress();
+        final long epochUpdated = entry.getLong("epochUpdated");
+        if (epochUpdated > SESSION_EPOCH_UPDATE) SESSION_EPOCH_UPDATE = epochUpdated;
+        if (epochUpdated > SYSTEM_EPOCH_UPDATED) addUpdatedEntry(entry);
+    }
+
+    private void addUpdatedEntry(JSONObject entry) {
         /*
             # [phenotype]:
             # [phenotype]: phenotypeMapList
@@ -134,44 +177,32 @@ public class OmimNeo {
             NONE [predominantly phenotypes]:  geneMap
             NONE [predominantly phenotypes]: phenotypeMapList
          */
-        final JSONObject root = new JSONObject(result);
-        final JSONObject entry = root.getJSONObject("omim").getJSONArray("entryList").getJSONObject(0).getJSONObject("entry");
-        final String prefijo = entry.optString("prefix");
-        if (prefijo.equals("*") || prefijo.equals("+")) {
-            // Gene
-            addGene(mimEntry, result);
-        } else if (prefijo.equals("#") || prefijo.equals("")) {
-            addPhenotype(mimEntry, result);
-        }
+        final String prefix = entry.optString("prefix");
+        if (prefix.equals("*") || prefix.equals("+")) addGene(entry);
+        else if (prefix.equals("%") || prefix.equals("#") || prefix.equals("")) addPhenotype(entry);
     }
 
-    private void addGene(OmimEntry mimEntry, String result) {
-        System.out.println("GENE:" + result);
-        String symbol = mimEntry.getApprovedGeneSymbol();
-        final JSONObject root = new JSONObject(result);
-        final JSONObject entry = root.getJSONObject("omim").getJSONArray("entryList").getJSONObject(0).getJSONObject("entry");
+    private void addGene(JSONObject entry) {
+//        System.out.println("GENE: " + entry);
+        if (!entry.containsKey("geneMap")) return;
+        final JSONObject geneMap = entry.getJSONObject("geneMap");
         final String title = entry.getJSONObject("titles").getString("preferredTitle");
-        final String dateUpdated = entry.optString("dateUpdated");
-        final JSONObject geneMap = entry.optJSONObject("geneMap");
-        String confidence = "";
-        String mappingMethod = "";
-        if (geneMap != null) {
-            if (symbol == null) symbol = geneMap.optString("geneSymbols");
-            confidence = geneMap.getString("confidence");
-            mappingMethod = geneMap.optString("mappingMethod");
-        }
-        final long geneId = addNewGene(symbol, title, dateUpdated, mappingMethod);
-        if (geneMap != null && geneMap.containsKey("phenotypeMapList")) addRelatePhenotypes(mimEntry, geneMap, geneId, confidence);
-        //        addGeneToSqLite(mimEntry[3], result);
+        final String symbol = geneMap.getString("geneSymbols").split(",")[0];
+        final String confidence = geneMap.getString("confidence");
+        final String mappingMethod = geneMap.optString("mappingMethod");
+        final String mimNumber = String.valueOf(entry.getLong("mimNumber"));
+        final long geneId = createGene(generateId(mimNumber), symbol, title, mappingMethod);
+        addRelatedPhenotypes(mimNumber, geneMap, geneId, confidence);
 
     }
 
-    private long addNewGene(String symbol, String title, String dateUpdated, String mappingMethod) {
+    private long createGene(String id, String symbol, String title, String mappingMethod) {
+//        System.out.println("Adding " + symbol);
         try (Transaction transaction = graphDatabase.beginTx()) {
             final Node node = graphDatabase.createNode(PoirotGraphLabels.GENE);
-            if (symbol != null) node.setProperty("symbol", symbol);
-            if (title != null) node.setProperty("title", title);
-            if (dateUpdated != null) node.setProperty("dateUpdated", dateUpdated);
+            node.setProperty("symbol", symbol);
+            node.setProperty("title", title);
+            node.setProperty("id", id);
 //            node.setProperty("confidence", confidence);
             node.setProperty("mappingMethod", mappingMethod);
             long geneId = node.getId();
@@ -180,70 +211,72 @@ public class OmimNeo {
         }
     }
 
-    private void addRelatePhenotypes(OmimEntry mimEntry, JSONObject geneMap, long geneId, String confidence) {
-        final JSONArray phenotypeMapList = geneMap.getJSONArray("phenotypeMapList");
-        for (int i = 0; i < phenotypeMapList.length(); i++)
-            addRelatedPhenotype(mimEntry, geneId, phenotypeMapList.getJSONObject(i).getJSONObject("phenotypeMap"), confidence);
+    private void addRelatedPhenotypes(String defaultMimNumber, JSONObject geneMap, long geneId, String confidence) {
+        if (geneMap.containsKey("phenotypeMapList")) {
+            final JSONArray phenotypeMapList = geneMap.getJSONArray("phenotypeMapList");
+            for (int i = 0; i < phenotypeMapList.length(); i++)
+                addRelatedPhenotype(defaultMimNumber, geneId, phenotypeMapList.getJSONObject(i).getJSONObject("phenotypeMap"), confidence);
+        }
     }
 
-    private void addRelatedPhenotype(OmimEntry mimEntry, long geneId, JSONObject phenotypeMap, String confidence) {
-        int phenotypeMimNumber = phenotypeMap.containsKey("phenotypeMimNumber")
-                ? phenotypeMap.getInt("phenotypeMimNumber")
-                : Integer.valueOf(mimEntry.getMimNumber());
+    private void addRelatedPhenotype(String defaultMimNumber, long geneId, JSONObject phenotypeMap, String confidence) {
+        final String phenotypeMimNumber = phenotypeMap.containsKey("phenotypeMimNumber")
+                ? String.valueOf(phenotypeMap.getInt("phenotypeMimNumber"))
+                : defaultMimNumber;
+        final String omimId = generateId(phenotypeMimNumber);
         final String phenotypeName = phenotypeMap.getString("phenotype");
-        final int phenotypeMappingKey = phenotypeMap.getInt("phenotypeMappingKey");
         try (Transaction transaction = graphDatabase.beginTx()) {
             final Node geneNode = graphDatabase.getNodeById(geneId);
-            final String omimId = "omim:" + phenotypeMimNumber;
-            Node phenotypeNode = graphDatabase.findNode(PoirotGraphLabels.PHENOTYPE, "id", omimId);
-            if (phenotypeNode == null) {
-                phenotypeNode = graphDatabase.createNode(PoirotGraphLabels.PHENOTYPE);
-                phenotypeNode.setProperty("name", phenotypeName);
-                phenotypeNode.setProperty("id", omimId);
+            final Node phenotypeNode = getOrCreatePhenotype(omimId);
+            phenotypeNode.setProperty("name", phenotypeName);
+            phenotypeNode.setProperty("id", omimId);
+            if (phenotypeMap.containsKey("phenotypeMappingKey")) {
+                final int phenotypeMappingKey = phenotypeMap.getInt("phenotypeMappingKey");
                 phenotypeNode.setProperty("mappingKey", phenotypeMappingKey);
-            } else System.out.println("Node already in db: " + omimId);
-            final Relationship relationship = geneNode.createRelationshipTo(phenotypeNode, PoirotGraphRelationships.G2D);
-            relationship.setProperty("confidence", confidence);
-            relationship.setProperty("database", "omim");
+            }
+            addRelationship(confidence, geneNode, phenotypeNode);
             transaction.success();
         }
     }
 
-    private void addPhenotype(OmimEntry mimEntry, String result) {
-        System.out.println("PHENOTYPE:" + result);
-        final String id = "omim:" + mimEntry.getMimNumber();
-        try (Transaction transaction = graphDatabase.beginTx()) {
-            Node node = graphDatabase.findNode(PoirotGraphLabels.PHENOTYPE, "id", id);
-            if (node == null) node = graphDatabase.createNode(PoirotGraphLabels.PHENOTYPE);
-            final JSONObject root = new JSONObject(result);
-            if (root.containsKey("phenotypeMapList")) {
-                final JSONObject entry = root.getJSONObject("omim").getJSONArray("entryList").getJSONObject(0).getJSONObject("entry");
-                final JSONObject phenotypeMap = entry.getJSONArray("phenotypeMapList").getJSONObject(0).getJSONObject("phenotypeMap");
-                node.setProperty("title",phenotypeMap.opt("phenotype"));
-                node.setProperty("mappingKey",phenotypeMap.opt("phenotypeMappingKey"));
-                node.setProperty("dateUpdated",entry.opt("dateUpdated"));
-                if (!node.hasProperty("id")) node.setProperty("id", id);
-            }
-        }
-//        final String database = "omim";
-//        final String database_id = mimEntry[0];
-//        final JSONObject json = new JSONObject(result);
-//        final JSONObject entry = json.getJSONObject("omim").getJSONArray("entryList").getJSONObject(0).getJSONObject("entry");
-//        final String name = entry.getJSONObject("titles").getString("preferredTitle");
-//        final String status = entry.getString("status");
-//        final String date_updated = entry.getString("dateUpdated");
-//        try {
-//            final Statement statement = connection.createStatement();
-//            final String command = String.format("" +
-//                    "INSERT OR REPLACE INTO Phenotypes(database,database_id,name,status,date_updated) " +
-//                    "VALUES(\"%s\",\"%s\",\"%s\",\"%s\",\"%s\")", database, database_id, name, status, date_updated);
-//            System.out.println(command);
-//            statement.execute(command);
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-
-
+    private Node getOrCreatePhenotype(String omimId) {
+        final Node phenotypeNode = graphDatabase.findNode(PoirotGraphLabels.PHENOTYPE, "id", omimId);
+        return phenotypeNode != null ? phenotypeNode : graphDatabase.createNode(PoirotGraphLabels.PHENOTYPE);
     }
 
+    private void addRelationship(String confidence, Node geneNode, Node phenotypeNode) {
+        final Relationship relationship = findOrCreate(geneNode, phenotypeNode);
+        relationship.setProperty("confidence", confidence);
+        relationship.setProperty("database", "omim");
+    }
+
+    private Relationship findOrCreate(Node geneNode, Node phenotypeNode) {
+        final Iterable<Relationship> relationships = geneNode.getRelationships(PoirotGraphRelationships.G2D);
+        for (Relationship r : relationships) if (r.getOtherNode(geneNode).equals(phenotypeNode)) return r;
+        return geneNode.createRelationshipTo(phenotypeNode, PoirotGraphRelationships.G2D);
+    }
+
+    private void addPhenotype(JSONObject entry) {
+//        System.out.println("PHENOTYPE:" + entry);
+        final String id = generateId(String.valueOf(entry.getLong("mimNumber")));
+        try (Transaction transaction = graphDatabase.beginTx()) {
+            Node node = graphDatabase.findNode(PoirotGraphLabels.PHENOTYPE, "id", id);
+            if (node == null) {
+                node = graphDatabase.createNode(PoirotGraphLabels.PHENOTYPE);
+//                System.out.println("Adding " + mimEntry);
+                node.setProperty("id", id);
+            }
+            if (entry.containsKey("phenotypeMapList")) {
+                final JSONObject phenotypeMap = entry.getJSONArray("phenotypeMapList").getJSONObject(0).getJSONObject("phenotypeMap");
+                node.setProperty("title", phenotypeMap.opt("phenotype"));
+                if (phenotypeMap.containsKey("phenotypeMappingKey"))
+                    node.setProperty("mappingKey", phenotypeMap.opt("phenotypeMappingKey"));
+//                node.setProperty("dateUpdated", entry.opt("dateUpdated"));
+                node.setProperty("database", "omim");
+            }
+            if (!node.hasProperty("id")) node.setProperty("id", id);
+            transaction.success();
+        }
+
+    }
 }
