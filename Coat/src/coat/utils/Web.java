@@ -19,10 +19,7 @@ package coat.utils;
 
 import org.jetbrains.annotations.Nullable;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
 
 /**
@@ -38,7 +35,7 @@ public class Web {
             url.openConnection();
             final BufferedReader reader = new BufferedReader(new InputStreamReader((InputStream) url.getContent()));
             final StringBuilder builder = new StringBuilder();
-            reader.lines().forEach(builder::append);
+            reader.lines().forEach((line) -> builder.append(line).append(System.lineSeparator()));
             result = builder.toString();
         } catch (IOException e) {
             e.printStackTrace();

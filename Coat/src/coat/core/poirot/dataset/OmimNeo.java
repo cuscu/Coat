@@ -20,6 +20,7 @@ package coat.core.poirot.dataset;
 import coat.Coat;
 import coat.core.poirot.dataset.graph.PoirotGraphLabels;
 import coat.core.poirot.dataset.graph.PoirotGraphRelationships;
+import coat.core.poirot.dataset.hgnc.HGNC;
 import coat.json.JSONArray;
 import coat.json.JSONObject;
 import coat.utils.OS;
@@ -48,7 +49,7 @@ import java.util.stream.Collectors;
 public class OmimNeo {
 
     private final static String BASE_URL = "http://api.europe.omim.org";
-    private final static String API_KEY = "85BA467CB41C620BA51F185E7D81150AF619BE7A";
+    private final static String API_KEY = "fywuEtWWRRWIpQX96-5BXQ";
     private final static String MIM_LIST = "http://www.omim.org/static/omim/data/mim2gene.txt";
 
     private final static int MAX_MIM_NUMBERS = 20;
@@ -186,24 +187,23 @@ public class OmimNeo {
 //        System.out.println("GENE: " + entry);
         if (!entry.containsKey("geneMap")) return;
         final JSONObject geneMap = entry.getJSONObject("geneMap");
-        final String title = entry.getJSONObject("titles").getString("preferredTitle");
-        final String symbol = geneMap.getString("geneSymbols").split(",")[0];
+        final String symbol = HGNC.getStandardSymbol(geneMap.getString("geneSymbols").split(",")[0]);
+        final String name = entry.getJSONObject("titles").getString("preferredTitle");
         final String confidence = geneMap.getString("confidence");
         final String mappingMethod = geneMap.optString("mappingMethod");
         final String mimNumber = String.valueOf(entry.getLong("mimNumber"));
-        final long geneId = createGene(generateId(mimNumber), symbol, title, mappingMethod);
+        final long geneId = createGene(generateId(mimNumber), symbol, name, mappingMethod);
         addRelatedPhenotypes(mimNumber, geneMap, geneId, confidence);
 
     }
 
-    private long createGene(String id, String symbol, String title, String mappingMethod) {
+    private long createGene(String id, String symbol, String name, String mappingMethod) {
 //        System.out.println("Adding " + symbol);
         try (Transaction transaction = graphDatabase.beginTx()) {
             final Node node = graphDatabase.createNode(PoirotGraphLabels.GENE);
             node.setProperty("symbol", symbol);
-            node.setProperty("title", title);
-            node.setProperty("id", id);
-//            node.setProperty("confidence", confidence);
+            node.setProperty("name", name);
+//            node.setProperty("id", id);
             node.setProperty("mappingMethod", mappingMethod);
             long geneId = node.getId();
             transaction.success();

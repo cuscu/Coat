@@ -77,6 +77,17 @@ public class OS {
      * @param values a list of values
      * @return the stringified list
      */
+    public static String asString(List<String> values) {
+        return asString("\t", values);
+    }
+
+    /**
+     * Converts an Array to String using tab as separator. Omits the last separator. [value1 value2
+     * value3] to value1,value2,value3
+     *
+     * @param values a list of values
+     * @return the stringified list
+     */
     public static String asString(String... values) {
         return asString("\t", values);
     }

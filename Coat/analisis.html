@@ -1,0 +1,1140 @@
+<!--
+  ~ Copyright (c) UICHUIMI 2016
+  ~
+  ~ This file is part of Coat.
+  ~
+  ~ Coat is free software: you can redistribute it and/or modify it under the terms of the
+  ~ GNU General Public License as published by the Free Software Foundation, either version 3 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ Coat is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with Foobar.
+  ~ If not, see <http://www.gnu.org/licenses/>.
+  -->
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="doc-style.css">
+</head>
+<body>
+<h1>Análisis de BIOGRID-ALL-3.4.134.tab2.txt.gz</h1>
+
+<h2>0. Columnas</h2>
+
+<table>
+    <tr>
+        <th>Posicion</th>
+        <th>Nombre</th>
+    </tr>
+    <tr>
+        <td>0</td>
+        <td>BioGRID Interaction ID</td>
+    </tr>
+    <tr>
+        <td>1</td>
+        <td>Entrez Gene Interactor A</td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td>Entrez Gene Interactor B</td>
+    </tr>
+    <tr>
+        <td>3</td>
+        <td>BioGRID ID Interactor A</td>
+    </tr>
+    <tr>
+        <td>4</td>
+        <td>BioGRID ID Interactor B</td>
+    </tr>
+    <tr>
+        <td>5</td>
+        <td>Systematic Name Interactor A</td>
+    </tr>
+    <tr>
+        <td>6</td>
+        <td>Systematic Name Interactor B</td>
+    </tr>
+    <tr>
+        <td>7</td>
+        <td>Official Symbol Interactor A</td>
+    </tr>
+    <tr>
+        <td>8</td>
+        <td>Official Symbol Interactor B</td>
+    </tr>
+    <tr>
+        <td>9</td>
+        <td>Synonyms Interactor A</td>
+    </tr>
+    <tr>
+        <td>10</td>
+        <td>Synonyms Interactor B</td>
+    </tr>
+    <tr>
+        <td>11</td>
+        <td>Experimental System</td>
+    </tr>
+    <tr>
+        <td>12</td>
+        <td>Experimental System Type</td>
+    </tr>
+    <tr>
+        <td>13</td>
+        <td>Author</td>
+    </tr>
+    <tr>
+        <td>14</td>
+        <td>Pubmed ID</td>
+    </tr>
+    <tr>
+        <td>15</td>
+        <td>Organism Interactor A</td>
+    </tr>
+    <tr>
+        <td>16</td>
+        <td>Organism Interactor B</td>
+    </tr>
+    <tr>
+        <td>17</td>
+        <td>Throughput</td>
+    </tr>
+    <tr>
+        <td>18</td>
+        <td>Score</td>
+    </tr>
+    <tr>
+        <td>19</td>
+        <td>Modification</td>
+    </tr>
+    <tr>
+        <td>20</td>
+        <td>Phenotypes</td>
+    </tr>
+    <tr>
+        <td>21</td>
+        <td>Qualifications</td>
+    </tr>
+    <tr>
+        <td>22</td>
+        <td>Tags</td>
+    </tr>
+    <tr>
+        <td>23</td>
+        <td>Source Database</td>
+    </tr>
+</table>
+
+<pre>
+<code>
+    final String[] header = reader.readLine().substring(1).split("\t");
+    for (int i = 0; i < header.length; i++) System.out.println(i + "\t" + header[i]);
+</code>
+</pre>
+
+<h2>1. Valores más repetidos por columna</h2>
+<table>
+    <tr>
+        <th>posicion</th>
+        <th>nombre</th>
+        <th>valores</th>
+        <th>repeticiones</th>
+        <th>valor</th>
+    </tr>
+    <tr>
+        <td rowspan="28">11</td>
+        <td rowspan="28">Experimental System</td>
+        <td rowspan="28">28</td>
+        <td>238896</td>
+        <td>Negative Genetic</td>
+    </tr>
+    <tr>
+        <td>205339</td>
+        <td>Affinity Capture-MS</td>
+    </tr>
+    <tr>
+        <td>119346</td>
+        <td>Positive Genetic</td>
+    </tr>
+    <tr>
+        <td>118389</td>
+        <td>Two-hybrid</td>
+    </tr>
+    <tr>
+        <td>79932</td>
+        <td>Affinity Capture-Western</td>
+    </tr>
+    <tr>
+        <td>40536</td>
+        <td>Co-fractionation
+        </td>
+    </tr>
+    <tr>
+        <td>38509</td>
+        <td>Reconstituted Complex
+        </td>
+    </tr>
+    <tr>
+        <td>27346</td>
+        <td>Synthetic Growth Defect
+        </td>
+    </tr>
+    <tr>
+        <td>21950</td>
+        <td>PCA
+        </td>
+    </tr>
+    <tr>
+        <td>17541</td>
+        <td>Biochemical Activity
+        </td>
+    </tr>
+    <tr>
+        <td>17513</td>
+        <td>Synthetic Lethality
+        </td>
+    </tr>
+    <tr>
+        <td>16470</td>
+        <td>Affinity Capture-RNA
+        </td>
+    </tr>
+    <tr>
+        <td>14272</td>
+        <td>Phenotypic Enhancement
+        </td>
+    </tr>
+    <tr>
+        <td>13673</td>
+        <td>Phenotypic Suppression
+        </td>
+    </tr>
+    <tr>
+        <td>7697</td>
+        <td>Synthetic Rescue
+        </td>
+    </tr>
+    <tr>
+        <td> 7240</td>
+        <td>Proximity Label-MS
+        </td>
+    </tr>
+    <tr>
+        <td>6485</td>
+        <td>Dosage Rescue
+        </td>
+    </tr>
+    <tr>
+        <td>6263</td>
+        <td>Co-purification</td>
+    </tr>
+    <tr>
+        <td>
+            3390
+        </td>
+        <td>Co-localization
+        </td>
+    </tr>
+    <tr>
+        <td>
+            2927
+        </td>
+        <td>Protein-peptide
+        </td>
+    </tr>
+    <tr>
+        <td>
+            2419
+        </td>
+        <td>Co-crystal Structure
+        </td>
+    </tr>
+    <tr>
+        <td>
+            2251
+        </td>
+        <td>Affinity Capture-Luminescence
+        </td>
+    </tr>
+    <tr>
+        <td>
+            2034
+        </td>
+        <td>Dosage Growth Defect
+        </td>
+    </tr>
+    <tr>
+        <td>
+            1805
+        </td>
+        <td>Dosage Lethality
+        </td>
+    </tr>
+    <tr>
+        <td>
+            1698
+        </td>
+        <td>FRET
+        </td>
+    </tr>
+    <tr>
+        <td>
+            1057
+        </td>
+        <td>Far Western
+        </td>
+    </tr>
+    <tr>
+        <td>837</td>
+        <td>Protein-RNA</td>
+    </tr>
+    <tr>
+        <td> 320</td>
+        <td>Synthetic Haploinsufficiency</td>
+    </tr>
+    <tr>
+        <td rowspan="2">12</td>
+        <td rowspan="2">Experimental System Type</td>
+        <td rowspan="2">2</td>
+        <td>566748</td>
+        <td>physical</td>
+    </tr>
+    <tr>
+        <td>449387</td>
+        <td>genetic</td>
+    </tr>
+    <tr>
+        <td rowspan="3">17</td>
+        <td rowspan="3">Throughput</td>
+        <td rowspan="3">3</td>
+        <td>757656</td>
+        <td>High Throughput</td>
+    </tr>
+    <tr>
+        <td>252906</td>
+        <td>Low Throughput</td>
+    </tr>
+    <tr>
+        <td>5573</td>
+        <td>High Throughput|Low Throughput</td>
+    </tr>
+    <tr>
+        <td rowspan="18">19</td>
+        <td rowspan="18">Modification</td>
+        <td rowspan="18">18</td>
+        <td>998594</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>11020</td>
+        <td>Phosphorylation</td>
+    </tr>
+    <tr>
+        <td>2758</td>
+        <td>Ubiquitination</td>
+    </tr>
+    <tr>
+        <td>719</td>
+        <td>Acetylation</td>
+    </tr>
+    <tr>
+        <td>501</td>
+        <td>Proteolytic Processing</td>
+    </tr>
+    <tr>
+        <td>482</td>
+        <td>No Modification</td>
+    </tr>
+    <tr>
+        <td>460</td>
+        <td>Deubiquitination</td>
+    </tr>
+    <tr>
+        <td>431</td>
+        <td>Methylation</td>
+    </tr>
+    <tr>
+        <td>405</td>
+        <td>Sumoylation</td>
+    </tr>
+    <tr>
+        <td>337</td>
+        <td>Dephosphorylation</td>
+    </tr>
+    <tr>
+        <td>122</td>
+        <td>Deacetylation</td>
+    </tr>
+    <tr>
+        <td>107</td>
+        <td>Nedd(Rub1)ylation</td>
+    </tr>
+    <tr>
+        <td>52</td>
+        <td>Desumoylation</td>
+    </tr>
+    <tr>
+        <td>46</td>
+        <td>Demethylation</td>
+    </tr>
+    <tr>
+        <td>41</td>
+        <td>Ribosylation</td>
+    </tr>
+    <tr>
+        <td>20</td>
+        <td>Deneddylation</td>
+    </tr>
+    <tr>
+        <td>20</td>
+        <td>Prenylation</td>
+    </tr>
+    <tr>
+        <td>20</td>
+        <td>Glycosylation</td>
+    </tr>
+    <tr>
+        <td>22</td>
+        <td>Tags</td>
+        <td>1</td>
+        <td>1016135</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td rowspan="3">23</td>
+        <td rowspan="3">Source Database</td>
+        <td rowspan="3">3</td>
+        <td>1006052</td>
+        <td>BIOGRID</td>
+    </tr>
+    <tr>
+        <td>9752</td>
+        <td>FLYBASE</td>
+    </tr>
+    <tr>
+        <td>331</td>
+        <td>POMBASE</td>
+    </tr>
+</table>
+
+<pre>
+<code>
+    final String[] header = reader.readLine().substring(1).split("\t");
+    final List&lt;Map&lt;String, Integer&gt;&gt; vals = new ArrayList&lt;&gt;(header.length);
+    for (int i = 0; i < header.length; i++) vals.add(new HashMap<>());
+    reader.lines().map(s -> s.split("\t")).forEach(entry -> {
+    for (int i = 0; i < entry.length; i++) {
+    final Map&lt;String, Integer&gt; map = vals.get(i);
+    map.put(entry[i], map.getOrDefault(entry[i], 0) + 1);
+    }
+    });
+    for (int i = 0; i < header.length; i++) {
+    if (vals.get(i).size() &lt; 50)
+    System.out.println(i + "\t" + header[i] + "\t" + vals.get(i).size() + "\t" + vals.get(i));
+    }
+</code>
+</pre>
+
+<h2></h2>
+2. Combinaciones más frecuentes
+<table>
+    <tr>
+        <th>cantidad</th>
+        <th>system type</th>
+        <th>throughput</th>
+        <th>modification</th>
+        <th>system</th>
+    </tr>
+
+    <tr>
+        <td> 238800</td>
+        <td>genetic</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Negative Genetic</td>
+    </tr>
+    <tr>
+        <td> 174514</td>
+        <td>physical</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Affinity Capture-MS</td>
+    </tr>
+    <tr>
+        <td> 119281</td>
+        <td>genetic</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Positive Genetic</td>
+    </tr>
+    <tr>
+        <td> 89593</td>
+        <td>physical</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Two-hybrid</td>
+    </tr>
+    <tr>
+        <td> 78349</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Affinity Capture-Western</td>
+    </tr>
+    <tr>
+        <td> 38004</td>
+        <td>physical</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Co-fractionation</td>
+    </tr>
+    <tr>
+        <td> 33496</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Reconstituted Complex</td>
+    </tr>
+    <tr>
+        <td> 30453</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Affinity Capture-MS</td>
+    </tr>
+    <tr>
+        <td> 28608</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Two-hybrid</td>
+    </tr>
+    <tr>
+        <td> 19601</td>
+        <td>physical</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>PCA</td>
+    </tr>
+    <tr>
+        <td> 17322</td>
+        <td>genetic</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Synthetic Growth Defect</td>
+    </tr>
+    <tr>
+        <td> 15598</td>
+        <td>physical</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Affinity Capture-RNA</td>
+    </tr>
+    <tr>
+        <td> 10828</td>
+        <td>genetic</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Phenotypic Suppression</td>
+    </tr>
+    <tr>
+        <td> 10623</td>
+        <td>genetic</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Phenotypic Enhancement</td>
+    </tr>
+    <tr>
+        <td> 9343</td>
+        <td>genetic</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Synthetic Lethality</td>
+    </tr>
+    <tr>
+        <td> 7635</td>
+        <td>genetic</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Synthetic Growth Defect</td>
+    </tr>
+    <tr>
+        <td> 7236</td>
+        <td>physical</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Proximity Label-MS</td>
+    </tr>
+    <tr>
+        <td> 6782</td>
+        <td>genetic</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Synthetic Lethality</td>
+    </tr>
+    <tr>
+        <td> 6222</td>
+        <td>genetic</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Dosage Rescue</td>
+    </tr>
+    <tr>
+        <td> 5845</td>
+        <td>genetic</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Synthetic Rescue</td>
+    </tr>
+    <tr>
+        <td> 5585</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>Phosphorylation</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 5427</td>
+        <td>physical</td>
+        <td>High Throughput</td>
+        <td>Phosphorylation</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 4960</td>
+        <td>physical</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Reconstituted Complex</td>
+    </tr>
+    <tr>
+        <td> 4014</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Co-purification</td>
+    </tr>
+    <tr>
+        <td> 3456</td>
+        <td>genetic</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Phenotypic Enhancement</td>
+    </tr>
+    <tr>
+        <td> 2840</td>
+        <td>genetic</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Phenotypic Suppression</td>
+    </tr>
+    <tr>
+        <td> 2831</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Co-localization</td>
+    </tr>
+    <tr>
+        <td> 2532</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Co-fractionation</td>
+    </tr>
+    <tr>
+        <td> 2419</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Co-crystal Structure</td>
+    </tr>
+    <tr>
+        <td> 2389</td>
+        <td>genetic</td>
+        <td>High Throughput|Low Throughput</td>
+        <td>-</td>
+        <td>Synthetic Growth Defect</td>
+    </tr>
+    <tr>
+        <td> 2336</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>Ubiquitination</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 2280</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>PCA</td>
+    </tr>
+    <tr>
+        <td> 2249</td>
+        <td>physical</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Co-purification</td>
+    </tr>
+    <tr>
+        <td> 2054</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Protein-peptide</td>
+    </tr>
+    <tr>
+        <td> 1633</td>
+        <td>genetic</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Synthetic Rescue</td>
+    </tr>
+    <tr>
+        <td> 1570</td>
+        <td>physical</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Affinity Capture-Western</td>
+    </tr>
+    <tr>
+        <td> 1414</td>
+        <td>genetic</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Dosage Growth Defect</td>
+    </tr>
+    <tr>
+        <td> 1388</td>
+        <td>genetic</td>
+        <td>High Throughput|Low Throughput</td>
+        <td>-</td>
+        <td>Synthetic Lethality</td>
+    </tr>
+    <tr>
+        <td> 1340</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>FRET</td>
+    </tr>
+    <tr>
+        <td> 1181</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Affinity Capture-Luminescence</td>
+    </tr>
+    <tr>
+        <td> 1069</td>
+        <td>physical</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Affinity Capture-Luminescence</td>
+    </tr>
+    <tr>
+        <td> 997</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Far Western</td>
+    </tr>
+    <tr>
+        <td> 862</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Affinity Capture-RNA</td>
+    </tr>
+    <tr>
+        <td> 861</td>
+        <td>physical</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Protein-peptide</td>
+    </tr>
+    <tr>
+        <td> 739</td>
+        <td>genetic</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Dosage Lethality</td>
+    </tr>
+    <tr>
+        <td> 717</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>Acetylation</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 620</td>
+        <td>genetic</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Dosage Growth Defect</td>
+    </tr>
+    <tr>
+        <td> 554</td>
+        <td>physical</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Co-localization</td>
+    </tr>
+    <tr>
+        <td> 547</td>
+        <td>genetic</td>
+        <td>High Throughput|Low Throughput</td>
+        <td>-</td>
+        <td>Dosage Lethality</td>
+    </tr>
+    <tr>
+        <td> 519</td>
+        <td>genetic</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Dosage Lethality</td>
+    </tr>
+    <tr>
+        <td> 504</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Protein-RNA</td>
+    </tr>
+    <tr>
+        <td> 482</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>No Modification</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 431</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>Methylation</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 426</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>Proteolytic Processing</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 406</td>
+        <td>physical</td>
+        <td>High Throughput</td>
+        <td>Ubiquitination</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 394</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>Deubiquitination</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 377</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>Sumoylation</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 372</td>
+        <td>physical</td>
+        <td>High Throughput|Low Throughput</td>
+        <td>-</td>
+        <td>Affinity Capture-MS</td>
+    </tr>
+    <tr>
+        <td> 358</td>
+        <td>physical</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>FRET</td>
+    </tr>
+    <tr>
+        <td> 337</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>Dephosphorylation</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 333</td>
+        <td>physical</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Protein-RNA</td>
+    </tr>
+    <tr>
+        <td> 250</td>
+        <td>genetic</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Dosage Rescue</td>
+    </tr>
+    <tr>
+        <td> 234</td>
+        <td>genetic</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Synthetic Haploinsufficiency</td>
+    </tr>
+    <tr>
+        <td> 219</td>
+        <td>genetic</td>
+        <td>High Throughput|Low Throughput</td>
+        <td>-</td>
+        <td>Synthetic Rescue</td>
+    </tr>
+    <tr>
+        <td> 193</td>
+        <td>genetic</td>
+        <td>High Throughput|Low Throughput</td>
+        <td>-</td>
+        <td>Phenotypic Enhancement</td>
+    </tr>
+    <tr>
+        <td> 188</td>
+        <td>physical</td>
+        <td>High Throughput|Low Throughput</td>
+        <td>-</td>
+        <td>Two-hybrid</td>
+    </tr>
+    <tr>
+        <td> 122</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>Deacetylation</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 107</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>Nedd(Rub1)ylation</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 96</td>
+        <td>genetic</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Negative Genetic</td>
+    </tr>
+    <tr>
+        <td> 75</td>
+        <td>physical</td>
+        <td>High Throughput</td>
+        <td>Proteolytic Processing</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 69</td>
+        <td>physical</td>
+        <td>High Throughput|Low Throughput</td>
+        <td>-</td>
+        <td>PCA</td>
+    </tr>
+    <tr>
+        <td> 66</td>
+        <td>physical</td>
+        <td>High Throughput</td>
+        <td>Deubiquitination</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 60</td>
+        <td>physical</td>
+        <td>High Throughput</td>
+        <td>-</td>
+        <td>Far Western</td>
+    </tr>
+    <tr>
+        <td> 60</td>
+        <td>genetic</td>
+        <td>High Throughput|Low Throughput</td>
+        <td>-</td>
+        <td>Synthetic Haploinsufficiency</td>
+    </tr>
+    <tr>
+        <td> 53</td>
+        <td>physical</td>
+        <td>High Throughput|Low Throughput</td>
+        <td>-</td>
+        <td>Reconstituted Complex</td>
+    </tr>
+    <tr>
+        <td> 53</td>
+        <td>genetic</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Positive Genetic</td>
+    </tr>
+    <tr>
+        <td> 52</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>Desumoylation</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 46</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>Demethylation</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 41</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>Ribosylation</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 28</td>
+        <td>physical</td>
+        <td>High Throughput</td>
+        <td>Sumoylation</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 26</td>
+        <td>genetic</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Synthetic Haploinsufficiency</td>
+    </tr>
+    <tr>
+        <td> 20</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>Prenylation</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 20</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>Glycosylation</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 20</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>Deneddylation</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 16</td>
+        <td>physical</td>
+        <td>High Throughput|Low Throughput</td>
+        <td>Ubiquitination</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 13</td>
+        <td>physical</td>
+        <td>High Throughput|Low Throughput</td>
+        <td>-</td>
+        <td>Affinity Capture-Western</td>
+    </tr>
+    <tr>
+        <td> 13</td>
+        <td>genetic</td>
+        <td>High Throughput|Low Throughput</td>
+        <td>-</td>
+        <td>Dosage Rescue</td>
+    </tr>
+    <tr>
+        <td> 12</td>
+        <td>physical</td>
+        <td>High Throughput|Low Throughput</td>
+        <td>-</td>
+        <td>Protein-peptide</td>
+    </tr>
+    <tr>
+        <td> 12</td>
+        <td>genetic</td>
+        <td>High Throughput|Low Throughput</td>
+        <td>-</td>
+        <td>Positive Genetic</td>
+    </tr>
+    <tr>
+        <td> 10</td>
+        <td>physical</td>
+        <td>High Throughput|Low Throughput</td>
+        <td>-</td>
+        <td>Affinity Capture-RNA</td>
+    </tr>
+    <tr>
+        <td> 8</td>
+        <td>physical</td>
+        <td>High Throughput|Low Throughput</td>
+        <td>Phosphorylation</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 5</td>
+        <td>physical</td>
+        <td>High Throughput|Low Throughput</td>
+        <td>-</td>
+        <td>Co-localization</td>
+    </tr>
+    <tr>
+        <td> 5</td>
+        <td>genetic</td>
+        <td>High Throughput|Low Throughput</td>
+        <td>-</td>
+        <td>Phenotypic Suppression</td>
+    </tr>
+    <tr>
+        <td> 4</td>
+        <td>physical</td>
+        <td>Low Throughput</td>
+        <td>-</td>
+        <td>Proximity Label-MS</td>
+    </tr>
+    <tr>
+        <td> 2</td>
+        <td>physical</td>
+        <td>High Throughput</td>
+        <td>Acetylation</td>
+        <td>Biochemical Activity</td>
+    </tr>
+    <tr>
+        <td> 1</td>
+        <td>physical</td>
+        <td>High Throughput|Low Throughput</td>
+        <td>-</td>
+        <td>Affinity Capture-Luminescence</td>
+    </tr>
+</table>
+
+
+<pre>
+    <code>
+        final Map&lt;String, Integer> vals = new HashMap<>();
+        reader.lines().map(s -> s.split("\t")).forEach(entry -> {
+        final String combination = OS.asString("&lt;/td>&lt;td>", Arrays.asList(entry[12], entry[17], entry[19], entry[11]));
+        vals.put(combination, vals.getOrDefault(combination, 0) + 1);
+        });
+        final List&lt;String> list = new ArrayList<>();
+            vals.forEach((s, integer) -> list.add("&lt;tr>&lt;td>" + String.format("% 7d", integer) + "&lt;/td>&lt;td>" + s + "&lt;/td>&lt;/tr>"));
+            Collections.sort(list);
+            Collections.reverse(list);
+            list.forEach(System.out::println);
+    </code>
+</pre>
+
+</body>

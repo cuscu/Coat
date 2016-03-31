@@ -47,7 +47,7 @@ public class PoirotDatabaseUpdater {
     }
 
     private void addBioGridData() {
-        BioGridNeo.update(graphDatabase);
+        BioGridNeo.getInstance().update(graphDatabase);
     }
 
     private void closeConnection() {

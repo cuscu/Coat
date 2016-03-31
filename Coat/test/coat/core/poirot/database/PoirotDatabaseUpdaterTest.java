@@ -35,7 +35,7 @@ public class PoirotDatabaseUpdaterTest {
 
     @Test
     public void test() {
-//        clearDatabase();
+        clearDatabase();
         populateDatabase();
         testDatabase();
     }
