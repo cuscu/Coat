@@ -17,13 +17,13 @@
 
 package coat.view.graphic;
 
-import coat.core.variant.Variant;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import com.sun.javafx.scene.control.skin.VirtualFlow;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.IndexedCell;
 import javafx.scene.control.TableCell;
+import vcf.Variant;
 
 /**
  * Experiment: I was trying to show only the name of the chromosome in the first visible row.

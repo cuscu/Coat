@@ -17,8 +17,6 @@
 
 package coat.view.vcfreader;
 
-import coat.core.variant.Variant;
-import coat.core.vcf.VcfFile;
 import coat.utils.OS;
 import coat.view.graphic.NaturalCell;
 import javafx.beans.property.Property;
@@ -32,6 +30,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import vcf.Variant;
+import vcf.VcfFile;
 
 import java.util.List;
 import java.util.Map;

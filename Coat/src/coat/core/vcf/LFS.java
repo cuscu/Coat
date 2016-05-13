@@ -17,7 +17,8 @@
 
 package coat.core.vcf;
 
-import coat.core.variant.Variant;
+
+import vcf.Variant;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -175,7 +176,7 @@ public class LFS {
 
     public static void addLFS(Variant variant) {
         try {
-//            Map<String, Object> infos = variant.getInfoValues();
+//            Map<String, Object> infos = vcf.getInfoValues();
             String codons = (String) variant.getInfo().getInfo("COD");
             if (codons != null) {
                 String[] cods = codons.split("[/-]");
@@ -194,7 +195,7 @@ public class LFS {
                     double source = frequencies.get(cods[0].toUpperCase());
                     double destiny = frequencies.get(cods[1].toUpperCase());
                     double score = source / destiny;
-//                    if (score > 1) variant.setInfo("LFS", String.valueOf(score));
+//                    if (score > 1) vcf.setInfo("LFS", String.valueOf(score));
                 }
             }
         } catch (Exception ex) {

@@ -1,30 +1,28 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
+ * *
  * This program is free software: you can redistribute it and/or modify it    *
  * under the terms of the GNU General Public License as published by the      *
  * Free Software Foundation, either version 3 of the License, or (at your     *
  * option) any later version.                                                 *
- *                                                                            *
+ * *
  * This program is distributed in the hope that it will be useful, but        *
  * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
  * See the GNU General Public License for more details.                       *
- *                                                                            *
+ * *
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
 package coat.view.poirot;
 
-import coat.core.poirot.Pearl;
-import coat.core.poirot.PearlGraph;
-import coat.core.poirot.graph.GraphEvaluator;
 import coat.core.tool.Tool;
 import coat.utils.OS;
 import coat.view.graphic.SizableImage;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Button;
@@ -35,6 +33,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import poirot.core.Pearl;
+import poirot.core.PearlGraph;
+import poirot.view.GraphEvaluator;
+import poirot.view.GraphView;
 
 import java.io.File;
 import java.util.Collections;
@@ -64,20 +66,16 @@ public class PoirotView extends Tool {
 
     private final GraphView graphView = new GraphView();
     private final StackPane stackPane = new StackPane(graphView);
-
-//    private final VBox graphVBox = new VBox(stackPane, new Separator(Orientation.HORIZONTAL), poirotInfo);
-    private SplitPane graphSplitPane = new SplitPane(stackPane, poirotInfo);
-
     private final Button reload = new Button(OS.getString("reload").toUpperCase(), new SizableImage("coat/img/white/poirot.png", SizableImage.SMALL_SIZE));
     private final Button back = new Button(OS.getString("back").toUpperCase(), new SizableImage("coat/img/white/arrow-left.png", SizableImage.SMALL_SIZE));
     private final VBox listPane = new VBox(5, back, poirotPearlTable, reload);
-
+    private SplitPane graphSplitPane = new SplitPane(stackPane, poirotInfo);
     private final HBox graphHBox = new HBox(listPane, graphSplitPane);
 
     private Property<String> title = new SimpleStringProperty("Poirot");
     private File file;
 
-    public PoirotView(File file) {
+    PoirotView(File file) {
         this.file = file;
         title.setValue("Poirot (" + file.getName() + ")");
         initializeThis();
@@ -110,7 +108,7 @@ public class PoirotView extends Tool {
 
     private void initializeListPane() {
         initializeReloadButton();
-        initializeRepeatButton();
+        initializeBackButton();
         initializePearlListView();
     }
 
@@ -128,11 +126,11 @@ public class PoirotView extends Tool {
         HBox.setHgrow(reload, Priority.ALWAYS);
     }
 
-    private void initializeRepeatButton() {
+    private void initializeBackButton() {
         back.setOnAction(event -> {
             new GraphEvaluator(poirotInputPane.getDatabase()).run();
             getChildren().setAll(inputPane);
-            poirotInfo.clear();
+            poirotInfo.clearView();
         });
         back.setPadding(new Insets(10));
         back.setMaxWidth(9999);
@@ -157,19 +155,25 @@ public class PoirotView extends Tool {
     private void start() {
         final List<Pearl> phenotypes = poirotInputPane.getSelectedPhenotypes();
         final PearlGraph database = poirotInputPane.getDatabase();
-        final GraphEvaluator graphEvaluator = new GraphEvaluator(database, phenotypes);
-        graphEvaluator.setOnSucceeded(event -> end(database));
+        final Task<Void> task = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                new GraphEvaluator(database, phenotypes).run();
+                return null;
+            }
+        };
+        task.setOnSucceeded(event -> end(database));
         poirotPearlTable.getItems().clear();
         graphView.clear();
         start.setDisable(true);
         message.setText("Analyzing");
-        message.textProperty().bind(graphEvaluator.messageProperty());
-        new Thread(graphEvaluator).start();
+        message.textProperty().bind(task.messageProperty());
+        new Thread(task).start();
     }
 
     private void end(PearlGraph database) {
-        toGraphView();
         createGraph(database);
+        toGraphView();
     }
 
     private void toGraphView() {
@@ -177,17 +181,16 @@ public class PoirotView extends Tool {
         message.textProperty().unbind();
         message.setText("Done");
         getChildren().setAll(graphHBox);
+        graphView.setRootGenes(poirotPearlTable.getItems().subList(0, 1));
     }
 
     private void createGraph(PearlGraph database) {
-        if (database != null) {
-            final List<Pearl> candidates = getCandidates(database);
-            poirotPearlTable.getItems().setAll(candidates);
-            Collections.sort(poirotPearlTable.getItems(), (p1, p2) -> {
-                final int compare = Double.compare(p2.getScore(), p1.getScore());
-                return (compare != 0) ? compare : p1.getName().compareTo(p2.getName());
-            });
-        }
+        final List<Pearl> candidates = getCandidates(database);
+        poirotPearlTable.getItems().setAll(candidates);
+        Collections.sort(poirotPearlTable.getItems(), (p1, p2) -> {
+            final int compare = Double.compare(p2.getScore(), p1.getScore());
+            return (compare != 0) ? compare : p1.getId().compareTo(p2.getId());
+        });
     }
 
     private List<Pearl> getCandidates(PearlGraph database) {
@@ -199,7 +202,7 @@ public class PoirotView extends Tool {
 
     private void reload() {
         graphView.setRootGenes(poirotPearlTable.getSelectionModel().getSelectedItems());
-        poirotInfo.clear();
+        poirotInfo.clearView();
     }
 
     @Override

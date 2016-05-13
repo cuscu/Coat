@@ -19,6 +19,7 @@ package coat.core.vcf;
 
 import coat.core.vcf.stats.InfoStats;
 import javafx.scene.layout.VBox;
+import vcf.VcfFile;
 
 import java.util.ArrayList;
 import java.util.List;

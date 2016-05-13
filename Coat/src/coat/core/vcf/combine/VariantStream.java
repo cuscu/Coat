@@ -17,11 +17,11 @@
 
 package coat.core.vcf.combine;
 
-import coat.core.variant.Variant;
-import coat.core.variant.VariantFactory;
-import coat.core.vcf.VcfFile;
-import coat.core.vcf.VcfHeader;
 import coat.view.vcfreader.VcfSample;
+import vcf.Variant;
+import vcf.VariantFactory;
+import vcf.VcfFile;
+import vcf.VcfHeader;
 
 import java.io.*;
 import java.util.List;
@@ -116,14 +116,14 @@ public class VariantStream {
         Variant currentVariant = this.variant;
         while (currentVariant != null) {
             final int compareTo = currentVariant.compareTo(variant);
-            // Current variant is lower
+            // Current vcf is lower
             if (compareTo < 0) currentVariant = nextVariant();
-                // The variant is present
+                // The vcf is present
             else if (compareTo == 0) return checkZygotic(currentVariant, variant);
-                // Current variant is higher
+                // Current vcf is higher
             else break;
         }
-        // The variant is not present
+        // The vcf is not present
         if (inMist(variant) && vcfSample.getLevel() != VcfSample.Level.UNAFFECTED) {
             addMistInfo(variant);
             return true;
@@ -166,7 +166,7 @@ public class VariantStream {
 //        for (int i = 0; i < localVariant.getSamples().size(); i++) {
 //            final String[] values = localVariant.getSamples().get(i);
 //            final String name = vcfFile.getHeader().getSamples().get(i);
-//            variant.addSample(name, values);
+//            vcf.addSample(name, values);
 //        }
     }
 

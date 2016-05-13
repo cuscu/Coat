@@ -17,10 +17,12 @@
 
 package coat.core.poirot;
 
-import coat.core.vcf.VcfFile;
 import de.saxsys.mvvmfx.testingutils.jfxrunner.JfxRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import poirot.core.Pearl;
+import poirot.core.PearlGraph;
+import vcf.VcfFile;
 
 import java.io.File;
 import java.util.Collections;
@@ -45,10 +47,10 @@ public class PhenotypeScoreTest {
             final PearlGraph pearlDatabase = generator.get();
             PhenotypeScore.score(pearlDatabase);
             final List<Pearl> pearls = pearlDatabase.getPearls(Pearl.Type.DISEASE);
-            pearlDatabase.getPearls(Pearl.Type.EXPRESSION).forEach(pearls::add);
+            pearlDatabase.getPearls(Pearl.Type.TISSUE).forEach(pearls::add);
             Collections.sort(pearls, (p2, p1) -> Double.compare(p1.getScore(), p2.getScore()));
             final AtomicInteger count = new AtomicInteger();
-            pearls.forEach(pearl -> System.out.println(count.incrementAndGet() + " \t" + pearl.getScore() + " \t" + pearl.getName()));
+            pearls.forEach(pearl -> System.out.println(count.incrementAndGet() + " \t" + pearl.getScore() + " \t" + pearl.getId()));
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }

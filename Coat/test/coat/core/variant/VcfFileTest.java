@@ -16,11 +16,11 @@
  */
 package coat.core.variant;
 
-import coat.core.vcf.VcfFile;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import vcf.VcfFile;
 
 import java.io.BufferedReader;
 import java.io.File;

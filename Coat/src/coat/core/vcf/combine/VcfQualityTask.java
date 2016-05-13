@@ -17,14 +17,14 @@
 
 package coat.core.vcf.combine;
 
-import coat.core.variant.Variant;
 import coat.view.vcfreader.VcfSample;
 import javafx.concurrent.Task;
+import vcf.Variant;
 
 import java.util.List;
 
 /**
- * This task will score each variant with metadata generated from the bam and mist files related with the samples
+ * This task will score each vcf with metadata generated from the bam and mist files related with the samples
  * genetic information.
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  * @author Jacob

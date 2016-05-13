@@ -17,11 +17,12 @@
 
 package coat.core.vcf.combine;
 
-import coat.core.variant.Variant;
-import coat.core.vcf.VcfFile;
+
 import coat.view.vcfreader.VcfSample;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import vcf.Variant;
+import vcf.VcfFile;
 
 import java.util.List;
 import java.util.NoSuchElementException;

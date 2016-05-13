@@ -17,9 +17,10 @@
 
 package coat.core.poirot.dataset;
 
-import coat.core.poirot.Pearl;
-import coat.core.poirot.PearlGraph;
-import coat.core.poirot.PearlRelationship;
+
+import poirot.core.Pearl;
+import poirot.core.PearlGraph;
+import poirot.core.PearlRelationship;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -57,14 +58,14 @@ public class GeneToDiseaseRelator implements Relator {
 
     @Override
     public void expand(Pearl pearl, PearlGraph database) {
-        dataset.getInstances(pearl.getName(), 2).forEach(instance -> {
+        dataset.getInstances(pearl.getId(), 2).forEach(instance -> {
             final Pearl disease = database.getOrCreate(Pearl.Type.DISEASE, (String) instance.getField(4));
             disease.getProperties().putIfAbsent("name", instance.getField(4));
             disease.getProperties().putIfAbsent("id", instance.getField(5));
             disease.getProperties().putIfAbsent("status", instance.getField(6));
             final PearlRelationship relationship = pearl.createRelationshipTo(disease);
-            relationship.getProperties().put("database", instance.getField(0));
-            relationship.getProperties().put("type", instance.getField(3));
+            relationship.getProperties().put("database", (String) instance.getField(0));
+            relationship.getProperties().put("type", (String) instance.getField(3));
         });
 
     }

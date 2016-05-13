@@ -18,8 +18,6 @@
 package coat.view.vcfcombiner;
 
 import coat.core.tool.Tool;
-import coat.core.variant.Variant;
-import coat.core.vcf.VcfFile;
 import coat.core.vcf.combine.VcfCombineTask;
 import coat.utils.FileManager;
 import coat.utils.OS;
@@ -41,6 +39,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import vcf.Variant;
+import vcf.VcfFile;
 
 import java.io.File;
 import java.util.List;

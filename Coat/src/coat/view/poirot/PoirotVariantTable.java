@@ -17,8 +17,6 @@
 
 package coat.view.poirot;
 
-import coat.core.poirot.graph.GraphEvaluator;
-import coat.core.variant.Variant;
 import coat.utils.OS;
 import coat.view.graphic.NaturalCell;
 import javafx.beans.property.SimpleObjectProperty;
@@ -31,6 +29,8 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
+import poirot.view.GraphEvaluator;
+import vcf.Variant;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
@@ -51,7 +51,7 @@ public class PoirotVariantTable extends TableView<Variant> {
     }
 
     private TableColumn<Variant, String> getVariantColumn() {
-        final TableColumn<Variant, String> variant = new TableColumn<>(OS.getString("variant"));
+        final TableColumn<Variant, String> variant = new TableColumn<>(OS.getString("vcf"));
         variant.setCellFactory(param -> new NaturalCell<>());
         variant.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getRef() + "/" + param.getValue().getAlt()));
         return variant;

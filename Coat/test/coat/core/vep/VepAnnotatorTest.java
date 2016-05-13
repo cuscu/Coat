@@ -17,10 +17,10 @@
 
 package coat.core.vep;
 
-import coat.core.variant.Variant;
-import coat.core.vcf.VcfFile;
 import org.junit.Assert;
 import org.junit.Test;
+import vcf.Variant;
+import vcf.VcfFile;
 
 import java.io.File;
 

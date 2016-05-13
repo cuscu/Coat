@@ -17,13 +17,13 @@
 
 package coat.core.vep;
 
-import coat.core.variant.Variant;
-import coat.core.vcf.VcfFile;
 import coat.json.JSONArray;
 import coat.json.JSONException;
 import coat.json.JSONObject;
 import javafx.concurrent.Task;
 import org.jetbrains.annotations.NotNull;
+import vcf.Variant;
+import vcf.VcfFile;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -45,7 +45,7 @@ public class VepAnnotator extends Task<Boolean> {
             "##INFO=<ID=PROT,Number=1,Type=Integer,Description=\"Relative position of amino acid in protein\">",
             "##INFO=<ID=AMINO,Number=1,Type=String,Description=\"Amino acid change. Only given if the variation affects the protein-coding sequence\">",
             "##INFO=<ID=COD,Number=1,Type=String,Description=\"The alternative codons\">",
-            "##INFO=<ID=DIST,Number=1,Type=String,Description=\"Shortest distance from variant to transcript\">",
+            "##INFO=<ID=DIST,Number=1,Type=String,Description=\"Shortest distance from vcf to transcript\">",
             "##INFO=<ID=STR,Number=1,Type=String,Description=\"The DNA strand (1 or -1) on which the transcript/feature lies\">",
             "##INFO=<ID=SYMBOL,Number=1,Type=String,Description=\"Gene symbol or name\">",
             "##INFO=<ID=SRC,Number=1,Type=String,Description=\"The source of the gene symbol\">",
@@ -62,8 +62,8 @@ public class VepAnnotator extends Task<Boolean> {
             "##INFO=<ID=POLY,Number=1,Type=String,Description=\"PolyPhen prediction and/or score\">",
             "##INFO=<ID=MTFN,Number=1,Type=String,Description=\"source and identifier of a transcription factor binding profile aligned at this position\">",
             "##INFO=<ID=MTFP,Number=1,Type=String,Description=\"relative position of the variation in the aligned TFBP\">",
-            "##INFO=<ID=HIP,Number=0,Type=Flag,Description=\"a flag indicating if the variant falls in a high information position of a transcription factor binding profile (TFBP)\">",
-            "##INFO=<ID=MSC,Number=1,Type=String,Description=\"difference in motif score of the reference and variant sequences for the TFBP\">",
+            "##INFO=<ID=HIP,Number=0,Type=Flag,Description=\"a flag indicating if the vcf falls in a high information position of a transcription factor binding profile (TFBP)\">",
+            "##INFO=<ID=MSC,Number=1,Type=String,Description=\"difference in motif score of the reference and vcf sequences for the TFBP\">",
             "##INFO=<ID=CLLS,Number=1,Type=String,Description=\"List of cell types and classifications for regulatory feature\">",
             "##INFO=<ID=CANON,Number=0,Type=Flag,Description=\"Transcript is denoted as the canonical transcript for this gene\">",
             "##INFO=<ID=CCDS,Number=1,Type=String,Description=\"CCDS identifer for this transcript, where applicable\">",
@@ -79,12 +79,12 @@ public class VepAnnotator extends Task<Boolean> {
             "##INFO=<ID=AMR_MAF,Number=1,Type=String,Description=\"Minor allele and frequency of existing variation in 1000 Genomes Phase 1 combined American population\">",
             "##INFO=<ID=ASN_MAF,Number=1,Type=String,Description=\"Minor allele and frequency of existing variation in 1000 Genomes Phase 1 combined Asian population\">",
             "##INFO=<ID=EUR_MAF,Number=1,Type=String,Description=\"Minor allele and frequency of existing variation in 1000 Genomes Phase 1 combined European population\">",
-            "##INFO=<ID=AA_MAF,Number=1,Type=String,Description=\"Minor allele and frequency of existing variant in NHLBI-ESP African American population\">",
-            "##INFO=<ID=EA_MAF,Number=1,Type=String,Description=\"Minor allele and frequency of existing variant in NHLBI-ESP European American population\">",
-            "##INFO=<ID=CLIN,Number=1,Type=String,Description=\"Clinical significance of variant from dbSNP\">",
+            "##INFO=<ID=AA_MAF,Number=1,Type=String,Description=\"Minor allele and frequency of existing vcf in NHLBI-ESP African American population\">",
+            "##INFO=<ID=EA_MAF,Number=1,Type=String,Description=\"Minor allele and frequency of existing vcf in NHLBI-ESP European American population\">",
+            "##INFO=<ID=CLIN,Number=1,Type=String,Description=\"Clinical significance of vcf from dbSNP\">",
             "##INFO=<ID=BIO,Number=1,Type=String,Description=\"Biotype of transcript or regulatory feature\">",
             "##INFO=<ID=TSL,Number=1,Type=String,Description=\"Transcript support level\">",
-            "##INFO=<ID=PUBM,Number=1,Type=String,Description=\"Pubmed ID(s) of publications that cite existing variant\">",
+            "##INFO=<ID=PUBM,Number=1,Type=String,Description=\"Pubmed ID(s) of publications that cite existing vcf\">",
             "##INFO=<ID=SOMA,Number=1,Type=String,Description=\"Somatic status of existing variation(s)\">"
     };
     public static final int MAX_VARIANTS = 1000;
@@ -189,7 +189,7 @@ public class VepAnnotator extends Task<Boolean> {
 
     private void mapVepInfo(JSONArray json, List<Variant> variants) {
         // To go faster, as Vep does not guarantee the order of variants, I will copy the list of variants
-        // Then, each located variant will be removed from list
+        // Then, each located vcf will be removed from list
         final List<Variant> copy = new LinkedList<>(variants);
         for (int i = 0; i < json.length(); i++) {
 //            System.out.println(copy.hashCode() + " " + i);
@@ -216,11 +216,11 @@ public class VepAnnotator extends Task<Boolean> {
     }
 
     private static synchronized void incorporateData(Variant variant, JSONObject json) {
-//        final Map<String, String> map = variant.getInfo();
+//        final Map<String, String> map = vcf.getInfo();
         addFrequencyData(variant, json);
         addTranscriptConsequences(variant, json);
         addIntergenicConsequences(variant, json);
-//        variant.setInfo(map);
+//        vcf.setInfo(map);
     }
 
     private static void addFrequencyData(Variant variant, JSONObject json) {
@@ -368,12 +368,12 @@ public class VepAnnotator extends Task<Boolean> {
 
     /**
      * Checks if sourceKey is present in the source JSONObject. In that case, reads a classType
-     * object and puts it into target variant with targetKey.
+     * object and puts it into target vcf with targetKey.
      *
      * @param source    source JSONObject
      * @param sourceKey key in the source JSONObject
-     * @param variant       target variant
-     * @param targetKey key in the target variant
+     * @param variant       target vcf
+     * @param targetKey key in the target vcf
      * @param classType type of value in source JSONObject
      */
     private static void findAndPut(JSONObject source, String sourceKey, Variant variant,

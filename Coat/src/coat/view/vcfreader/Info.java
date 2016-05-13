@@ -18,7 +18,7 @@
 package coat.view.vcfreader;
 
 /**
- * Encapsulates name, value and description of a VCF INFO field. Use it on variant INFO table. This
+ * Encapsulates name, value and description of a VCF INFO field. Use it on vcf INFO table. This
  * is a final class and fields will not be modified.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)

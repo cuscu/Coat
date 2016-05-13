@@ -157,7 +157,7 @@ public class VariantsList extends VBox implements ListChangeListener<Instance> {
                     tableView.getColumns().add(column);
                 });
                 for (int i = 5; i < tableView.getColumns().size(); i++) tableView.getColumns().get(i).setVisible(false);
-                tableView.getColumns().get(0).getStyleClass().add("variant-column");
+                tableView.getColumns().get(0).getStyleClass().add("vcf-column");
                 tableView.getSelectionModel();
             }
         }

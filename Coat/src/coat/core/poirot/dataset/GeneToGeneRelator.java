@@ -1,25 +1,26 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
+ * *
  * This program is free software: you can redistribute it and/or modify it    *
  * under the terms of the GNU General Public License as published by the      *
  * Free Software Foundation, either version 3 of the License, or (at your     *
  * option) any later version.                                                 *
- *                                                                            *
+ * *
  * This program is distributed in the hope that it will be useful, but        *
  * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
  * See the GNU General Public License for more details.                       *
- *                                                                            *
+ * *
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
 package coat.core.poirot.dataset;
 
-import coat.core.poirot.Pearl;
-import coat.core.poirot.PearlGraph;
-import coat.core.poirot.PearlRelationship;
+
+import poirot.core.Pearl;
+import poirot.core.PearlGraph;
+import poirot.core.PearlRelationship;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,8 +33,8 @@ import java.util.zip.GZIPInputStream;
  */
 public class GeneToGeneRelator implements Relator {
 
-    private final Dataset dataset = loadDataset();
     private final String FILE = "gene-to-gene.tsv.gz";
+    private final Dataset dataset = loadDataset();
 
     private Dataset loadDataset() {
         final Dataset dataset = new Dataset();
@@ -58,11 +59,11 @@ public class GeneToGeneRelator implements Relator {
 
     @Override
     public void expand(Pearl pearl, PearlGraph database) {
-        dataset.getInstances(pearl.getName(), 2).forEach(instance -> {
+        dataset.getInstances(pearl.getId(), 2).forEach(instance -> {
             final Pearl target = database.getOrCreate(Pearl.Type.GENE, (String) instance.getField(3));
             createRelationship(pearl, instance, target);
         });
-        dataset.getInstances(pearl.getName(), 3).forEach(instance -> {
+        dataset.getInstances(pearl.getId(), 3).forEach(instance -> {
             final Pearl target = database.getOrCreate(Pearl.Type.GENE, (String) instance.getField(2));
             createRelationship(pearl, instance, target);
         });
@@ -71,11 +72,11 @@ public class GeneToGeneRelator implements Relator {
     private void createRelationship(Pearl pearl, Instance instance, Pearl target) {
         if (relationshipExists(pearl, instance, target)) return;
         final PearlRelationship relationship = pearl.createRelationshipTo(target);
-        relationship.getProperties().put("database", instance.getField(0));
-        relationship.getProperties().put("id", instance.getField(1));
-        relationship.getProperties().put("method", instance.getField(4));
-        relationship.getProperties().put("type", instance.getField(5));
-        relationship.getProperties().put("score", instance.getField(6));
+        relationship.getProperties().put("database", (String) instance.getField(0));
+        relationship.getProperties().put("id", (String) instance.getField(1));
+        relationship.getProperties().put("method", (String) instance.getField(4));
+        relationship.getProperties().put("type", (String) instance.getField(5));
+        relationship.getProperties().put("score", (String) instance.getField(6));
     }
 
     private boolean relationshipExists(Pearl pearl, Instance instance, Pearl target) {

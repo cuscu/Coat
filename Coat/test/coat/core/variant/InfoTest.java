@@ -20,6 +20,7 @@ package coat.core.variant;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import vcf.Info;
 
 import java.util.HashMap;
 import java.util.Map;

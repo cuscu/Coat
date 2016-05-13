@@ -19,10 +19,8 @@ package coat.view.vcfreader;
 
 import coat.CoatView;
 import coat.core.reader.Reader;
-import coat.core.variant.Variant;
 import coat.core.vcf.LFS;
 import coat.core.vcf.TsvSaver;
-import coat.core.vcf.VcfFile;
 import coat.core.vcf.VcfStats;
 import coat.core.vep.VepAnnotator;
 import coat.utils.FileManager;
@@ -38,6 +36,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import vcf.Variant;
+import vcf.VcfFile;
 
 import java.io.File;
 import java.util.ArrayList;

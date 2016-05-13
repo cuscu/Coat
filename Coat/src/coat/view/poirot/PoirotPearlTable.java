@@ -17,12 +17,12 @@
 
 package coat.view.poirot;
 
-import coat.core.poirot.Pearl;
 import coat.view.graphic.IndexCell;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import poirot.core.Pearl;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
@@ -43,7 +43,7 @@ public class PoirotPearlTable extends TableView<Pearl> {
         menuItem.setOnAction(event -> copy());
         distanceColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getDistanceToPhenotype()));
         scoreColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(String.format("%.3f", param.getValue().getScore())));
-        nameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getName()));
+        nameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getId()));
         indexColumn.setCellFactory(param -> new IndexCell());
     }
 
@@ -51,7 +51,7 @@ public class PoirotPearlTable extends TableView<Pearl> {
         final StringBuilder builder = new StringBuilder();
         getSelectionModel().getSelectedItems()
                 .forEach(pearl -> builder
-                        .append(pearl.getName()).append("\t")
+                        .append(pearl.getId()).append("\t")
                         .append(String.format("%.3f", pearl.getScore())).append("\t")
                         .append(pearl.getDistanceToPhenotype()).append("\n"));
         final ClipboardContent content = new ClipboardContent();

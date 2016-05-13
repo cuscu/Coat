@@ -1,34 +1,35 @@
-/******************************************************************************
- * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
- * This program is free software: you can redistribute it and/or modify it    *
- * under the terms of the GNU General Public License as published by the      *
- * Free Software Foundation, either version 3 of the License, or (at your     *
- * option) any later version.                                                 *
- *                                                                            *
- * This program is distributed in the hope that it will be useful, but        *
- * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
- * See the GNU General Public License for more details.                       *
- *                                                                            *
- * You should have received a copy of the GNU General Public License          *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
- ******************************************************************************/
+/*
+ * Copyright (c) UICHUIMI 2016
+ *
+ * This file is part of Coat.
+ *
+ * Coat is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * Coat is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Foobar.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package coat.view.poirot;
 
-import coat.core.poirot.GraphFactory;
-import coat.core.poirot.Pearl;
-import coat.core.poirot.PearlGraph;
-import coat.core.poirot.graph.GraphEvaluator;
-import coat.core.vcf.VcfFile;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import poirot.core.Pearl;
+import poirot.core.PearlGraph;
+import poirot.core.PearlGraphFactory;
+import poirot.view.GraphEvaluator;
+import vcf.VcfFile;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -39,10 +40,10 @@ import java.util.List;
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class PoirotInputPane extends VBox {
+class PoirotInputPane extends VBox {
 
     private final PhenotypeSelector phenotypeSelector = new PhenotypeSelector();
-    private final ProgressIndicator loading = new ProgressIndicator();
+    private final ProgressBar loading = new ProgressBar();
 
     private Property<PearlGraph> database = new SimpleObjectProperty<>();
 
@@ -62,19 +63,18 @@ public class PoirotInputPane extends VBox {
         new Thread(() -> {
             final VcfFile vcfFile = new VcfFile(file);
             System.out.println("Variants loaded");
-            final GraphFactory analysis = new GraphFactory(vcfFile.getVariants());
-            analysis.setOnSucceeded(event -> fileLoaded(analysis));
-            new Thread(analysis).start();
+            final PearlGraph graph = PearlGraphFactory.createFromPoirotCore(new File("config/poirot-brain.txt.gz"));
+            graph.addVariants(vcfFile);
+            fileLoaded(graph);
         }).start();
     }
 
-    private void fileLoaded(GraphFactory analysis) {
-        final PearlGraph pearlDatabase = analysis.getValue();
-        database.setValue(pearlDatabase);
-        new GraphEvaluator(pearlDatabase).run();
+    private void fileLoaded(PearlGraph pearlGraph) {
+        database.setValue(pearlGraph);
+        new GraphEvaluator(pearlGraph).run();
         final List<Pearl> list = new ArrayList<>();
-        pearlDatabase.getPearls(Pearl.Type.EXPRESSION).stream().forEach(list::add);
-        pearlDatabase.getPearls(Pearl.Type.DISEASE).stream().forEach(list::add);
+        pearlGraph.getPearls(Pearl.Type.TISSUE).stream().forEach(list::add);
+        pearlGraph.getPearls(Pearl.Type.DISEASE).stream().forEach(list::add);
         phenotypeSelector.setPhenotypes(list);
         phenotypeSelector.setDisable(false);
         loading.setVisible(false);
@@ -84,7 +84,7 @@ public class PoirotInputPane extends VBox {
         return database.getValue();
     }
 
-    public List<Pearl> getSelectedPhenotypes() {
+    List<Pearl> getSelectedPhenotypes() {
         return phenotypeSelector.getSelectedPhenotypes();
     }
 

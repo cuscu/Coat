@@ -17,9 +17,10 @@
 
 package coat.core.variant;
 
-import coat.core.vcf.VcfFile;
 import org.junit.Assert;
 import org.junit.Test;
+import vcf.Variant;
+import vcf.VcfFile;
 
 import java.io.File;
 import java.util.HashMap;

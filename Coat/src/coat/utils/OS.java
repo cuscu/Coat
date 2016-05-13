@@ -152,7 +152,7 @@ public class OS {
     }
 
     public static String getString(String key) {
-        return resources.getString(key);
+        return resources.containsKey(key) ? resources.getString(key) : "";
     }
 
     /**

@@ -17,11 +17,11 @@
 
 package coat.view.vcfreader;
 
-import coat.core.variant.Variant;
 import coat.utils.OS;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import vcf.Variant;
 
 import java.util.List;
 

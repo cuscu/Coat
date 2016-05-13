@@ -16,7 +16,11 @@
  ******************************************************************************/
 package coat.core.poirot.dataset;
 
+import coat.core.poirot.dataset.graph.PoirotGraphLabels;
+import coat.core.poirot.dataset.hgnc.HGNC;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import java.io.File;
@@ -31,14 +35,34 @@ public class PoirotDatabaseUpdater {
 
     public void start() {
         graphDatabase = new GraphDatabaseFactory().newEmbeddedDatabase(new File("graphDatabase"));
+        try (Transaction transaction = graphDatabase.beginTx()) {
+            graphDatabase.schema().indexFor(PoirotGraphLabels.GENE).on("symbol").create();
+        }
         shutdownWithSystem(graphDatabase);
         performSomeTasks();
         closeConnection();
     }
 
     private void performSomeTasks() {
+        addHGNC();
 //        addOmimData();
         addBioGridData();
+    }
+
+    private void addHGNC() {
+        System.out.println("Adding HGNC genes");
+        try (Transaction transaction = graphDatabase.beginTx()) {
+            HGNC.getAllGenes().forEach((symbol, name) -> {
+                final Node node = graphDatabase.findNode(PoirotGraphLabels.GENE, "symbol", symbol);
+                if (node == null) {
+                    final Node geneNode = graphDatabase.createNode(PoirotGraphLabels.GENE);
+                    geneNode.setProperty("symbol", symbol);
+                    geneNode.setProperty("name", name);
+                }
+            });
+            transaction.success();
+        }
+        System.out.println("Genes updated");
     }
 
     private void addOmimData() {

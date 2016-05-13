@@ -17,8 +17,9 @@
 
 package coat.core.vcf;
 
-import coat.core.variant.Variant;
 import coat.utils.OS;
+import vcf.Variant;
+import vcf.VcfFile;
 
 import java.io.*;
 import java.util.List;

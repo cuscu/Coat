@@ -17,9 +17,11 @@
 
 package coat.core.poirot.dataset;
 
-import coat.core.poirot.Pearl;
-import coat.core.poirot.PearlGraph;
-import coat.core.poirot.PearlRelationship;
+
+
+import poirot.core.Pearl;
+import poirot.core.PearlGraph;
+import poirot.core.PearlRelationship;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -57,12 +59,12 @@ public class GeneToExpressionRelator implements Relator {
 
     @Override
     public void expand(Pearl pearl, PearlGraph database) {
-        dataset.getInstances(pearl.getName(), 1).forEach(instance -> {
-            final Pearl expression = database.getOrCreate(Pearl.Type.EXPRESSION, (String) instance.getField(2));
+        dataset.getInstances(pearl.getId(), 1).forEach(instance -> {
+            final Pearl expression = database.getOrCreate(Pearl.Type.TISSUE, (String) instance.getField(2));
             expression.getProperties().putIfAbsent("name", instance.getField(2));
             final PearlRelationship relationship = pearl.createRelationshipTo(expression);
-            relationship.getProperties().put("database", instance.getField(0));
-            relationship.getProperties().put("type", instance.getField(3));
+            relationship.getProperties().put("database", (String) instance.getField(0));
+            relationship.getProperties().put("type", (String) instance.getField(3));
         });
 
     }

@@ -20,7 +20,6 @@ package coat;
 import coat.core.reader.Reader;
 import coat.core.tool.Tool;
 import coat.core.tool.ToolMenu;
-import coat.core.vcf.VcfFile;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.MemoryPane;
@@ -43,6 +42,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import vcf.VcfFile;
 
 import java.io.File;
 import java.io.IOException;

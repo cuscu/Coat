@@ -20,23 +20,30 @@ package coat.core.poirot.dataset;
 import coat.core.poirot.dataset.graph.PoirotGraphLabels;
 import coat.core.poirot.dataset.graph.PoirotGraphRelationships;
 import coat.core.poirot.dataset.hgnc.HGNC;
+import org.jetbrains.annotations.Nullable;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
 import java.io.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 
 /**
  * Created by uichuimi on 15/03/16.
  */
-public class BioGridNeo {
+class BioGridNeo {
 
     private final static File BIOGRID_FILE = new File("/home/uichuimi/Descargas/BIOGRID-ALL-3.4.134.tab2.txt.gz");
     private final static BioGridNeo BIO_GRID_NEO = new BioGridNeo();
-
+    private final static int CACHE_SIZE = 4;
+    private List<Node> nodeCache = new ArrayList<>();
+    private long findNodeTime = 0;
     private GraphDatabaseService graphDatabase;
 
     private BioGridNeo() {
@@ -48,19 +55,61 @@ public class BioGridNeo {
 
     void update(GraphDatabaseService graphDatabase) {
         this.graphDatabase = graphDatabase;
+        readInputFile(graphDatabase);
+    }
 
+    private void readInputFile(GraphDatabaseService graphDatabase) {
+        AtomicInteger counter = new AtomicInteger();
+        final long start = System.currentTimeMillis();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(BIOGRID_FILE))))) {
-            reader.lines().filter(line -> !line.startsWith("#")).map(BioGridEntry::new).forEach(entry -> {
-                try (Transaction transaction = graphDatabase.beginTx()) {
-                    final Node aNode = graphDatabase.findNode(PoirotGraphLabels.GENE, "symbol", entry.aSymbol);
-                    final Node bNode = graphDatabase.findNode(PoirotGraphLabels.GENE, "symbol", entry.bSymbol);
+            try (Transaction transaction = graphDatabase.beginTx()) {
+                reader.lines().filter(line -> !line.startsWith("#")).map(BioGridEntry::new).forEach(entry -> {
+                    final Node aNode = getOrCreateGeneNode(entry.aSymbol);
+                    final Node bNode = getOrCreateGeneNode(entry.bSymbol);
                     if (!relationshipExists(entry, aNode)) createRelationship(entry, aNode, bNode);
-                    transaction.success();
-                }
-            });
+                    if (counter.incrementAndGet() % 1000 == 0) System.out.println(counter);
+                });
+                transaction.success();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        long totalTime = System.currentTimeMillis() - start;
+        final DateFormat df = new SimpleDateFormat("HH:mm:ss");
+        System.out.println("Total time: " + df.format(totalTime));
+        System.out.println("Find node time: " + df.format(findNodeTime));
+    }
+
+    private Node getOrCreateGeneNode(String symbol) {
+        final long start = System.currentTimeMillis();
+        Node node = findInCache(symbol);
+        if (node == null) {
+            node = graphDatabase.findNode(PoirotGraphLabels.GENE, "symbol", symbol);
+            if (node == null) {
+                node = graphDatabase.createNode(PoirotGraphLabels.GENE);
+                node.setProperty("symbol", symbol);
+            }
+            addToCache(node);
+        }
+        findNodeTime += System.currentTimeMillis() - start;
+        return node;
+    }
+
+    @Nullable
+    private Node findInCache(String symbol) {
+        for (Node n : nodeCache) if (n.getProperty("symbol").equals(symbol)) return n;
+        return null;
+    }
+
+    private void addToCache(Node node) {
+        if (nodeCache.size() == CACHE_SIZE) nodeCache.remove(CACHE_SIZE - 1);
+        nodeCache.add(node);
+    }
+
+    private boolean relationshipExists(BioGridEntry entry, Node node) {
+        for (Relationship relationship : node.getRelationships())
+            if (relationship.getProperty("id").equals(entry.db_id)) return true;
+        return false;
     }
 
     private void createRelationship(BioGridEntry entry, Node aNode, Node bNode) {
@@ -69,14 +118,6 @@ public class BioGridNeo {
         relationshipTo.setProperty("system", entry.system);
         relationshipTo.setProperty("type", entry.type);
         relationshipTo.setProperty("modification", entry.modification);
-    }
-
-    private boolean relationshipExists(BioGridEntry entry, Node aNode) {
-        final AtomicBoolean exists = new AtomicBoolean(false);
-        aNode.getRelationships().forEach(relationship -> {
-            if (relationship.getProperty("id").equals(entry.db_id)) exists.set(true);
-        });
-        return exists.get();
     }
 
     private class BioGridEntry {

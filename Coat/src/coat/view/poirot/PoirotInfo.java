@@ -1,31 +1,33 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
+ * *
  * This program is free software: you can redistribute it and/or modify it    *
  * under the terms of the GNU General Public License as published by the      *
  * Free Software Foundation, either version 3 of the License, or (at your     *
  * option) any later version.                                                 *
- *                                                                            *
+ * *
  * This program is distributed in the hope that it will be useful, but        *
  * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
  * See the GNU General Public License for more details.                       *
- *                                                                            *
+ * *
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
 package coat.view.poirot;
 
-import coat.core.poirot.Pearl;
-import coat.core.poirot.PearlRelationship;
 import coat.core.poirot.dataset.hgnc.HGNC;
-import coat.core.variant.Variant;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import org.jetbrains.annotations.NotNull;
+import poirot.core.Pearl;
+import poirot.core.PearlRelationship;
+import poirot.view.GraphNode;
+import poirot.view.GraphRelationship;
+import poirot.view.Selectable;
+import vcf.Variant;
 
 import java.awt.*;
 import java.io.IOException;
@@ -58,10 +60,10 @@ public class PoirotInfo extends VBox {
     }
 
     private void showGeneDescription(Pearl pearl) {
-        final String symbol = pearl.getName();
+        final String symbol = pearl.getId();
         String description = getDescription(symbol);
         if (pearl.getType() == Pearl.Type.GENE) {
-            final Hyperlink hyperlink = getHyperlink(symbol, description);
+            final Hyperlink hyperlink = getHyperlink(symbol + "(" + description + ")", "http://v4.genecards.org/cgi-bin/carddisp.pl?gene=" + symbol);
             getChildren().add(hyperlink);
         }
         final java.util.List<Variant> variants = (java.util.List<Variant>) pearl.getProperties().get("variants");
@@ -69,13 +71,11 @@ public class PoirotInfo extends VBox {
             poirotVariantTable.getItems().setAll(variants);
             getChildren().add(poirotVariantTable);
         }
-//            for (Variant variant : variants) infoBox.getChildren().add(new Label(simplified(variant)));
+//            for (Variant vcf : variants) infoBox.getChildren().add(new Label(simplified(vcf)));
     }
 
-    @NotNull
-    private Hyperlink getHyperlink(String symbol, String description) {
-        final String url = "http://v4.genecards.org/cgi-bin/carddisp.pl?gene=" + symbol;
-        final Hyperlink hyperlink = new Hyperlink(symbol + " (" + description + ")");
+    private Hyperlink getHyperlink(String text, String url) {
+        final Hyperlink hyperlink = new Hyperlink(text);
         hyperlink.setOnAction(event -> new Thread(() -> {
             try {
                 Desktop.getDesktop().browse(new URI(url));
@@ -97,36 +97,27 @@ public class PoirotInfo extends VBox {
     }
 
     private void showFenotipeDescription(Pearl pearl) {
-        getChildren().add(new Label(pearl.getName()));
+        if (pearl.getId().startsWith("omim:")) {
+            final String mimNumber = pearl.getId().split(":")[1];
+            final Hyperlink hyperlink = getHyperlink(pearl.getId() + " " + pearl.getProperties().get("name"), "http://omim.org/entry/" + mimNumber);
+            getChildren().add(hyperlink);
+        } else {
+            getChildren().add(new Label(pearl.getId()));
+        }
         getChildren().add(new Label(pearl.getProperties().toString()));
     }
-
-//    private void loadOmimDataset() {
-//        if (omimDataset == null) {
-//            try {
-//                final OmimDatasetLoader loader = new OmimDatasetLoader();
-//                loader.run();
-//                omimDataset = loader.get();
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            } catch (ExecutionException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-
 
     public void setRelationship(GraphRelationship relationship) {
         getChildren().clear();
         if (relationship == null) return;
         final PearlRelationship firstPearlRelationship = relationship.getRelationships().get(0);
-        getChildren().add(new Label(firstPearlRelationship.getSource().getName() + " <--> " + firstPearlRelationship.getTarget().getName()));
+        getChildren().add(new Label(firstPearlRelationship.getSource().getId() + " <--> " + firstPearlRelationship.getTarget().getId()));
         getChildren().add(poirotRelationshipTable);
         poirotRelationshipTable.getItems().setAll(relationship.getRelationships());
 //        relationship.getRelationships().forEach(pearlRelationship -> getChildren().add(new Label(pearlRelationship.getProperties().toString())));
     }
 
-    public void clear() {
+    public void clearView() {
         getChildren().clear();
     }
 }

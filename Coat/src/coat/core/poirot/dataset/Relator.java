@@ -17,8 +17,9 @@
 
 package coat.core.poirot.dataset;
 
-import coat.core.poirot.Pearl;
-import coat.core.poirot.PearlGraph;
+
+import poirot.core.Pearl;
+import poirot.core.PearlGraph;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)

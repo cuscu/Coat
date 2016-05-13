@@ -1,53 +1,57 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
+ * *
  * This program is free software: you can redistribute it and/or modify it    *
  * under the terms of the GNU General Public License as published by the      *
  * Free Software Foundation, either version 3 of the License, or (at your     *
  * option) any later version.                                                 *
- *                                                                            *
+ * *
  * This program is distributed in the hope that it will be useful, but        *
  * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
  * See the GNU General Public License for more details.                       *
- *                                                                            *
+ * *
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
 package coat.view.poirot;
 
-import coat.core.poirot.PearlRelationship;
 import coat.utils.OS;
 import coat.view.graphic.NaturalCell;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import poirot.core.PearlRelationship;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class PoirotRelationshipTable extends TableView<PearlRelationship> {
+class PoirotRelationshipTable extends TableView<PearlRelationship> {
 
-    // "database", "id", "source", "target", "method", "type", "score"
-
-    public PoirotRelationshipTable() {
-        getColumns().addAll(getDatabaseColumn(), getIdColumn(), getMethodColumn(), getTypeColumn(), getScoreColumn());
+    PoirotRelationshipTable() {
+        getColumns().addAll(getDatabaseColumn(), getIdColumn(), getMethodColumn(), getTypeColumn(), getConfidenceColumn(), getReliabilityColumn());
         setMaxHeight(200);
+    }
+
+    private TableColumn<PearlRelationship, String> getReliabilityColumn() {
+        final TableColumn<PearlRelationship, String> reliability = new TableColumn<>(OS.getString("reliability"));
+        reliability.setCellFactory(param -> new NaturalCell<>());
+        reliability.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getProperties().get("reliability")));
+        return reliability;
     }
 
     private TableColumn<PearlRelationship, String> getDatabaseColumn() {
         final TableColumn<PearlRelationship, String> database = new TableColumn<>(OS.getString("database"));
         database.setCellFactory(param -> new NaturalCell<>());
-        database.setCellValueFactory(param -> new SimpleObjectProperty<>((String) param.getValue().getProperties().get("database")));
+        database.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getProperties().get("id").split(":")[0]));
         return database;
     }
 
     private TableColumn<PearlRelationship, String> getIdColumn() {
         final TableColumn<PearlRelationship, String> id = new TableColumn<>(OS.getString("id"));
         id.setCellFactory(param -> new NaturalCell<>());
-        id.setCellValueFactory(param -> new SimpleObjectProperty<>((String) param.getValue().getProperties().get("id")));
-//        id.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().toString()));
+        id.setCellValueFactory(param -> new SimpleObjectProperty<>((param.getValue().getProperties().get("id"))));
         return id;
     }
 
@@ -65,10 +69,10 @@ public class PoirotRelationshipTable extends TableView<PearlRelationship> {
         return method;
     }
 
-    private TableColumn<PearlRelationship, String> getScoreColumn() {
-        final TableColumn<PearlRelationship, String> method = new TableColumn<>(OS.getString("score"));
+    private TableColumn<PearlRelationship, String> getConfidenceColumn() {
+        final TableColumn<PearlRelationship, String> method = new TableColumn<>(OS.getString("confidence"));
         method.setCellFactory(param -> new NaturalCell<>());
-        method.setCellValueFactory(param -> new SimpleObjectProperty<>((String) param.getValue().getProperties().get("score")));
+        method.setCellValueFactory(param -> new SimpleObjectProperty<>((String) param.getValue().getProperties().get("confidence")));
         return method;
     }
 }

@@ -1,23 +1,22 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
+ * *
  * This program is free software: you can redistribute it and/or modify it    *
  * under the terms of the GNU General Public License as published by the      *
  * Free Software Foundation, either version 3 of the License, or (at your     *
  * option) any later version.                                                 *
- *                                                                            *
+ * *
  * This program is distributed in the hope that it will be useful, but        *
  * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
  * See the GNU General Public License for more details.                       *
- *                                                                            *
+ * *
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
 package coat.view.poirot;
 
-import coat.core.poirot.Pearl;
 import coat.utils.OS;
 import coat.view.graphic.NaturalCell;
 import javafx.beans.property.Property;
@@ -39,11 +38,12 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
+import poirot.core.Pearl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Pane to select input phenotypes. There are two controls: a list with the selected phenotypes and an autoFillComboBox
@@ -55,11 +55,11 @@ class PhenotypeSelector extends VBox {
 
     private final static String OPTION_ALL = OS.getString("all").toUpperCase();
     private final static String OPTION_SELECTED = OS.getString("selected.plural").toUpperCase();
-    private final static String OPTION_EXPRESSION = OS.getString("expression").toUpperCase();
+    private final static String OPTION_TISSUE = OS.getString("tissue").toUpperCase();
     private final static String OPTION_DISEASE = OS.getString("disease").toUpperCase();
 
     private final static String[] menuOptions = {
-            OPTION_ALL, OPTION_SELECTED, OPTION_DISEASE, OPTION_EXPRESSION
+            OPTION_ALL, OPTION_SELECTED, OPTION_DISEASE, OPTION_TISSUE
     };
 
     private final ListView<String> leftMenu = new ListView<>();
@@ -102,6 +102,10 @@ class PhenotypeSelector extends VBox {
         final TableColumn<Phenotype, Boolean> selected = getSelectedColumn();
         final TableColumn<Phenotype, String> name = getNameColumn();
         final TableColumn<Phenotype, Double> score = getScoreColumn();
+        selected.setMaxWidth(200);
+        selected.setMinWidth(100);
+        score.setMaxWidth(150);
+        score.setMinWidth(100);
         phenotypeTable.getColumns().addAll(selected, score, name);
         phenotypeTable.setEditable(true);
         phenotypeTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -127,7 +131,7 @@ class PhenotypeSelector extends VBox {
 
     private String getTableAsString() {
         final StringBuilder builder = new StringBuilder();
-        phenotypeTable.getItems().forEach(phenotype -> builder.append(phenotype.pearl.getScore()).append("\t").append(phenotype.pearl.getName()).append(System.lineSeparator()));
+        phenotypeTable.getItems().forEach(phenotype -> builder.append(phenotype.pearl.getScore()).append("\t").append(phenotype.pearl.getId()).append(System.lineSeparator()));
         return builder.toString();
     }
 
@@ -139,7 +143,7 @@ class PhenotypeSelector extends VBox {
 
     private TableColumn<Phenotype, String> getNameColumn() {
         final TableColumn<Phenotype, String> name = new TableColumn<>(OS.getString("name"));
-        name.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().pearl.getName()));
+        name.setCellValueFactory(param -> new SimpleStringProperty((String) param.getValue().pearl.getProperties().get("name")));
         name.setCellFactory(param -> new NaturalCell<>());
         name.setPrefWidth(400);
         return name;
@@ -181,26 +185,23 @@ class PhenotypeSelector extends VBox {
     }
 
     private List<Phenotype> getFilteredPhenotypes(String selectedType, String searchValue) {
-        if (selectedType.equals(OPTION_ALL)) {
-            return phenotypes.stream()
-                    .filter(phenotype -> phenotype.pearl.getName().toLowerCase().contains(searchValue))
-                    .collect(Collectors.toList());
-        } else if (selectedType.equals(OPTION_SELECTED)) {
-            return phenotypes.stream()
-                    .filter(phenotype -> phenotype.selected.getValue())
-                    .collect(Collectors.toList());
-        } else if (selectedType.equals(OPTION_DISEASE)) {
-            return phenotypes.stream()
-                    .filter(phenotype -> phenotype.pearl.getType() == Pearl.Type.DISEASE)
-                    .filter(phenotype -> phenotype.pearl.getName().toLowerCase().contains(searchValue))
-                    .collect(Collectors.toList());
-        } else if (selectedType.equals(OPTION_EXPRESSION)) {
-            return phenotypes.stream()
-                    .filter(phenotype -> phenotype.pearl.getType() == Pearl.Type.EXPRESSION)
-                    .filter(phenotype -> phenotype.pearl.getName().toLowerCase().contains(searchValue))
-                    .collect(Collectors.toList());
-        }
-        return Collections.emptyList();
+        return getFilterStream(selectedType)
+                .filter(phenotype -> phenotype.pearl.getProperties().containsKey("name"))
+                .filter(phenotype -> ((String) phenotype.pearl.getProperties().get("name"))
+                        .toLowerCase()
+                        .contains(searchValue))
+                .collect(Collectors.toList());
+    }
+
+    private Stream<Phenotype> getFilterStream(String selectedType) {
+        if (selectedType.equals(OPTION_ALL)) return phenotypes.stream();
+        if (selectedType.equals(OPTION_SELECTED))
+            return phenotypes.stream().filter(phenotype -> phenotype.selected.getValue());
+        if (selectedType.equals(OPTION_DISEASE))
+            return phenotypes.stream().filter(phenotype -> phenotype.pearl.getType() == Pearl.Type.DISEASE);
+        if (selectedType.equals(OPTION_TISSUE))
+            return phenotypes.stream().filter(phenotype -> phenotype.pearl.getType() == Pearl.Type.TISSUE);
+        return Stream.empty();
     }
 
     public List<Pearl> getSelectedPhenotypes() {

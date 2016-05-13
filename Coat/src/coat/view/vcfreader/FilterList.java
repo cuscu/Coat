@@ -17,7 +17,6 @@
 
 package coat.view.vcfreader;
 
-import coat.core.variant.Variant;
 import coat.core.vcf.VcfFilter;
 import coat.utils.OS;
 import coat.view.graphic.SizableImage;
@@ -37,6 +36,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import vcf.Variant;
 
 import java.util.Arrays;
 import java.util.List;

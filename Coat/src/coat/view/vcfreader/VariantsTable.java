@@ -17,8 +17,6 @@
 
 package coat.view.vcfreader;
 
-import coat.core.variant.Variant;
-import coat.core.vcf.VcfFile;
 import coat.utils.OS;
 import coat.view.graphic.IndexCell;
 import coat.view.graphic.NaturalCell;
@@ -37,6 +35,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
+import vcf.Variant;
+import vcf.VcfFile;
 
 import java.util.List;
 import java.util.Locale;
@@ -56,7 +56,7 @@ public class VariantsTable extends VBox {
     private final TableColumn<Variant, String> position
             = new TableColumn<>(OS.getResources().getString("position"));
     private final TableColumn<Variant, Variant> variant
-            = new TableColumn<>(OS.getResources().getString("variant"));
+            = new TableColumn<>(OS.getResources().getString("vcf"));
     private final TableColumn<Variant, String> rsId = new TableColumn<>("ID");
     private final TableColumn<Variant, String> qual
             = new TableColumn<>(OS.getResources().getString("quality"));

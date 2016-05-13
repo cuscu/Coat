@@ -17,11 +17,11 @@
 
 package coat.view.vcfreader;
 
-import coat.core.variant.Variant;
 import javafx.geometry.Insets;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import vcf.Variant;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)

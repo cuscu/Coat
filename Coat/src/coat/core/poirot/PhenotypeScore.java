@@ -17,8 +17,12 @@
 
 package coat.core.poirot;
 
-import coat.core.poirot.graph.GraphEvaluator;
-import coat.core.variant.Variant;
+
+import poirot.core.Pearl;
+import poirot.core.PearlGraph;
+import poirot.core.PearlRelationship;
+import poirot.view.GraphEvaluator;
+import vcf.Variant;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,7 +37,7 @@ public class PhenotypeScore {
 
     public static void score(PearlGraph database) {
         database.getPearls(Pearl.Type.DISEASE).forEach(PhenotypeScore::score);
-        database.getPearls(Pearl.Type.EXPRESSION).forEach(PhenotypeScore::score);
+        database.getPearls(Pearl.Type.TISSUE).forEach(PhenotypeScore::score);
     }
 
     private static void score(Pearl pearl) {
@@ -82,21 +86,23 @@ public class PhenotypeScore {
     }
 
     private static double score(PearlRelationship pearlRelationship) {
-        return GraphEvaluator.RELATIONSHIP_SCORE.getOrDefault(getRelationshipType(pearlRelationship), 1.0);
+        return GraphEvaluator.getRelationshipScore(pearlRelationship);
     }
 
     private static String getRelationshipType(PearlRelationship relationship) {
-        if (relationship.getProperties().containsKey("type")) return (String) relationship.getProperties().get("type");
+        if (relationship.getProperties().containsKey("type")) return relationship.getProperties().get("type");
         if (relationship.getProperties().containsKey("method"))
-            return (String) relationship.getProperties().get("method");
+            return relationship.getProperties().get("method");
         if (relationship.getProperties().containsKey("confidence"))
-            return (String) relationship.getProperties().get("confidence");
+            return relationship.getProperties().get("confidence");
         return null;
     }
 
     private static double score(Variant variant) {
         final String cons = (String) variant.getInfo().getInfo("CONS");
         if (cons == null) return 1;
-        return Arrays.stream(cons.split(",")).mapToDouble(consequence -> GraphEvaluator.CONSEQUENCE_SCORE.getOrDefault(consequence, 1.0)).max().orElse(1.0);
+        return Arrays.stream(cons.split(","))
+                .mapToDouble(GraphEvaluator.CONSEQUENCE_VALUE_SCORE::getScore)
+                .max().orElse(1.0);
     }
 }

@@ -1,19 +1,19 @@
-/******************************************************************************
- * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
- * This program is free software: you can redistribute it and/or modify it    *
- * under the terms of the GNU General Public License as published by the      *
- * Free Software Foundation, either version 3 of the License, or (at your     *
- * option) any later version.                                                 *
- *                                                                            *
- * This program is distributed in the hope that it will be useful, but        *
- * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
- * See the GNU General Public License for more details.                       *
- *                                                                            *
- * You should have received a copy of the GNU General Public License          *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
- ******************************************************************************/
+/*
+ * Copyright (c) UICHUIMI 2016
+ *
+ * This file is part of Coat.
+ *
+ * Coat is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * Coat is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Foobar.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package coat.core.poirot;
 
@@ -21,8 +21,10 @@ import coat.core.poirot.dataset.GeneToDiseaseRelator;
 import coat.core.poirot.dataset.GeneToExpressionRelator;
 import coat.core.poirot.dataset.GeneToGeneRelator;
 import coat.core.poirot.dataset.Relator;
-import coat.core.variant.Variant;
 import javafx.concurrent.Task;
+import poirot.core.Pearl;
+import poirot.core.PearlGraph;
+import vcf.Variant;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,21 +39,18 @@ import java.util.List;
 public class GraphFactory extends Task<PearlGraph> {
 
     public static final int CYCLES = 2;
-
+    private final static List<String> GENE_BLACKLIST = Arrays.asList("UBC");
     private final Relator[] relators = new Relator[]{
             new GeneToGeneRelator(),
             new GeneToExpressionRelator(),
             new GeneToDiseaseRelator()
     };
-
     private final List<Variant> variants;
-
     private final PearlGraph pearlGraph = new PearlGraph();
     private final List<Pearl> leafGenes = new ArrayList<>();
     private int processed;
     private int round;
     private int total;
-    private final static List<String> GENE_BLACKLIST = Arrays.asList("UBC");
 
     /**
      * Creates a new PoirotAnalysis task, ready to be inserted in a Thread, or launched with <code>Platform</code>
@@ -62,13 +61,16 @@ public class GraphFactory extends Task<PearlGraph> {
         this.variants = variants;
     }
 
+    public static boolean notInBlacklist(String symbol) {
+        return !GENE_BLACKLIST.contains(symbol);
+    }
+
     @Override
     protected PearlGraph call() throws Exception {
         addInitialGenes();
         expandGraph();
         return pearlGraph;
     }
-
 
     private void addInitialGenes() {
         variants.stream().forEachOrdered(variant -> {
@@ -114,11 +116,6 @@ public class GraphFactory extends Task<PearlGraph> {
 
     private void connect(Pearl pearl) {
         Arrays.stream(relators).forEach(relator -> relator.expand(pearl, pearlGraph));
-    }
-
-
-    public static boolean notInBlacklist(String symbol) {
-        return !GENE_BLACKLIST.contains(symbol);
     }
 
 }

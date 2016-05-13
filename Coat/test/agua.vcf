@@ -15,7 +15,7 @@
 ##INFO=<ID=DETAIL,Number=1,Type=String,Description="Distance to nearest genes">
 ##INFO=<ID=DETAIL1,Number=1,Type=String,Description="Distance 1 to nearest genes">
 ##INFO=<ID=DETAIL2,Number=1,Type=String,Description="Distance 2 to nearest genes">
-##INFO=<ID=FUNC,Number=1,Type=String,Description="Exonic variant function">
+##INFO=<ID=FUNC,Number=1,Type=String,Description="Exonic vcf function">
 ##INFO=<ID=AACH,Number=1,Type=String,Description="Amino acid changes">
 ##INFO=<ID=C46Ws,Number=1,Type=String,Description="phastConsElements46way Score">
 ##INFO=<ID=C46Wn,Number=1,Type=String,Description="phastConsElements46way Name">
@@ -79,8 +79,8 @@
 ##INFO=<ID=CDS,Number=1,Type=Integer,Description="Relative position of base pair in coding sequence">
 ##INFO=<ID=PROT,Number=1,Type=Integer,Description="Relative position of amino acid in protein">
 ##INFO=<ID=AMINO,Number=1,Type=String,Description="Amino acid change. Only given if the variation affects the protein-coding sequence">
-##INFO=<ID=COD,Number=1,Type=String,Description="The alternative codons with the variant base in upper case">
-##INFO=<ID=DIST,Number=1,Type=String,Description="Shortest distance from variant to transcript">
+##INFO=<ID=COD,Number=1,Type=String,Description="The alternative codons with the vcf base in upper case">
+##INFO=<ID=DIST,Number=1,Type=String,Description="Shortest distance from vcf to transcript">
 ##INFO=<ID=STR,Number=1,Type=String,Description="The DNA strand (1 or -1) on which the transcript/feature lies">
 ##INFO=<ID=SRC,Number=1,Type=String,Description="The source of the gene symbol">
 ##INFO=<ID=ENSP,Number=1,Type=String,Description="Ensembl protein identifier of the affected transcript">
@@ -93,8 +93,8 @@
 ##INFO=<ID=POLY,Number=1,Type=String,Description="PolyPhen prediction and/or score">
 ##INFO=<ID=MTFN,Number=1,Type=String,Description="source and identifier of a transcription factor binding profile aligned at this position">
 ##INFO=<ID=MTFP,Number=1,Type=String,Description="relative position of the variation in the aligned TFBP">
-##INFO=<ID=HIP,Number=0,Type=Flag,Description="a flag indicating if the variant falls in a high information position of a transcription factor binding profile (TFBP)">
-##INFO=<ID=MSC,Number=1,Type=String,Description="difference in motif score of the reference and variant sequences for the TFBP">
+##INFO=<ID=HIP,Number=0,Type=Flag,Description="a flag indicating if the vcf falls in a high information position of a transcription factor binding profile (TFBP)">
+##INFO=<ID=MSC,Number=1,Type=String,Description="difference in motif score of the reference and vcf sequences for the TFBP">
 ##INFO=<ID=CLLS,Number=1,Type=String,Description="List of cell types and classifications for regulatory feature">
 ##INFO=<ID=CANON,Number=0,Type=Flag,Description="Transcript is denoted as the canonical transcript for this gene">
 ##INFO=<ID=CCDS,Number=1,Type=String,Description="CCDS identifer for this transcript, where applicable">
@@ -110,12 +110,12 @@
 ##INFO=<ID=AMR_F,Number=1,Type=String,Description="Minor allele and frequency of existing variation in 1000 Genomes Phase 1 combined American population">
 ##INFO=<ID=ASN_F,Number=1,Type=String,Description="Minor allele and frequency of existing variation in 1000 Genomes Phase 1 combined Asian population">
 ##INFO=<ID=EUR_F,Number=1,Type=String,Description="Minor allele and frequency of existing variation in 1000 Genomes Phase 1 combined European population">
-##INFO=<ID=AA_F,Number=1,Type=String,Description="Minor allele and frequency of existing variant in NHLBI-ESP African American population">
-##INFO=<ID=EA_F,Number=1,Type=String,Description="Minor allele and frequency of existing variant in NHLBI-ESP European American population">
-##INFO=<ID=CLIN,Number=1,Type=String,Description="Clinical significance of variant from dbSNP">
+##INFO=<ID=AA_F,Number=1,Type=String,Description="Minor allele and frequency of existing vcf in NHLBI-ESP African American population">
+##INFO=<ID=EA_F,Number=1,Type=String,Description="Minor allele and frequency of existing vcf in NHLBI-ESP European American population">
+##INFO=<ID=CLIN,Number=1,Type=String,Description="Clinical significance of vcf from dbSNP">
 ##INFO=<ID=BIO,Number=1,Type=String,Description="Biotype of transcript or regulatory feature">
 ##INFO=<ID=TSL,Number=1,Type=String,Description="Transcript support level">
-##INFO=<ID=PUBM,Number=1,Type=String,Description="Pubmed ID(s) of publications that cite existing variant">
+##INFO=<ID=PUBM,Number=1,Type=String,Description="Pubmed ID(s) of publications that cite existing vcf">
 ##INFO=<ID=SOMA,Number=1,Type=String,Description="Somatic status of existing variation(s)">
 ##INFO=<ID=LFS,Number=1,Type=Integer,Description="Low frequency codon substitution">
 ##UnifiedGenotyper="analysis_type=UnifiedGenotyper input_file=[alignments/niv_084_alignments.bam] read_buffer_size=null phone_home=STANDARD gatk_key=null tag=NA read_filter=[] intervals=null excludeIntervals=null interval_set_rule=UNION interval_merging=ALL interval_padding=0 reference_sequence=genoma/human_g1k_v37.fasta nonDeterministicRandomSeed=false disableRandomization=false maxRuntime=-1 maxRuntimeUnits=MINUTES downsampling_type=BY_SAMPLE downsample_to_fraction=null downsample_to_coverage=250 enable_experimental_downsampling=false baq=OFF baqGapOpenPenalty=40.0 performanceLog=null useOriginalQualities=false BQSR=null quantize_quals=0 disable_indel_quals=false emit_original_quals=false preserve_qscores_less_than=6 defaultBaseQualities=-1 validation_strictness=SILENT remove_program_records=false keep_program_records=false unsafe=null num_threads=1 num_cpu_threads_per_data_thread=1 num_io_threads=0 monitorThreadEfficiency=false num_bam_file_handles=null read_group_black_list=null pedigree=[] pedigreeString=[] pedigreeValidationType=STRICT allow_intervals_with_unindexed_bam=false generateShadowBCF=false logging_level=INFO log_to_file=null help=false genotype_likelihoods_model=BOTH pcr_error_rate=1.0E-4 computeSLOD=false annotateNDA=false pair_hmm_implementation=ORIGINAL min_base_quality_score=17 max_deletion_fraction=0.05 min_indel_count_for_genotyping=5 min_indel_fraction_per_sample=0.25 indel_heterozygosity=1.25E-4 indelGapContinuationPenalty=10 indelGapOpenPenalty=45 indelHaplotypeSize=80 indelDebug=false ignoreSNPAlleles=false allReadsSP=false ignoreLaneInfo=false reference_sample_calls=(RodBinding name= source=UNBOUND) reference_sample_name=null sample_ploidy=2 min_quality_score=1 max_quality_score=40 site_quality_prior=20 min_power_threshold_for_calling=0.95 min_reference_depth=100 exclude_filtered_reference_sites=false heterozygosity=0.001 genotyping_mode=DISCOVERY output_mode=EMIT_VARIANTS_ONLY standard_min_confidence_threshold_for_calling=30.0 standard_min_confidence_threshold_for_emitting=30.0 alleles=(RodBinding name= source=UNBOUND) max_alternate_alleles=6 p_nonref_model=EXACT_INDEPENDENT contamination_fraction_to_filter=0.05 logRemovedReadsFromContaminationFiltering=null exactcallslog=null dbsnp=(RodBinding name=dbsnp source=database/dbsnp_135.b37.vcf) comp=[] out=org.broadinstitute.sting.gatk.io.stubs.VariantContextWriterStub no_cmdline_in_header=org.broadinstitute.sting.gatk.io.stubs.VariantContextWriterStub sites_only=org.broadinstitute.sting.gatk.io.stubs.VariantContextWriterStub bcf=org.broadinstitute.sting.gatk.io.stubs.VariantContextWriterStub debug_file=null metrics_file=null annotation=[] excludeAnnotation=[] filter_mismatching_base_and_quals=false"

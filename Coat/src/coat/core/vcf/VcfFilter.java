@@ -17,18 +17,18 @@
 
 package coat.core.vcf;
 
-import coat.core.variant.Variant;
 import coat.utils.OS;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import vcf.Variant;
 
 /**
  * This class represents a filter for a VCF file. The filter is characterized by a field (CHROM, POS,
- * INFO...), a connector (greater than, equals...) and a value. When a variant is passed to the filter
- * it is read: variant.field connector value (variant.chrom is equals to 7). As a particular case of
- * VCF, a variant can be filtered by its INFO field, so when the selected field is INFO, the
+ * INFO...), a connector (greater than, equals...) and a value. When a vcf is passed to the filter
+ * it is read: vcf.field connector value (vcf.chrom is equals to 7). As a particular case of
+ * VCF, a vcf can be filtered by its INFO field, so when the selected field is INFO, the
  * selectedInfo is activated.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
@@ -110,10 +110,10 @@ public class VcfFilter {
     }
 
     /**
-     * Returns true in case this variant passes this pass or pass can NOT be applied due to
+     * Returns true in case this vcf passes this pass or pass can NOT be applied due to
      * field/connector/value incompatibilities.
      *
-     * @param variant the variant to pass.
+     * @param variant the vcf to pass.
      * @return true if passes the pass or the pass cannot be applied, false otherwise.
      */
     public boolean pass(Variant variant) {
@@ -152,7 +152,7 @@ public class VcfFilter {
                 stringValue = (String) variant.getInfo().getInfo(info);
 
 
-////                Map<String, Object> map = variant.getInfoValues();
+////                Map<String, Object> map = vcf.getInfoValues();
 //                if (map.containsKey(info)) {
 //                    final Object val = map.get(info);
 //                    if (val != null) {
