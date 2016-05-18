@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 /**
- * OMIM provides information about phenotypes and the genes related to them. Each Instance contains one relationship.
+ * OMIM provides information about phenotypes and the geneTable related to them. Each Instance contains one relationship.
  * Fields are: (0) gene_symbol, (1) gene_name, (2) gene_mimNumber, (3) confidence, (4) phenotype_name,
  * (5) phenotype_mimNumber, (6) phenotype_mappingKey. Omim Dataset is indexed by column 0.
  *

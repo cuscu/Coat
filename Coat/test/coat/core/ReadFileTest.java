@@ -35,7 +35,7 @@ public class ReadFileTest {
         final List<String> geneList = Arrays.asList("MUC12", "RELN", "CNTNAP2", "TNC", "CCNYL2", "RP11-139J15.7",
                 "RSU1", "SAA2", "CLECL1", "MGP", "P2RX2", "CCNA1", "AL133373.1", "SYNM", "NPEPPS", "OGFOD3", "MIER2",
                 "SIGLEC12", "ZNF880", "ZNF211", "GPCPD1", "XRN2", "ARFGEF2", "OSBP2", "SYNGR1", "SHROOM4");
-        final List<String> readList = ReadList.read(new File("test/genes.list"));
+        final List<String> readList = ReadList.read(new File("test/geneTable.list"));
         Assert.assertEquals(geneList, readList);
     }
 

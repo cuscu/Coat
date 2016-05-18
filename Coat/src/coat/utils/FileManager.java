@@ -227,9 +227,7 @@ public final class FileManager {
         chooser.getExtensionFilters().addAll(filters);
         chooser.setTitle(title);
         List<File> f = chooser.showOpenMultipleDialog(Coat.getStage());
-        if (f != null && !f.isEmpty()) {
-            lastPath = f.get(0).getParentFile();
-        }
+        if (f != null && !f.isEmpty()) lastPath = f.get(0).getParentFile();
         return f;
     }
 

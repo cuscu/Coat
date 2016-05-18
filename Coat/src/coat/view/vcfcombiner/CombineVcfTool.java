@@ -22,7 +22,7 @@ import coat.core.vcf.combine.VcfCombineTask;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.IconButton;
-import coat.view.graphic.SizableImage;
+import coat.view.graphic.SizableImageView;
 import coat.view.vcfreader.VariantsTable;
 import coat.view.vcfreader.VcfSample;
 import javafx.application.Platform;
@@ -59,12 +59,12 @@ public class CombineVcfTool extends Tool {
 
     private final VariantsTable variantsTable = new VariantsTable();
 
-    private final Button addFiles = new IconButton(OS.getString("add.files"), new SizableImage("coat/img/black/add.png", SizableImage.SMALL_SIZE));
-    private final Button delete = new IconButton(OS.getString("delete"), new SizableImage("coat/img/black/delete.png", SizableImage.SMALL_SIZE));
+    private final Button addFiles = new IconButton(OS.getString("add.files"), new SizableImageView("coat/img/black/add.png", SizableImageView.SMALL_SIZE));
+    private final Button delete = new IconButton(OS.getString("delete"), new SizableImageView("coat/img/black/delete.png", SizableImageView.SMALL_SIZE));
     private final VBox topButtonsBox = new VBox(5, addFiles, delete);
     private final HBox samplesHBox = new HBox(5, topButtonsBox, vcfSampleTableView);
 
-    private final Button combine = new Button(OS.getString("combine"), new SizableImage("coat/img/black/combine.png", SizableImage.SMALL_SIZE));
+    private final Button combine = new Button(OS.getString("combine"), new SizableImageView("coat/img/black/combine.png", SizableImageView.SMALL_SIZE));
 
     private final Label message = new Label();
     private final ProgressBar progressBar = new ProgressBar();

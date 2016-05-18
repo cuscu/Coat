@@ -17,7 +17,7 @@
 
 package coat.view.vcfcombiner;
 
-import coat.view.graphic.SizableImage;
+import coat.view.graphic.SizableImageView;
 import coat.view.vcfreader.VcfSample;
 import javafx.scene.control.ListCell;
 
@@ -34,7 +34,7 @@ class LevelCell extends ListCell<VcfSample.Level> {
         super.updateItem(item, empty);
         if (!empty) {
             setText(item.toString());
-            setGraphic(new SizableImage("coat/img/black/" + item.name().toLowerCase() + ".png", SizableImage.SMALL_SIZE));
+            setGraphic(new SizableImageView("coat/img/black/" + item.name().toLowerCase() + ".png", SizableImageView.SMALL_SIZE));
         } else {
             setText(null);
             setGraphic(null);

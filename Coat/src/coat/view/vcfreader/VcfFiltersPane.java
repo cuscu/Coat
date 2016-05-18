@@ -18,7 +18,7 @@
 package coat.view.vcfreader;
 
 import coat.core.poirot.dataset.Instance;
-import coat.view.graphic.SizableImage;
+import coat.view.graphic.SizableImageView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
@@ -40,7 +40,7 @@ public class VcfFiltersPane extends VBox {
     private ObservableList<Instance> inputVariants = FXCollections.observableArrayList();
     private ObservableList<Instance> outputVariants = FXCollections.observableArrayList();
     private final ListView<InstanceFilter> filterListView = new ListView<>();
-    private final Button addFilter = new Button("Filter", new SizableImage("coat/img/black/add.png", SizableImage.SMALL_SIZE));
+    private final Button addFilter = new Button("Filter", new SizableImageView("coat/img/black/add.png", SizableImageView.SMALL_SIZE));
     private final ProgressBar progressBar = new ProgressBar();
     private final Label progressText = new Label();
     private final StackPane progressPane = new StackPane(progressBar, progressText);

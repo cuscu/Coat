@@ -70,7 +70,7 @@ class PhenotypeSelector extends VBox {
     private final TableView<Phenotype> phenotypeTable = new TableView<>();
     private List<Phenotype> phenotypes = new ArrayList<>();
 
-    public PhenotypeSelector() {
+    PhenotypeSelector() {
         initializeLeftMenu();
         initializePhenotypeTable();
         final HBox phenotypeMenu = new HBox(leftMenu, phenotypeTable);
@@ -204,7 +204,7 @@ class PhenotypeSelector extends VBox {
         return Stream.empty();
     }
 
-    public List<Pearl> getSelectedPhenotypes() {
+    List<Pearl> getSelectedPhenotypes() {
         return phenotypeTable.getItems().stream()
                 .filter(phenotype -> phenotype.selected.getValue())
                 .map(phenotype -> phenotype.pearl)

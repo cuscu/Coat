@@ -110,7 +110,7 @@ public class GraphFactory extends Task<PearlGraph> {
 
     private void printProgress() {
         if (++processed % 100 == 0)
-            updateMessage(String.format("Round %d of %d, %d/%d genes processed", round, 2, processed, total));
+            updateMessage(String.format("Round %d of %d, %d/%d geneTable processed", round, 2, processed, total));
 
     }
 

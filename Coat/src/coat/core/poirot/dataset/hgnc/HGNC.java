@@ -81,7 +81,7 @@ public class HGNC {
     /**
      * Gets a map with all the gene symbols and descriptions.
      *
-     * @return a map with all the genes and their descriptions
+     * @return a map with all the geneTable and their descriptions
      */
     public static Map<String, String> getAllGenes() {
         return names;

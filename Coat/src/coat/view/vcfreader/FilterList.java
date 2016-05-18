@@ -19,7 +19,7 @@ package coat.view.vcfreader;
 
 import coat.core.vcf.VcfFilter;
 import coat.utils.OS;
-import coat.view.graphic.SizableImage;
+import coat.view.graphic.SizableImageView;
 import coat.view.graphic.ThresholdDialog;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -53,7 +53,7 @@ public class FilterList extends VBox {
             "afr_maf", "eur_maf", "amr_maf", "ea_maf", "asn_maf", "GMAF", "1KG14"};
     private final ListView<VcfFilter> filters = new ListView<>();
     private final ObservableList<Variant> outputVariants = FXCollections.observableArrayList();
-    private final Button addFilter = new Button(OS.getResources().getString("add.filter"), new SizableImage("coat/img/black/add.png", SizableImage.SMALL_SIZE));
+    private final Button addFilter = new Button(OS.getResources().getString("add.filter"), new SizableImageView("coat/img/black/add.png", SizableImageView.SMALL_SIZE));
 
     private final Button addFrequencyFilters = new Button(OS.getResources().getString("add.frequency.filters"));
     private final Label infoLabel = new Label();

@@ -47,8 +47,8 @@ import java.util.List;
 public class FileList extends StackPane {
 
     private final ListView<File> listView = new ListView<>();
-    private final Button add = new Button(null, new SizableImage("coat/img/black/add.png", SizableImage.MEDIUM_SIZE));
-    private final Button delete = new Button(null, new SizableImage("coat/img/black/delete.png", SizableImage.MEDIUM_SIZE));
+    private final Button add = new Button(null, new SizableImageView("coat/img/black/add.png", SizableImageView.MEDIUM_SIZE));
+    private final Button delete = new Button(null, new SizableImageView("coat/img/black/delete.png", SizableImageView.MEDIUM_SIZE));
     private final MenuItem deleteFile = new MenuItem(OS.getResources().getString("delete"));
     private final ContextMenu contextMenu = new ContextMenu(deleteFile);
     private FileChooser.ExtensionFilter[] filters = {FileManager.ALL_FILTER};
@@ -105,7 +105,7 @@ public class FileList extends StackPane {
     }
 
     private void initializeContextMenu() {
-        deleteFile.setGraphic(new SizableImage("coat/img/black/delete.png", SizableImage.SMALL_SIZE));
+        deleteFile.setGraphic(new SizableImageView("coat/img/black/delete.png", SizableImageView.SMALL_SIZE));
         deleteFile.setOnAction(event -> listView.getItems().remove(listView.getSelectionModel().getSelectedItem()));
         listView.setContextMenu(contextMenu);
     }

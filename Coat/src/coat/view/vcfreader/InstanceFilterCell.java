@@ -19,7 +19,7 @@ package coat.view.vcfreader;
 
 import coat.core.vcf.VcfFilter;
 import coat.view.graphic.AutoFillComboBox;
-import coat.view.graphic.SizableImage;
+import coat.view.graphic.SizableImageView;
 import javafx.collections.FXCollections;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Button;
@@ -40,16 +40,16 @@ public class InstanceFilterCell extends ListCell<InstanceFilter> {
     private final ComboBox<VcfFilter.Connector> connectorBox = new ComboBox<>();
     private final AutoFillComboBox valueBox = new AutoFillComboBox();
 
-    private final SizableImage circleIcon = new SizableImage("coat/img/black/circle.png", SizableImage.SMALL_SIZE);
-    private final SizableImage noCircleIcon = new SizableImage("coat/img/black/nocircle.png", SizableImage.SMALL_SIZE);
+    private final SizableImageView circleIcon = new SizableImageView("coat/img/black/circle.png", SizableImageView.SMALL_SIZE);
+    private final SizableImageView noCircleIcon = new SizableImageView("coat/img/black/nocircle.png", SizableImageView.SMALL_SIZE);
 
 
     private final Separator separator = new Separator(Orientation.HORIZONTAL);
-    private final Button cancel = new Button(null, new SizableImage("coat/img/black/cancel.png", SizableImage.SMALL_SIZE));
-    private final Button ok = new Button(null, new SizableImage("coat/img/black/accept.png", SizableImage.SMALL_SIZE));
+    private final Button cancel = new Button(null, new SizableImageView("coat/img/black/cancel.png", SizableImageView.SMALL_SIZE));
+    private final Button ok = new Button(null, new SizableImageView("coat/img/black/accept.png", SizableImageView.SMALL_SIZE));
 
-    private final Button delete = new Button(null, new SizableImage("coat/img/black/delete.png", SizableImage.SMALL_SIZE));
-    private final Button strict = new Button(null, new SizableImage("coat/img/black/circle.png", SizableImage.SMALL_SIZE));
+    private final Button delete = new Button(null, new SizableImageView("coat/img/black/delete.png", SizableImageView.SMALL_SIZE));
+    private final Button strict = new Button(null, new SizableImageView("coat/img/black/circle.png", SizableImageView.SMALL_SIZE));
     private final HBox buttonsBox = new HBox(delete, strict);
 
     private final HBox box = new HBox(5, fieldBox, connectorBox, valueBox, separator, ok);

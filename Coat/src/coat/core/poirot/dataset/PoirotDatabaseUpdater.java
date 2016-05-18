@@ -50,7 +50,7 @@ public class PoirotDatabaseUpdater {
     }
 
     private void addHGNC() {
-        System.out.println("Adding HGNC genes");
+        System.out.println("Adding HGNC geneTable");
         try (Transaction transaction = graphDatabase.beginTx()) {
             HGNC.getAllGenes().forEach((symbol, name) -> {
                 final Node node = graphDatabase.findNode(PoirotGraphLabels.GENE, "symbol", symbol);

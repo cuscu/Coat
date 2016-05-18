@@ -19,7 +19,7 @@ package coat.view.poirot;
 
 import coat.core.tool.Tool;
 import coat.utils.OS;
-import coat.view.graphic.SizableImage;
+import coat.view.graphic.SizableImageView;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
  * Complete view of the poirot tool. It is made of three elements:
  * <ol>
  * <li>An input panel, where user selects the input file and the associated phenotypes.</li>
- * <li>A list of affected genes, scored by relevance. User will select which genes to show in the canvas.</li>
+ * <li>A list of affected geneTable, scored by relevance. User will select which geneTable to show in the canvas.</li>
  * <li>A canvas, where a graph with the relationships are shown.</li>
  * </ol>
  *
@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
 public class PoirotView extends Tool {
 
     private final PoirotInputPane poirotInputPane = new PoirotInputPane();
-    private final Button start = new Button(OS.getString("show").toUpperCase(), new SizableImage("coat/img/white/arrow-right.png", SizableImage.SMALL_SIZE));
+    private final Button start = new Button(OS.getString("show").toUpperCase(), new SizableImageView("coat/img/white/arrow-right.png", SizableImageView.SMALL_SIZE));
     private final Label message = new Label();
     private final VBox inputPane = new VBox(5, poirotInputPane, start, message);
 
@@ -66,8 +66,8 @@ public class PoirotView extends Tool {
 
     private final GraphView graphView = new GraphView();
     private final StackPane stackPane = new StackPane(graphView);
-    private final Button reload = new Button(OS.getString("reload").toUpperCase(), new SizableImage("coat/img/white/poirot.png", SizableImage.SMALL_SIZE));
-    private final Button back = new Button(OS.getString("back").toUpperCase(), new SizableImage("coat/img/white/arrow-left.png", SizableImage.SMALL_SIZE));
+    private final Button reload = new Button(OS.getString("reload").toUpperCase(), new SizableImageView("coat/img/white/poirot.png", SizableImageView.SMALL_SIZE));
+    private final Button back = new Button(OS.getString("back").toUpperCase(), new SizableImageView("coat/img/white/arrow-left.png", SizableImageView.SMALL_SIZE));
     private final VBox listPane = new VBox(5, back, poirotPearlTable, reload);
     private SplitPane graphSplitPane = new SplitPane(stackPane, poirotInfo);
     private final HBox graphHBox = new HBox(listPane, graphSplitPane);

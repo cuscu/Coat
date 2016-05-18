@@ -25,7 +25,7 @@ import javafx.scene.image.ImageView;
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */
-public class SizableImage extends ImageView {
+public class SizableImageView extends ImageView {
 
     /**
      * 16x16.
@@ -41,13 +41,13 @@ public class SizableImage extends ImageView {
     public final static double LARGE_SIZE = 48;
 
     /**
-     * Creates a new SizableImage using the url as icon and resizing to size width and preserving
+     * Creates a new SizableImageView using the url as icon and resizing to size width and preserving
      * aspect ratio.
      *
      * @param url the icon url
      * @param size the size of the icon
      */
-    public SizableImage(String url, double size) {
+    public SizableImageView(String url, double size) {
         super(url);
         setFitWidth(size);
         setPreserveRatio(true);

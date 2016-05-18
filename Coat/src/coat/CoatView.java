@@ -23,7 +23,7 @@ import coat.core.tool.ToolMenu;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.MemoryPane;
-import coat.view.graphic.SizableImage;
+import coat.view.graphic.SizableImageView;
 import coat.view.mist.CombineMistMenu;
 import coat.view.poirot.PoirotMenu;
 import coat.view.tsv.TsvFileReader;
@@ -112,7 +112,7 @@ public class CoatView {
         Platform.runLater(() -> {
             if (AVAILABLE_MESSAGE_TYPES.contains(type)) {
                 label.setText(date + ": " + message);
-                label.setGraphic(new SizableImage("coat/img/black/" + type + ".png", SizableImage.SMALL_SIZE));
+                label.setGraphic(new SizableImageView("coat/img/black/" + type + ".png", SizableImageView.SMALL_SIZE));
                 label.getStyleClass().add(type + "-label");
             } else label.setText(date + " (" + type + "): " + message);
         });
@@ -139,7 +139,7 @@ public class CoatView {
 
     private void createToolsMenu() {
         toolsMenuClasses.forEach(toolMenu -> {
-            final MenuItem menuItem = new MenuItem(toolMenu.getName(), new SizableImage(toolMenu.getIconPath(), SizableImage.MEDIUM_SIZE));
+            final MenuItem menuItem = new MenuItem(toolMenu.getName(), new SizableImageView(toolMenu.getIconPath(), SizableImageView.MEDIUM_SIZE));
             toolsMenu.getItems().add(menuItem);
             menuItem.setOnAction(event -> addTool(toolMenu));
         });
@@ -209,8 +209,8 @@ public class CoatView {
     }
 
     private void assignMenuIcons() {
-        openFileMenu.setGraphic(new SizableImage("coat/img/black/open.png", SizableImage.MEDIUM_SIZE));
-        saveFileMenu.setGraphic(new SizableImage("coat/img/black/save.png", SizableImage.MEDIUM_SIZE));
+        openFileMenu.setGraphic(new SizableImageView("coat/img/black/open.png", SizableImageView.MEDIUM_SIZE));
+        saveFileMenu.setGraphic(new SizableImageView("coat/img/black/save.png", SizableImageView.MEDIUM_SIZE));
     }
 
     @FXML

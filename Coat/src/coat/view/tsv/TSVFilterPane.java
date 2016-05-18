@@ -18,7 +18,7 @@
 package coat.view.tsv;
 
 import coat.core.tsv.TSVFilter;
-import coat.view.graphic.SizableImage;
+import coat.view.graphic.SizableImageView;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -42,11 +42,11 @@ class TSVFilterPane extends VBox {
     private final ComboBox<String> field = new ComboBox<>();
     private final ComboBox<TSVFilter.Connector> connector = new ComboBox<>();
     private final TextField value = new TextField();
-    private final Button delete = new Button(null, new SizableImage("coat/img/black/delete.png", SizableImage.SMALL_SIZE));
-    private final Button accept = new Button(null, new SizableImage("coat/img/black/accept.png", SizableImage.SMALL_SIZE));
-    private final Button cancel = new Button(null, new SizableImage("coat/img/black/cancel.png", SizableImage.SMALL_SIZE));
-    private final Button view = new Button(null, new SizableImage("coat/img/black/view.png", SizableImage.SMALL_SIZE));
-    private final Button voids = new Button(null, new SizableImage("coat/img/black/circle.png", SizableImage.SMALL_SIZE));
+    private final Button delete = new Button(null, new SizableImageView("coat/img/black/delete.png", SizableImageView.SMALL_SIZE));
+    private final Button accept = new Button(null, new SizableImageView("coat/img/black/accept.png", SizableImageView.SMALL_SIZE));
+    private final Button cancel = new Button(null, new SizableImageView("coat/img/black/cancel.png", SizableImageView.SMALL_SIZE));
+    private final Button view = new Button(null, new SizableImageView("coat/img/black/view.png", SizableImageView.SMALL_SIZE));
+    private final Button voids = new Button(null, new SizableImageView("coat/img/black/circle.png", SizableImageView.SMALL_SIZE));
     private EventHandler onAccept, onDelete;
     private final HBox center = new HBox(field, connector, value, accept, cancel);
     private TSVFilter filter;
@@ -176,16 +176,16 @@ class TSVFilterPane extends VBox {
     private void view() {
         boolean b = filter.isActive();
         filter.setActive(!b);
-        view.setGraphic(b ? new SizableImage("coat/img/black/noview.png", SizableImage.SMALL_SIZE)
-                : new SizableImage("coat/img/black/view.png", SizableImage.SMALL_SIZE));
+        view.setGraphic(b ? new SizableImageView("coat/img/black/noview.png", SizableImageView.SMALL_SIZE)
+                : new SizableImageView("coat/img/black/view.png", SizableImageView.SMALL_SIZE));
         if (onAccept != null) onAccept.handle(new ActionEvent());
     }
 
     private void voids() {
         boolean b = filter.isAceptingVoids();
         filter.setAceptingVoids(!b);
-        voids.setGraphic(b ? new SizableImage("coat/img/black/nocircle.png", SizableImage.SMALL_SIZE)
-                : new SizableImage("coat/img/black/circle.png", SizableImage.SMALL_SIZE));
+        voids.setGraphic(b ? new SizableImageView("coat/img/black/nocircle.png", SizableImageView.SMALL_SIZE)
+                : new SizableImageView("coat/img/black/circle.png", SizableImageView.SMALL_SIZE));
         if (onAccept != null) onAccept.handle(new ActionEvent());
     }
 

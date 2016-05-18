@@ -20,7 +20,7 @@ package coat.view.vcfreader;
 import coat.core.vcf.VcfFilter;
 import coat.utils.OS;
 import coat.view.graphic.AutoFillComboBox;
-import coat.view.graphic.SizableImage;
+import coat.view.graphic.SizableImageView;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
@@ -52,17 +52,17 @@ class FilterCell extends ListCell<VcfFilter> {
     private final HBox filterBox = new HBox(SPACING, field, info, connector, value);
 
     private final Separator invisibleActiveSeparator = new Separator(Orientation.HORIZONTAL);
-    private final Button accept = new Button(null, new SizableImage("coat/img/black/accept.png", SizableImage.SMALL_SIZE));
-    private final Button cancel = new Button(null, new SizableImage("coat/img/black/cancel.png", SizableImage.SMALL_SIZE));
+    private final Button accept = new Button(null, new SizableImageView("coat/img/black/accept.png", SizableImageView.SMALL_SIZE));
+    private final Button cancel = new Button(null, new SizableImageView("coat/img/black/cancel.png", SizableImageView.SMALL_SIZE));
     private final HBox activeBox = new HBox(SPACING, filterBox, invisibleActiveSeparator, accept, cancel);
 
     private final Label passiveInfo = new Label();
 
-    private final SizableImage circle = new SizableImage("coat/img/black/circle.png", SizableImage.SMALL_SIZE);
-    private final SizableImage nocircle = new SizableImage("coat/img/black/nocircle.png", SizableImage.SMALL_SIZE);
-    private final SizableImage viewImg = new SizableImage("coat/img/black/view.png", SizableImage.SMALL_SIZE);
-    private final SizableImage noview = new SizableImage("coat/img/black/noview.png", SizableImage.SMALL_SIZE);
-    private final SizableImage deleteImg = new SizableImage("coat/img/black/delete.png", SizableImage.SMALL_SIZE);
+    private final SizableImageView circle = new SizableImageView("coat/img/black/circle.png", SizableImageView.SMALL_SIZE);
+    private final SizableImageView nocircle = new SizableImageView("coat/img/black/nocircle.png", SizableImageView.SMALL_SIZE);
+    private final SizableImageView viewImg = new SizableImageView("coat/img/black/view.png", SizableImageView.SMALL_SIZE);
+    private final SizableImageView noview = new SizableImageView("coat/img/black/noview.png", SizableImageView.SMALL_SIZE);
+    private final SizableImageView deleteImg = new SizableImageView("coat/img/black/delete.png", SizableImageView.SMALL_SIZE);
 
     private final ToggleButton strict = new ToggleButton(null, circle);
     private final ToggleButton view = new ToggleButton(null, viewImg);

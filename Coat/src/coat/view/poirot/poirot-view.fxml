@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) UICHUIMI 2016
+  ~
+  ~ This file is part of Coat.
+  ~
+  ~ Coat is free software: you can redistribute it and/or modify it under the terms of the
+  ~ GNU General Public License as published by the Free Software Foundation, either version 3 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ Coat is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with Foobar.
+  ~ If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="coat.view.poirot.PoirotViewController">
+    <center>
+        <SplitPane dividerPositions="0.5">
+            <items>
+            <VBox>
+               <children>
+                      <TabPane>
+                          <tabs>
+                              <Tab closable="false" text="Samples">
+                                  <content>
+                                      <fx:include fx:id="samples" source="sample/sample-list.fxml" />
+                                  </content>
+                              </Tab>
+                              <Tab closable="false" text="Phenotypes">
+                                 <content>
+                                     <fx:include fx:id="phenotypes" source="phenotype/phenotype-list.fxml" />
+                                 </content>
+                              </Tab>
+                              <Tab closable="false" text="Genes">
+                                 <content>
+                                     <fx:include fx:id="genes" source="gene/gene-list.fxml" />
+                                 </content>
+                              </Tab>
+                          </tabs>
+                      </TabPane>
+                  <HBox alignment="CENTER_LEFT" spacing="5.0">
+                     <children>
+                        <Button mnemonicParsing="false" text="Update" />
+                        <CheckBox disable="true" mnemonicParsing="false" text="Update automatically" />
+                     </children>
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
+                  </HBox>
+               </children>
+            </VBox>
+                <VBox>
+                    <children>
+                        <Canvas />
+                        <ListView />
+                    </children>
+                </VBox>
+            </items>
+        </SplitPane>
+    </center>
+</BorderPane>

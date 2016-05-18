@@ -27,7 +27,7 @@ import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.IndexCell;
 import coat.view.graphic.NaturalCell;
-import coat.view.graphic.SizableImage;
+import coat.view.graphic.SizableImageView;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Orientation;
@@ -54,7 +54,7 @@ public class TsvFileReader extends VBox implements Reader {
     private final File file;
     private final TableView<String[]> table = new TableView<>();
     private final VBox filtersPane = new VBox();
-    private final Button addFilter = new Button("Filter", new SizableImage("coat/img/black/new.png", SizableImage.SMALL_SIZE));
+    private final Button addFilter = new Button("Filter", new SizableImageView("coat/img/black/new.png", SizableImageView.SMALL_SIZE));
     private final Label infoLabel = new Label();
     private final VBox bottomVBox = new VBox(5, infoLabel, filtersPane, addFilter);
     private final SplitPane mainPane = new SplitPane(table, bottomVBox);

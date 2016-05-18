@@ -25,7 +25,7 @@ import coat.core.vcf.VcfStats;
 import coat.core.vep.VepAnnotator;
 import coat.utils.FileManager;
 import coat.utils.OS;
-import coat.view.graphic.SizableImage;
+import coat.view.graphic.SizableImageView;
 import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
@@ -115,7 +115,7 @@ public class VcfReader extends VBox implements Reader {
         List<Variant> toSaveVariants = new ArrayList<>(filterList.getOutputVariants());
         if (output != null)
             if (output.getName().endsWith(".vcf")) {
-                vcfFile.save(output);
+                vcfFile.save(output, toSaveVariants);
             } else new TsvSaver(vcfFile, output, toSaveVariants).invoke();
     }
 
@@ -140,7 +140,7 @@ public class VcfReader extends VBox implements Reader {
     private Button getViewHeadersButton() {
         Button viewheaders = new Button(OS.getResources().getString("headers"));
         viewheaders.setOnAction(event -> viewHeaders());
-        viewheaders.setGraphic(new SizableImage("coat/img/black/headers.png", SizableImage.SMALL_SIZE));
+        viewheaders.setGraphic(new SizableImageView("coat/img/black/headers.png", SizableImageView.SMALL_SIZE));
         return viewheaders;
     }
 
@@ -163,7 +163,7 @@ public class VcfReader extends VBox implements Reader {
     private Button getLfsButton() {
         final Button lfs = new Button("LFS");
         lfs.setOnAction(event -> addLFS());
-        lfs.setGraphic(new SizableImage("coat/img/black/lfs.png", SizableImage.SMALL_SIZE));
+        lfs.setGraphic(new SizableImageView("coat/img/black/lfs.png", SizableImageView.SMALL_SIZE));
         return lfs;
     }
 
@@ -184,7 +184,7 @@ public class VcfReader extends VBox implements Reader {
 
     private Button getVepButton() {
         Button vep = new Button("VEP");
-        vep.setGraphic(new SizableImage("coat/img/black/vep_logo.png", SizableImage.SMALL_SIZE));
+        vep.setGraphic(new SizableImageView("coat/img/black/vep_logo.png", SizableImageView.SMALL_SIZE));
         vep.setOnAction(e -> addVep());
         return vep;
     }
@@ -200,7 +200,7 @@ public class VcfReader extends VBox implements Reader {
 
     private Button getStatsButton() {
         Button statsButton = new Button("View stats");
-        statsButton.setGraphic(new SizableImage("coat/img/black/stats.png", SizableImage.SMALL_SIZE));
+        statsButton.setGraphic(new SizableImageView("coat/img/black/stats.png", SizableImageView.SMALL_SIZE));
         statsButton.setOnAction(event -> showStats());
         return statsButton;
     }

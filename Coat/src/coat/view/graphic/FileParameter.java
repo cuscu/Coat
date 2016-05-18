@@ -55,7 +55,7 @@ public class FileParameter extends StackPane {
     }
 
     private Button getButton() {
-        final Button button = new Button(null, new SizableImage("coat/img/black/folder.png", SizableImage.SMALL_SIZE));
+        final Button button = new Button(null, new SizableImageView("coat/img/black/folder.png", SizableImageView.SMALL_SIZE));
         button.setOnAction(event -> openFile());
         button.getStyleClass().add("graphic-button");
         return button;
