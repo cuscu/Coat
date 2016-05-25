@@ -18,6 +18,7 @@
 package coat.view.poirot.sample;
 
 import coat.utils.FileManager;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -27,6 +28,7 @@ import javafx.scene.layout.VBox;
 
 import java.io.File;
 import java.util.List;
+import java.util.Observable;
 
 /**
  * Created by uichuimi on 16/05/16.
@@ -54,5 +56,13 @@ public class SampleListController {
     public void addSample(ActionEvent actionEvent) {
         final List<File> files = FileManager.openFiles("Select VCF file", FileManager.VCF_FILTER);
         if (files != null) files.forEach(file -> sampleList.getItems().add(new Sample(file)));
+    }
+
+    public List<Sample> getSamples() {
+        return sampleList.getItems();
+    }
+
+    public ObservableList<Sample> samples() {
+        return sampleList.getItems();
     }
 }

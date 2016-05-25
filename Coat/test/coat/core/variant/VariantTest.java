@@ -21,6 +21,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import vcf.Variant;
 import vcf.VcfFile;
+import vcf.VcfFileFactory;
 
 import java.io.File;
 import java.util.HashMap;
@@ -31,7 +32,7 @@ import java.util.Map;
  */
 public class VariantTest {
 
-    private final VcfFile file = new VcfFile(new File("test/coat/files/Sample1.vcf"));
+    private final VcfFile file = VcfFileFactory.createFromFile(new File("test/coat/files/Sample1.vcf"));
     /*
      * 1	13273	.	G	C	124.77	.	AC=1;AF=0.500;AN=2;BaseQRankSum=0.972;ClippingRankSum=-0.972;DP=26;FS=0.000;MLEAC=1;MLEAF=0.500;MQ=26.99;MQ0=0;MQRankSum=0.472;QD=4.80;ReadPosRankSum=-0.361;SOR=0.947	GT:AD:DP:GQ:PL	0/1:18,8:26:99:153,0,428
      * 1	69511	rs75062661	A	G	1592.77	.	AC=2;AF=1.00;AN=2;DB;DP=60;FS=0.000;MLEAC=2;MLEAF=1.00;MQ=31.44;MQ0=0;QD=26.55;SOR=1.316	GT:AD:DP:GQ:PL	1/1:0,59:59:99:1621,176,0
@@ -135,7 +136,8 @@ public class VariantTest {
         values.put("PL", new String[]{"153,0,428", "1621,176,0", "147,0,89", "96,0,334", "98,0,308", "68,6,0", "113,9,0", "219,18,0", "1257,114,0", "469,45,0", "90,6,0", "90,6,0", "86,9,0", "696,0,1021", "104,0,25"});
         for (Map.Entry<String, Object[]> entry : values.entrySet()) {
             for (int i = 0; i < entry.getValue().length; i++) {
-                Assert.assertEquals(entry.getValue()[i], file.getVariants().get(i).getSamples().getFormat(file.getHeader().getSampleIndex("sample01"), entry.getKey()));
+                Assert.assertEquals(entry.getValue()[i],
+                        file.getVariants().get(i).getSampleInfo().getFormat(file.getHeader().indexOf("sample01"), entry.getKey()));
             }
         }
     }

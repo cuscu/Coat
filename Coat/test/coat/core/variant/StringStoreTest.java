@@ -19,7 +19,7 @@ package coat.core.variant;
 
 import org.junit.Assert;
 import org.junit.Test;
-import vcf.StringStore;
+import utils.StringStore;
 
 /**
  * Created by uichuimi on 7/03/16.

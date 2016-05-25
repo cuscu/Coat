@@ -20,6 +20,8 @@ package coat.view.poirot.phenotype;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -29,6 +31,7 @@ import poirot.core.Pearl;
 import poirot.core.PearlGraph;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,7 +45,7 @@ public class PhenotypeListController {
     @FXML
     private TableColumn<Phenotype, String> name;
     @FXML
-    private TableColumn<Phenotype, Double> score;
+    private TableColumn<Phenotype, String> score;
     @FXML
     private TableColumn<Phenotype, Boolean> select;
     @FXML
@@ -55,6 +58,7 @@ public class PhenotypeListController {
     private ToggleGroup group;
     private PearlGraph graph;
     private List<Phenotype> phenotypes = new ArrayList<>();
+    private ObservableList<Pearl> selectedPhenotypes = FXCollections.observableArrayList();
 
     @FXML
     private void initialize() {
@@ -66,7 +70,7 @@ public class PhenotypeListController {
         searchImage.setFitWidth(16);
         searchImage.setImage(LENS);
         name.setCellValueFactory(param -> new SimpleObjectProperty((String) param.getValue().pearl.getProperties().get("name")));
-        score.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().pearl.getScore()));
+        score.setCellValueFactory(param -> new SimpleObjectProperty<>(String.format("%.3f", param.getValue().pearl.getScore())));
         select.setCellValueFactory(param -> param.getValue().selected);
         select.setCellFactory(param -> new CheckBoxTableCell<>());
         group.selectedToggleProperty().addListener((observable, oldValue, newValue) -> filter());
@@ -78,6 +82,7 @@ public class PhenotypeListController {
         phenotypeTable.getItems().setAll(getFilterStream(toggle.getText())
                 .filter(phenotype -> phenotype.pearl.getProperties().get("name").toString().toLowerCase().contains(searchText))
                 .collect(Collectors.toList()));
+        phenotypeTable.sort();
     }
 
     private Stream<Phenotype> getFilterStream(String selectedType) {
@@ -92,13 +97,32 @@ public class PhenotypeListController {
     }
 
     private void updateQuantities() {
+        selectedPhenotypes.setAll(phenotypes.stream()
+                .filter(phenotype -> phenotype.selected.getValue())
+                .map(phenotype -> phenotype.pearl)
+                .collect(Collectors.toList()));
     }
 
     public void setPearlGraph(PearlGraph graph) {
         this.graph = graph;
-        graph.getPearls(Pearl.Type.DISEASE).stream().filter(pearl -> pearl.getProperties().containsKey("name")).forEach(pearl -> phenotypes.add(new Phenotype(pearl, false)));
-        graph.getPearls(Pearl.Type.TISSUE).stream().filter(pearl -> pearl.getProperties().containsKey("name")).forEach(pearl -> phenotypes.add(new Phenotype(pearl, false)));
+        graph.getPearls(Pearl.Type.DISEASE).stream()
+                .filter(pearl -> pearl.getProperties().containsKey("name")).forEach(pearl -> phenotypes.add(new Phenotype(pearl, false)));
+        graph.getPearls(Pearl.Type.TISSUE).stream()
+                .filter(pearl -> pearl.getProperties().containsKey("name")).forEach(pearl -> phenotypes.add(new Phenotype(pearl, false)));
         filter();
+    }
+
+    public ObservableList<Pearl> selectedPhenotypes() {
+        return selectedPhenotypes;
+    }
+
+    public ObservableList<Phenotype> phenotypes() {
+        return phenotypeTable.getItems();
+    }
+
+    public void sort() {
+        Collections.sort(phenotypeTable.getItems(), (o1, o2) -> Double.compare(o2.pearl.getScore(), o1.pearl.getScore()));
+//        phenotypeTable.sort();
     }
 
     private class Phenotype {

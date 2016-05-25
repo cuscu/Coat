@@ -21,7 +21,6 @@ import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -30,6 +29,7 @@ import poirot.core.PearlGraph;
 import poirot.core.PearlGraphFactory;
 import poirot.view.GraphEvaluator;
 import vcf.VcfFile;
+import vcf.VcfFileFactory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -61,7 +61,7 @@ class PoirotInputPane extends VBox {
         loading.setVisible(true);
         StackPane.setMargin(loading, new Insets(20, 20, 20, 20));
         new Thread(() -> {
-            final VcfFile vcfFile = new VcfFile(file);
+            final VcfFile vcfFile = VcfFileFactory.createFromFile(file);
             System.out.println("Variants loaded");
             final PearlGraph graph = PearlGraphFactory.createFromPoirotCore(new File("config/poirot-brain.txt.gz"));
             graph.addVariants(vcfFile);

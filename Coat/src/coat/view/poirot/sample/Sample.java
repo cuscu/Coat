@@ -21,15 +21,18 @@ import coat.utils.OS;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import vcf.Variant;
 import vcf.VcfFile;
+import vcf.VcfFileFactory;
 
 import java.io.File;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
  * Created by uichuimi on 16/05/16.
  */
-class Sample {
+public class Sample {
 
     private final static Logger log = Logger.getLogger(Sample.class.getName());
 
@@ -41,7 +44,7 @@ class Sample {
     private Property<Boolean> affected = new SimpleBooleanProperty(true);
 
     Sample(File file) {
-        vcfFile = new VcfFile(file);
+        vcfFile = VcfFileFactory.createFromFile(file);
         name.setValue(vcfFile.getHeader().getSamples().get(0));
     }
 
@@ -83,6 +86,14 @@ class Sample {
 
     public boolean isAffected() {
         return affected.getValue();
+    }
+
+    public List<Variant> getVariants() {
+        return null;
+    }
+
+    public VcfFile getVcfFile() {
+        return vcfFile;
     }
 
 

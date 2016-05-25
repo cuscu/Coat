@@ -23,6 +23,7 @@ import org.junit.runner.RunWith;
 import poirot.core.Pearl;
 import poirot.core.PearlGraph;
 import vcf.VcfFile;
+import vcf.VcfFileFactory;
 
 import java.io.File;
 import java.util.Collections;
@@ -40,7 +41,7 @@ public class PhenotypeScoreTest {
 
     @Test
     public void test() {
-        final VcfFile vcfFile = new VcfFile(file);
+        final VcfFile vcfFile = VcfFileFactory.createFromFile(file);
         final GraphFactory generator = new GraphFactory(vcfFile.getVariants());
         try {
             generator.run();

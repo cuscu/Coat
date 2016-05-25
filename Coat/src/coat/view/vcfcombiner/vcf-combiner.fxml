@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!--
+  ~ Copyright (c) UICHUIMI 2016
+  ~
+  ~ This file is part of Coat.
+  ~
+  ~ Coat is free software: you can redistribute it and/or modify it under the terms of the
+  ~ GNU General Public License as published by the Free Software Foundation, either version 3 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ Coat is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with Foobar.
+  ~ If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="coat.view.vcfcombiner.VcfCombinerController">
+    <center>
+        <VBox BorderPane.alignment="CENTER">
+            <children>
+                <TableView fx:id="sampleTable" editable="true">
+                    <columns>
+                        <TableColumn fx:id="name" prefWidth="75.0" text="Name"/>
+                        <TableColumn fx:id="variants" prefWidth="75.0" text="Variants"/>
+                        <TableColumn fx:id="status" editable="true" prefWidth="75.0" text="Status"/>
+                        <TableColumn fx:id="mist" prefWidth="75.0" text="Mist"/>
+                    </columns>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                    </columnResizePolicy>
+                </TableView>
+                <FlowPane alignment="TOP_CENTER" columnHalignment="CENTER" hgap="10.0" vgap="10.0">
+                    <children>
+                        <Button mnemonicParsing="false" onAction="#addVcf" text="Add vcf"/>
+                        <Button mnemonicParsing="false" onAction="#deleteSample" text="Delete sample"/>
+                        <Button mnemonicParsing="false" onAction="#combine" text="Combine"/>
+                        <Button mnemonicParsing="false" onAction="#save" text="Save results"/>
+                    </children>
+                    <VBox.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                    </VBox.margin>
+                </FlowPane>
+                <TableView prefHeight="200.0" prefWidth="200.0">
+                    <columns>
+                        <TableColumn prefWidth="75.0" text="Chrom"/>
+                        <TableColumn prefWidth="75.0" text="Pos..."/>
+                    </columns>
+                </TableView>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>

@@ -43,9 +43,9 @@
             </ImageView>
          </children>
       </StackPane>
-        <TableView fx:id="geneTable" VBox.vgrow="ALWAYS">
+        <TableView fx:id="geneTable" VBox.vgrow="ALWAYS" editable="true">
             <columns>
-                <TableColumn fx:id="select" maxWidth="100" minWidth="50.0" prefWidth="50" text="Select" />
+                <TableColumn fx:id="select" maxWidth="100" minWidth="50.0" prefWidth="50" text="Select" editable="true"/>
                 <TableColumn fx:id="score" maxWidth="100.0" minWidth="50.0" prefWidth="75.0" text="Score" />
                 <TableColumn fx:id="distance" maxWidth="100.0" minWidth="50.0" prefWidth="75.0" text="Distance" />
                 <TableColumn fx:id="gene" minWidth="50.0" text="Gene" />

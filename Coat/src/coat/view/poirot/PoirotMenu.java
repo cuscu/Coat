@@ -39,7 +39,7 @@ public class PoirotMenu implements ToolMenu {
     public Tool getTool() {
 //        final File file = FileManager.openFile("VCF", FileManager.VCF_FILTER);
 //        if (file == null) return null;
-        return PoirotNewView.getView();
 //        return new PoirotView(file);
+        return PoirotNewView.getView();
     }
 }

@@ -31,7 +31,10 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -43,6 +46,7 @@ import vcf.Variant;
 import vcf.VcfFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -77,10 +81,18 @@ public class CombineVcfTool extends Tool {
     private Task<VcfFile> combiner;
 
     public CombineVcfTool() {
-        configureRoot();
-        configureButtonsPane();
-        configureSampleTable();
-        configureVariantsTable();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("vcf-combiner.fxml"));
+            final Parent parent = loader.load();
+            getChildren().add(parent);
+            VBox.setVgrow(parent, Priority.ALWAYS);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+//        configureRoot();
+//        configureButtonsPane();
+//        configureSampleTable();
+//        configureVariantsTable();
     }
 
     private void configureRoot() {

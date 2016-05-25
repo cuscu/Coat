@@ -20,7 +20,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.VBox?>
 <VBox alignment="TOP_CENTER" spacing="5.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="coat.view.poirot.sample.SampleListController">
@@ -34,8 +33,7 @@
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
             </padding>
         </Button>
-        <ListView fx:id="sampleList"/>
-        <Separator disable="true" orientation="VERTICAL" visible="false" VBox.vgrow="ALWAYS"/>
+        <ListView fx:id="sampleList" VBox.vgrow="ALWAYS"/>
         <fx:include fx:id="editing" source="sample-editing.fxml"/>
     </children>
     <padding>

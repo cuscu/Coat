@@ -18,7 +18,10 @@
 package coat.view.poirot.gene;
 
 import javafx.beans.property.Property;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -30,6 +33,7 @@ import poirot.core.Pearl;
 import poirot.core.PearlGraph;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,18 +45,22 @@ public class GeneListController {
     private final static Image LENS = new Image("coat/img/black/search.png");
     private final static Image CANCEL = new Image("coat/img/black/cancel.png");
     private final List<GeneRow> allGeneRows = new ArrayList<>();
-    public TableView<GeneRow> geneTable;
-    public TableColumn<GeneRow, Boolean> select;
-    public TextField searchBox;
+    @FXML
+    private TableView<GeneRow> geneTable;
+    @FXML
+    private TextField searchBox;
+    @FXML
+    private TableColumn<GeneRow, Boolean> select;
     @FXML
     private ImageView searchImage;
     @FXML
-    private TableColumn<GeneRow, Double> score;
+    private TableColumn<GeneRow, String> score;
     @FXML
     private TableColumn<GeneRow, String> gene;
     @FXML
     private TableColumn<GeneRow, Integer> distance;
     private PearlGraph pearlGraph;
+    private ObservableList<Pearl> selectedGenes = FXCollections.observableArrayList();
 
     @FXML
     private void initialize() {
@@ -70,8 +78,8 @@ public class GeneListController {
     }
 
     private void configureColumns() {
-        score.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().gene.getScore()));
         gene.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().gene.getId()));
+        score.setCellValueFactory(param -> new SimpleObjectProperty<>(String.format("%.3f", param.getValue().gene.getScore())));
         distance.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().gene.getDistanceToPhenotype()));
         select.setCellValueFactory(param -> param.getValue().selected);
         select.setCellFactory(param -> new CheckBoxTableCell<>());
@@ -79,7 +87,10 @@ public class GeneListController {
 
     public void setPearlGraph(PearlGraph pearlGraph) {
         this.pearlGraph = pearlGraph;
-        allGeneRows.addAll(pearlGraph.getPearls(Pearl.Type.GENE).stream().map(pearl -> new GeneRow(pearl, false)).collect(Collectors.toList()));
+        allGeneRows.clear();
+        allGeneRows.addAll(pearlGraph.getPearls(Pearl.Type.GENE).stream()
+                .map(pearl -> new GeneRow(pearl, false))
+                .collect(Collectors.toList()));
         filter();
     }
 
@@ -89,13 +100,31 @@ public class GeneListController {
                 .filter(pearl -> pearl.gene.getId().toLowerCase().contains(searchText)).collect(Collectors.toList()));
     }
 
+    public List<Pearl> getSelectedGenes() {
+        return selectedGenes;
+    }
+
+    private void updateSelectedGenes() {
+        selectedGenes.setAll(allGeneRows.stream()
+                .filter(phenotype -> phenotype.selected.getValue())
+                .map(phenotype -> phenotype.gene)
+                .collect(Collectors.toList()));
+    }
+
+    public void sort() {
+        Collections.sort(geneTable.getItems(), (o1, o2) -> Double.compare(o2.gene.getScore(), o1.gene.getScore()));
+    }
+
     private class GeneRow {
-        Pearl gene;
-        Property<Boolean> selected = new SimpleObjectProperty<>();
+
+        final Pearl gene;
+        final Property<Boolean> selected;
 
         GeneRow(Pearl gene, boolean selected) {
             this.gene = gene;
-            this.selected.setValue(selected);
+            this.selected = new SimpleBooleanProperty(selected);
+            this.selected.addListener((observable, oldValue, newValue) -> updateSelectedGenes());
         }
+
     }
 }

@@ -40,10 +40,7 @@ import vcf.Variant;
 import vcf.VcfFile;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -177,9 +174,17 @@ public class VcfReader extends VBox implements Reader {
      * Inserts LFS header alphabetically.
      */
     private void injectLFSHeader() {
-        final boolean match = vcfFile.getHeader().getComplexHeaders().get("INFO").stream().anyMatch(map -> map.get("ID").equals("LFS"));
-        final String lfsInfo = "##INFO=<ID=LFS,Number=1,Type=Integer,Description=\"Low frequency codon substitution\">";
-        if (!match) vcfFile.getHeader().addHeader(lfsInfo);
+        if(!vcfFile.getHeader().getIdList("INFO").contains("LFS")) {
+            final Map<String, String> map = new TreeMap<>();
+            map.put("ID", "LFS");
+            map.put("Number", "1");
+            map.put("Type", "Integer");
+            map.put("Description", "Low frequency codon substitution");
+            vcfFile.getHeader().addComplexHeader("INFO", map);
+        }
+//        final boolean match = vcfFile.getHeader().getComplexHeaders().get("INFO").stream().anyMatch(map -> map.get("ID").equals("LFS"));
+//        final String lfsInfo = "##INFO=<ID=LFS,Number=1,Type=Integer,Description=\"Low frequency codon substitution\">";
+//        if (!match) vcfFile.getHeader().addHeader(lfsInfo);
     }
 
     private Button getVepButton() {

@@ -43,6 +43,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import vcf.VcfFile;
+import vcf.VcfFileFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -277,7 +278,7 @@ public class CoatView {
         final Task<VcfFile> vcfLoader = new Task<VcfFile>() {
             @Override
             protected VcfFile call() throws Exception {
-                return new VcfFile(f);
+                return VcfFileFactory.createFromFile(f);
             }
         };
         vcfLoader.setOnSucceeded(event -> {

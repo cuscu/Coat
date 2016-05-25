@@ -39,7 +39,7 @@ public class SampleTable extends TableView<String[]> {
         for (int sampleIndex = 0; sampleIndex < sampleNames.size(); sampleIndex++) {
             final String[] row = new String[formats.size() + 1];
             row[0] = sampleNames.get(sampleIndex);
-            for (int i = 0; i < formats.size(); i++) row[i + 1] = variant.getSamples().getFormat(sampleIndex, formats.get(i));
+            for (int i = 0; i < formats.size(); i++) row[i + 1] = variant.getSampleInfo().getFormat(sampleIndex, formats.get(i));
             getItems().add(row);
         }
     }

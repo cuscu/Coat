@@ -22,6 +22,8 @@ import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 
@@ -38,6 +40,7 @@ public class PoirotNewView extends Tool {
         try {
             final Parent parent = loader.load();
             getChildren().setAll(parent);
+            VBox.setVgrow(parent, Priority.ALWAYS);
         } catch (IOException e) {
             e.printStackTrace();
         }
