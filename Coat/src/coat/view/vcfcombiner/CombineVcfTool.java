@@ -49,6 +49,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.TreeSet;
 
 /**
  * Main panel of the Combine Vcf Tool.
@@ -148,7 +149,7 @@ public class CombineVcfTool extends Tool {
     @Override
     public void saveAs() {
         final File file = FileManager.saveFile("Select ouptut file", FileManager.VCF_FILTER);
-        if (file != null) resultVcfFile.save(file, resultVariants);
+        if (file != null) resultVcfFile.save(file, new TreeSet<>(resultVariants));
     }
 
     @Override

@@ -133,7 +133,7 @@ public class VcfFilter {
                 stringValue = variant.getChrom();
                 break;
             case POSITION:
-                doubleValue = variant.getPos();
+                doubleValue = variant.getPosition();
                 break;
             case QUALITY:
                 doubleValue = variant.getQual();
@@ -149,7 +149,7 @@ public class VcfFilter {
                 break;
             case INFO:
                 if (info == null) return true;
-                stringValue = (String) variant.getInfo().getInfo(info);
+                stringValue = (String) variant.getInfo().get(info);
 
 
 ////                Map<String, Object> map = vcf.getInfoValues();
@@ -220,9 +220,9 @@ public class VcfFilter {
                 if (stringValue != null) return stringValue.matches(value);
                 break;
             case PRESENT:
-                return variant.getInfo().getInfo(info) != null;
+                return variant.getInfo().get(info) != null;
             case NOT_PRESENT:
-                return variant.getInfo().getInfo(info) == null;
+                return variant.getInfo().get(info) == null;
         }
         return strictProperty.getValue();
     }

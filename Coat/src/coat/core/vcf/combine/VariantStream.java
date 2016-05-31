@@ -132,7 +132,7 @@ public class VariantStream {
     }
 
     private void addMistInfo(Variant variant) {
-        variant.getInfo().setInfo("MistZone", true);
+        variant.getInfo().set("MistZone", true);
     }
 
     private String[] nextMistRegion() {
@@ -149,8 +149,8 @@ public class VariantStream {
         while (mistRegion != null) {
             final int start = Integer.valueOf(mistRegion[3]);
             final int end = Integer.valueOf(mistRegion[4]);
-            if (start <= variant.getPos() && variant.getPos() < end) return true;
-            else if (start > variant.getPos()) return false;
+            if (start <= variant.getPosition() && variant.getPosition() < end) return true;
+            else if (start > variant.getPosition()) return false;
             else mistRegion = nextMistRegion();
         }
         return false;

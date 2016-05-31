@@ -68,26 +68,26 @@ public class PoirotVariantTable extends TableView<Variant> {
     private TableColumn<Variant, String> getBiotypeColumn() {
         final TableColumn<Variant, String> biotype = new TableColumn<>(OS.getString("biotype"));
         biotype.setCellFactory(param -> new NaturalCell<>());
-        biotype.setCellValueFactory(param -> new SimpleObjectProperty<>((String) param.getValue().getInfo().getInfo("BIO")));
+        biotype.setCellValueFactory(param -> new SimpleObjectProperty<>((String) param.getValue().getInfo().get("BIO")));
         return biotype;
     }
 
     private TableColumn<Variant, String> getConsequenceColumn() {
         final TableColumn<Variant, String> consequences = new TableColumn<>(OS.getString("consequences"));
         consequences.setCellFactory(param -> new NaturalCell<>());
-        consequences.setCellValueFactory(param -> new SimpleObjectProperty<>((String) param.getValue().getInfo().getInfo("CONS")));
+        consequences.setCellValueFactory(param -> new SimpleObjectProperty<>((String) param.getValue().getInfo().get("CONS")));
         return consequences;
     }
 
     private TableColumn<Variant, String> getSIFTColumn() {
         final TableColumn<Variant, String> sifts = new TableColumn<>("SIFTs");
         sifts.setCellFactory(param -> new NaturalCell<>());
-        sifts.setCellValueFactory(param -> new SimpleObjectProperty<>((String) param.getValue().getInfo().getInfo("SIFTs")));
+        sifts.setCellValueFactory(param -> new SimpleObjectProperty<>((String) param.getValue().getInfo().get("SIFTs")));
         return sifts;
     }
 
     private String getCoordinate(Variant variant) {
-        return variant.getChrom() + ":" + variant.getPos();
+        return variant.getChrom() + ":" + variant.getPosition();
     }
 
     public TableColumn<Variant, Double> getColorColumn() {

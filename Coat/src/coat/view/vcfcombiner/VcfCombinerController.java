@@ -17,27 +17,29 @@
 
 package coat.view.vcfcombiner;
 
+import coat.CoatView;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import vcf.Sample;
 import vcf.VcfFile;
 import vcf.VcfFileFactory;
+import vcf.combine.VcfCombineTask;
 
 import java.io.File;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Created by uichuimi on 24/05/16.
  */
 public class VcfCombinerController {
+    @FXML
+    private CheckBox removeVariants;
     @FXML
     private TableColumn<Sample, File> mist;
     @FXML
@@ -48,11 +50,12 @@ public class VcfCombinerController {
     private TableColumn<Sample, String> name;
     @FXML
     private TableView<Sample> sampleTable;
+    private VcfFile vcfFile;
 
     @FXML
     private void initialize() {
         name.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getName()));
-        variants.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getVariants().size()));
+        variants.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getVcfFile().getVariants().size()));
         status.setCellValueFactory(param -> param.getValue().statusProperty());
         status.setCellFactory(param -> new ComboBoxTableCell<>(Sample.Status.values()));
         mist.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getVcfFile().getMistFile()));
@@ -75,11 +78,17 @@ public class VcfCombinerController {
     }
 
     public void combine(ActionEvent actionEvent) {
-
+        vcfFile = new VcfCombineTask(sampleTable.getItems(), removeVariants.isSelected()).start();
+        CoatView.getCoatView().openVcfFile(vcfFile);
+        Logger.getLogger(getClass().getName()).info("Combined " + vcfFile.getVariants().size() + " variants");
     }
 
     public void save(ActionEvent actionEvent) {
-
+        final File file = FileManager.saveFile("Select save file", FileManager.VCF_FILTER);
+        if (file != null) {
+            vcfFile.save(file);
+            Logger.getLogger(getClass().getName()).info("Saved " + file);
+        }
     }
 
     private class MistCell extends TableCell<Sample, File> {

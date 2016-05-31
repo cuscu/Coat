@@ -34,12 +34,13 @@ public class SampleTable extends TableView<String[]> {
     public void setVariant(Variant variant) {
         getItems().clear();
         if (variant == null) return;
-        final List<String> sampleNames = variant.getVcfFile().getHeader().getSamples();
+        final List<String> samples = variant.getVcfFile().getHeader().getSamples();
         final List<String> formats = variant.getVcfFile().getHeader().getIdList("FORMAT");
-        for (int sampleIndex = 0; sampleIndex < sampleNames.size(); sampleIndex++) {
+        for (String sample : samples) {
             final String[] row = new String[formats.size() + 1];
-            row[0] = sampleNames.get(sampleIndex);
-            for (int i = 0; i < formats.size(); i++) row[i + 1] = variant.getSampleInfo().getFormat(sampleIndex, formats.get(i));
+            row[0] = sample;
+            for (int i = 0; i < formats.size(); i++)
+                row[i + 1] = variant.getSampleInfo().getFormat(sample, formats.get(i));
             getItems().add(row);
         }
     }

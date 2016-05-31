@@ -177,7 +177,7 @@ public class LFS {
     public static void addLFS(Variant variant) {
         try {
 //            Map<String, Object> infos = vcf.getInfoValues();
-            String codons = (String) variant.getInfo().getInfo("COD");
+            String codons = (String) variant.getInfo().get("COD");
             if (codons != null) {
                 String[] cods = codons.split("[/-]");
                 // Only supports 2 structures: aaT/aaC and tta-Gta
@@ -195,7 +195,7 @@ public class LFS {
                     double source = frequencies.get(cods[0].toUpperCase());
                     double destiny = frequencies.get(cods[1].toUpperCase());
                     double score = source / destiny;
-//                    if (score > 1) vcf.setInfo("LFS", String.valueOf(score));
+//                    if (score > 1) vcf.set("LFS", String.valueOf(score));
                 }
             }
         } catch (Exception ex) {

@@ -46,7 +46,7 @@ public class VcfStats extends VBox {
         TreeMap<String, Integer> counts = new TreeMap<>();
         List<Double> values = new ArrayList<>();
         vcfFile.getVariants().forEach(variant -> {
-            final Object o = variant.getInfo().getInfo(id);
+            final Object o = variant.getInfo().get(id);
             if (o == null) return;
             if (o.getClass() == String.class) {
                 String value = (String) o;

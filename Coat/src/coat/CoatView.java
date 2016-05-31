@@ -61,6 +61,8 @@ import java.util.logging.Logger;
  */
 public class CoatView {
 
+    private static CoatView COAT_VIEW;
+
     private final static DateFormat df = new SimpleDateFormat("HH:mm:ss");
     private final static List<String> AVAILABLE_MESSAGE_TYPES = Arrays.asList("info", "error", "success", "warning");
     private static VBox bigConsole = new VBox();
@@ -91,13 +93,17 @@ public class CoatView {
         toolsMenuClasses.add(new PoirotMenu());
     }
 
+    public static CoatView getCoatView() {
+        return COAT_VIEW;
+    }
+
     /**
      * Adds a message to the log. Messages will be show in the bottom line of the application, and will be also
      * available in a history window. This method is run in the JavaFx main thread, so there is no need to encapsulate
      * it in a <code>Platform.runLater()</code> block.
      *
      * @param message What you want to say
-     * @param level "info", "warning", "error" or "success", but it is possible to use any String
+     * @param level   "info", "warning", "error" or "success", but it is possible to use any String
      */
     public static void printMessage(String message, String level) {
         final String date = df.format(new Date());
@@ -120,6 +126,7 @@ public class CoatView {
     }
 
     public void initialize() {
+        COAT_VIEW = this;
         createToolsMenu();
         root.setCenter(workspace);
         staticInfo = info;
@@ -283,11 +290,15 @@ public class CoatView {
         };
         vcfLoader.setOnSucceeded(event -> {
             final VcfFile vcfFile = vcfLoader.getValue();
-            final VcfReader vcfReader = new VcfReader(vcfFile);
-            addReaderToWorkspace(vcfReader, vcfReader);
+            openVcfFile(vcfFile);
             printMessage(f + " loaded", "success");
         });
         new Thread(vcfLoader).start();
+    }
+
+    public void openVcfFile(VcfFile vcfFile) {
+        final VcfReader vcfReader = new VcfReader(vcfFile);
+        addReaderToWorkspace(vcfReader, vcfReader);
     }
 
     private void addTSVReaderToWorkspace(File f) throws IOException {

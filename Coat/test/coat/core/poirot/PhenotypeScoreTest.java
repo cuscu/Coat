@@ -26,6 +26,7 @@ import vcf.VcfFile;
 import vcf.VcfFileFactory;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -42,7 +43,7 @@ public class PhenotypeScoreTest {
     @Test
     public void test() {
         final VcfFile vcfFile = VcfFileFactory.createFromFile(file);
-        final GraphFactory generator = new GraphFactory(vcfFile.getVariants());
+        final GraphFactory generator = new GraphFactory(new ArrayList<>(vcfFile.getVariants()));
         try {
             generator.run();
             final PearlGraph pearlDatabase = generator.get();

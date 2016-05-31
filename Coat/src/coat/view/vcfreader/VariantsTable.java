@@ -137,7 +137,7 @@ public class VariantsTable extends VBox {
         rsId.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getId()));
         qual.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getQual() + ""));
         position.setCellValueFactory(param
-                -> new SimpleStringProperty(String.format("%,d", param.getValue().getPos())));
+                -> new SimpleStringProperty(String.format("%,d", param.getValue().getPosition())));
     }
 
     private void setTableColumnWidths() {
@@ -168,7 +168,7 @@ public class VariantsTable extends VBox {
         if (current != null) {
             disableCoordinateHandler();
             currentChromosome.setValue(current.getChrom());
-            currentPosition.setText(String.format(Locale.US, "%,d", current.getPos()));
+            currentPosition.setText(String.format(Locale.US, "%,d", current.getPosition()));
             enableCoordinateHandler();
         }
     }
@@ -198,7 +198,7 @@ public class VariantsTable extends VBox {
 
     private void goTo(String cChromosome, int cPos) {
         for (Variant v : table.getItems())
-            if (v.getChrom().equals(cChromosome) && v.getPos() >= cPos) {
+            if (v.getChrom().equals(cChromosome) && v.getPosition() >= cPos) {
                 select(v);
                 break;
             }
@@ -240,7 +240,7 @@ public class VariantsTable extends VBox {
     private TableColumn<Variant, String> createInfoColumn(String info) {
         final TableColumn<Variant, String> column = new TableColumn<>(info);
         column.setCellValueFactory(param -> new SimpleStringProperty(
-                param.getValue().getInfo().hasInfo(info) ? param.getValue().getInfo().getInfo(info).toString() : ""));
+                param.getValue().getInfo().hasInfo(info) ? param.getValue().getInfo().get(info).toString() : ""));
         column.setVisible(info.matches("GNAME|SYMBOL"));
         return column;
     }

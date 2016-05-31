@@ -29,6 +29,7 @@ import vcf.VcfFile;
 import vcf.VcfFileFactory;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -44,7 +45,7 @@ public class PoirotTest {
     public void start() {
         final File file = new File("test/coat/core/poirot/agua.vcf");
         final VcfFile vcfFile = VcfFileFactory.createFromFile(file);
-        final GraphFactory analysis = new GraphFactory(vcfFile.getVariants());
+        final GraphFactory analysis = new GraphFactory(new ArrayList<>(vcfFile.getVariants()));
         Platform.runLater(analysis);
         try {
             database = analysis.get();

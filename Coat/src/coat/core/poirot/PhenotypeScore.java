@@ -99,7 +99,7 @@ public class PhenotypeScore {
     }
 
     private static double score(Variant variant) {
-        final String cons = (String) variant.getInfo().getInfo("CONS");
+        final String cons = (String) variant.getInfo().get("CONS");
         if (cons == null) return 1;
         return Arrays.stream(cons.split(","))
                 .mapToDouble(GraphEvaluator.CONSEQUENCE_VALUE_SCORE::getScore)

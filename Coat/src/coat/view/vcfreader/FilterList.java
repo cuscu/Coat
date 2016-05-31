@@ -23,9 +23,7 @@ import coat.view.graphic.SizableImageView;
 import coat.view.graphic.ThresholdDialog;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
+import javafx.collections.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -40,6 +38,7 @@ import vcf.Variant;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 /**
@@ -62,9 +61,10 @@ public class FilterList extends VBox {
     private final StackPane stackPane = new StackPane(progressBar, progressLabel);
     private final HBox buttons = new HBox(5, addFilter, addFrequencyFilters, infoLabel, stackPane);
     private final ObservableList<String> infos = FXCollections.observableArrayList();
-    private ObservableList<Variant> inputVariants = FXCollections.observableArrayList();
+    private ObservableSet<Variant> inputVariants = FXCollections.observableSet(new TreeSet<>());
     private final ChangeListener<Object> applyFilters = (observable, oldValue, newValue) -> applyFilters();
-    private final ListChangeListener<Variant> variantsChangedListener = (ListChangeListener<Variant>) c -> applyFilters();
+    private final SetChangeListener<Variant> variantsChangedListener = (SetChangeListener<Variant>) c ->
+            applyFilters();
 
     public FilterList() {
         Arrays.sort(FREQUENCY_IDS);
@@ -124,7 +124,7 @@ public class FilterList extends VBox {
         progressBar.setMaxWidth(9999);
     }
 
-    public void setInputVariants(ObservableList<Variant> inputVariants) {
+    public void setInputVariants(ObservableSet<Variant> inputVariants) {
         this.inputVariants.removeListener(variantsChangedListener);
         this.inputVariants = inputVariants;
         this.inputVariants.addListener(variantsChangedListener);

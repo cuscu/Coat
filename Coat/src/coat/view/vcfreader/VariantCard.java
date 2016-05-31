@@ -51,13 +51,13 @@ class VariantCard extends TableCell<Variant, Variant> {
     protected void updateItem(Variant item, boolean empty) {
         super.updateItem(item, empty);
         if (!empty && item != null) {
-            String codon = (String) item.getInfo().getInfo("COD");
+            String codon = (String) item.getInfo().get("COD");
             if (codon == null){
                 ref.setText(item.getRef());
                 alt.setText(item.getAlt());
             } else {
                 String [] cods = codon.split("[-/]");
-                String amino = (String) item.getInfo().getInfo("AMINO");
+                String amino = (String) item.getInfo().get("AMINO");
                 if (amino == null){
                     ref.setText(cods[0]);
                     alt.setText(cods[1]);

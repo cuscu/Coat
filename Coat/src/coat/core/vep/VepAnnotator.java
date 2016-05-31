@@ -93,11 +93,11 @@ public class VepAnnotator extends Task<Boolean> {
 
     public VepAnnotator(VcfFile vcfFile) {
         this.vcfFile = vcfFile;
-        this.variants = vcfFile.getVariants();
+        this.variants = new ArrayList<>(vcfFile.getVariants());
     }
 
     public VepAnnotator(List<Variant> variants) {
-        this.variants = variants;
+        this.variants = (variants);
         vcfFile = variants.get(0).getVcfFile();
     }
 
@@ -165,8 +165,8 @@ public class VepAnnotator extends Task<Boolean> {
         // ["1 156897 156897 A/C","2 3547966 3547968 TCC/T"]
         final JSONArray array = new JSONArray();
         for (Variant v : variants) {
-            int start = v.getPos();
-            int end = v.getPos() + v.getRef().length() - 1;
+            int start = v.getPosition();
+            int end = v.getPosition() + v.getRef().length() - 1;
             // 1 156897 156897 A/C
             // 2 3547966 3547968 TCC/T
             array.put(String.format("%s %d %d %s/%s", v.getChrom(), start, end, v.getRef(), v.getAlt()));
@@ -211,16 +211,16 @@ public class VepAnnotator extends Task<Boolean> {
 
     private static Variant getVariant(List<Variant> variants, String[] input) {
         return variants.stream()
-                .filter(variant -> variant.getPos() == Integer.valueOf(input[1]) && variant.getChrom().equals(input[0]))
+                .filter(variant -> variant.getPosition() == Integer.valueOf(input[1]) && variant.getChrom().equals(input[0]))
                 .findFirst().orElse(null);
     }
 
     private static synchronized void incorporateData(Variant variant, JSONObject json) {
-//        final Map<String, String> map = vcf.getInfo();
+//        final Map<String, String> map = vcf.get();
         addFrequencyData(variant, json);
         addTranscriptConsequences(variant, json);
         addIntergenicConsequences(variant, json);
-//        vcf.setInfo(map);
+//        vcf.set(map);
     }
 
     private static void addFrequencyData(Variant variant, JSONObject json) {
@@ -380,17 +380,17 @@ public class VepAnnotator extends Task<Boolean> {
                                    String targetKey, Class classType) {
         if (source.containsKey(sourceKey))
             if (classType == String.class)
-                variant.getInfo().setInfo(targetKey, source.getString(sourceKey));
+                variant.getInfo().set(targetKey, source.getString(sourceKey));
             else if (classType == Integer.class)
-                variant.getInfo().setInfo(targetKey, source.getInt(sourceKey) + "");
+                variant.getInfo().set(targetKey, source.getInt(sourceKey) + "");
             else if (classType == Double.class)
-                variant.getInfo().setInfo(targetKey, source.getDouble(sourceKey) + "");
+                variant.getInfo().set(targetKey, source.getDouble(sourceKey) + "");
             else if (classType == Boolean.class)
-                variant.getInfo().setInfo(targetKey, source.getBoolean(sourceKey) + "");
+                variant.getInfo().set(targetKey, source.getBoolean(sourceKey) + "");
             else if (classType == Long.class)
-                variant.getInfo().setInfo(targetKey, source.getLong(sourceKey) + "");
+                variant.getInfo().set(targetKey, source.getLong(sourceKey) + "");
             else
-                variant.getInfo().setInfo(targetKey, String.valueOf(source.get(sourceKey)));
+                variant.getInfo().set(targetKey, String.valueOf(source.get(sourceKey)));
     }
 
     private static void findAndPutArray(JSONObject source, String sourceKey, Variant target,
@@ -400,7 +400,7 @@ public class VepAnnotator extends Task<Boolean> {
             if (terms.length() > 0) {
                 final StringBuilder builder = new StringBuilder(terms.get(0).toString());
                 for (int i = 1; i < terms.length(); i++) builder.append(",").append(terms.get(i).toString());
-                target.getInfo().setInfo(targetKey, builder.toString());
+                target.getInfo().set(targetKey, builder.toString());
 //                String result = "";
 //                for (int i = 0; i < terms.length(); i++)
 //                    if (classType == String.class)

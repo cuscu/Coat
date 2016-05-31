@@ -102,7 +102,7 @@ public class TsvSaver {
     private void setInfoColumns(Variant var, String[] line) {
 //        fillEmpties(line);
         for (int i = 0; i < infoNames.size(); i++) {
-            final String info = (String) var.getInfo().getInfo(infoNames.get(i));
+            final String info = (String) var.getInfo().get(infoNames.get(i));
             line[i + FIXED_COLUMNS] = info == null ? "." : info;
         }
     }
@@ -119,7 +119,7 @@ public class TsvSaver {
 
     private void setFixedColumns(Variant var, String[] line) {
         line[0] = var.getChrom();
-        line[1] = String.valueOf(var.getPos());
+        line[1] = String.valueOf(var.getPosition());
         line[2] = var.getId();
         line[3] = var.getRef();
         line[4] = var.getAlt();

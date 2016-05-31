@@ -1,16 +1,16 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
+ * *
  * This program is free software: you can redistribute it and/or modify it    *
  * under the terms of the GNU General Public License as published by the      *
  * Free Software Foundation, either version 3 of the License, or (at your     *
  * option) any later version.                                                 *
- *                                                                            *
+ * *
  * This program is distributed in the hope that it will be useful, but        *
  * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
  * See the GNU General Public License for more details.                       *
- *                                                                            *
+ * *
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
@@ -26,7 +26,6 @@ import coat.core.vep.VepAnnotator;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.SizableImageView;
-import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
@@ -49,6 +48,8 @@ import java.util.stream.Collectors;
  * @author UICHUIMI
  */
 public class VcfReader extends VBox implements Reader {
+
+    private static int NEW_VCF = 0;
 
     private final InfoTable infoTable = new InfoTable();
     private final VariantsTable variantsTable = new VariantsTable();
@@ -107,12 +108,13 @@ public class VcfReader extends VBox implements Reader {
 
     @Override
     public void saveAs() {
-        File output = FileManager.saveFile("Select output file", vcfFile.getFile().getParentFile(),
-                vcfFile.getFile().getName(), FileManager.VCF_FILTER, FileManager.TSV_FILTER);
+        File output = vcfFile.getFile() == null
+                ? FileManager.saveFile("Select output file", FileManager.VCF_FILTER, FileManager.TSV_FILTER)
+                : FileManager.saveFile("Select output file", vcfFile.getFile().getParentFile(), vcfFile.getFile().getName(), FileManager.VCF_FILTER, FileManager.TSV_FILTER);
         List<Variant> toSaveVariants = new ArrayList<>(filterList.getOutputVariants());
         if (output != null)
             if (output.getName().endsWith(".vcf")) {
-                vcfFile.save(output, toSaveVariants);
+                vcfFile.save(output, new TreeSet<>(toSaveVariants));
             } else new TsvSaver(vcfFile, output, toSaveVariants).invoke();
     }
 
@@ -174,7 +176,7 @@ public class VcfReader extends VBox implements Reader {
      * Inserts LFS header alphabetically.
      */
     private void injectLFSHeader() {
-        if(!vcfFile.getHeader().getIdList("INFO").contains("LFS")) {
+        if (!vcfFile.getHeader().getIdList("INFO").contains("LFS")) {
             final Map<String, String> map = new TreeMap<>();
             map.put("ID", "LFS");
             map.put("Number", "1");
@@ -224,15 +226,15 @@ public class VcfReader extends VBox implements Reader {
     }
 
     private void bindFile() {
-        titleProperty.setValue(vcfFile.getFile().getName());
+        titleProperty.setValue(vcfFile.getFile() != null ? vcfFile.getFile().getName() : "new vcf " + NEW_VCF++);
         infoTable.getVariantProperty().bind(variantsTable.getVariantProperty());
         filterList.setInputVariants(vcfFile.getVariants());
         final List<String> list = vcfFile.getHeader().getComplexHeaders().get("INFO").stream().map(map -> map.get("ID")).collect(Collectors.toList());
         filterList.setInfos(list);
         variantsTable.setVariants(filterList.getOutputVariants());
         vcfFile.changedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) Platform.runLater(() -> titleProperty.setValue(vcfFile.getFile().getName() + " *"));
-            else titleProperty.setValue(vcfFile.getFile().getName());
+//            if (newValue) Platform.runLater(() -> titleProperty.setValue(titleProperty.getValue() + "*"));
+//            else titleProperty.setValue(vcfFile.getFile().getName());
         });
     }
 }
