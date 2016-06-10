@@ -22,8 +22,8 @@ import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import vcf.Variant;
-import vcf.VcfFile;
-import vcf.VcfFileFactory;
+import vcf.VariantSet;
+import vcf.VariantSetFactory;
 
 import java.io.File;
 import java.util.List;
@@ -36,7 +36,7 @@ public class Sample {
 
     private final static Logger log = Logger.getLogger(Sample.class.getName());
 
-    private final VcfFile vcfFile;
+    private final VariantSet variantSet;
     private Property<String> name = new SimpleObjectProperty<>();
     private Property<Sample> father = new SimpleObjectProperty<>();
     private Property<Sample> mother = new SimpleObjectProperty<>();
@@ -44,8 +44,8 @@ public class Sample {
     private Property<Boolean> affected = new SimpleBooleanProperty(true);
 
     Sample(File file) {
-        vcfFile = VcfFileFactory.createFromFile(file);
-        name.setValue(vcfFile.getHeader().getSamples().get(0));
+        variantSet = VariantSetFactory.createFromFile(file);
+        name.setValue(variantSet.getHeader().getSamples().get(0));
     }
 
     Property<Sample> motherProperty() {
@@ -92,8 +92,8 @@ public class Sample {
         return null;
     }
 
-    public VcfFile getVcfFile() {
-        return vcfFile;
+    public VariantSet getVariantSet() {
+        return variantSet;
     }
 
 

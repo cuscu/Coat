@@ -17,7 +17,7 @@
 
 package coat.view.poirot;
 
-import coat.core.poirot.dataset.hgnc.HGNC;
+import coat.core.poirot.hgnc.HGNC;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Priority;

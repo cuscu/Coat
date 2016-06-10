@@ -42,8 +42,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import vcf.VcfFile;
-import vcf.VcfFileFactory;
+import vcf.VariantSet;
+import vcf.VariantSetFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -282,22 +282,22 @@ public class CoatView {
 
     private void addVCFReaderToWorkspace(File f) throws IOException {
         printMessage("Loading " + f, "info");
-        final Task<VcfFile> vcfLoader = new Task<VcfFile>() {
+        final Task<VariantSet> vcfLoader = new Task<VariantSet>() {
             @Override
-            protected VcfFile call() throws Exception {
-                return VcfFileFactory.createFromFile(f);
+            protected VariantSet call() throws Exception {
+                return VariantSetFactory.createFromFile(f);
             }
         };
         vcfLoader.setOnSucceeded(event -> {
-            final VcfFile vcfFile = vcfLoader.getValue();
-            openVcfFile(vcfFile);
+            final VariantSet variantSet = vcfLoader.getValue();
+            openVcfFile(variantSet, f);
             printMessage(f + " loaded", "success");
         });
         new Thread(vcfLoader).start();
     }
 
-    public void openVcfFile(VcfFile vcfFile) {
-        final VcfReader vcfReader = new VcfReader(vcfFile);
+    public void openVcfFile(VariantSet variantSet, File f) {
+        final VcfReader vcfReader = new VcfReader(variantSet, f);
         addReaderToWorkspace(vcfReader, vcfReader);
     }
 

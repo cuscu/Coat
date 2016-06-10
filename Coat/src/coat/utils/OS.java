@@ -19,8 +19,15 @@ package coat.utils;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -36,6 +43,7 @@ public class OS {
 
     private final static DateFormat df = new SimpleDateFormat("HH:mm:ss");
     private final static ResourceBundle resources = ResourceBundle.getBundle("coat.language.Texts");
+    private final static File configPath;
 
     private static final ObservableList<String> standardChromosomes = FXCollections.observableArrayList();
     /**
@@ -53,6 +61,76 @@ public class OS {
         locales.add(new Locale("es", "ES"));
         locales.add(new Locale("en", "US"));
         locales.add(new Locale("en", "UK"));
+        configPath = new File(getJarDir(OS.class), "config");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("output.log"))) {
+            writer.write("Config path: " + configPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Compute the absolute file path to the jar file.
+     * The framework is based on http://stackoverflow.com/a/12733172/1614775
+     * But that gets it right for only one of the four cases.
+     *
+     * @param aclass A class residing in the required jar.
+     * @return A File object for the directory in which the jar file resides.
+     * During testing with NetBeans, the result is ./build/classes/,
+     * which is the directory containing what will be in the jar.
+     */
+    private static File getJarDir(Class aclass) {
+
+        final URL url1 = getClassUrl(aclass);
+        final String extURL = toExternalUrl(aclass, url1);
+        URL url = toUrl(extURL);
+        if (url == null) url = url1;
+        try {
+            return new File(url.toURI());
+        } catch (URISyntaxException ex) {
+            return new File(url.getPath());
+        }
+    }
+
+    private static URL toUrl(String extURL) {
+        try {
+            return new URL(extURL);
+        } catch (MalformedURLException mux) {
+            // leave url unchanged; probably does not happen
+        }
+        return null;
+    }
+
+    private static URL getClassUrl(Class aclass) {
+        URL url;
+        try {
+            url = aclass.getProtectionDomain().getCodeSource().getLocation();
+            // url is in one of two forms
+            //        ./build/classes/   NetBeans test
+            //        jardir/JarName.jar  froma jar
+        } catch (SecurityException ex) {
+            url = aclass.getResource(aclass.getSimpleName() + ".class");
+            // url is in one of two forms, both ending "/com/physpics/tools/ui/PropNode.class"
+            //          file:/U:/Fred/java/Tools/UI/build/classes
+            //          jar:file:/U:/Fred/java/Tools/UI/dist/UI.jar!
+        }
+        return url;
+    }
+
+    @NotNull
+    private static String toExternalUrl(Class aclass, URL url) {
+        String extURL = url.toExternalForm();
+
+        // prune for various cases
+        if (extURL.endsWith(".jar"))   // from getCodeSource
+            extURL = extURL.substring(0, extURL.lastIndexOf("/"));
+        else {  // from getResource
+            String suffix = "/" + (aclass.getName()).replace(".", "/") + ".class";
+            extURL = extURL.replace(suffix, "");
+            if (extURL.startsWith("jar:") && extURL.endsWith(".jar!"))
+                extURL = extURL.substring(4, extURL.lastIndexOf("/"));
+        }
+        return extURL;
     }
 
     /**
@@ -153,6 +231,10 @@ public class OS {
 
     public static String getString(String key) {
         return resources.containsKey(key) ? resources.getString(key) : "";
+    }
+
+    public static File getConfigPath() {
+        return configPath;
     }
 
     /**

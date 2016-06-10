@@ -74,21 +74,22 @@ public class Coat extends Application {
     }
 
     private void loadProperties() {
+        final File file = new File(OS.getConfigPath(), "coat.properties");
         try {
-            if (new File("coat.properties").exists())
-                properties.load(new FileInputStream("coat.properties"));
+            if (file.exists())
+                properties.load(new FileInputStream(file));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        savePropertiesOnExit();
+        savePropertiesOnExit(file);
     }
 
-    private void savePropertiesOnExit() {
+    private void savePropertiesOnExit(File file) {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
                 try {
-                    properties.store(new FileOutputStream("coat.properties"), null);
+                    properties.store(new FileOutputStream(file), null);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

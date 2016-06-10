@@ -17,62 +17,23 @@
   ~ If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import coat.view.poirot.PoirotInfo?>
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.*?>
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import poirot.view.GraphView?>
-<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="coat.view.poirot.PoirotViewController">
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="coat.view.poirot.PoirotViewController">
     <center>
-        <SplitPane dividerPositions="0.5">
-            <items>
-                <VBox>
-                    <children>
-                        <TabPane VBox.vgrow="ALWAYS">
-                            <tabs>
-                                <Tab closable="false" text="Samples">
-                                    <content>
-                                        <fx:include fx:id="samples" source="sample/sample-list.fxml"/>
-                                    </content>
-                                </Tab>
-                                <Tab closable="false" text="Phenotypes">
-                                    <content>
-                                        <fx:include fx:id="phenotypes" source="phenotype/phenotype-list.fxml"/>
-                                    </content>
-                                </Tab>
-                                <Tab closable="false" text="Genes">
-                                    <content>
-                                        <fx:include fx:id="genes" source="gene/gene-list.fxml"/>
-                                    </content>
-                                </Tab>
-                            </tabs>
-                        </TabPane>
-                        <HBox alignment="CENTER_LEFT" spacing="5.0">
-                            <children>
-                                <Button fx:id="updateButton" mnemonicParsing="false" onAction="#update" text="Update"/>
-                                <CheckBox fx:id="autoUpdate" disable="true" mnemonicParsing="false"
-                                          text="Update automatically"/>
-                            </children>
-                            <VBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </VBox.margin>
-                        </HBox>
-                    </children>
-                </VBox>
-                <BorderPane prefHeight="200.0" prefWidth="200.0">
-                    <center>
-                        <SplitPane dividerPositions="0.5" orientation="VERTICAL">
-                            <items>
-                                <StackPane fx:id="graphViewContainer">
-                                    <GraphView fx:id="graphView"/>
-                                </StackPane>
-                                <PoirotInfo fx:id="poirotInfo"/>
-                            </items>
-                        </SplitPane>
-                    </center>
-                </BorderPane>
-            </items>
-        </SplitPane>
     </center>
+   <center>
+      <SplitPane dividerPositions="0.5" BorderPane.alignment="TOP_CENTER">
+        <items>
+            <fx:include source="phenotype/phenotype-list.fxml"/>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0" />
+        </items>
+      </SplitPane>
+   </center>
 </BorderPane>

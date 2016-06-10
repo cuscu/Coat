@@ -17,13 +17,7 @@
 
 package coat.core.vep;
 
-import org.junit.Assert;
 import org.junit.Test;
-import vcf.Variant;
-import vcf.VcfFile;
-import vcf.VcfFileFactory;
-
-import java.io.File;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
@@ -38,7 +32,7 @@ public class VepAnnotatorTest {
 
     @Test
     public void test() {
-//        final VcfFile vcfFile = VcfFileFactory.createFromFile(new File("test/coat/files/Sample1.vcf"));
+//        final VariantSet vcfFile = VariantSetFactory.createFromFile(new File("test/coat/files/Sample1.vcf"));
 //        final Variant variant = vcfFile.getVariants().get(0);
 //        final VepAnnotator annotator = new VepAnnotator(vcfFile.getVariants().subList(0, 1));
 //        try {

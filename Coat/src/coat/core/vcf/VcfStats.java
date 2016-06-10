@@ -19,7 +19,7 @@ package coat.core.vcf;
 
 import coat.core.vcf.stats.InfoStats;
 import javafx.scene.layout.VBox;
-import vcf.VcfFile;
+import vcf.VariantSet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,11 +32,11 @@ import java.util.TreeMap;
 public class VcfStats extends VBox {
 
     private final Map<String, InfoStats> stats = new TreeMap<>();
-    private final VcfFile vcfFile;
+    private final VariantSet variantSet;
 
-    public VcfStats(VcfFile vcfFile) {
-        this.vcfFile = vcfFile;
-        vcfFile.getHeader().getComplexHeaders().get("INFO").stream().map(map -> map.get("ID")).forEach((info) -> {
+    public VcfStats(VariantSet variantSet) {
+        this.variantSet = variantSet;
+        variantSet.getHeader().getComplexHeaders().get("INFO").stream().map(map -> map.get("ID")).forEach((info) -> {
             InfoStats infoStats = processInfo(info);
             stats.put(info, infoStats);
         });
@@ -45,7 +45,7 @@ public class VcfStats extends VBox {
     private InfoStats processInfo(String id) {
         TreeMap<String, Integer> counts = new TreeMap<>();
         List<Double> values = new ArrayList<>();
-        vcfFile.getVariants().forEach(variant -> {
+        variantSet.getVariants().forEach(variant -> {
             final Object o = variant.getInfo().get(id);
             if (o == null) return;
             if (o.getClass() == String.class) {

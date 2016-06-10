@@ -31,7 +31,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import vcf.Variant;
-import vcf.VcfFile;
+import vcf.VariantSet;
 
 import java.util.List;
 import java.util.Map;
@@ -97,8 +97,8 @@ public class InfoTable extends VBox {
 
     private void addInfos() {
         final Variant variant = variantProperty.getValue();
-        final VcfFile vcfFile = variant.getVcfFile();
-        final List<Map<String, String>> idList = vcfFile.getHeader().getComplexHeaders().get("INFO");
+        final VariantSet variantSet = variant.getVariantSet();
+        final List<Map<String, String>> idList = variantSet.getHeader().getComplexHeaders().get("INFO");
         idList.forEach(map -> {
             final String id = map.get("ID");
             final String description = map.get("Description");

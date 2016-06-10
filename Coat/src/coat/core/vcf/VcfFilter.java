@@ -149,7 +149,7 @@ public class VcfFilter {
                 break;
             case INFO:
                 if (info == null) return true;
-                stringValue = (String) variant.getInfo().get(info);
+                stringValue = String.valueOf(variant.getInfo().get(info));
 
 
 ////                Map<String, Object> map = vcf.getInfoValues();

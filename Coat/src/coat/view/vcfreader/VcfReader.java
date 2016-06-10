@@ -26,6 +26,7 @@ import coat.core.vep.VepAnnotator;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.SizableImageView;
+import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
@@ -36,7 +37,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import vcf.Variant;
-import vcf.VcfFile;
+import vcf.VariantSet;
 
 import java.io.File;
 import java.util.*;
@@ -60,13 +61,16 @@ public class VcfReader extends VBox implements Reader {
     private final SplitPane leftPane = new SplitPane();
     private final SplitPane mainPane = new SplitPane();
 
-    private final VcfFile vcfFile;
-
+    private final VariantSet variantSet;
     private final List<Button> actions = new LinkedList<>();
     private final Property<String> titleProperty = new SimpleStringProperty();
+    private File file;
+    private String baseName;
 
-    public VcfReader(VcfFile vcfFile) {
-        this.vcfFile = vcfFile;
+    public VcfReader(VariantSet variantSet, File file) {
+        this.variantSet = variantSet;
+        this.file = file;
+        this.baseName = file != null ? file.getName() : "New vcf " + NEW_VCF++;
         initializeLeftPane();
         initializeThis();
         initializeButtons();
@@ -96,7 +100,7 @@ public class VcfReader extends VBox implements Reader {
         final Tab sampleTab = new Tab(OS.getResources().getString("samples"), samplesTableView);
         sampleTab.setClosable(false);
         variantsTable.getVariantProperty().addListener((observable, oldValue, newValue) -> samplesTableView.setVariant(newValue));
-        final List<String> formats = vcfFile.getHeader().getIdList("FORMAT");
+        final List<String> formats = variantSet.getHeader().getIdList("FORMAT");
         samplesTableView.setColumns(formats);
         tabs.getTabs().addAll(infoTab, sampleTab);
     }
@@ -108,14 +112,18 @@ public class VcfReader extends VBox implements Reader {
 
     @Override
     public void saveAs() {
-        File output = vcfFile.getFile() == null
+        File output = file == null
                 ? FileManager.saveFile("Select output file", FileManager.VCF_FILTER, FileManager.TSV_FILTER)
-                : FileManager.saveFile("Select output file", vcfFile.getFile().getParentFile(), vcfFile.getFile().getName(), FileManager.VCF_FILTER, FileManager.TSV_FILTER);
-        List<Variant> toSaveVariants = new ArrayList<>(filterList.getOutputVariants());
-        if (output != null)
-            if (output.getName().endsWith(".vcf")) {
-                vcfFile.save(output, new TreeSet<>(toSaveVariants));
-            } else new TsvSaver(vcfFile, output, toSaveVariants).invoke();
+                : FileManager.saveFile("Select output file", file.getParentFile(), file.getName(),
+                FileManager.VCF_FILTER, FileManager.TSV_FILTER);
+        final TreeSet<Variant> toSaveVariants = new TreeSet<>(filterList.getOutputVariants());
+        if (output != null) {
+            if (output.getName().endsWith(".vcf")) variantSet.save(output, toSaveVariants);
+            else new TsvSaver(variantSet, output, toSaveVariants).invoke();
+            this.file = output;
+            baseName = output.getName();
+            titleProperty.setValue(baseName);
+        }
     }
 
     @Override
@@ -131,9 +139,9 @@ public class VcfReader extends VBox implements Reader {
     private void initializeButtons() {
         Button viewheaders = getViewHeadersButton();
         Button lfs = getLfsButton();
-//        Button vep = getVepButton();
+        Button vep = getVepButton();
         Button statsButton = getStatsButton();
-        actions.addAll(Arrays.asList(viewheaders, lfs, statsButton));
+        actions.addAll(Arrays.asList(viewheaders, lfs, statsButton, vep));
     }
 
     private Button getViewHeadersButton() {
@@ -145,7 +153,7 @@ public class VcfReader extends VBox implements Reader {
 
     private void viewHeaders() {
         TextArea area = new TextArea();
-        area.appendText(vcfFile.getHeader().toString());
+        area.appendText(variantSet.getHeader().toString());
         area.setEditable(false);
         area.setWrapText(true);
         area.home();
@@ -153,7 +161,7 @@ public class VcfReader extends VBox implements Reader {
         Stage stage = new Stage();
         stage.setWidth(600);
         stage.setHeight(600);
-        stage.setTitle(vcfFile.getFile().getName());
+        stage.setTitle(baseName);
         stage.centerOnScreen();
         stage.setScene(scene);
         stage.show();
@@ -168,7 +176,7 @@ public class VcfReader extends VBox implements Reader {
 
     private void addLFS() {
         injectLFSHeader();
-        vcfFile.getVariants().parallelStream().forEach(LFS::addLFS);
+        variantSet.getVariants().parallelStream().forEach(LFS::addLFS);
         CoatView.printMessage("LFS tag added", "success");
     }
 
@@ -176,17 +184,17 @@ public class VcfReader extends VBox implements Reader {
      * Inserts LFS header alphabetically.
      */
     private void injectLFSHeader() {
-        if (!vcfFile.getHeader().getIdList("INFO").contains("LFS")) {
+        if (!variantSet.getHeader().getIdList("INFO").contains("LFS")) {
             final Map<String, String> map = new TreeMap<>();
             map.put("ID", "LFS");
             map.put("Number", "1");
             map.put("Type", "Integer");
             map.put("Description", "Low frequency codon substitution");
-            vcfFile.getHeader().addComplexHeader("INFO", map);
+            variantSet.getHeader().addComplexHeader("INFO", map);
         }
-//        final boolean match = vcfFile.getHeader().getComplexHeaders().get("INFO").stream().anyMatch(map -> map.get("ID").equals("LFS"));
+//        final boolean match = variantSet.getHeader().getComplexHeaders().get("INFO").stream().anyMatch(map -> map.get("ID").equals("LFS"));
 //        final String lfsInfo = "##INFO=<ID=LFS,Number=1,Type=Integer,Description=\"Low frequency codon substitution\">";
-//        if (!match) vcfFile.getHeader().addHeader(lfsInfo);
+//        if (!match) variantSet.getHeader().addHeader(lfsInfo);
     }
 
     private Button getVepButton() {
@@ -197,8 +205,8 @@ public class VcfReader extends VBox implements Reader {
     }
 
     private void addVep() {
-        final Task annotator = new VepAnnotator(vcfFile);
-        annotator.setOnSucceeded(event -> CoatView.printMessage(vcfFile.getVariants().size() + " variants annotated", "success"));
+        final Task annotator = new VepAnnotator(variantSet);
+        annotator.setOnSucceeded(event -> CoatView.printMessage(variantSet.getVariants().size() + " variants annotated", "success"));
         annotator.setOnFailed(event -> CoatView.printMessage("something wrong", "error"));
         annotator.messageProperty().addListener((obs, old, current) -> CoatView.printMessage(current, "info"));
         CoatView.printMessage("Annotating variants...", "info");
@@ -213,28 +221,28 @@ public class VcfReader extends VBox implements Reader {
     }
 
     private void showStats() {
-        VcfStats vcfStats = new VcfStats(vcfFile);
+        VcfStats vcfStats = new VcfStats(variantSet);
         StatsReader statsReader = new StatsReader(vcfStats);
         Scene scene = new Scene(statsReader);
         Stage stage = new Stage();
         stage.setWidth(600);
         stage.setHeight(600);
-        stage.setTitle(vcfFile.getFile().getName());
+        stage.setTitle(baseName);
         stage.centerOnScreen();
         stage.setScene(scene);
         stage.show();
     }
 
     private void bindFile() {
-        titleProperty.setValue(vcfFile.getFile() != null ? vcfFile.getFile().getName() : "new vcf " + NEW_VCF++);
+        titleProperty.setValue(baseName);
         infoTable.getVariantProperty().bind(variantsTable.getVariantProperty());
-        filterList.setInputVariants(vcfFile.getVariants());
-        final List<String> list = vcfFile.getHeader().getComplexHeaders().get("INFO").stream().map(map -> map.get("ID")).collect(Collectors.toList());
+        filterList.setInputVariants(variantSet.getVariants());
+        final List<String> list = variantSet.getHeader().getComplexHeaders().get("INFO").stream().map(map -> map.get("ID")).collect(Collectors.toList());
         filterList.setInfos(list);
         variantsTable.setVariants(filterList.getOutputVariants());
-        vcfFile.changedProperty().addListener((observable, oldValue, newValue) -> {
-//            if (newValue) Platform.runLater(() -> titleProperty.setValue(titleProperty.getValue() + "*"));
-//            else titleProperty.setValue(vcfFile.getFile().getName());
+        variantSet.changedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) Platform.runLater(() -> titleProperty.setValue(baseName + "*"));
+            else titleProperty.setValue(baseName);
         });
     }
 }

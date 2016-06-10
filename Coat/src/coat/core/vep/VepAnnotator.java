@@ -23,7 +23,7 @@ import coat.json.JSONObject;
 import javafx.concurrent.Task;
 import org.jetbrains.annotations.NotNull;
 import vcf.Variant;
-import vcf.VcfFile;
+import vcf.VariantSet;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -88,17 +88,17 @@ public class VepAnnotator extends Task<Boolean> {
             "##INFO=<ID=SOMA,Number=1,Type=String,Description=\"Somatic status of existing variation(s)\">"
     };
     public static final int MAX_VARIANTS = 1000;
-    private final VcfFile vcfFile;
+    private final VariantSet variantSet;
     private List<Variant> variants;
 
-    public VepAnnotator(VcfFile vcfFile) {
-        this.vcfFile = vcfFile;
-        this.variants = new ArrayList<>(vcfFile.getVariants());
+    public VepAnnotator(VariantSet variantSet) {
+        this.variantSet = variantSet;
+        this.variants = new ArrayList<>(variantSet.getVariants());
     }
 
     public VepAnnotator(List<Variant> variants) {
         this.variants = (variants);
-        vcfFile = variants.get(0).getVcfFile();
+        variantSet = variants.get(0).getVariantSet();
     }
 
     @Override
@@ -109,11 +109,11 @@ public class VepAnnotator extends Task<Boolean> {
     }
 
     private void injectVEPHeaders() {
-        Arrays.stream(HEADERS).forEach(vcfFile.getHeader()::addHeader);
+        Arrays.stream(HEADERS).forEach(variantSet.getHeader()::addHeader);
     }
 
     private boolean annotateVariants() {
-        vcfFile.setChanged(true);
+        variantSet.setChanged(true);
         final List<Integer> starts = getStarts();
         final AtomicInteger total = new AtomicInteger();
         starts.parallelStream().forEachOrdered(start -> {
@@ -123,7 +123,7 @@ public class VepAnnotator extends Task<Boolean> {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-//            updateProgress(total.addAndGet(MAX_VARIANTS), vcfFile.getVariants().size());
+//            updateProgress(total.addAndGet(MAX_VARIANTS), variantSet.getVariants().size());
 //            updateMessage(total.toString() + " variants annotated");
         });
         return true;

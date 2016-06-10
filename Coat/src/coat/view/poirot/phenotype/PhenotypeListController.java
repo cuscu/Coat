@@ -41,7 +41,13 @@ import java.util.stream.Stream;
  */
 public class PhenotypeListController {
     private final static Image LENS = new Image("coat/img/black/search.png");
-    private final static Image CANCEL = new Image("coat/img/black/cancel.png");
+    private final static Image CLEAR = new Image("coat/img/black/cancel.png");
+
+
+    @FXML
+    private ComboBox<SortBy> sortBy;
+    @FXML
+    private ListView phenotypeList;
     @FXML
     private TableColumn<Phenotype, String> name;
     @FXML
@@ -57,23 +63,25 @@ public class PhenotypeListController {
     @FXML
     private ToggleGroup group;
     private PearlGraph graph;
+
     private List<Phenotype> phenotypes = new ArrayList<>();
     private ObservableList<Pearl> selectedPhenotypes = FXCollections.observableArrayList();
 
     @FXML
     private void initialize() {
         searchBox.textProperty().addListener((observable, oldValue, newValue) -> {
-            searchImage.setImage(newValue.isEmpty() ? LENS : CANCEL);
+            searchImage.setImage(newValue.isEmpty() ? LENS : CLEAR);
             filter();
         });
         searchImage.setOnMouseClicked(event -> searchBox.setText(""));
         searchImage.setFitWidth(16);
         searchImage.setImage(LENS);
-        name.setCellValueFactory(param -> new SimpleObjectProperty((String) param.getValue().pearl.getProperties().get("name")));
+        name.setCellValueFactory(param -> new SimpleObjectProperty(param.getValue().pearl.getProperties().get("name")));
         score.setCellValueFactory(param -> new SimpleObjectProperty<>(String.format("%.3f", param.getValue().pearl.getScore())));
         select.setCellValueFactory(param -> param.getValue().selected);
         select.setCellFactory(param -> new CheckBoxTableCell<>());
         group.selectedToggleProperty().addListener((observable, oldValue, newValue) -> filter());
+        sortBy.getItems().setAll(SortBy.values());
     }
 
     private void filter() {
@@ -121,8 +129,58 @@ public class PhenotypeListController {
     }
 
     public void sort() {
-        Collections.sort(phenotypeTable.getItems(), (o1, o2) -> Double.compare(o2.pearl.getScore(), o1.pearl.getScore()));
+        switch (sortBy.getValue()) {
+            case NAME_ASCENDING:
+                Collections.sort(phenotypeTable.getItems(), (o1, o2) -> {
+                    String p1 = (String) o1.pearl.getProperties().get("name");
+                    String p2 = (String) o2.pearl.getProperties().get("name");
+                    return p1.compareTo(p2);
+                });
+                break;
+            case NAME_DESCENDING:
+                Collections.sort(phenotypeTable.getItems(), (o1, o2) -> {
+                    String p1 = (String) o1.pearl.getProperties().get("name");
+                    String p2 = (String) o2.pearl.getProperties().get("name");
+                    return p1.compareTo(p2);
+                });
+                break;
+            case SCORE_ASCENDING:
+                Collections.sort(phenotypeTable.getItems(),
+                        (o1, o2) -> Double.compare(o1.pearl.getScore(), o2.pearl.getScore()));
+                break;
+            case SCORE_DESCENDING:
+                Collections.sort(phenotypeTable.getItems(),
+                        (o1, o2) -> Double.compare(o2.pearl.getScore(), o1.pearl.getScore()));
+                break;
+        }
 //        phenotypeTable.sort();
+    }
+
+    private enum SortBy {
+        NAME_ASCENDING {
+            @Override
+            public String toString() {
+                return "Name (A to Z)";
+            }
+        },
+        NAME_DESCENDING {
+            @Override
+            public String toString() {
+                return "Name (Z to A)";
+            }
+        },
+        SCORE_ASCENDING {
+            @Override
+            public String toString() {
+                return "Score (0 to 1)";
+            }
+        },
+        SCORE_DESCENDING {
+            @Override
+            public String toString() {
+                return "Score (1 to 0)";
+            }
+        }
     }
 
     private class Phenotype {

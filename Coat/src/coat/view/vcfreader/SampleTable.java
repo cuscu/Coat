@@ -34,8 +34,8 @@ public class SampleTable extends TableView<String[]> {
     public void setVariant(Variant variant) {
         getItems().clear();
         if (variant == null) return;
-        final List<String> samples = variant.getVcfFile().getHeader().getSamples();
-        final List<String> formats = variant.getVcfFile().getHeader().getIdList("FORMAT");
+        final List<String> samples = variant.getVariantSet().getHeader().getSamples();
+        final List<String> formats = variant.getVariantSet().getHeader().getIdList("FORMAT");
         for (String sample : samples) {
             final String[] row = new String[formats.size() + 1];
             row[0] = sample;

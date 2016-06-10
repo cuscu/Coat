@@ -52,12 +52,12 @@ public class MemoryPane extends StackPane {
     }
 
     private void updateRamUsage() {
-        final double freeMegas = Runtime.getRuntime().freeMemory() * 0.000000954;
+        final double usedMegas = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory() ) * 0.000000954;
         final double maxMegas = Runtime.getRuntime().maxMemory() * 0.000000954;
-        final double progress = freeMegas / maxMegas;
+        final double progress = usedMegas / maxMegas;
         Platform.runLater(() -> {
             bar.setProgress(progress);
-            info.setText(String.format("%.0f/%.0f(%.0f%%)", freeMegas, maxMegas, progress * 100.0));
+            info.setText(String.format("%.0f/%.0f(%.0f%%)", usedMegas, maxMegas, progress * 100.0));
         });
 
     }

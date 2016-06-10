@@ -17,8 +17,10 @@
 
 package coat.view.poirot;
 
+import coat.utils.OS;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.Priority;
@@ -27,9 +29,9 @@ import javafx.scene.layout.VBox;
 import poirot.core.Pearl;
 import poirot.core.PearlGraph;
 import poirot.core.PearlGraphFactory;
-import poirot.view.GraphEvaluator;
-import vcf.VcfFile;
-import vcf.VcfFileFactory;
+import poirot.core.PoirotGraphEvaluator;
+import vcf.VariantSet;
+import vcf.VariantSetFactory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -61,23 +63,40 @@ class PoirotInputPane extends VBox {
         loading.setVisible(true);
         StackPane.setMargin(loading, new Insets(20, 20, 20, 20));
         new Thread(() -> {
-            final VcfFile vcfFile = VcfFileFactory.createFromFile(file);
+            System.out.println("Loading variants");
+            final VariantSet variantSet = VariantSetFactory.createFromFile(file);
             System.out.println("Variants loaded");
-            final PearlGraph graph = PearlGraphFactory.createFromPoirotCore(new File("config/poirot-brain.txt.gz"));
-            graph.addVariants(vcfFile);
+            final PearlGraph graph = PearlGraphFactory.createFromPoirotCore(new File(OS.getConfigPath(), "poirot-brain.txt.gz"));
+            graph.addVariants(variantSet);
             fileLoaded(graph);
         }).start();
     }
 
     private void fileLoaded(PearlGraph pearlGraph) {
         database.setValue(pearlGraph);
-        new GraphEvaluator(pearlGraph).run();
+        final PoirotGraphEvaluator evaluator = new PoirotGraphEvaluator(pearlGraph);
+        evaluator.setOnSucceeded(event -> initialEvaluationSucceeded(pearlGraph));
+        bindProgress(evaluator);
+        new Thread(evaluator).start();
+    }
+
+    private void bindProgress(Task task) {
+        loading.setVisible(true);
+        loading.progressProperty().bind(task.progressProperty());
+    }
+
+    private void initialEvaluationSucceeded(PearlGraph pearlGraph) {
         final List<Pearl> list = new ArrayList<>();
         pearlGraph.getPearls(Pearl.Type.TISSUE).stream().forEach(list::add);
         pearlGraph.getPearls(Pearl.Type.DISEASE).stream().forEach(list::add);
         phenotypeSelector.setPhenotypes(list);
         phenotypeSelector.setDisable(false);
+        unbindProgress();
+    }
+
+    private void unbindProgress() {
         loading.setVisible(false);
+        loading.progressProperty().unbind();
     }
 
     public PearlGraph getDatabase() {
@@ -92,4 +111,3 @@ class PoirotInputPane extends VBox {
         loadGraph(file);
     }
 }
-

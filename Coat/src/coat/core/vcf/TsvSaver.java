@@ -19,10 +19,11 @@ package coat.core.vcf;
 
 import coat.utils.OS;
 import vcf.Variant;
-import vcf.VcfFile;
+import vcf.VariantSet;
 
 import java.io.*;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -33,17 +34,17 @@ import java.util.stream.Collectors;
 public class TsvSaver {
 
     private static final int FIXED_COLUMNS = 7;
-    private final VcfFile vcfFile;
+    private final VariantSet variantSet;
     private final File output;
-    private final List<Variant> variants;
+    private final Set<Variant> variants;
     private List<String> infoNames;
     private String[] header;
     private int length;
 
     private PrintWriter writer;
 
-    public TsvSaver(VcfFile vcfFile, File output, List<Variant> variants) {
-        this.vcfFile = vcfFile;
+    public TsvSaver(VariantSet variantSet, File output, Set<Variant> variants) {
+        this.variantSet = variantSet;
         this.output = output;
         this.variants = variants;
     }
@@ -64,8 +65,8 @@ public class TsvSaver {
     }
 
     private void readInfoColumns() {
-        this.length = FIXED_COLUMNS + vcfFile.getHeader().getComplexHeaders().get("INFO").size();
-        this.infoNames = vcfFile.getHeader().getComplexHeaders().get("INFO").stream().map(map -> map.get("ID")).collect(Collectors.toList());
+        this.length = FIXED_COLUMNS + variantSet.getHeader().getComplexHeaders().get("INFO").size();
+        this.infoNames = variantSet.getHeader().getComplexHeaders().get("INFO").stream().map(map -> map.get("ID")).collect(Collectors.toList());
         this.header = createHeader();
     }
 
@@ -100,10 +101,9 @@ public class TsvSaver {
     }
 
     private void setInfoColumns(Variant var, String[] line) {
-//        fillEmpties(line);
         for (int i = 0; i < infoNames.size(); i++) {
-            final String info = (String) var.getInfo().get(infoNames.get(i));
-            line[i + FIXED_COLUMNS] = info == null ? "." : info;
+            final Object info = var.getInfo().get(infoNames.get(i));
+            line[i + FIXED_COLUMNS] = info == null ? "." : String.valueOf(info);
         }
     }
 
@@ -111,10 +111,6 @@ public class TsvSaver {
         int index = infoNames.indexOf(key);
         // val == null when key is located, but has no value (a flag)
         if (index != -1) line[index + FIXED_COLUMNS] = (val == null) ? "yes" : val.toString();
-    }
-
-    private void fillEmpties(String[] line) {
-        for (int k = FIXED_COLUMNS; k < line.length; k++) line[k] = ".";
     }
 
     private void setFixedColumns(Variant var, String[] line) {

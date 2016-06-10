@@ -17,57 +17,63 @@
   ~ If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import java.lang.*?>
-<?import javafx.geometry.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-
-<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="coat.view.vcfcombiner.VcfCombinerController">
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="coat.view.vcfcombiner.VariantCombinerController">
     <center>
-        <VBox BorderPane.alignment="CENTER">
+        <VBox alignment="TOP_CENTER" spacing="10.0" BorderPane.alignment="CENTER">
             <children>
-                <FlowPane alignment="TOP_CENTER" columnHalignment="CENTER" hgap="10.0" vgap="10.0">
+                <HBox alignment="TOP_CENTER" spacing="10.0">
                     <children>
-                        <Button mnemonicParsing="false" onAction="#addVcf" text="Add vcf" />
-                        <Button mnemonicParsing="false" onAction="#deleteSample" text="Delete sample" />
+                        <Button defaultButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
+                                onAction="#addVcf" text="Add vcf" HBox.hgrow="ALWAYS">
+                            <graphic>
+                                <ImageView fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@../../img/black/add.png"/>
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#deleteSample"
+                                text="Delete sample" HBox.hgrow="ALWAYS"/>
                     </children>
-                    <VBox.margin>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                    </VBox.margin>
-                </FlowPane>
+                </HBox>
                 <TableView fx:id="sampleTable" editable="true">
                     <columns>
-                        <TableColumn fx:id="name" prefWidth="75.0" text="Name" />
-                        <TableColumn fx:id="variants" prefWidth="75.0" text="Variants" />
-                        <TableColumn fx:id="status" editable="true" prefWidth="75.0" text="Status" />
-                        <TableColumn fx:id="mist" prefWidth="75.0" text="Mist" />
+                        <TableColumn fx:id="name" prefWidth="75.0" text="Name"/>
+                        <TableColumn fx:id="variants" prefWidth="75.0" text="Variants"/>
+                        <TableColumn fx:id="status" editable="true" prefWidth="75.0" text="Status"/>
+                        <TableColumn fx:id="mist" prefWidth="75.0" text="Mist"/>
                     </columns>
                     <columnResizePolicy>
-                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
                     </columnResizePolicy>
                 </TableView>
-            <FlowPane alignment="TOP_CENTER" columnHalignment="CENTER" hgap="10.0" vgap="10.0">
-               <children>
-                  <CheckBox fx:id="removeVariants" mnemonicParsing="false" text="Remove variants">
-                     <tooltip>
-                        <Tooltip text="If unchecked, will ignore status" />
-                     </tooltip>
-                  </CheckBox>
-                        <Button mnemonicParsing="false" onAction="#combine" text="Combine" />
-                        <Button mnemonicParsing="false" onAction="#save" text="Save results" />
-               </children>
-               <VBox.margin>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </VBox.margin>
-            </FlowPane>
-                <TableView prefHeight="200.0" prefWidth="200.0">
-                    <columns>
-                        <TableColumn prefWidth="75.0" text="Chrom" />
-                        <TableColumn prefWidth="75.0" text="Pos..." />
-                    </columns>
-                </TableView>
+                <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#combine" text="Combine"/>
+                <CheckBox fx:id="removeVariants" mnemonicParsing="false" text="Remove variants">
+                    <tooltip>
+                        <Tooltip text="If unchecked, will ignore status"/>
+                    </tooltip>
+                </CheckBox>
+                <HBox>
+                    <children>
+                        <Label fx:id="message" visible="false"/>
+                        <Separator prefWidth="200.0" visible="false" HBox.hgrow="ALWAYS"/>
+                        <ProgressBar fx:id="progressBar" prefWidth="300.0" progress="0.0" visible="false"/>
+                    </children>
+                    <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                    </VBox.margin>
+                </HBox>
             </children>
+            <padding>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </padding>
         </VBox>
     </center>
 </BorderPane>

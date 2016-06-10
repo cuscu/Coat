@@ -36,7 +36,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
 import vcf.Variant;
-import vcf.VcfFile;
+import vcf.VariantSet;
 
 import java.util.List;
 import java.util.Locale;
@@ -228,12 +228,12 @@ public class VariantsTable extends VBox {
         table.getItems().addListener(progressInfoUpdater);
         tableHasChanged();
         table.getSelectionModel().select(0);
-        if (!variants.isEmpty()) redoColumns(variants.get(0).getVcfFile());
+        if (!variants.isEmpty()) redoColumns(variants.get(0).getVariantSet());
     }
 
-    private void redoColumns(VcfFile vcfFile) {
+    private void redoColumns(VariantSet variantSet) {
         table.getColumns().setAll(chrom, position, variant, rsId, qual);
-        vcfFile.getHeader().getIdList("INFO").stream().map(this::createInfoColumn).forEach(table.getColumns()::add);
+        variantSet.getHeader().getIdList("INFO").stream().map(this::createInfoColumn).forEach(table.getColumns()::add);
     }
 
     @NotNull

@@ -35,6 +35,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import poirot.core.Pearl;
 import poirot.core.PearlGraph;
+import poirot.core.PoirotGraphEvaluator;
 import poirot.view.GraphEvaluator;
 import poirot.view.GraphView;
 
@@ -128,9 +129,12 @@ public class PoirotView extends Tool {
 
     private void initializeBackButton() {
         back.setOnAction(event -> {
-            new GraphEvaluator(poirotInputPane.getDatabase()).run();
-            getChildren().setAll(inputPane);
-            poirotInfo.clearView();
+            final PoirotGraphEvaluator evaluator = new PoirotGraphEvaluator(poirotInputPane.getDatabase());
+            evaluator.setOnSucceeded(event1 -> {
+                getChildren().setAll(inputPane);
+                poirotInfo.clearView();
+            });
+            new Thread(evaluator).start();
         });
         back.setPadding(new Insets(10));
         back.setMaxWidth(9999);
@@ -155,20 +159,14 @@ public class PoirotView extends Tool {
     private void start() {
         final List<Pearl> phenotypes = poirotInputPane.getSelectedPhenotypes();
         final PearlGraph database = poirotInputPane.getDatabase();
-        final Task<Void> task = new Task<Void>() {
-            @Override
-            protected Void call() throws Exception {
-                new GraphEvaluator(database, phenotypes).run();
-                return null;
-            }
-        };
-        task.setOnSucceeded(event -> end(database));
+        PoirotGraphEvaluator evaluator = new PoirotGraphEvaluator(database, phenotypes);
+        evaluator.setOnSucceeded(event -> end(database));
         poirotPearlTable.getItems().clear();
         graphView.clear();
         start.setDisable(true);
         message.setText("Analyzing");
-        message.textProperty().bind(task.messageProperty());
-        new Thread(task).start();
+        message.textProperty().bind(evaluator.messageProperty());
+        new Thread(evaluator).start();
     }
 
     private void end(PearlGraph database) {
