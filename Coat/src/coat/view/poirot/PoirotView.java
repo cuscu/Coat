@@ -130,11 +130,12 @@ public class PoirotView extends Tool {
     private void initializeBackButton() {
         back.setOnAction(event -> {
             final PoirotGraphEvaluator evaluator = new PoirotGraphEvaluator(poirotInputPane.getDatabase());
+            graphView.clear();
             evaluator.setOnSucceeded(event1 -> {
                 getChildren().setAll(inputPane);
                 poirotInfo.clearView();
             });
-            new Thread(evaluator).start();
+            new Thread(evaluator).run();
         });
         back.setPadding(new Insets(10));
         back.setMaxWidth(9999);
