@@ -72,9 +72,18 @@ public class VariantCombinerController {
     }
 
     private void addSamples(File file) {
-//        final VariantSet variantSet = VariantSetFactory.createFromFile(file);
         final VcfHeader header = VariantSetFactory.readHeader(file);
-        for (String name : header.getSamples()) sampleTable.getItems().add(new Sample(file, name));
+        for (String name : header.getSamples()) {
+            final Sample sample = new Sample(file, name);
+            sampleTable.getItems().add(sample);
+            setMistFile(file, name, sample);
+        }
+    }
+
+    private void setMistFile(File file, String name, Sample sample) {
+        final File[] files = file.getParentFile().listFiles((dir, filename)
+                -> filename.toLowerCase().matches(name.toLowerCase() + ".*\\.mist"));
+        if (files.length > 0) sample.setMistFile(files[0]);
     }
 
     public void deleteSample(ActionEvent actionEvent) {

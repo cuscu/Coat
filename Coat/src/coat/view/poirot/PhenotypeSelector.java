@@ -143,7 +143,7 @@ class PhenotypeSelector extends VBox {
 
     private TableColumn<Phenotype, String> getNameColumn() {
         final TableColumn<Phenotype, String> name = new TableColumn<>(OS.getString("name"));
-        name.setCellValueFactory(param -> new SimpleStringProperty((String) param.getValue().pearl.getProperties().get("name")));
+        name.setCellValueFactory(param -> new SimpleStringProperty((String) param.getValue().pearl.getProperty("name")));
         name.setCellFactory(param -> new NaturalCell<>());
         name.setPrefWidth(400);
         return name;
@@ -186,8 +186,8 @@ class PhenotypeSelector extends VBox {
 
     private List<Phenotype> getFilteredPhenotypes(String selectedType, String searchValue) {
         return getFilterStream(selectedType)
-                .filter(phenotype -> phenotype.pearl.getProperties().containsKey("name"))
-                .filter(phenotype -> ((String) phenotype.pearl.getProperties().get("name"))
+                .filter(phenotype -> phenotype.pearl.hasProperty("name"))
+                .filter(phenotype -> ((String) phenotype.pearl.getProperty("name"))
                         .toLowerCase()
                         .contains(searchValue))
                 .collect(Collectors.toList());

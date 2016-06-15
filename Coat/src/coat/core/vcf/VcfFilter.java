@@ -154,7 +154,7 @@ public class VcfFilter {
 
 ////                Map<String, Object> map = vcf.getInfoValues();
 //                if (map.containsKey(info)) {
-//                    final Object val = map.get(info);
+//                    final Object val = map.getProperty(info);
 //                    if (val != null) {
 //                        if (val.getClass() == String.class) {
 //                            stringValue = (String) val;
@@ -165,7 +165,7 @@ public class VcfFilter {
 //                            }
 //                        } else {
 //                            try {
-//                                doubleValue = (Double) map.get(info);
+//                                doubleValue = (Double) map.getProperty(info);
 //                            } catch (NumberFormatException e) {
 //                                // If not a number
 //                            }

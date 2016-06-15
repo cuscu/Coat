@@ -173,7 +173,7 @@ public class TsvFileReader extends VBox implements Reader {
             }
             Label size = (Label) box.getChildren().get(1);
             size.setText(uniques[i].size() + "");
-//            table.getColumns().get(i + 1).setText(columnNames[i] + "\n" + uniques[i].size());
+//            table.getColumns().getProperty(i + 1).setText(columnNames[i] + "\n" + uniques[i].size());
         }
     }
 

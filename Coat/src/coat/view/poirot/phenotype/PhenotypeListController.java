@@ -19,12 +19,10 @@ package coat.view.poirot.phenotype;
 
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import poirot.core.Pearl;
@@ -47,19 +45,11 @@ public class PhenotypeListController {
     @FXML
     private ComboBox<SortBy> sortBy;
     @FXML
-    private ListView phenotypeList;
-    @FXML
-    private TableColumn<Phenotype, String> name;
-    @FXML
-    private TableColumn<Phenotype, String> score;
-    @FXML
-    private TableColumn<Phenotype, Boolean> select;
+    private ListView<Phenotype> phenotypeList;
     @FXML
     private ImageView searchImage;
     @FXML
     private TextField searchBox;
-    @FXML
-    private TableView<Phenotype> phenotypeTable;
     @FXML
     private ToggleGroup group;
     private PearlGraph graph;
@@ -76,21 +66,17 @@ public class PhenotypeListController {
         searchImage.setOnMouseClicked(event -> searchBox.setText(""));
         searchImage.setFitWidth(16);
         searchImage.setImage(LENS);
-        name.setCellValueFactory(param -> new SimpleObjectProperty(param.getValue().pearl.getProperties().get("name")));
-        score.setCellValueFactory(param -> new SimpleObjectProperty<>(String.format("%.3f", param.getValue().pearl.getScore())));
-        select.setCellValueFactory(param -> param.getValue().selected);
-        select.setCellFactory(param -> new CheckBoxTableCell<>());
         group.selectedToggleProperty().addListener((observable, oldValue, newValue) -> filter());
         sortBy.getItems().setAll(SortBy.values());
+        phenotypeList.setCellFactory(param -> new PhenotypeCell());
     }
 
     private void filter() {
-        final RadioButton toggle = (RadioButton) group.getSelectedToggle();
+        final ToggleButton toggle = (ToggleButton) group.getSelectedToggle();
         final String searchText = searchBox.getText().toLowerCase();
-        phenotypeTable.getItems().setAll(getFilterStream(toggle.getText())
-                .filter(phenotype -> phenotype.pearl.getProperties().get("name").toString().toLowerCase().contains(searchText))
+        phenotypeList.getItems().setAll(getFilterStream(toggle.getText())
+                .filter(phenotype -> phenotype.pearl.getProperty("name").toString().toLowerCase().contains(searchText))
                 .collect(Collectors.toList()));
-        phenotypeTable.sort();
     }
 
     private Stream<Phenotype> getFilterStream(String selectedType) {
@@ -114,9 +100,11 @@ public class PhenotypeListController {
     public void setPearlGraph(PearlGraph graph) {
         this.graph = graph;
         graph.getPearls(Pearl.Type.DISEASE).stream()
-                .filter(pearl -> pearl.getProperties().containsKey("name")).forEach(pearl -> phenotypes.add(new Phenotype(pearl, false)));
+                .filter(pearl -> pearl.hasProperty("name"))
+                .forEach(pearl -> phenotypes.add(new Phenotype(pearl, false)));
         graph.getPearls(Pearl.Type.TISSUE).stream()
-                .filter(pearl -> pearl.getProperties().containsKey("name")).forEach(pearl -> phenotypes.add(new Phenotype(pearl, false)));
+                .filter(pearl -> pearl.hasProperty("name"))
+                .forEach(pearl -> phenotypes.add(new Phenotype(pearl, false)));
         filter();
     }
 
@@ -125,31 +113,31 @@ public class PhenotypeListController {
     }
 
     public ObservableList<Phenotype> phenotypes() {
-        return phenotypeTable.getItems();
+        return phenotypeList.getItems();
     }
 
     public void sort() {
         switch (sortBy.getValue()) {
             case NAME_ASCENDING:
-                Collections.sort(phenotypeTable.getItems(), (o1, o2) -> {
-                    String p1 = (String) o1.pearl.getProperties().get("name");
-                    String p2 = (String) o2.pearl.getProperties().get("name");
+                Collections.sort(phenotypeList.getItems(), (o1, o2) -> {
+                    String p1 = (String) o1.pearl.getProperty("name");
+                    String p2 = (String) o2.pearl.getProperty("name");
                     return p1.compareTo(p2);
                 });
                 break;
             case NAME_DESCENDING:
-                Collections.sort(phenotypeTable.getItems(), (o1, o2) -> {
-                    String p1 = (String) o1.pearl.getProperties().get("name");
-                    String p2 = (String) o2.pearl.getProperties().get("name");
+                Collections.sort(phenotypeList.getItems(), (o1, o2) -> {
+                    String p1 = (String) o1.pearl.getProperty("name");
+                    String p2 = (String) o2.pearl.getProperty("name");
                     return p1.compareTo(p2);
                 });
                 break;
             case SCORE_ASCENDING:
-                Collections.sort(phenotypeTable.getItems(),
+                Collections.sort(phenotypeList.getItems(),
                         (o1, o2) -> Double.compare(o1.pearl.getScore(), o2.pearl.getScore()));
                 break;
             case SCORE_DESCENDING:
-                Collections.sort(phenotypeTable.getItems(),
+                Collections.sort(phenotypeList.getItems(),
                         (o1, o2) -> Double.compare(o2.pearl.getScore(), o1.pearl.getScore()));
                 break;
         }
@@ -183,7 +171,7 @@ public class PhenotypeListController {
         }
     }
 
-    private class Phenotype {
+    class Phenotype {
         private Pearl pearl;
         private Property<Boolean> selected = new SimpleBooleanProperty(false);
 
@@ -191,6 +179,14 @@ public class PhenotypeListController {
             this.pearl = pearl;
             this.selected.setValue(selected);
             this.selected.addListener((observable, oldValue, newValue) -> updateQuantities());
+        }
+
+        public Pearl getPearl() {
+            return pearl;
+        }
+
+        public Property<Boolean> selectedProperty() {
+            return selected;
         }
     }
 }

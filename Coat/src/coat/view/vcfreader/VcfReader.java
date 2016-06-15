@@ -192,7 +192,7 @@ public class VcfReader extends VBox implements Reader {
             map.put("Description", "Low frequency codon substitution");
             variantSet.getHeader().addComplexHeader("INFO", map);
         }
-//        final boolean match = variantSet.getHeader().getComplexHeaders().get("INFO").stream().anyMatch(map -> map.get("ID").equals("LFS"));
+//        final boolean match = variantSet.getHeader().getComplexHeaders().getProperty("INFO").stream().anyMatch(map -> map.getProperty("ID").equals("LFS"));
 //        final String lfsInfo = "##INFO=<ID=LFS,Number=1,Type=Integer,Description=\"Low frequency codon substitution\">";
 //        if (!match) variantSet.getHeader().addHeader(lfsInfo);
     }

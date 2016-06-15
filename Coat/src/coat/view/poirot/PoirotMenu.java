@@ -44,5 +44,6 @@ public class PoirotMenu implements ToolMenu {
         if (file == null) return null;
         return new PoirotView(file);
 //        return PoirotNewView.getView();
+//        return new PoirotNewView();
     }
 }

@@ -65,7 +65,9 @@ public class TsvSaver {
     }
 
     private void readInfoColumns() {
-        this.length = FIXED_COLUMNS + variantSet.getHeader().getComplexHeaders().get("INFO").size();
+        this.length = FIXED_COLUMNS
+                + variantSet.getHeader().getComplexHeaders().get("INFO").size()
+                + variantSet.getHeader().getSamples().size();
         this.infoNames = variantSet.getHeader().getComplexHeaders().get("INFO").stream().map(map -> map.get("ID")).collect(Collectors.toList());
         this.header = createHeader();
     }
@@ -75,6 +77,7 @@ public class TsvSaver {
         setFixedHeaderColumns(head);
         int i = FIXED_COLUMNS;
         for (String info : infoNames) head[i++] = info;
+        for (String name : variantSet.getHeader().getSamples()) head[i++] = name;
         return head;
     }
 
@@ -97,20 +100,8 @@ public class TsvSaver {
         String[] line = new String[length];
         setFixedColumns(var, line);
         setInfoColumns(var, line);
+        setFormatColumns(var, line);
         return line;
-    }
-
-    private void setInfoColumns(Variant var, String[] line) {
-        for (int i = 0; i < infoNames.size(); i++) {
-            final Object info = var.getInfo().get(infoNames.get(i));
-            line[i + FIXED_COLUMNS] = info == null ? "." : String.valueOf(info);
-        }
-    }
-
-    private void setInfo(String[] line, String key, Object val) {
-        int index = infoNames.indexOf(key);
-        // val == null when key is located, but has no value (a flag)
-        if (index != -1) line[index + FIXED_COLUMNS] = (val == null) ? "yes" : val.toString();
     }
 
     private void setFixedColumns(Variant var, String[] line) {
@@ -123,4 +114,17 @@ public class TsvSaver {
         line[6] = var.getFilter();
     }
 
+    private void setInfoColumns(Variant var, String[] line) {
+        for (int i = 0; i < infoNames.size(); i++) {
+            final Object info = var.getInfo().get(infoNames.get(i));
+            line[i + FIXED_COLUMNS] = info == null ? "." : String.valueOf(info);
+        }
+    }
+
+    private void setFormatColumns(Variant variant, String[] line) {
+        final List<String> samples = variantSet.getHeader().getSamples();
+        final int start = line.length - samples.size();
+        for (int i = 0; i < samples.size(); i++)
+            line[i + start] = variant.getSampleInfo().getFormat(samples.get(i), "GT");
+    }
 }

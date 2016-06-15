@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * A JSONArray is an ordered sequence of values. Its external text form is a string wrapped in
  * square brackets with commas separating the values. The internal form is an object having
- * <code>get</code> and <code>opt</code> methods for accessing the values by index, and
+ * <code>getProperty</code> and <code>opt</code> methods for accessing the values by index, and
  * <code>put</code> methods for adding or replacing values. The values can be any of these types:
  * <code>Boolean</code>, <code>JSONArray</code>, <code>JSONObject</code>, <code>Number</code>,
  * <code>String</code>, or the <code>JSONObject.NULL object</code>.
@@ -37,12 +37,12 @@ import java.util.Map;
  * The constructor can convert a JSON text into a Java object. The <code>toString</code> method
  * converts to JSON text.
  * <p>
- * A <code>get</code> method returns a value if one can be found, and throws an exception if one
+ * A <code>getProperty</code> method returns a value if one can be found, and throws an exception if one
  * cannot be found. An <code>opt</code> method returns a default value instead of throwing an
  * exception, and so is useful for obtaining optional values.
  * <p>
- * The generic <code>get()</code> and <code>opt()</code> methods return an object which you can cast
- * or query for type. There are also typed <code>get</code> and <code>opt</code> methods that do
+ * The generic <code>getProperty()</code> and <code>opt()</code> methods return an object which you can cast
+ * or query for type. There are also typed <code>getProperty</code> and <code>opt</code> methods that do
  * type checking and type coercion for you.
  * <p>
  * The texts produced by the <code>toString</code> methods strictly conform to JSON syntax rules.

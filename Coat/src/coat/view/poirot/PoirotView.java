@@ -22,7 +22,6 @@ import coat.utils.OS;
 import coat.view.graphic.SizableImageView;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Button;
@@ -36,8 +35,7 @@ import javafx.scene.layout.VBox;
 import poirot.core.Pearl;
 import poirot.core.PearlGraph;
 import poirot.core.PoirotGraphEvaluator;
-import poirot.view.GraphEvaluator;
-import poirot.view.GraphView;
+import poirot.view.graph.GraphView;
 
 import java.io.File;
 import java.util.Collections;
@@ -194,7 +192,7 @@ public class PoirotView extends Tool {
 
     private List<Pearl> getCandidates(PearlGraph database) {
         return database.getPearls(Pearl.Type.GENE).stream()
-                .filter(pearl -> pearl.getProperties().containsKey("variants"))
+                .filter(pearl -> pearl.hasProperty("variants"))
                 .filter(pearl -> pearl.getDistanceToPhenotype() > 0)
                 .collect(Collectors.toList());
     }

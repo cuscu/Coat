@@ -29,7 +29,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
-import poirot.view.GraphEvaluator;
+import poirot.view.graph.GraphEvaluator;
 import vcf.Variant;
 
 /**

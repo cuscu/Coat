@@ -216,7 +216,7 @@ public class VepAnnotator extends Task<Boolean> {
     }
 
     private static synchronized void incorporateData(Variant variant, JSONObject json) {
-//        final Map<String, String> map = vcf.get();
+//        final Map<String, String> map = vcf.getProperty();
         addFrequencyData(variant, json);
         addTranscriptConsequences(variant, json);
         addIntergenicConsequences(variant, json);
@@ -414,7 +414,7 @@ public class VepAnnotator extends Task<Boolean> {
 //                    else if (classType == Long.class)
 //                        result += terms.getLong(i) + ",";
 //                    else
-//                        result += String.valueOf(terms.get(i)) + ",";
+//                        result += String.valueOf(terms.getProperty(i)) + ",";
 //                if (!result.isEmpty()) {
 //                    result = result.substring(0, result.length() - 1);
 //                    target.put(targetKey, result);

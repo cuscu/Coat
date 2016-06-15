@@ -24,9 +24,9 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import poirot.core.Pearl;
 import poirot.core.PearlRelationship;
-import poirot.view.GraphNode;
-import poirot.view.GraphRelationship;
-import poirot.view.Selectable;
+import poirot.view.graph.GraphNode;
+import poirot.view.graph.GraphRelationship;
+import poirot.view.graph.Selectable;
 import vcf.Variant;
 
 import java.awt.*;
@@ -66,7 +66,7 @@ public class PoirotInfo extends VBox {
             final Hyperlink hyperlink = getHyperlink(symbol + "(" + description + ")", "http://v4.genecards.org/cgi-bin/carddisp.pl?gene=" + symbol);
             getChildren().add(hyperlink);
         }
-        final java.util.List<Variant> variants = (java.util.List<Variant>) pearl.getProperties().get("variants");
+        final java.util.List<Variant> variants = (java.util.List<Variant>) pearl.getProperty("variants");
         if (variants != null) {
             poirotVariantTable.getItems().setAll(variants);
             getChildren().add(poirotVariantTable);
@@ -91,7 +91,7 @@ public class PoirotInfo extends VBox {
 //        if (description == null) {
 //            loadOmimDataset();
 //            final java.util.List<Instance> instances = omimDataset.getInstances(symbol, 0);
-//            if (!instances.isEmpty()) description = (String) instances.get(0).getField(1);
+//            if (!instances.isEmpty()) description = (String) instances.getProperty(0).getField(1);
 //        }
         return description;
     }
@@ -99,12 +99,12 @@ public class PoirotInfo extends VBox {
     private void showFenotipeDescription(Pearl pearl) {
         if (pearl.getId().startsWith("omim:")) {
             final String mimNumber = pearl.getId().split(":")[1];
-            final Hyperlink hyperlink = getHyperlink(pearl.getId() + " " + pearl.getProperties().get("name"), "http://omim.org/entry/" + mimNumber);
+            final Hyperlink hyperlink = getHyperlink(pearl.getId() + " " + pearl.getProperty("name"), "http://omim.org/entry/" + mimNumber);
             getChildren().add(hyperlink);
         } else {
             getChildren().add(new Label(pearl.getId()));
         }
-        getChildren().add(new Label(pearl.getProperties().toString()));
+//        getChildren().add(new Label(pearl.getProperties().toString()));
     }
 
     public void setRelationship(GraphRelationship relationship) {

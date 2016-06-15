@@ -28,20 +28,20 @@ import java.util.*;
 /**
  * A JSONObject is an unordered collection of name/value pairs. Its external form is a string
  * wrapped in curly braces with colons between the names and values, and commas between the values
- * and names. The internal form is an object having <code>get</code> and <code>opt</code> methods
+ * and names. The internal form is an object having <code>getProperty</code> and <code>opt</code> methods
  * for accessing the values by name, and <code>put</code> methods for adding or replacing values by
  * name. The values can be any of these types: <code>Boolean</code>, <code>JSONArray</code>,
  * <code>JSONObject</code>, <code>Number</code>, <code>String</code>, or the
  * <code>JSONObject.NULL</code> object. A JSONObject constructor can be used to convert an external
- * form JSON text into an internal form whose values can be retrieved with the <code>get</code> and
+ * form JSON text into an internal form whose values can be retrieved with the <code>getProperty</code> and
  * <code>opt</code> methods, or to convert values into a JSON text using the <code>put</code> and
- * <code>toString</code> methods. A <code>get</code> method returns a value if one can be found, and
+ * <code>toString</code> methods. A <code>getProperty</code> method returns a value if one can be found, and
  * throws an exception if one cannot be found. An <code>opt</code> method returns a default value
  * instead of throwing an exception, and so is useful for obtaining optional values.
  * <p>
- * The generic <code>get()</code> and <code>opt()</code> methods return an object, which you can
- * cast or query for type. There are also typed <code>get</code> and <code>opt</code> methods that
- * do type checking and type coercion for you. The opt methods differ from the get methods in that
+ * The generic <code>getProperty()</code> and <code>opt()</code> methods return an object, which you can
+ * cast or query for type. There are also typed <code>getProperty</code> and <code>opt</code> methods that
+ * do type checking and type coercion for you. The opt methods differ from the getProperty methods in that
  * they do not throw. Instead, they return a specified value, such as null.
  * <p>
  * The <code>put</code> methods add or replace values in an object. For example,
@@ -209,11 +209,11 @@ public class JSONObject {
     /**
      * Construct a JSONObject from an Object using bean getters. It reflects on all of the public
      * methods of the object. For each of the methods with no parameters and a name starting with
-     * <code>"get"</code> or <code>"is"</code> followed by an uppercase letter, the method is
+     * <code>"getProperty"</code> or <code>"is"</code> followed by an uppercase letter, the method is
      * invoked, and a key and the value returned from the getter method are put into the new
      * JSONObject.
      *
-     * The key is formed by removing the <code>"get"</code> or <code>"is"</code> prefix. If the
+     * The key is formed by removing the <code>"getProperty"</code> or <code>"is"</code> prefix. If the
      * second remaining character is not upper case, then the first character is converted to lower
      * case.
      *
@@ -876,7 +876,7 @@ public class JSONObject {
                 if (Modifier.isPublic(method.getModifiers())) {
                     String name = method.getName();
                     String key = "";
-                    if (name.startsWith("get")) {
+                    if (name.startsWith("getProperty")) {
                         if ("getClass".equals(name)
                                 || "getDeclaringClass".equals(name)) {
                             key = "";

@@ -29,7 +29,7 @@ import java.util.List;
 
 /**
  * This class contains methods to deal with FileSystem. Methods to open/save files, select paths,
- * copy directories and get user/home path.
+ * copy directories and getProperty user/home path.
  *
  * @author Pascual Lorente Arencibia (pasculorente@gmail.com)
  */

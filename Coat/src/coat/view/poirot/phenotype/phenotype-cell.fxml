@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) UICHUIMI 2016
+  ~
+  ~ This file is part of Coat.
+  ~
+  ~ Coat is free software: you can redistribute it and/or modify it under the terms of the
+  ~ GNU General Public License as published by the Free Software Foundation, either version 3 of
+  ~ the License, or (at your option) any later version.
+  ~
+  ~ Coat is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with Foobar.
+  ~ If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<HBox alignment="CENTER_LEFT" spacing="5.0" stylesheets="@../../../css/default.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="coat.view.poirot.phenotype.PhenotypeCellController">
+    <children>
+        <CheckBox fx:id="selected" mnemonicParsing="false" onAction="#selected" />
+        <VBox spacing="5.0">
+            <children>
+                <TextField fx:id="name" editable="false" style="-fx-background-color: transparent;" text="Schizophrenia" />
+                <TextField fx:id="score" editable="false" style="-fx-background-color: transparent;" text="0.894" />
+            </children>
+        </VBox>
+    </children>
+</HBox>

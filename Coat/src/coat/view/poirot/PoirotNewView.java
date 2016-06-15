@@ -32,10 +32,10 @@ import java.io.IOException;
  */
 public class PoirotNewView extends Tool {
 
-    private static PoirotNewView TOOL;
+    //    private static PoirotNewView TOOL;
     private Property<String> title = new SimpleObjectProperty<>("Poirot");
 
-    private PoirotNewView() {
+    public PoirotNewView() {
         final FXMLLoader loader = new FXMLLoader(getClass().getResource("poirot-view.fxml"));
         try {
             final Parent parent = loader.load();
@@ -46,10 +46,10 @@ public class PoirotNewView extends Tool {
         }
     }
 
-    public static Tool getView() {
+   /* public static Tool getView() {
         if (TOOL == null) TOOL = new PoirotNewView();
         return TOOL;
-    }
+    }*/
 
     @Override
     public Property<String> titleProperty() {

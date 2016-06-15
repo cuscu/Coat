@@ -37,42 +37,43 @@ class PoirotRelationshipTable extends TableView<PearlRelationship> {
     private TableColumn<PearlRelationship, String> getReliabilityColumn() {
         final TableColumn<PearlRelationship, String> reliability = new TableColumn<>(OS.getString("reliability"));
         reliability.setCellFactory(param -> new NaturalCell<>());
-        reliability.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getProperties().get("reliability")));
+        reliability.setCellValueFactory(param -> new SimpleObjectProperty<>((String) param.getValue().getProperty("reliability")));
         return reliability;
     }
 
     private TableColumn<PearlRelationship, String> getDatabaseColumn() {
         final TableColumn<PearlRelationship, String> database = new TableColumn<>(OS.getString("database"));
         database.setCellFactory(param -> new NaturalCell<>());
-        database.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getProperties().get("id").split(":")[0]));
+        database.setCellValueFactory(param ->
+                new SimpleObjectProperty<>(((String) param.getValue().getProperty("id")).split(":")[0]));
         return database;
     }
 
     private TableColumn<PearlRelationship, String> getIdColumn() {
         final TableColumn<PearlRelationship, String> id = new TableColumn<>(OS.getString("id"));
         id.setCellFactory(param -> new NaturalCell<>());
-        id.setCellValueFactory(param -> new SimpleObjectProperty<>((param.getValue().getProperties().get("id"))));
+        id.setCellValueFactory(param -> new SimpleObjectProperty<>((String) param.getValue().getProperty("id")));
         return id;
     }
 
     private TableColumn<PearlRelationship, String> getMethodColumn() {
         final TableColumn<PearlRelationship, String> method = new TableColumn<>(OS.getString("method"));
         method.setCellFactory(param -> new NaturalCell<>());
-        method.setCellValueFactory(param -> new SimpleObjectProperty<>((String) param.getValue().getProperties().get("method")));
+        method.setCellValueFactory(param -> new SimpleObjectProperty<>((String) param.getValue().getProperty("method")));
         return method;
     }
 
     private TableColumn<PearlRelationship, String> getTypeColumn() {
         final TableColumn<PearlRelationship, String> method = new TableColumn<>(OS.getString("type"));
         method.setCellFactory(param -> new NaturalCell<>());
-        method.setCellValueFactory(param -> new SimpleObjectProperty<>((String) param.getValue().getProperties().get("type")));
+        method.setCellValueFactory(param -> new SimpleObjectProperty<>((String) param.getValue().getProperty("type")));
         return method;
     }
 
     private TableColumn<PearlRelationship, String> getConfidenceColumn() {
         final TableColumn<PearlRelationship, String> method = new TableColumn<>(OS.getString("confidence"));
         method.setCellFactory(param -> new NaturalCell<>());
-        method.setCellValueFactory(param -> new SimpleObjectProperty<>((String) param.getValue().getProperties().get("confidence")));
+        method.setCellValueFactory(param -> new SimpleObjectProperty<>((String) param.getValue().getProperty("confidence")));
         return method;
     }
 }

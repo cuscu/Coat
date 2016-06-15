@@ -33,14 +33,14 @@ public class VepAnnotatorTest {
     @Test
     public void test() {
 //        final VariantSet vcfFile = VariantSetFactory.createFromFile(new File("test/coat/files/Sample1.vcf"));
-//        final Variant variant = vcfFile.getVariants().get(0);
+//        final Variant variant = vcfFile.getVariants().getProperty(0);
 //        final VepAnnotator annotator = new VepAnnotator(vcfFile.getVariants().subList(0, 1));
 //        try {
 //            annotator.call();
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
-//        Assert.assertEquals("processed_transcript", variant.getInfo().get("BIO"));
+//        Assert.assertEquals("processed_transcript", variant.getInfo().getProperty("BIO"));
 //
     }
 }
