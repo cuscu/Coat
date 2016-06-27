@@ -31,7 +31,10 @@ import vcf.VariantSetFactory;
 import vcf.VcfHeader;
 import vcf.combine.VariantCombinerTask;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -73,11 +76,21 @@ public class VariantCombinerController {
 
     private void addSamples(File file) {
         final VcfHeader header = VariantSetFactory.readHeader(file);
+        final long size = getLinesCount(file);
         for (String name : header.getSamples()) {
-            final Sample sample = new Sample(file, name);
+            final Sample sample = new Sample(file, name, size);
             sampleTable.getItems().add(sample);
             setMistFile(file, name, sample);
         }
+    }
+
+    private long getLinesCount(File file) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            return reader.lines().filter(line -> !line.startsWith("#")).count();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     private void setMistFile(File file, String name, Sample sample) {

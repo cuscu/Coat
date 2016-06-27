@@ -25,7 +25,6 @@ import coat.utils.OS;
 import coat.view.graphic.MemoryPane;
 import coat.view.graphic.SizableImageView;
 import coat.view.mist.CombineMistMenu;
-import coat.view.poirot.PoirotMenu;
 import coat.view.tsv.TsvFileReader;
 import coat.view.vcfcombiner.CombineVcfMenu;
 import coat.view.vcfreader.VcfReader;
@@ -90,7 +89,6 @@ public class CoatView {
     {
         toolsMenuClasses.add(new CombineMistMenu());
         toolsMenuClasses.add(new CombineVcfMenu());
-        toolsMenuClasses.add(new PoirotMenu());
     }
 
     public static CoatView getCoatView() {
