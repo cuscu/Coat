@@ -1,16 +1,16 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
+ * *
  * This program is free software: you can redistribute it and/or modify it    *
  * under the terms of the GNU General Public License as published by the      *
  * Free Software Foundation, either version 3 of the License, or (at your     *
  * option) any later version.                                                 *
- *                                                                            *
+ * *
  * This program is distributed in the hope that it will be useful, but        *
  * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
  * See the GNU General Public License for more details.                       *
- *                                                                            *
+ * *
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
@@ -22,11 +22,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 
 /**
  * This Cell is a TextField that can be read but not written.
@@ -35,46 +30,44 @@ import javafx.scene.layout.Priority;
  */
 public class NaturalCell<S, T> extends TableCell<S, T> {
 
-    private final TextField textField = new TextField();
-    private final HBox box = new HBox(textField);
-
     /**
      * Creates a new NaturalCell, which replaces the cell with a non-editable TextField.
      */
     public NaturalCell() {
-        box.setAlignment(Pos.CENTER);
-        textField.styleProperty().bind(styleProperty());
-        HBox.setHgrow(textField, Priority.ALWAYS);
-        textField.setEditable(false);
-        textField.setBackground(Background.EMPTY);
-        textField.setPadding(new Insets(0));
-        textField.setOnMouseClicked(event -> getTableView().getSelectionModel().select(getTableRow().getIndex()));
-        textField.setOnKeyReleased(this::keyReleased);
+        setEditable(true);
+        setPadding(new Insets(5));
+        setAlignment(Pos.CENTER_LEFT);
+        setOnMouseClicked(event -> getTableView().getSelectionModel().select(getTableRow().getIndex()));
     }
 
     @Override
     protected void updateItem(T item, boolean empty) {
         super.updateItem(item, empty);
-        if (!empty) writeItem(item);
-        else setGraphic(null);
-    }
-
-
-    private void writeItem(T item) {
-        if (item != null) {
-            textField.setText(item.toString());
+        if (empty) {
+            setText(null);
+        } else {
+            setText(item.toString());
             setTooltip(new Tooltip(item.toString()));
-        } else textField.setText(null);
-        setGraphic(box);
+        }
     }
 
-    private void keyReleased(KeyEvent event) {
-        if (event.getCode() == KeyCode.DOWN) select(getIndex() + 1);
-        else if (event.getCode() == KeyCode.UP) select(getIndex() - 1);
+    @Override
+    public void startEdit() {
+        super.startEdit();
+        final TextField textField = new TextField(getText());
+        textField.setPrefWidth(getWidth());
+        textField.setEditable(false);
+        textField.selectAll();
+        setGraphic(textField);
+        setText(null);
+        textField.setBackground(null);
+        textField.requestFocus();
     }
 
-    private void select(int row) {
-        getTableView().getSelectionModel().select(row);
-        getTableView().requestFocus();
+    @Override
+    public void cancelEdit() {
+        super.cancelEdit();
+        setGraphic(null);
+        setText(getItem().toString());
     }
 }

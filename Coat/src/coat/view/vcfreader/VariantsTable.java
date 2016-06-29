@@ -20,6 +20,7 @@ package coat.view.vcfreader;
 import coat.utils.OS;
 import coat.view.graphic.IndexCell;
 import coat.view.graphic.NaturalCell;
+import coat.view.graphic.SizableImageView;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -31,6 +32,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -46,6 +49,7 @@ import java.util.stream.Collectors;
  * @author Lorente Arencibia, Pascual <pasculorente@gmail.com>
  */
 public class VariantsTable extends VBox {
+
 
     private final TableView<Variant> table = new TableView<>();
     private final TextField searchBox = new TextField();
@@ -70,7 +74,6 @@ public class VariantsTable extends VBox {
 
     public VariantsTable() {
         initStructure();
-        table.getSelectionModel().selectedItemProperty().addListener((obs, previous, current) -> setCoordinate(current));
     }
 
     private void tableHasChanged() {
@@ -79,12 +82,15 @@ public class VariantsTable extends VBox {
 
     private void initStructure() {
         initTable();
+        initSearchBox();
         final HBox coordinateBox = initCoordinatesBox();
         getChildren().addAll(coordinateBox, table);
     }
 
     private void initTable() {
         VBox.setVgrow(table, Priority.ALWAYS);
+        table.setEditable(true);
+        setCopyContextMenu();
         table.getColumns().addAll(chrom, position, variant, rsId, qual);
         table.getColumns().forEach(column -> column.setSortable(false));
         chrom.getStyleClass().add("first-column");
@@ -92,7 +98,20 @@ public class VariantsTable extends VBox {
         setTableCellValueFactories();
         setTableColumnWidths();
         table.setTableMenuButtonVisible(true);
-        initSearchBox();
+        table.getSelectionModel().selectedItemProperty().addListener((obs, previous, current) -> setCoordinate(current));
+    }
+
+    private void setCopyContextMenu() {
+        final SizableImageView COPY = new SizableImageView("coat/img/black/copy.png", SizableImageView.SMALL_SIZE);
+        final MenuItem menuItem = new MenuItem("Copy row", COPY);
+        final ContextMenu contextMenu = new ContextMenu(menuItem);
+        table.setContextMenu(contextMenu);
+        menuItem.setOnAction(event -> {
+            if (table.getSelectionModel().isEmpty()) return;
+            final ClipboardContent clipboardContent = new ClipboardContent();
+            clipboardContent.putString(table.getSelectionModel().getSelectedItem().toString());
+            Clipboard.getSystemClipboard().setContent(clipboardContent);
+        });
     }
 
     private void initSearchBox() {

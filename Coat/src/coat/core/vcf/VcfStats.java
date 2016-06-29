@@ -1,16 +1,16 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
+ * *
  * This program is free software: you can redistribute it and/or modify it    *
  * under the terms of the GNU General Public License as published by the      *
  * Free Software Foundation, either version 3 of the License, or (at your     *
  * option) any later version.                                                 *
- *                                                                            *
+ * *
  * This program is distributed in the hope that it will be useful, but        *
  * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
  * See the GNU General Public License for more details.                       *
- *                                                                            *
+ * *
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
@@ -18,7 +18,6 @@
 package coat.core.vcf;
 
 import coat.core.vcf.stats.InfoStats;
-import javafx.scene.layout.VBox;
 import vcf.VariantSet;
 
 import java.util.ArrayList;
@@ -29,39 +28,36 @@ import java.util.TreeMap;
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class VcfStats extends VBox {
+public class VcfStats {
 
     private final Map<String, InfoStats> stats = new TreeMap<>();
     private final VariantSet variantSet;
 
     public VcfStats(VariantSet variantSet) {
         this.variantSet = variantSet;
-        variantSet.getHeader().getComplexHeaders().get("INFO").stream().map(map -> map.get("ID")).forEach((info) -> {
-            InfoStats infoStats = processInfo(info);
-            stats.put(info, infoStats);
-        });
+        variantSet.getHeader().getComplexHeaders().get("INFO").stream().map(map -> map.get("ID")).forEach(info -> stats.put(info, getStats(info)));
     }
 
-    private InfoStats processInfo(String id) {
-        TreeMap<String, Integer> counts = new TreeMap<>();
-        List<Double> values = new ArrayList<>();
+    private InfoStats getStats(String id) {
+        final TreeMap<String, Integer> counts = new TreeMap<>();
+        final List<Double> values = new ArrayList<>();
         variantSet.getVariants().forEach(variant -> {
             final Object o = variant.getInfo().get(id);
             if (o == null) return;
             if (o.getClass() == String.class) {
-                String value = (String) o;
+                String[] value = ((String) o).split(",");
                 try {
-                    double val = Double.valueOf(value);
-                    values.add(val);
+                    Double val = Double.valueOf(value[0]);
+                    if (!Double.isNaN(val)) values.add(val);
                 } catch (NumberFormatException ex) {
-                    processString(counts, value);
+                    for (String v : value) processString(counts, v);
                 }
             } else {
                 try {
                     double value = (double) o;
                     values.add(value);
                 } catch (ClassCastException ex) {
-                    ex.printStackTrace();
+//                    ex.printStackTrace();
                 }
             }
         });

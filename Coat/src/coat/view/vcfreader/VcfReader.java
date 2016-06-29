@@ -26,11 +26,14 @@ import coat.core.vep.VepAnnotator;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.SizableImageView;
+import coat.view.vcfreader.header.HeaderViewController;
 import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Orientation;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.Priority;
@@ -40,6 +43,7 @@ import vcf.Variant;
 import vcf.VariantSet;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -152,19 +156,22 @@ public class VcfReader extends VBox implements Reader {
     }
 
     private void viewHeaders() {
-        TextArea area = new TextArea();
-        area.appendText(variantSet.getHeader().toString());
-        area.setEditable(false);
-        area.setWrapText(true);
-        area.home();
-        Scene scene = new Scene(area);
-        Stage stage = new Stage();
-        stage.setWidth(600);
-        stage.setHeight(600);
-        stage.setTitle(baseName);
-        stage.centerOnScreen();
-        stage.setScene(scene);
-        stage.show();
+        try {
+            final FXMLLoader loader = new FXMLLoader(HeaderViewController.class.getResource("header-view.fxml"));
+            final Parent root = loader.load();
+            HeaderViewController controller = loader.getController();
+            controller.setHeader(variantSet.getHeader());
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+            stage.setWidth(600);
+            stage.setHeight(600);
+            stage.setTitle(baseName);
+            stage.centerOnScreen();
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private Button getLfsButton() {

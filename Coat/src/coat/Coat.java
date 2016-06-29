@@ -25,18 +25,11 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Properties;
-
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class Coat extends Application {
 
-    private static final Properties properties = new Properties();
     private static Stage stage;
 
     /**
@@ -55,13 +48,8 @@ public class Coat extends Application {
         return stage;
     }
 
-    public static Properties getProperties() {
-        return properties;
-    }
-
     @Override
     public void start(Stage stage) throws Exception {
-        loadProperties();
         final Parent root = FXMLLoader.load(getClass().getResource("CoatView.fxml"), OS.getResources());
         final Scene scene = new Scene(root);
 
@@ -73,27 +61,4 @@ public class Coat extends Application {
         Coat.stage = stage;
     }
 
-    private void loadProperties() {
-        final File file = new File(OS.getConfigPath(), "coat.properties");
-        try {
-            if (file.exists())
-                properties.load(new FileInputStream(file));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        savePropertiesOnExit(file);
-    }
-
-    private void savePropertiesOnExit(File file) {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                try {
-                    properties.store(new FileOutputStream(file), null);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
 }

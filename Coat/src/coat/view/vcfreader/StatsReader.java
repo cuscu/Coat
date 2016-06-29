@@ -1,16 +1,16 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
+ * *
  * This program is free software: you can redistribute it and/or modify it    *
  * under the terms of the GNU General Public License as published by the      *
  * Free Software Foundation, either version 3 of the License, or (at your     *
  * option) any later version.                                                 *
- *                                                                            *
+ * *
  * This program is distributed in the hope that it will be useful, but        *
  * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
  * See the GNU General Public License for more details.                       *
- *                                                                            *
+ * *
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
@@ -26,17 +26,18 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 class StatsReader extends HBox {
 
-    public static final int MAX_VALUES = 7;
     public static final int ITEMS_PIE_CHART = 5;
-    private final ListView<String> infoListView = new ListView<>();
+    private static final int MAX_INTERVALS = 50;
     private final GridPane gridPane = new GridPane();
     private final Label minLabel = new Label("min");
     private final Label min = new Label();
@@ -51,8 +52,7 @@ class StatsReader extends HBox {
 
     public StatsReader(VcfStats vcfStats) {
         this.vcfStats = vcfStats;
-        infoListView.getItems().addAll(vcfStats.getStats().keySet());
-        infoListView.getSelectionModel().selectedItemProperty().addListener((obs, prev, current) -> show(current));
+        final ListView<String> infoListView = getKeyListView(vcfStats);
         setAlignment(Pos.CENTER);
         HBox.setHgrow(editPane, Priority.ALWAYS);
         initGridPane();
@@ -63,9 +63,16 @@ class StatsReader extends HBox {
         configurePieChart();
     }
 
+    @NotNull
+    private ListView<String> getKeyListView(VcfStats vcfStats) {
+        final ListView<String> infoListView = new ListView<>();
+        infoListView.getItems().addAll(vcfStats.getStats().keySet());
+        infoListView.getSelectionModel().selectedItemProperty().addListener((obs, prev, current) -> show(current));
+        return infoListView;
+    }
+
     private void configurePieChart() {
         pieChart.setStartAngle(90);
-
     }
 
     private void initGridPane() {
@@ -75,8 +82,8 @@ class StatsReader extends HBox {
         gridPane.add(max, 1, 1);
     }
 
-    private void show(String newValue) {
-        InfoStats infoStats = vcfStats.getStats().get(newValue);
+    private void show(String key) {
+        final InfoStats infoStats = vcfStats.getStats().get(key);
         if (infoStats.getCounts().size() < infoStats.getValues().size()) asNumber(infoStats);
         else asString(infoStats);
     }
@@ -111,16 +118,16 @@ class StatsReader extends HBox {
     }
 
     private void asNumber(InfoStats infoStats) {
-        double minValue = infoStats.getValues().stream().min(Double::compare).get();
-        double maxValue = infoStats.getValues().stream().max(Double::compare).get();
+        double minValue = infoStats.getValues().stream().min(Double::compare).orElse(0.0);
+        double maxValue = infoStats.getValues().stream().max(Double::compare).orElse(1000.0);
         double range = maxValue - minValue;
-        Map<Double, Integer> map = new TreeMap<>();
+        final double inverseInterval = 1.0 / MAX_INTERVALS;
+        final Map<Double, Integer> map = new TreeMap<>();
         infoStats.getValues().forEach(value -> {
-            double interval = Math.floor(((value - minValue) * 50 / range)) * range * 0.02 + minValue;
-            int current = map.getOrDefault(interval, 0);
-            map.put(interval, current + 1);
+            final double interval = Math.floor(((value - minValue) * MAX_INTERVALS / range)) * range * inverseInterval + minValue;
+            map.put(interval, map.getOrDefault(interval, 0) + 1);
         });
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        final XYChart.Series<String, Number> series = new XYChart.Series<>();
         map.forEach((x, y) -> series.getData().add(new XYChart.Data<>(String.format("%.2f", x), y)));
         barChart.getData().clear();
         barChart.getData().add(series);
