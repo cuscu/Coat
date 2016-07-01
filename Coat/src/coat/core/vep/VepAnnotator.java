@@ -1,16 +1,16 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
+ * *
  * This program is free software: you can redistribute it and/or modify it    *
  * under the terms of the GNU General Public License as published by the      *
  * Free Software Foundation, either version 3 of the License, or (at your     *
  * option) any later version.                                                 *
- *                                                                            *
+ * *
  * This program is distributed in the hope that it will be useful, but        *
  * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
  * See the GNU General Public License for more details.                       *
- *                                                                            *
+ * *
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
@@ -35,178 +35,72 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class VepAnnotator extends Task<Boolean> {
 
-    public final static String[] HEADERS = {
-            "##INFO=<ID=GENE,Number=1,Type=String,Description=\"Ensemble gene ID\">",
-            "##INFO=<ID=FEAT,Number=1,Type=String,Description=\"Ensemble feature ID\">",
-            "##INFO=<ID=TYPE,Number=1,Type=String,Description=\"Type of feature (Transcript, RegulatoryFeature, MotifFeature)\">",
-            "##INFO=<ID=CONS,Number=1,Type=String,Description=\"Consequence type\">",
-            "##INFO=<ID=CDNA,Number=1,Type=Integer,Description=\"Relative position of base pair in cDNA sequence\">",
-            "##INFO=<ID=CDS,Number=1,Type=Integer,Description=\"Relative position of base pair in coding sequence\">",
-            "##INFO=<ID=PROT,Number=1,Type=Integer,Description=\"Relative position of amino acid in protein\">",
-            "##INFO=<ID=AMINO,Number=1,Type=String,Description=\"Amino acid change. Only given if the variation affects the protein-coding sequence\">",
-            "##INFO=<ID=COD,Number=1,Type=String,Description=\"The alternative codons\">",
-            "##INFO=<ID=DIST,Number=1,Type=String,Description=\"Shortest distance from vcf to transcript\">",
-            "##INFO=<ID=STR,Number=1,Type=String,Description=\"The DNA strand (1 or -1) on which the transcript/feature lies\">",
-            "##INFO=<ID=SYMBOL,Number=1,Type=String,Description=\"Gene symbol or name\">",
-            "##INFO=<ID=SRC,Number=1,Type=String,Description=\"The source of the gene symbol\">",
-            "##INFO=<ID=ENSP,Number=1,Type=String,Description=\"Ensembl protein identifier of the affected transcript\">",
-            "##INFO=<ID=SWPR,Number=1,Type=String,Description=\"UniProtKB/Swiss-Prot identifier of protein product\">",
-            "##INFO=<ID=TRBL,Number=1,Type=String,Description=\"UniProtKB/TrEMBL identifier of protein product\">",
-            "##INFO=<ID=UNI,Number=1,Type=String,Description=\"UniParc identifier of protein product\">",
-            "##INFO=<ID=HGVSc,Number=1,Type=String,Description=\"HGVS coding sequence name\">",
-            "##INFO=<ID=HGVSp,Number=1,Type=String,Description=\"HGVS protein sequence name\">",
-            "##INFO=<ID=SIFTs,Number=1,Type=String,Description=\"SIFT score\">",
-            "##INFO=<ID=SIFTp,Number=1,Type=String,Description=\"SIFT prediction\">",
-            "##INFO=<ID=PPHs,Number=1,Type=String,Description=\"Polyphen score\">",
-            "##INFO=<ID=PPHp,Number=1,Type=String,Description=\"Polyphen prediction\">",
-            "##INFO=<ID=POLY,Number=1,Type=String,Description=\"PolyPhen prediction and/or score\">",
-            "##INFO=<ID=MTFN,Number=1,Type=String,Description=\"source and identifier of a transcription factor binding profile aligned at this position\">",
-            "##INFO=<ID=MTFP,Number=1,Type=String,Description=\"relative position of the variation in the aligned TFBP\">",
-            "##INFO=<ID=HIP,Number=0,Type=Flag,Description=\"a flag indicating if the vcf falls in a high information position of a transcription factor binding profile (TFBP)\">",
-            "##INFO=<ID=MSC,Number=1,Type=String,Description=\"difference in motif score of the reference and vcf sequences for the TFBP\">",
-            "##INFO=<ID=CLLS,Number=1,Type=String,Description=\"List of cell types and classifications for regulatory feature\">",
-            "##INFO=<ID=CANON,Number=0,Type=Flag,Description=\"Transcript is denoted as the canonical transcript for this gene\">",
-            "##INFO=<ID=CCDS,Number=1,Type=String,Description=\"CCDS identifer for this transcript, where applicable\">",
-            "##INFO=<ID=INTR,Number=1,Type=String,Description=\"Intron number (out of total number)\">",
-            "##INFO=<ID=EXON,Number=1,Type=String,Description=\"Exon number (out of total number)\">",
-            "##INFO=<ID=DOM,Number=1,Type=String,Description=\"the source and identifer of any overlapping protein domains\">",
-            "##INFO=<ID=IND,Number=1,Type=String,Description=\"Individual name\">",
-            "##INFO=<ID=ZYG,Number=1,Type=String,Description=\"Zygosity of individual genotype at this locus\">",
-            "##INFO=<ID=SV,Number=1,Type=String,Description=\"IDs of overlapping structural variants\">",
-            "##INFO=<ID=FRQ,Number=1,Type=String,Description=\"Frequencies of overlapping variants used in filtering\">",
-            "##INFO=<ID=GMAF,Number=1,Type=String,Description=\"Minor allele and frequency of existing variation in 1000 Genomes Phase 1\">",
-            "##INFO=<ID=AFR_MAF,Number=1,Type=String,Description=\"Minor allele and frequency of existing variation in 1000 Genomes Phase 1 combined African population\">",
-            "##INFO=<ID=AMR_MAF,Number=1,Type=String,Description=\"Minor allele and frequency of existing variation in 1000 Genomes Phase 1 combined American population\">",
-            "##INFO=<ID=ASN_MAF,Number=1,Type=String,Description=\"Minor allele and frequency of existing variation in 1000 Genomes Phase 1 combined Asian population\">",
-            "##INFO=<ID=EUR_MAF,Number=1,Type=String,Description=\"Minor allele and frequency of existing variation in 1000 Genomes Phase 1 combined European population\">",
-            "##INFO=<ID=AA_MAF,Number=1,Type=String,Description=\"Minor allele and frequency of existing vcf in NHLBI-ESP African American population\">",
-            "##INFO=<ID=EA_MAF,Number=1,Type=String,Description=\"Minor allele and frequency of existing vcf in NHLBI-ESP European American population\">",
-            "##INFO=<ID=CLIN,Number=1,Type=String,Description=\"Clinical significance of vcf from dbSNP\">",
-            "##INFO=<ID=BIO,Number=1,Type=String,Description=\"Biotype of transcript or regulatory feature\">",
-            "##INFO=<ID=TSL,Number=1,Type=String,Description=\"Transcript support level\">",
-            "##INFO=<ID=PUBM,Number=1,Type=String,Description=\"Pubmed ID(s) of publications that cite existing vcf\">",
-            "##INFO=<ID=SOMA,Number=1,Type=String,Description=\"Somatic status of existing variation(s)\">"
+    public static final String[][] DEFAULT_HEADERS = new String[][]{
+            {"GENE", "1", "String", "Ensemble gene ID"},
+            {"FEAT", "1", "String", "Ensemble feature ID"},
+            {"TYPE", "1", "String", "Type of feature (Transcript", " RegulatoryFeature", " MotifFeature)"},
+            {"CONS", "1", "String", "Consequence type"},
+            {"CDNA", "1", "Integer", "Relative position of base pair in cDNA sequence"},
+            {"CDS", "1", "Integer", "Relative position of base pair in coding sequence"},
+            {"PROT", "1", "Integer", "Relative position of amino acid in protein"},
+            {"AMINO", "1", "String", "Amino acid change. Only given if the variation affects the protein-coding sequence"},
+            {"COD", "1", "String", "The alternative codons"},
+            {"DIST", "1", "Integer", "Shortest distance from vcf to transcript"},
+            {"STR", "1", "String", "The DNA strand (1 or -1) on which the transcript/feature lies"},
+            {"SYMBOL", "1", "String", "Gene symbol or name"},
+            {"SRC", "1", "String", "The source of the gene symbol"},
+            {"ENSP", "1", "String", "Ensembl protein identifier of the affected transcript"},
+            {"SWPR", "1", "String", "UniProtKB/Swiss-Prot identifier of protein product"},
+            {"TRBL", "1", "String", "UniProtKB/TrEMBL identifier of protein product"},
+            {"UNI", "1", "String", "UniParc identifier of protein product"},
+            {"HGVSc", "1", "String", "HGVS coding sequence name"},
+            {"HGVSp", "1", "String", "HGVS protein sequence name"},
+            {"SIFTs", "1", "Float", "SIFT score"},
+            {"SIFTp", "1", "String", "SIFT prediction"},
+            {"PPHs", "1", "Float", "Polyphen score"},
+            {"PPHp", "1", "String", "Polyphen prediction"},
+            {"POLY", "1", "String", "PolyPhen prediction and/or score"},
+            {"MTFN", "1", "String", "source and identifier of a transcription factor binding profile aligned at this position"},
+            {"MTFP", "1", "String", "relative position of the variation in the aligned TFBP"},
+            {"HIP", "0", "Flag", "a flag indicating if the vcf falls in a high information position of a transcription factor binding profile (TFBP)"},
+            {"MSC", "1", "String", "difference in motif score of the reference and vcf sequences for the TFBP"},
+            {"CLLS", "1", "String", "List of cell types and classifications for regulatory feature"},
+            {"CANON", "0", "Flag", "Transcript is denoted as the canonical transcript for this gene"},
+            {"CCDS", "1", "String", "CCDS identifer for this transcript", " where applicable"},
+            {"INTR", "1", "String", "Intron number (out of total number)"},
+            {"EXON", "1", "String", "Exon number (out of total number)"},
+            {"DOM", "1", "String", "the source and identifer of any overlapping protein domains"},
+            {"IND", "1", "String", "Individual name"},
+            {"ZYG", "1", "String", "Zygosity of individual genotype at this locus"},
+            {"SV", "1", "String", "IDs of overlapping structural variants"},
+            {"FRQ", "1", "String", "Frequencies of overlapping variants used in filtering"},
+            {"GMAF", "1", "Float", "Minor allele and frequency of existing variation in 1000 Genomes Phase 1"},
+            {"AFR_MAF", "1", "Float", "Minor allele and frequency of existing variation in 1000 Genomes Phase 1 " +
+                    "combined African population"},
+            {"AMR_MAF", "1", "Float", "Minor allele and frequency of existing variation in 1000 Genomes Phase 1 combined American population"},
+            {"ASN_MAF", "1", "Float", "Minor allele and frequency of existing variation in 1000 Genomes Phase 1 combined Asian population"},
+            {"EUR_MAF", "1", "Float", "Minor allele and frequency of existing variation in 1000 Genomes Phase 1 combined European population"},
+            {"AA_MAF", "1", "Float", "Minor allele and frequency of existing vcf in NHLBI-ESP African American population"},
+            {"EA_MAF", "1", "Float", "Minor allele and frequency of existing vcf in NHLBI-ESP European American population"},
+            {"CLIN", "1", "String", "Clinical significance of vcf from dbSNP"},
+            {"BIO", "1", "String", "Biotype of transcript or regulatory feature"},
+            {"TSL", "1", "String", "Transcript support level"},
+            {"PUBM", "1", "String", "Pubmed ID(s) of publications that cite existing vcf"},
+            {"SOMA", "1", "String", "Somatic status of existing variation(s)"}
     };
     public static final int MAX_VARIANTS = 1000;
+
+    static {
+
+
+    }
+
     private final VariantSet variantSet;
     private List<Variant> variants;
 
     public VepAnnotator(VariantSet variantSet) {
         this.variantSet = variantSet;
         this.variants = new ArrayList<>(variantSet.getVariants());
-    }
-
-    public VepAnnotator(List<Variant> variants) {
-        this.variants = (variants);
-        variantSet = variants.get(0).getVariantSet();
-    }
-
-    @Override
-    protected Boolean call() throws Exception {
-        injectVEPHeaders();
-        return annotateVariants();
-
-    }
-
-    private void injectVEPHeaders() {
-        Arrays.stream(HEADERS).forEach(variantSet.getHeader()::addHeader);
-    }
-
-    private boolean annotateVariants() {
-        variantSet.setChanged(true);
-        final List<Integer> starts = getStarts();
-        final AtomicInteger total = new AtomicInteger();
-        starts.parallelStream().forEachOrdered(start -> {
-            try {
-                System.out.println(start + "-" + (start + MAX_VARIANTS));
-                annotate(start);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-//            updateProgress(total.addAndGet(MAX_VARIANTS), variantSet.getVariants().size());
-//            updateMessage(total.toString() + " variants annotated");
-        });
-        return true;
-    }
-
-    @NotNull
-    private List<Integer> getStarts() {
-        final List<Integer> starts = new ArrayList<>();
-        for (int j = 0; j < variants.size(); j += MAX_VARIANTS) starts.add(j);
-        return starts;
-    }
-
-
-    private void annotate(int from) throws Exception {
-        int to = from + MAX_VARIANTS;
-        if (to >= variants.size()) to = variants.size();
-        final List<Variant> subList = variants.subList(from, to);
-        final String response = makeHttpRequest(subList);
-        annotateVariants(response, subList);
-    }
-
-    private String makeHttpRequest(List<Variant> variants) throws MalformedURLException {
-        final URL url = new URL("http://grch37.rest.ensembl.org/vep/human/region");
-        final Map<String, String> requestMap = getRequestMap();
-        final JSONObject message = getJsonMessage(variants);
-        return Web.httpRequest(url, requestMap, message);
-    }
-
-    private JSONObject getJsonMessage(List<Variant> variants) {
-        final JSONArray array = getJsonVariantArray(variants);
-        final JSONObject message = new JSONObject();
-        // {"variants":array}
-        message.put("variants", array);
-        return message;
-    }
-
-    private JSONArray getJsonVariantArray(List<Variant> variants) {
-        // Translate list into JSON
-        // ["1 156897 156897 A/C","2 3547966 3547968 TCC/T"]
-        final JSONArray array = new JSONArray();
-        for (Variant v : variants) {
-            int start = v.getPosition();
-            int end = v.getPosition() + v.getRef().length() - 1;
-            // 1 156897 156897 A/C
-            // 2 3547966 3547968 TCC/T
-            array.put(String.format("%s %d %d %s/%s", v.getChrom(), start, end, v.getRef(), v.getAlt()));
-        }
-        return array;
-    }
-
-    private Map<String, String> getRequestMap() {
-        final Map<String, String> requestMap = new HashMap<>();
-        requestMap.put("Content-Type", "application/json");
-        return requestMap;
-    }
-
-    private void annotateVariants(String response, List<Variant> variants) {
-        if (response != null) {
-            JSONArray json = new JSONArray(response);
-            mapVepInfo(json, variants);
-        }
-    }
-
-    private void mapVepInfo(JSONArray json, List<Variant> variants) {
-        // To go faster, as Vep does not guarantee the order of variants, I will copy the list of variants
-        // Then, each located vcf will be removed from list
-        final List<Variant> copy = new LinkedList<>(variants);
-        for (int i = 0; i < json.length(); i++) {
-//            System.out.println(copy.hashCode() + " " + i);
-            try {
-                JSONObject object = json.getJSONObject(i);
-                // 1 156897 156897 A/C
-                String[] input = ((String) object.get("input")).split(" ");
-                Variant variant = getVariant(copy, input);
-                if (variant != null) {
-                    incorporateData(variant, object);
-                    copy.remove(variant);
-                }
-            } catch (JSONException | NumberFormatException ex) {
-                ex.printStackTrace();
-
-            }
-        }
     }
 
     private static Variant getVariant(List<Variant> variants, String[] input) {
@@ -372,7 +266,7 @@ public class VepAnnotator extends Task<Boolean> {
      *
      * @param source    source JSONObject
      * @param sourceKey key in the source JSONObject
-     * @param variant       target vcf
+     * @param variant   target vcf
      * @param targetKey key in the target vcf
      * @param classType type of value in source JSONObject
      */
@@ -419,6 +313,121 @@ public class VepAnnotator extends Task<Boolean> {
 //                    result = result.substring(0, result.length() - 1);
 //                    target.put(targetKey, result);
 //                }
+            }
+        }
+    }
+
+    @Override
+    protected Boolean call() throws Exception {
+        injectVEPHeaders();
+        return annotateVariants();
+
+    }
+
+    private void injectVEPHeaders() {
+        Arrays.stream(DEFAULT_HEADERS).forEach(info -> {
+            final Map<String, String> map = new LinkedHashMap<>();
+            map.put("ID", info[0]);
+            map.put("Number", info[1]);
+            map.put("Type", info[2]);
+            map.put("Description", info[3]);
+            variantSet.getHeader().addComplexHeader("INFO", map);
+        });
+//        Arrays.stream(HEADERS).forEach(variantSet.getHeader()::addHeader);
+    }
+
+    private boolean annotateVariants() {
+        variantSet.setChanged(true);
+        final List<Integer> starts = getStarts();
+        final AtomicInteger total = new AtomicInteger();
+        starts.parallelStream().forEachOrdered(start -> {
+            try {
+                System.out.println(start + "-" + (start + MAX_VARIANTS));
+                annotate(start);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            updateProgress(total.addAndGet(MAX_VARIANTS), variantSet.getVariants().size());
+            updateMessage(total.toString() + " variants annotated");
+        });
+        return true;
+    }
+
+    @NotNull
+    private List<Integer> getStarts() {
+        final List<Integer> starts = new ArrayList<>();
+        for (int j = 0; j < variants.size(); j += MAX_VARIANTS) starts.add(j);
+        return starts;
+    }
+
+    private void annotate(int from) throws Exception {
+        int to = from + MAX_VARIANTS;
+        if (to >= variants.size()) to = variants.size();
+        final List<Variant> subList = variants.subList(from, to);
+        final String response = makeHttpRequest(subList);
+        annotateVariants(response, subList);
+    }
+
+    private String makeHttpRequest(List<Variant> variants) throws MalformedURLException {
+        final URL url = new URL("http://grch37.rest.ensembl.org/vep/human/region");
+        final Map<String, String> requestMap = getRequestMap();
+        final JSONObject message = getJsonMessage(variants);
+        return Web.httpRequest(url, requestMap, message);
+    }
+
+    private JSONObject getJsonMessage(List<Variant> variants) {
+        final JSONArray array = getJsonVariantArray(variants);
+        final JSONObject message = new JSONObject();
+        // {"variants":array}
+        message.put("variants", array);
+        return message;
+    }
+
+    private JSONArray getJsonVariantArray(List<Variant> variants) {
+        // Translate list into JSON
+        // ["1 156897 156897 A/C","2 3547966 3547968 TCC/T"]
+        final JSONArray array = new JSONArray();
+        for (Variant v : variants) {
+            int start = v.getPosition();
+            int end = v.getPosition() + v.getRef().length() - 1;
+            // 1 156897 156897 A/C
+            // 2 3547966 3547968 TCC/T
+            array.put(String.format("%s %d %d %s/%s", v.getChrom(), start, end, v.getRef(), v.getAlt()));
+        }
+        return array;
+    }
+
+    private Map<String, String> getRequestMap() {
+        final Map<String, String> requestMap = new HashMap<>();
+        requestMap.put("Content-Type", "application/json");
+        return requestMap;
+    }
+
+    private void annotateVariants(String response, List<Variant> variants) {
+        if (response != null) {
+            JSONArray json = new JSONArray(response);
+            mapVepInfo(json, variants);
+        }
+    }
+
+    private void mapVepInfo(JSONArray json, List<Variant> variants) {
+        // To go faster, as Vep does not guarantee the order of variants, I will copy the list of variants
+        // Then, each located vcf will be removed from list
+        final List<Variant> copy = new LinkedList<>(variants);
+        for (int i = 0; i < json.length(); i++) {
+//            System.out.println(copy.hashCode() + " " + i);
+            try {
+                JSONObject object = json.getJSONObject(i);
+                // 1 156897 156897 A/C
+                String[] input = ((String) object.get("input")).split(" ");
+                Variant variant = getVariant(copy, input);
+                if (variant != null) {
+                    incorporateData(variant, object);
+                    copy.remove(variant);
+                }
+            } catch (JSONException | NumberFormatException ex) {
+                ex.printStackTrace();
+
             }
         }
     }

@@ -37,15 +37,15 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class ThresholdDialog {
 
-    public static final String DEFAULT_THRESHOLD = "0.01";
+    private static final String DEFAULT_THRESHOLD = "0.01";
 
-    final static AtomicReference<String> ret = new AtomicReference<>(null);
-    final static TextField textField = new TextField(DEFAULT_THRESHOLD);
-    final static Button accept = new Button(OS.getResources().getString("accept"));
-    final static Button cancel = new Button(OS.getResources().getString("cancel"));
-    final static HBox box = new HBox(5, textField, accept, cancel);
-    final static Scene scene = new Scene(box);
-    final static Stage stage = new Stage(StageStyle.UNIFIED);
+    private final static AtomicReference<String> ret = new AtomicReference<>(null);
+    private final static TextField textField = new TextField(DEFAULT_THRESHOLD);
+    private final static Button accept = new Button(OS.getResources().getString("accept"));
+    private final static Button cancel = new Button(OS.getResources().getString("cancel"));
+    private final static HBox box = new HBox(5, textField, accept, cancel);
+    private final static Scene scene = new Scene(box);
+    private final static Stage stage = new Stage(StageStyle.UNIFIED);
     private static final EventHandler<ActionEvent> acceptHandler = event -> {
         ret.set(textField.getText());
         stage.close();

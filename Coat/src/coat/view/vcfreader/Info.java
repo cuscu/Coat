@@ -38,7 +38,7 @@ public final class Info {
      */
     public Info(String name, String value, String description) {
         this.name = name;
-        this.value = value;
+        this.value = value == null ? "" : value;
         this.description = description;
     }
 

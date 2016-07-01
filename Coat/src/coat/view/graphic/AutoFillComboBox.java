@@ -1,16 +1,16 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
+ * *
  * This program is free software: you can redistribute it and/or modify it    *
  * under the terms of the GNU General Public License as published by the      *
  * Free Software Foundation, either version 3 of the License, or (at your     *
  * option) any later version.                                                 *
- *                                                                            *
+ * *
  * This program is distributed in the hope that it will be useful, but        *
  * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
  * See the GNU General Public License for more details.                       *
- *                                                                            *
+ * *
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
@@ -18,6 +18,7 @@
 package coat.view.graphic;
 
 import javafx.beans.property.Property;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -46,15 +47,12 @@ public class AutoFillComboBox extends TextField {
     private final ObservableList<String> items = FXCollections.observableArrayList();
 
     public AutoFillComboBox() {
-
         initializePopup();
         addListenersToThis();
-
         items.addListener((ListChangeListener<String>) c -> {
             list.getItems().setAll(items);
             this.setWidth(list.getWidth());
         });
-
         list.setOnKeyReleased(this::listKeyReleased);
         list.setOnMouseReleased(this::listMouseClicked);
     }
@@ -126,7 +124,7 @@ public class AutoFillComboBox extends TextField {
         popup.hide();
     }
 
-    public Property<String> valueProperty() {
+    public StringProperty valueProperty() {
         return textProperty();
     }
 }

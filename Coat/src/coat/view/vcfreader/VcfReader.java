@@ -35,7 +35,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Orientation;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -57,8 +60,8 @@ public class VcfReader extends VBox implements Reader {
     private static int NEW_VCF = 0;
 
     private final InfoTable infoTable = new InfoTable();
-    private final VariantsTable variantsTable = new VariantsTable();
-    private final FilterList filterList = new FilterList();
+    private final VariantsTable variantsTable;
+    //    private final FilterList filterList = new FilterList();
     private final TabPane tabs = new TabPane();
     private final SampleTable samplesTableView = new SampleTable();
 
@@ -74,6 +77,7 @@ public class VcfReader extends VBox implements Reader {
     public VcfReader(VariantSet variantSet, File file) {
         this.variantSet = variantSet;
         this.file = file;
+        this.variantsTable = new VariantsTable(variantSet);
         this.baseName = file != null ? file.getName() : "New vcf " + NEW_VCF++;
         initializeLeftPane();
         initializeThis();
@@ -83,9 +87,9 @@ public class VcfReader extends VBox implements Reader {
     }
 
     private void initializeLeftPane() {
-        leftPane.getItems().addAll(variantsTable, filterList);
+        leftPane.getItems().addAll(variantsTable);
         leftPane.setDividerPositions(0.75);
-        SplitPane.setResizableWithParent(filterList, false);
+//        SplitPane.setResizableWithParent(filterList, false);
         leftPane.setOrientation(Orientation.VERTICAL);
     }
 
@@ -120,7 +124,7 @@ public class VcfReader extends VBox implements Reader {
                 ? FileManager.saveFile("Select output file", FileManager.VCF_FILTER, FileManager.TSV_FILTER)
                 : FileManager.saveFile("Select output file", file.getParentFile(), file.getName(),
                 FileManager.VCF_FILTER, FileManager.TSV_FILTER);
-        final TreeSet<Variant> toSaveVariants = new TreeSet<>(filterList.getOutputVariants());
+        final TreeSet<Variant> toSaveVariants = new TreeSet<>(variantsTable.getFilteredVariants());
         if (output != null) {
             if (output.getName().endsWith(".vcf")) variantSet.save(output, toSaveVariants);
             else new TsvSaver(variantSet, output, toSaveVariants).invoke();
@@ -195,7 +199,7 @@ public class VcfReader extends VBox implements Reader {
             final Map<String, String> map = new TreeMap<>();
             map.put("ID", "LFS");
             map.put("Number", "1");
-            map.put("Type", "Integer");
+            map.put("Type", "Float");
             map.put("Description", "Low frequency codon substitution");
             variantSet.getHeader().addComplexHeader("INFO", map);
         }
@@ -243,10 +247,7 @@ public class VcfReader extends VBox implements Reader {
     private void bindFile() {
         titleProperty.setValue(baseName);
         infoTable.getVariantProperty().bind(variantsTable.getVariantProperty());
-        filterList.setInputVariants(variantSet.getVariants());
-        final List<String> list = variantSet.getHeader().getComplexHeaders().get("INFO").stream().map(map -> map.get("ID")).collect(Collectors.toList());
-        filterList.setInfos(list);
-        variantsTable.setVariants(filterList.getOutputVariants());
+//        variantsTable.setVariantSet(variantSet);
         variantSet.changedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) Platform.runLater(() -> titleProperty.setValue(baseName + "*"));
             else titleProperty.setValue(baseName);

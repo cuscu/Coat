@@ -46,8 +46,8 @@ public class NaturalCell<S, T> extends TableCell<S, T> {
         if (empty) {
             setText(null);
         } else {
-            setText(item.toString());
-            setTooltip(new Tooltip(item.toString()));
+            setText(String.valueOf(item));
+            setTooltip(new Tooltip(String.valueOf(item)));
         }
     }
 
