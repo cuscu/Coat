@@ -17,10 +17,10 @@
 
 package coat.view.vcfreader.header;
 
+import coat.utils.OS;
 import coat.view.graphic.NaturalCell;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -49,10 +49,10 @@ public class HeaderViewController {
     }
 
     private void addSingleHeaders(VcfHeader header) {
-        final TableView<String[]> tableView = createTableView(Arrays.asList("Name", "Value"));
+        final TableView<String[]> tableView = createTableView(Arrays.asList(OS.getString("name"), OS.getString("value")));
         header.getSimpleHeaders().forEach((key, value) -> tableView.getItems().add(new String[]{key, value}));
         styleTable(tableView);
-        accordion.getPanes().add(new TitledPane("Single headers", tableView));
+        accordion.getPanes().add(new TitledPane(OS.getString("single.headers"), tableView));
     }
 
     private void addHeaderTable(String key, List<Map<String, String>> mapList) {

@@ -18,6 +18,7 @@
 package coat.core.vcf;
 
 import coat.utils.OS;
+import vcf.ValueUtils;
 import vcf.Variant;
 import vcf.VariantSet;
 
@@ -117,7 +118,7 @@ public class TsvSaver {
     private void setInfoColumns(Variant var, String[] line) {
         for (int i = 0; i < infoNames.size(); i++) {
             final Object info = var.getInfo().get(infoNames.get(i));
-            line[i + FIXED_COLUMNS] = info == null ? "." : String.valueOf(info);
+            line[i + FIXED_COLUMNS] = ValueUtils.getString(info);
         }
     }
 

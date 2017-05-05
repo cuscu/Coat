@@ -19,6 +19,7 @@ package coat.view.mist;
 
 import coat.core.tool.Tool;
 import coat.core.tool.ToolMenu;
+import coat.utils.OS;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
@@ -28,7 +29,7 @@ public class CombineMistMenu implements ToolMenu {
 
     @Override
     public String getName() {
-        return "Combine Mist";
+        return OS.getString("combine.mist");
     }
 
     @Override

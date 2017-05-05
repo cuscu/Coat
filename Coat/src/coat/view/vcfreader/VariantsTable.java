@@ -17,18 +17,13 @@
 
 package coat.view.vcfreader;
 
-import coat.core.vcf.VcfFilter;
 import coat.utils.OS;
 import coat.view.graphic.NaturalCell;
 import coat.view.graphic.SizableImageView;
-import coat.view.graphic.ThresholdDialog;
-import coat.view.vcfreader.filter.FilterTableColumn;
-import coat.view.vcfreader.filter.BooleanFilterColumn;
-import coat.view.vcfreader.filter.StringFilterTableColumn;
-import coat.view.vcfreader.filter.NumberFilterTableColumn;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -43,6 +38,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
+import vcf.ValueUtils;
 import vcf.Variant;
 import vcf.VariantSet;
 
@@ -56,27 +52,31 @@ public class VariantsTable extends VBox {
 
     private final static Set<String> FREQUENCY_IDS = new LinkedHashSet<>(Arrays.asList("AA_F", "EUR_F", "AFR_F",
             "AMR_F", "EA_F", "ASN_F", "AA_MAF", "EUR_MAF", "AFR_MAF", "AMR_MAF", "EA_MAF", "ASN_MAF", "afr_maf",
-            "eur_maf", "amr_maf", "ea_maf", "asn_maf", "GMAF", "1KG14", "MINOR_ALLELE_FREQ"));
+            "eur_maf", "amr_maf", "ea_maf", "asn_maf", "GMAF", "1KG14", "MINOR_ALLELE_FREQ", "EXAC_ADJ_MAF",
+            "EXAC_AFR_MAF", "EXAC_AMR_MAF", "EXAC_EAS_MAF", "EXAC_FIN_MAF", "EXAC_MAF", "EXAC_NFE_MAF",
+            "EXAC_OTH_MAF", "EXAC_SAS_MAF"));
 
     private final TableView<Variant> table = new TableView<>();
     private final TextField searchBox = new TextField();
 
     private final ProgressBar progressBar = new ProgressBar();
-    private final Button addFrequencyFilterButton = new Button("Add frequency filters");
-    private final Button clearFilters = new Button("Clear all filters");
+    private final Button addFrequencyFilters = new Button(OS.getString("add.frequency.filters"));
+    private final Button clearFilters = new Button(OS.getString("clear.all.filters"));
+    private final Button addFilter = new Button(OS.getString("add.filter"));
     private final Label progressLabel = new Label();
     private final StackPane stackPane = new StackPane(progressBar, progressLabel);
-    private final HBox hBox = new HBox(5, addFrequencyFilterButton, clearFilters, stackPane);
+    private final HBox hBox = new HBox(5, addFilter, clearFilters, addFrequencyFilters, stackPane);
 
     private final TableColumn<Variant, String> chrom
-            = new StringFilterTableColumn<>(this, OS.getResources().getString("chromosome"));
+            = new TableColumn<>(OS.getResources().getString("chromosome"));
     private final TableColumn<Variant, String> position
-            = new NumberFilterTableColumn<>(this, OS.getResources().getString("position"));
+            = new TableColumn<>(OS.getResources().getString("position"));
     private final TableColumn<Variant, Variant> variant
             = new TableColumn<>(OS.getResources().getString("vcf"));
-    private final TableColumn<Variant, String> rsId = new StringFilterTableColumn<>(this, "ID");
+    private final TableColumn<Variant, String> rsId
+            = new TableColumn<>("ID");
     private final TableColumn<Variant, String> qual
-            = new NumberFilterTableColumn<>(this, OS.getResources().getString("quality"));
+            = new TableColumn<>(OS.getResources().getString("quality"));
 
     private final ComboBox<String> currentChromosome = new ComboBox<>();
     private final TextField currentPosition = new TextField();
@@ -84,12 +84,24 @@ public class VariantsTable extends VBox {
 
     private final EventHandler<ActionEvent> coordinateHandler = event -> selectVariant();
     private final VariantSet variantSet;
+    private ObservableList<SampleFilter> sampleFilters;
+
+    private ObservableList<VcfFilter> filters = FXCollections.observableArrayList();
 
     public VariantsTable(VariantSet variantSet) {
         this.variantSet = variantSet;
         changeFrequencyColumnsType();
         initStructure();
         filter();
+        table.getSelectionModel().select(0);
+    }
+
+    public ObservableList<VcfFilter> getFilters() {
+        return filters;
+    }
+
+    public void setFilters(ObservableList<VcfFilter> filters) {
+        this.filters = filters;
     }
 
     private void changeFrequencyColumnsType() {
@@ -108,15 +120,15 @@ public class VariantsTable extends VBox {
         hBox.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(stackPane, Priority.ALWAYS);
         progressBar.setMaxWidth(9999);
-        addFrequencyFilterButton.setOnAction(event -> addFrequencyFilters());
+        progressLabel.getStyleClass().add("white-text");
+        addFrequencyFilters.setOnAction(event -> addFrequencyFilters());
         clearFilters.setOnAction(event -> clearFilters());
+        addFilter.setOnAction(event -> filters.add(new VcfFilter("CHROM", null, VcfFilter.Connector.EQUALS, "1")));
 
     }
 
     private void clearFilters() {
-        table.getColumns().filtered(column -> FilterTableColumn.class.isAssignableFrom(column.getClass()))
-                .stream().map(column -> (FilterTableColumn) column)
-                .forEach(FilterTableColumn::clear);
+        filters.clear();
         filter();
     }
 
@@ -136,7 +148,7 @@ public class VariantsTable extends VBox {
 
     private void setCopyContextMenu() {
         final SizableImageView COPY = new SizableImageView("coat/img/black/copy.png", SizableImageView.SMALL_SIZE);
-        final MenuItem menuItem = new MenuItem("Copy variant", COPY);
+        final MenuItem menuItem = new MenuItem(OS.getString("copy.variant"), COPY);
         final ContextMenu contextMenu = new ContextMenu(menuItem);
         table.setContextMenu(contextMenu);
         menuItem.setOnAction(event -> {
@@ -243,7 +255,7 @@ public class VariantsTable extends VBox {
             String cChromosome = currentChromosome.getValue();
             int cPos = Integer.valueOf(currentPosition.getText().replace(",", ""));
             goTo(cChromosome, cPos);
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException ignored) {
         }
     }
 
@@ -284,36 +296,42 @@ public class VariantsTable extends VBox {
         final Map<String, String> map = variantSet.getHeader().getComplexHeader("INFO", info);
         final String type = map.get("Type");
         // Integer, Float, Flag, Character, and String
-        if (type.matches("String|Character")) column = new StringFilterTableColumn<>(this, info);
-        if (type.matches("Integer|Float")) column = new NumberFilterTableColumn<>(this, info);
-        if (type.matches("Flag")) column = new BooleanFilterColumn<>(this, info);
-        column.setCellValueFactory(param -> new SimpleStringProperty(
-                param.getValue().getInfo().hasInfo(info) ? param.getValue().getInfo().get(info).toString() : ""));
+//        if (type.matches("String|Character")) column = new StringFilterTableColumn<>(this, info);
+//        if (type.matches("Integer|Float")) column = new NumberFilterTableColumn<>(this, info);
+//        if (type.matches("Flag")) column = new BooleanFilterColumn<>(this, info);
+        column.setCellValueFactory(param -> new SimpleObjectProperty<>(ValueUtils.getString(param.getValue().getInfo().get(info))));
         column.setVisible(info.matches("GNAME|SYMBOL"));
         return column;
     }
 
     private void addFrequencyFilters() {
-        String threshold = ThresholdDialog.askThresholdToUser();
-        if (threshold != null) {
-            table.getColumns().stream()
-                    .filter(column -> FREQUENCY_IDS.contains(column.getText()))
-                    .map(column -> (NumberFilterTableColumn<Variant, ?>) column)
-                    .forEach(column -> {
-                        column.setFilterValue("0.01");
-                        column.setConnector(VcfFilter.Connector.LESS);
-                    });
-            filter();
-        }
+//        final String threshold = ThresholdDialog.askThresholdToUser();
+        final TextInputDialog dialog = new TextInputDialog("0.01");
+        dialog.setHeaderText("Set max value frequency");
+        dialog.setTitle("Max frequency");
+        dialog.showAndWait().ifPresent(s -> {
+            try {
+                final double th = Double.valueOf(s);
+                final List<String> idList = variantSet.getHeader().getIdList("INFO");
+                for (String id : idList) {
+                    if (FREQUENCY_IDS.contains(id)) {
+                        final VcfFilter filter = new VcfFilter("INFO", id, VcfFilter.Connector.LESS_THAN, th);
+                        filters.add(filter);
+                    }
+                }
+            } catch (NumberFormatException ex) {
+                ex.printStackTrace();
+            }
+
+        });
+        filter();
     }
 
     public void filter() {
-        System.out.println("Filtering");
-        table.getItems().setAll(variantSet.getVariants().stream().parallel().filter(variant ->
-                table.getColumns().stream()
-                        .filter(column -> FilterTableColumn.class.isAssignableFrom(column.getClass()))
-                        .map(column -> (FilterTableColumn<Variant, ?>) column)
-                        .allMatch((column) -> column.filter(variant))).collect(Collectors.toList()));
+        table.getItems().setAll(variantSet.getVariants().stream().parallel()
+                .filter(this::filterBySample)
+                .filter(this::filterByColumns)
+                .collect(Collectors.toList()));
         final double progress = (double) table.getItems().size() / variantSet.getVariants().size();
         progressBar.setProgress(progress);
         progressLabel.setText(String.format("%s/%s (%.2f%%)", table.getItems().size(), variantSet.getVariants().size(),
@@ -321,4 +339,21 @@ public class VariantsTable extends VBox {
         updateChromosomeComboBox();
     }
 
+    private boolean filterBySample(Variant variant) {
+        if (sampleFilters != null)
+            return sampleFilters.stream().allMatch(sampleFilter -> sampleFilter.filter(variant));
+        return true;
+    }
+
+    private boolean filterByColumns(Variant variant) {
+        return filters.stream().allMatch(vcfFilter -> vcfFilter.filter(variant));
+//        return table.getColumns().stream()
+//                .filter(column -> FilterTableColumn.class.isAssignableFrom(column.getClass()))
+//                .map(column -> (FilterTableColumn) column)
+//                .allMatch(column -> column.filter(variant));
+    }
+
+    public void setSampleFilters(ObservableList<SampleFilter> sampleFilters) {
+        this.sampleFilters = sampleFilters;
+    }
 }

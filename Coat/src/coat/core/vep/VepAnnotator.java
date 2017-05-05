@@ -20,6 +20,7 @@ package coat.core.vep;
 import coat.json.JSONArray;
 import coat.json.JSONException;
 import coat.json.JSONObject;
+import coat.utils.OS;
 import javafx.concurrent.Task;
 import org.jetbrains.annotations.NotNull;
 import vcf.Variant;
@@ -337,7 +338,7 @@ public class VepAnnotator extends Task<Boolean> {
     }
 
     private boolean annotateVariants() {
-        variantSet.setChanged(true);
+//        variantSet.setChanged(true);
         final List<Integer> starts = getStarts();
         final AtomicInteger total = new AtomicInteger();
         starts.parallelStream().forEachOrdered(start -> {
@@ -348,7 +349,7 @@ public class VepAnnotator extends Task<Boolean> {
                 e.printStackTrace();
             }
             updateProgress(total.addAndGet(MAX_VARIANTS), variantSet.getVariants().size());
-            updateMessage(total.toString() + " variants annotated");
+            updateMessage(total.toString() + " " + OS.getString("variants"));
         });
         return true;
     }

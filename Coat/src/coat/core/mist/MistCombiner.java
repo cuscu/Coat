@@ -72,7 +72,7 @@ public class MistCombiner extends Task<Integer> {
         updateMessage(String.format("Combining %d files", inputFiles.size()));
         final Map<String, String[]> exons = combine();
         saveToFile(exons);
-        final String message = OS.getStringFormatted("combine.mist.success", output.getAbsolutePath(), exons.size());
+        final String message = OS.getFormattedString("combine.mist.success", output.getAbsolutePath(), exons.size());
         CoatView.printMessage(message, "success");
         updateMessage(message);
         return exons.size();
@@ -161,13 +161,5 @@ public class MistCombiner extends Task<Integer> {
         bw.write(OS.asString(row));
         bw.newLine();
     }
-
-//    private String arrayToString(String[] array) {
-//        if (array.length == 0) return "";
-//        String ret = array[0];
-//        for (int i = 1; i < array.length; i++) ret += "\t" + array[i];
-//        return ret;
-//    }
-
 
 }

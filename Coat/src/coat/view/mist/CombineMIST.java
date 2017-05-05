@@ -48,7 +48,7 @@ public class CombineMIST extends Tool {
     @FXML
     private Button startButton;
 
-    private Property<String> title = new SimpleObjectProperty<>("Combine Mist");
+    private Property<String> title = new SimpleObjectProperty<>(OS.getString("combine.mist"));
 
     public CombineMIST() {
         try {
@@ -84,7 +84,7 @@ public class CombineMIST extends Tool {
     }
 
     private File getOutput() {
-        String message = OS.getStringFormatted("select.file", "MIST");
+        String message = OS.getFormattedString("select.file", "MIST");
         return FileManager.saveFile(message, FileManager.MIST_FILTER);
     }
 

@@ -24,7 +24,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 
 /**
- * This Cell is a TextField that can be read but not written.
+ * This Cell set a read-only TextField as editor. So on editing, user can copy text.
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
@@ -46,8 +46,9 @@ public class NaturalCell<S, T> extends TableCell<S, T> {
         if (empty) {
             setText(null);
         } else {
-            setText(String.valueOf(item));
-            setTooltip(new Tooltip(String.valueOf(item)));
+            String value = String.valueOf(item);
+            setText(value);
+            setTooltip(new Tooltip(value));
         }
     }
 
@@ -68,6 +69,6 @@ public class NaturalCell<S, T> extends TableCell<S, T> {
     public void cancelEdit() {
         super.cancelEdit();
         setGraphic(null);
-        setText(getItem().toString());
+        setText(String.valueOf(getItem()));
     }
 }

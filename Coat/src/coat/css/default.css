@@ -37,6 +37,9 @@
     -fx-background-color: white;
 }
 
+.white-text {
+	-fx-text-fill: white;
+}
 /*.background {*/
 
 /*}*/
@@ -226,20 +229,25 @@
 
 /* Progress bar */
 .progress-bar {
-    -fx-background-radius: 5;
-    -fx-background-color: lightgrey;
-    -fx-border-color: grey;
-    -fx-border-radius: 5;
+    /*-fx-background-radius: 5;*/
+    -fx-background-color: transparent;
+	-fx-min-height: 100%;
+    /*-fx-border-color: lightgrey;*/
+    /*-fx-border-radius: 5;*/
+    /*-fx-border-width: 5;*/
+    /*-fx-padding: 2;*/
 }
 
 .progress-bar > *.track {
-    -fx-background-color: transparent;
+    -fx-background-color: darkgray;
+	/*-fx-padding: 5;*/
 }
 
 .progress-bar > *.bar {
-    -fx-background-color: lightblue;
+    -fx-background-color: cornflowerblue;
     -fx-background-insets: 0;
-    -fx-background-radius: 5;
+    /*-fx-background-radius: 5;*/
+    /*-fx-padding: 10;*/
 }
 
 .search-box {
@@ -358,3 +366,51 @@
     -fx-background-color: aliceblue;
 }
 
+/* **************************
+ * Scroll bar
+ * ************************* */
+.scroll-bar {
+	-fx-background-color: transparent;
+}
+
+.scroll-bar .track {
+	-fx-background-color: transparent;
+}
+
+.corner {
+	-fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+	-fx-background-color: darkgray;
+	-fx-background-radius: 8px;
+}
+
+.scroll-bar .thumb:hover {
+	-fx-opacity: 50%;
+}
+
+/* **************************
+ * Split pane
+ * ************************** */
+.split-pane > .split-pane-divider {
+	-fx-background-color: darkgray;
+	-fx-padding: 1;
+}
+
+/* **************************
+ * Sample filter table
+ * ************************** */
+#sample-filter-table {
+	/*-fx-grid-lines-visible: true;*/
+	-fx-alignment: center;
+}
+
+#sample-filter-table > .check-box,
+#sample-filter-table > .label {
+	-fx-padding: 5;
+}
+
+#sample-filter-table > .check-box .box {
+	-fx-background-color: transparent;
+}

@@ -24,13 +24,13 @@ import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.MemoryPane;
 import coat.view.graphic.SizableImageView;
+import coat.view.lightreader.LightVcfReader;
 import coat.view.mist.CombineMistMenu;
 import coat.view.tsv.TsvFileReader;
 import coat.view.vcfcombiner.CombineVcfMenu;
 import coat.view.vcfreader.VcfReader;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -42,7 +42,6 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import vcf.VariantSet;
-import vcf.VariantSetFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,10 +59,9 @@ import java.util.logging.Logger;
  */
 public class CoatView {
 
-    private static CoatView COAT_VIEW;
-
     private final static DateFormat df = new SimpleDateFormat("HH:mm:ss");
     private final static List<String> AVAILABLE_MESSAGE_TYPES = Arrays.asList("info", "error", "success", "warning");
+    private static CoatView COAT_VIEW;
     private static VBox bigConsole = new VBox();
     private static Label staticInfo;
     private final List<ToolMenu> toolsMenuClasses = new ArrayList<>();
@@ -259,11 +257,21 @@ public class CoatView {
     }
 
     private void openVCFInWorkspace(File f) {
+        final LightVcfReader reader;
         try {
-            addVCFReaderToWorkspace(f);
-        } catch (IOException ex) {
-            Logger.getLogger(CoatView.class.getName()).log(Level.SEVERE, null, ex);
+            reader = new LightVcfReader(f);
+        } catch (Exception e) {
+            CoatView.printMessage(e.getMessage(), "error");
+//            e.printStackTrace();
+            return;
         }
+        CoatView.printMessage(f + " headers read", "info");
+        addReaderToWorkspace(reader, reader);
+//        try {
+//            addVCFReaderToWorkspace(f);
+//        } catch (IOException ex) {
+//            Logger.getLogger(CoatView.class.getName()).log(Level.SEVERE, null, ex);
+//        }
     }
 
     private boolean isTSV(File f) {
@@ -276,22 +284,6 @@ public class CoatView {
         } catch (IOException ex) {
             Logger.getLogger(CoatView.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    private void addVCFReaderToWorkspace(File f) throws IOException {
-        printMessage("Loading " + f, "info");
-        final Task<VariantSet> vcfLoader = new Task<VariantSet>() {
-            @Override
-            protected VariantSet call() throws Exception {
-                return VariantSetFactory.createFromFile(f);
-            }
-        };
-        vcfLoader.setOnSucceeded(event -> {
-            final VariantSet variantSet = vcfLoader.getValue();
-            openVcfFile(variantSet, f);
-            printMessage(f + " loaded", "success");
-        });
-        new Thread(vcfLoader).start();
     }
 
     public void openVcfFile(VariantSet variantSet, File f) {
@@ -310,7 +302,7 @@ public class CoatView {
         t.setContent(content);
         t.setUserData(reader);
         t.setOnClosed(event -> {
-            System.out.println("Tab closed " + t.getText());
+            printMessage(OS.getString("tab.closed") + ": " + t.getText(), "info");
             t.setContent(null);
             t.setUserData(null);
         });
@@ -325,7 +317,7 @@ public class CoatView {
         Stage stage = new Stage();
         stage.setWidth(600);
         stage.setHeight(600);
-        stage.setTitle("Messages");
+        stage.setTitle(OS.getString("messages"));
         stage.centerOnScreen();
         scene.getStylesheets().addAll("coat/css/default.css");
         stage.setScene(scene);

@@ -17,7 +17,6 @@
 
 package coat.view.vcfreader.filter;
 
-import coat.core.vcf.VcfFilter;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -31,7 +30,7 @@ public class ConnectorTextFilterController {
     @FXML
     private Button applyButton;
     @FXML
-    private ComboBox<VcfFilter.Connector> connector;
+    private ComboBox<ConnectorTextFilterTableColumn.Connector> connector;
 
     @FXML
     private Label name;
@@ -43,7 +42,7 @@ public class ConnectorTextFilterController {
         return filterText;
     }
 
-    public ComboBox<VcfFilter.Connector> getConnector() {
+    public ComboBox<ConnectorTextFilterTableColumn.Connector> getConnector() {
         return connector;
     }
 

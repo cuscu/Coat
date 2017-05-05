@@ -27,7 +27,6 @@ import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.SizableImageView;
 import coat.view.vcfreader.header.HeaderViewController;
-import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
@@ -35,10 +34,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Orientation;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -48,7 +44,6 @@ import vcf.VariantSet;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * FXML Controller class
@@ -61,12 +56,16 @@ public class VcfReader extends VBox implements Reader {
 
     private final InfoTable infoTable = new InfoTable();
     private final VariantsTable variantsTable;
-    //    private final FilterList filterList = new FilterList();
     private final TabPane tabs = new TabPane();
     private final SampleTable samplesTableView = new SampleTable();
+    private final SampleFilterView sampleFilterView = new SampleFilterView();
+    private final SplitPane samplesPane = new SplitPane(samplesTableView);
 
     private final SplitPane leftPane = new SplitPane();
     private final SplitPane mainPane = new SplitPane();
+    private final SplitPane root = new SplitPane();
+
+    private final ListView<VcfFilter> filtersPane = new ListView<>();
 
     private final VariantSet variantSet;
     private final List<Button> actions = new LinkedList<>();
@@ -78,6 +77,10 @@ public class VcfReader extends VBox implements Reader {
         this.variantSet = variantSet;
         this.file = file;
         this.variantsTable = new VariantsTable(variantSet);
+        this.variantsTable.setFilters(filtersPane.getItems());
+        filtersPane.setCellFactory(param -> new VcfFilterCell(variantSet.getHeader(), variantsTable));
+        VcfFilter.setVcfHeader(variantSet.getHeader());
+        this.variantsTable.setSampleFilters(sampleFilterView.getFilters());
         this.baseName = file != null ? file.getName() : "New vcf " + NEW_VCF++;
         initializeLeftPane();
         initializeThis();
@@ -89,28 +92,31 @@ public class VcfReader extends VBox implements Reader {
     private void initializeLeftPane() {
         leftPane.getItems().addAll(variantsTable);
         leftPane.setDividerPositions(0.75);
-//        SplitPane.setResizableWithParent(filterList, false);
         leftPane.setOrientation(Orientation.VERTICAL);
     }
 
     private void initializeThis() {
+        root.getItems().addAll(mainPane, new SplitPane(filtersPane, sampleFilterView));
+        root.setOrientation(Orientation.VERTICAL);
         mainPane.getItems().addAll(leftPane, tabs);
         mainPane.setDividerPositions(0.75);
         SplitPane.setResizableWithParent(tabs, false);
         mainPane.setOrientation(Orientation.HORIZONTAL);
-        getChildren().setAll(mainPane);
-        VBox.setVgrow(mainPane, Priority.ALWAYS);
+        getChildren().setAll(root);
+        VBox.setVgrow(root, Priority.ALWAYS);
     }
 
     private void initializeTabs() {
         final Tab infoTab = new Tab(OS.getResources().getString("properties"), infoTable);
         infoTab.setClosable(false);
-        final Tab sampleTab = new Tab(OS.getResources().getString("samples"), samplesTableView);
+        final Tab sampleTab = new Tab(OS.getResources().getString("samples"), samplesPane);
+        samplesPane.setOrientation(Orientation.VERTICAL);
         sampleTab.setClosable(false);
         variantsTable.getVariantProperty().addListener((observable, oldValue, newValue) -> samplesTableView.setVariant(newValue));
-        final List<String> formats = variantSet.getHeader().getIdList("FORMAT");
-        samplesTableView.setColumns(formats);
+        samplesTableView.setVariant(variantsTable.getVariantProperty().get());
         tabs.getTabs().addAll(infoTab, sampleTab);
+        sampleFilterView.setSamples(variantSet.getHeader().getSamples());
+        sampleFilterView.onChange(event -> variantsTable.filter());
     }
 
     @Override
@@ -121,8 +127,9 @@ public class VcfReader extends VBox implements Reader {
     @Override
     public void saveAs() {
         File output = file == null
-                ? FileManager.saveFile("Select output file", FileManager.VCF_FILTER, FileManager.TSV_FILTER)
-                : FileManager.saveFile("Select output file", file.getParentFile(), file.getName(),
+                ? FileManager.saveFile(OS.getString("select.output.file"), FileManager.VCF_FILTER, FileManager
+                .TSV_FILTER)
+                : FileManager.saveFile(OS.getString("select.output.file"), file.getParentFile(), file.getName(),
                 FileManager.VCF_FILTER, FileManager.TSV_FILTER);
         final TreeSet<Variant> toSaveVariants = new TreeSet<>(variantsTable.getFilteredVariants());
         if (output != null) {
@@ -163,10 +170,10 @@ public class VcfReader extends VBox implements Reader {
         try {
             final FXMLLoader loader = new FXMLLoader(HeaderViewController.class.getResource("header-view.fxml"));
             final Parent root = loader.load();
-            HeaderViewController controller = loader.getController();
+            final HeaderViewController controller = loader.getController();
             controller.setHeader(variantSet.getHeader());
-            Scene scene = new Scene(root);
-            Stage stage = new Stage();
+            final Scene scene = new Scene(root);
+            final Stage stage = new Stage();
             stage.setWidth(600);
             stage.setHeight(600);
             stage.setTitle(baseName);
@@ -203,9 +210,6 @@ public class VcfReader extends VBox implements Reader {
             map.put("Description", "Low frequency codon substitution");
             variantSet.getHeader().addComplexHeader("INFO", map);
         }
-//        final boolean match = variantSet.getHeader().getComplexHeaders().getProperty("INFO").stream().anyMatch(map -> map.getProperty("ID").equals("LFS"));
-//        final String lfsInfo = "##INFO=<ID=LFS,Number=1,Type=Integer,Description=\"Low frequency codon substitution\">";
-//        if (!match) variantSet.getHeader().addHeader(lfsInfo);
     }
 
     private Button getVepButton() {
@@ -217,15 +221,16 @@ public class VcfReader extends VBox implements Reader {
 
     private void addVep() {
         final Task annotator = new VepAnnotator(variantSet);
-        annotator.setOnSucceeded(event -> CoatView.printMessage(variantSet.getVariants().size() + " variants annotated", "success"));
+        annotator.setOnSucceeded(event -> CoatView.printMessage(variantSet.getVariants().size() + " "
+                + OS.getString("variants.annotated"), "success"));
         annotator.setOnFailed(event -> CoatView.printMessage("something wrong", "error"));
         annotator.messageProperty().addListener((obs, old, current) -> CoatView.printMessage(current, "info"));
-        CoatView.printMessage("Annotating variants...", "info");
+        CoatView.printMessage(OS.getString("annotating.variants") + "...", "info");
         new Thread(annotator).start();
     }
 
     private Button getStatsButton() {
-        Button statsButton = new Button("View stats");
+        Button statsButton = new Button(OS.getString("view.stats"));
         statsButton.setGraphic(new SizableImageView("coat/img/black/stats.png", SizableImageView.SMALL_SIZE));
         statsButton.setOnAction(event -> showStats());
         return statsButton;
@@ -247,10 +252,10 @@ public class VcfReader extends VBox implements Reader {
     private void bindFile() {
         titleProperty.setValue(baseName);
         infoTable.getVariantProperty().bind(variantsTable.getVariantProperty());
-//        variantsTable.setVariantSet(variantSet);
-        variantSet.changedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) Platform.runLater(() -> titleProperty.setValue(baseName + "*"));
-            else titleProperty.setValue(baseName);
-        });
+//        variantSet.changedProperty().addListener((observable, oldValue, newValue) -> {
+//            if (newValue) Platform.runLater(() -> titleProperty.setValue(baseName + "*"));
+//            else titleProperty.setValue(baseName);
+//        });
     }
+
 }

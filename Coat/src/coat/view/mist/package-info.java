@@ -16,7 +16,7 @@
  ******************************************************************************/
 
 /**
- * MIST files managemet.
+ * MIST files management.
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */

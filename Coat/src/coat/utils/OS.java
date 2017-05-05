@@ -21,13 +21,14 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -42,32 +43,22 @@ import java.util.*;
 public class OS {
 
     private final static DateFormat df = new SimpleDateFormat("HH:mm:ss");
-    private final static ResourceBundle resources = ResourceBundle.getBundle("coat.language.Texts");
-    private final static File configPath;
+    private static final ResourceBundle.Control control = new UTF8Control();
+    private final static ResourceBundle resources = ResourceBundle.getBundle("coat.language.Texts", control);
+    private final static File configPath = new File(getJarDir(OS.class), "config");
 
-    private static final ObservableList<String> standardChromosomes = FXCollections.observableArrayList();
+
+    private static final ObservableList<String> standardChromosomes = FXCollections.observableArrayList(Arrays.asList(
+            "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13",
+            "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y"));
     /**
      * The list of available locales.
      */
-    private static final List<Locale> locales = new ArrayList<>();
-
-    /**
-     * Static "Constructor" of the class.
-     */
-    static {
-        final String[] chrs = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12",
-                "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y"};
-        standardChromosomes.addAll(Arrays.asList(chrs));
-        locales.add(new Locale("es", "ES"));
-        locales.add(new Locale("en", "US"));
-        locales.add(new Locale("en", "UK"));
-        configPath = new File(getJarDir(OS.class), "config");
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("output.log"))) {
-            writer.write("Config path: " + configPath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    private static final List<Locale> locales = Arrays.asList(
+            new Locale("es", "ES"),
+            new Locale("en", "US"),
+            new Locale("en", "UK")
+    );
 
     /**
      * Compute the absolute file path to the jar file.
@@ -80,7 +71,6 @@ public class OS {
      * which is the directory containing what will be in the jar.
      */
     private static File getJarDir(Class aclass) {
-
         final URL url1 = getClassUrl(aclass);
         final String extURL = toExternalUrl(aclass, url1);
         URL url = toUrl(extURL);
@@ -107,7 +97,7 @@ public class OS {
             url = aclass.getProtectionDomain().getCodeSource().getLocation();
             // url is in one of two forms
             //        ./build/classes/   NetBeans test
-            //        jardir/JarName.jar  froma jar
+            //        jardir/JarName.jar  from a jar
         } catch (SecurityException ex) {
             url = aclass.getResource(aclass.getSimpleName() + ".class");
             // url is in one of two forms, both ending "/com/physpics/tools/ui/PropNode.class"
@@ -225,12 +215,26 @@ public class OS {
      * @param args the arguments of the string
      * @return the resulting string using the current locale
      */
-    public static String getStringFormatted(String key, Object... args) {
+    public static String getFormattedString(String key, Object... args) {
         return new MessageFormat(resources.getString(key), resources.getLocale()).format(args);
     }
 
+    /**
+     * This is a shorthand for <code>OS.getResources().getString(key)</code>, and it returns empty String ("")
+     * instead of null.
+     *
+     * @param key key to access text
+     * @return the text or the empty String
+     */
     public static String getString(String key) {
         return resources.containsKey(key) ? resources.getString(key) : "";
+    }
+
+
+    public static String getCapitalizedString(String key) {
+        final String value = resources.getString(key);
+        return String.valueOf(value.charAt(0)).toUpperCase() + value.substring(1);
+
     }
 
     public static File getConfigPath() {
@@ -238,24 +242,41 @@ public class OS {
     }
 
     /**
-     * @param millis milliseconds
-     * @return
+     * Control to read UTF-8 property files.
+     * <p>
+     * Thanks to
+     * http://stackoverflow.com/questions/4659929/how-to-use-utf-8-in-resource-properties-with-resourcebundle
      */
-    public static String humanReadableTime(long millis) {
-//        final long years = millis / 31536000000L;
-//        millis = millis - years * 31536000000L;
-//        final long days = millis / 86400000L;
-//        millis = millis - days * 86400000L;
-//        final long hours = millis / 3600000L;
-//        millis = millis - hours * 3600000L;
-//        final long minutes = millis / 60000L;
-//        millis = millis - minutes * 60000L;
-//        final long seconds = millis / 1000L;
-//        millis = millis - seconds * 1000L;
-//        final StringBuilder builder = new StringBuilder();
-//        if (years > 0) builder.append(years).append(" y ");
-//        if (days > 0) builder.append(days).append(" d ");
-        return df.format(millis);
-//        return String.format("%d y, %d d, %d:%d:%d %d ms", years, days, hours, minutes, seconds, millis);
+    private static class UTF8Control extends ResourceBundle.Control {
+        @Override
+        public ResourceBundle newBundle(String baseName, Locale locale, String format, ClassLoader loader, boolean reload)
+                throws IllegalAccessException, InstantiationException, IOException {
+            // The below is a copy of the default implementation.
+            String bundleName = toBundleName(baseName, locale);
+            String resourceName = toResourceName(bundleName, "properties");
+            ResourceBundle bundle = null;
+            InputStream stream = null;
+            if (reload) {
+                URL url = loader.getResource(resourceName);
+                if (url != null) {
+                    URLConnection connection = url.openConnection();
+                    if (connection != null) {
+                        connection.setUseCaches(false);
+                        stream = connection.getInputStream();
+                    }
+                }
+            } else {
+                stream = loader.getResourceAsStream(resourceName);
+            }
+            if (stream != null) {
+                try {
+                    // Only this line is changed to make it to read properties files as UTF-8.
+                    bundle = new PropertyResourceBundle(new InputStreamReader(stream, "UTF-8"));
+                } finally {
+                    stream.close();
+                }
+            }
+            return bundle;
+        }
     }
 }

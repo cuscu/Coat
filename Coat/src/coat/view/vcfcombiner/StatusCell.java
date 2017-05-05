@@ -1,54 +1,40 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
+ * *
  * This program is free software: you can redistribute it and/or modify it    *
  * under the terms of the GNU General Public License as published by the      *
  * Free Software Foundation, either version 3 of the License, or (at your     *
  * option) any later version.                                                 *
- *                                                                            *
+ * *
  * This program is distributed in the hope that it will be useful, but        *
  * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
  * See the GNU General Public License for more details.                       *
- *                                                                            *
+ * *
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
 
 package coat.view.vcfcombiner;
 
-import coat.utils.FileManager;
-import coat.utils.OS;
-import coat.view.vcfreader.VcfSample;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableCell;
-
-import java.io.File;
+import coat.view.graphic.SizableImageView;
+import javafx.scene.control.ListCell;
+import vcf.combine.Sample;
 
 /**
- * Manages the Mist file TableCell in VcfSampleTableView.
+ * Cell for ListView that shows the level of affection. The image is taken from coat/img/black/ plus level name plus .png.
+ * For instance: HETEROZYGOUS -> coat/img/black/heterozygous.png
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-class BamTableCell extends TableCell<VcfSample, File> {
-
-    private final Button button = new Button("...");
-
-    public BamTableCell() {
-        button.setOnAction(event -> selectFile());
-    }
-
-    private void selectFile() {
-        final File file = FileManager.openFile(OS.getString("choose.file"), FileManager.BAM_FILTER);
-        if (file != null) ((VcfSample) getTableRow().getItem()).bamFileProperty().setValue(file);
-    }
+class StatusCell extends ListCell<Sample.Status> {
 
     @Override
-    protected void updateItem(File file, boolean empty) {
-        super.updateItem(file, empty);
+    protected void updateItem(Sample.Status item, boolean empty) {
+        super.updateItem(item, empty);
         if (!empty) {
-            if (file != null) setText(file.getName());
-            setGraphic(button);
+            setText(item.toString());
+            setGraphic(new SizableImageView("coat/img/black/" + item.name().toLowerCase() + ".png", SizableImageView.SMALL_SIZE));
         } else {
             setText(null);
             setGraphic(null);

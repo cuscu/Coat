@@ -38,8 +38,8 @@ import java.util.List;
 
 
 /**
- * This StackPane shows a list that holds files. New files can be added with 'add' button on the BOTTOM_RIGHT corner.
- * User can add multiple Files at once. To delete a file, user can press the 'Delete' button or keyboard 'Del' key when
+ * This StackPane shows a list of files. New files can be added with 'add' button on the BOTTOM_RIGHT corner.
+ * User can add multiple Files at once. To delete a file, user can press the 'Delete' button or 'Del' key when
  * File is selected.
  *
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
@@ -49,7 +49,7 @@ public class FileList extends StackPane {
     private final ListView<File> listView = new ListView<>();
     private final Button add = new Button(null, new SizableImageView("coat/img/black/add.png", SizableImageView.MEDIUM_SIZE));
     private final Button delete = new Button(null, new SizableImageView("coat/img/black/delete.png", SizableImageView.MEDIUM_SIZE));
-    private final MenuItem deleteFile = new MenuItem(OS.getResources().getString("delete"));
+    private final MenuItem deleteFile = new MenuItem(OS.getString("delete"));
     private final ContextMenu contextMenu = new ContextMenu(deleteFile);
     private FileChooser.ExtensionFilter[] filters = {FileManager.ALL_FILTER};
 

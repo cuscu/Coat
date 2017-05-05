@@ -17,7 +17,7 @@
 
 package coat.view.vcfreader.filter;
 
-import coat.core.vcf.VcfFilter;
+import coat.utils.OS;
 import coat.view.graphic.SizableImageView;
 import coat.view.vcfreader.VariantsTable;
 import javafx.beans.property.Property;
@@ -40,7 +40,7 @@ import java.util.List;
  * <p>
  * Created by uichuimi on 1/07/16.
  */
-abstract class ConnectorTextFilterTableColumn<S, T> extends FilterTableColumn<S, T> {
+public abstract class ConnectorTextFilterTableColumn<S, T> extends FilterTableColumn<S, T> {
 
     private final Stage stage = new Stage(StageStyle.UTILITY);
     private ConnectorTextFilterController controller;
@@ -53,16 +53,16 @@ abstract class ConnectorTextFilterTableColumn<S, T> extends FilterTableColumn<S,
     private void createFilterMenu() {
         addContextMenu();
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("connector-text-filter.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("connector-text-filter.fxml"), OS.getResources());
             final Parent parent = loader.load();
             controller = loader.getController();
             controller.getApplyButton().setOnAction(event -> updateTable());
             controller.getFilterText().setOnAction(event -> updateTable());
-            controller.getConnector().setValue(VcfFilter.Connector.EQUALS);
+            controller.getConnector().setValue(Connector.EQUALS);
             controller.getConnector().getItems().setAll(getConnectors());
             controller.getName().setText(getText());
             stage.setScene(new Scene(parent));
-            stage.setTitle("Filter " + getText());
+            stage.setTitle(getText());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -70,7 +70,7 @@ abstract class ConnectorTextFilterTableColumn<S, T> extends FilterTableColumn<S,
 
     private void addContextMenu() {
         final ImageView filterIcon = new SizableImageView("coat/img/black/filter.png", SizableImageView.SMALL_SIZE);
-        final MenuItem filterMenuItem = new MenuItem("Filter", filterIcon);
+        final MenuItem filterMenuItem = new MenuItem(OS.getString("filter"), filterIcon);
         setContextMenu(new ContextMenu(filterMenuItem));
         filterMenuItem.setOnAction(event -> showFilterMenu());
     }
@@ -81,25 +81,25 @@ abstract class ConnectorTextFilterTableColumn<S, T> extends FilterTableColumn<S,
         controller.getFilterText().requestFocus();
     }
 
-    protected abstract List<VcfFilter.Connector> getConnectors();
+    protected abstract List<Connector> getConnectors();
 
-    public StringProperty filterTextProperty() {
+    private StringProperty filterTextProperty() {
         return controller.getFilterText().textProperty();
     }
 
-    public Property<VcfFilter.Connector> connectorProperty() {
+    private Property<Connector> connectorProperty() {
         return controller.getConnector().valueProperty();
     }
 
-    public String getFilterText() {
+    String getFilterText() {
         return filterTextProperty().get();
     }
 
-    public VcfFilter.Connector getConnector() {
+    public Connector getConnector() {
         return connectorProperty().getValue();
     }
 
-    public void setConnector(VcfFilter.Connector connector) {
+    public void setConnector(Connector connector) {
         controller.getConnector().setValue(connector);
     }
 
@@ -116,4 +116,69 @@ abstract class ConnectorTextFilterTableColumn<S, T> extends FilterTableColumn<S,
         controller.getFilterText().clear();
     }
 
+    /**
+     * The type of relation between the pass value and the field value.
+     */
+    public enum Connector {
+
+        /**
+         * Equals to (String or natural number).
+         */
+        EQUALS {
+            @Override
+            public String toString() {
+                return OS.getResources().getString("equals.to");
+            }
+
+        },
+        /**
+         * Contains (String)
+         */
+        CONTAINS {
+            @Override
+            public String toString() {
+                return OS.getResources().getString("contains");
+            }
+        },
+        /**
+         * Greater than (number).
+         */
+        GREATER {
+            @Override
+            public String toString() {
+                return OS.getResources().getString("greater.than");
+            }
+
+        },
+        /**
+         * Less than (number).
+         */
+        LESS {
+            @Override
+            public String toString() {
+                return OS.getResources().getString("less.than");
+            }
+
+        },
+        /**
+         * Regular expression (String).
+         */
+        MATCHES {
+            @Override
+            public String toString() {
+                return OS.getResources().getString("matches");
+            }
+
+        },
+        /**
+         * Different (String, ¿number?).
+         */
+        DIFFERS {
+            @Override
+            public String toString() {
+                return OS.getResources().getString("differs.from");
+            }
+
+        }
+    }
 }

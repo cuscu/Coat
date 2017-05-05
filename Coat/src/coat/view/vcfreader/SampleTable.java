@@ -21,40 +21,60 @@ import coat.utils.OS;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import org.jetbrains.annotations.NotNull;
 import vcf.Variant;
+import vcf.VariantSet;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class SampleTable extends TableView<String[]> {
+public class SampleTable extends TableView<String> {
 
+    private Variant variant;
 
     public void setVariant(Variant variant) {
+        this.variant = variant;
         getItems().clear();
         if (variant == null) return;
-        final List<String> samples = variant.getVariantSet().getHeader().getSamples();
-        final List<String> formats = variant.getVariantSet().getHeader().getIdList("FORMAT");
-        for (String sample : samples) {
-            final String[] row = new String[formats.size() + 1];
-            row[0] = sample;
-            for (int i = 0; i < formats.size(); i++)
-                row[i + 1] = variant.getSampleInfo().getFormat(sample, formats.get(i));
-            getItems().add(row);
-        }
+        makeColumns(variant);
+        getItems().addAll(variant.getVcfHeader().getSamples());
     }
 
-    public void setColumns(List<String> columns) {
+    private void makeColumns(Variant variant) {
         getColumns().clear();
-        TableColumn<String[], String> name = new TableColumn<>(OS.getString("name"));
-        name.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()[0]));
-        getColumns().add(name);
-        for (int i = 0; i < columns.size(); i++) {
-            final TableColumn<String[], String> tableColumn = new TableColumn<>(columns.get(i));
-            final int index = i;
-            tableColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()[index + 1]));
-            getColumns().add(tableColumn);
-        }
+        getColumns().add(getNameColumn());
+        final Set<String> usedTags = getUsedTags(variant);
+        for (String tag : usedTags) getColumns().add(getTagColumn(tag));
     }
+
+    @NotNull
+    private TableColumn<String, String> getNameColumn() {
+        final TableColumn<String, String> name = new TableColumn<>(OS.getString("name"));
+        name.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
+        return name;
+    }
+
+    @NotNull
+    private TableColumn<String, String> getTagColumn(String tag) {
+        final TableColumn<String, String> tableColumn = new TableColumn<>(tag);
+        tableColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(variant.getSampleInfo().getFormat(param.getValue(), tag)));
+        return tableColumn;
+    }
+
+    private Set<String> getUsedTags(Variant variant) {
+        final List<String> tags = variant.getVcfHeader().getIdList("FORMAT");
+        final Set<String> usedTags = new LinkedHashSet<>();
+        variant.getVcfHeader().getSamples().forEach(sample -> {
+            tags.forEach(tag -> {
+                final String format = variant.getSampleInfo().getFormat(sample, tag);
+                if (format != null && !format.equals(VariantSet.EMPTY_VALUE)) usedTags.add(tag);
+            });
+        });
+        return usedTags;
+    }
+
 }

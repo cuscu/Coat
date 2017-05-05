@@ -15,9 +15,34 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
+package coat.view.vcfreader;
+
 /**
- * TSV files management and TSVReader associated classes.
- *
- * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
+ * Created by uichuimi on 14/10/16.
  */
-package coat.view.tsv;
+public enum Zigosity {
+    HOM {
+        @Override
+        public String toString() {
+            return "Homozigous (1/1)";
+        }
+    },
+    HET {
+        @Override
+        public String toString() {
+            return "Heterozigous (0/1)";
+        }
+    },
+    WILD {
+        @Override
+        public String toString() {
+            return "Wild (0/0)";
+        }
+    },
+    VOID {
+        @Override
+        public String toString() {
+            return "No data (./.)";
+        }
+    }
+}

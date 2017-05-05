@@ -19,6 +19,7 @@ package coat.view.vcfreader;
 
 import coat.core.vcf.VcfStats;
 import coat.core.vcf.stats.InfoStats;
+import coat.utils.OS;
 import javafx.geometry.Pos;
 import javafx.scene.chart.*;
 import javafx.scene.control.Label;
@@ -29,7 +30,6 @@ import javafx.scene.layout.Priority;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
@@ -45,7 +45,7 @@ class StatsReader extends HBox {
     private final Label max = new Label();
     private final PieChart pieChart = new PieChart();
     private final HBox editPane = new HBox();
-    private final Label noData = new Label("Not enough data");
+    private final Label noData = new Label(OS.getString("not.enough.data"));
     private final BarChart<String, Number> barChart = new BarChart<>(new CategoryAxis(), new NumberAxis());
 
     private final VcfStats vcfStats;
@@ -109,7 +109,7 @@ class StatsReader extends HBox {
                     int others = 0;
                     for (int i = ITEMS_PIE_CHART; i < names.size(); i++) others += counts.get(names.get(i));
                     if (others > 0 && others < sum)
-                        pieChart.getData().add(new PieChart.Data("Others(" + others + ")", others));
+                        pieChart.getData().add(new PieChart.Data(OS.getString("others") + "(" + others + ")", others));
 
                 }
                 editPane.getChildren().setAll(pieChart);

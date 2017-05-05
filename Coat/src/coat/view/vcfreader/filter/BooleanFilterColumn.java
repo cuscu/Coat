@@ -17,6 +17,7 @@
 
 package coat.view.vcfreader.filter;
 
+import coat.utils.OS;
 import coat.view.graphic.SizableImageView;
 import coat.view.vcfreader.VariantsTable;
 import javafx.geometry.Insets;
@@ -47,10 +48,7 @@ public class BooleanFilterColumn<S, T> extends FilterTableColumn<S, T> {
     }
 
     private void createFilterMenu() {
-        final ImageView filterIcon = new SizableImageView("coat/img/black/filter.png", SizableImageView.SMALL_SIZE);
-        final MenuItem filterMenuItem = new MenuItem("Filter", filterIcon);
-        setContextMenu(new ContextMenu(filterMenuItem));
-        filterMenuItem.setOnAction(event -> showFilterMenu());
+        addContextMenu();
         final ToggleGroup group = new ToggleGroup();
         trueBox.setToggleGroup(group);
         anyBox.setToggleGroup(group);
@@ -63,7 +61,14 @@ public class BooleanFilterColumn<S, T> extends FilterTableColumn<S, T> {
         hBox.setPadding(new Insets(5));
         hBox.setAlignment(Pos.CENTER_LEFT);
         stage.setScene(new Scene(hBox));
-        stage.setTitle("Filter " + getText());
+        stage.setTitle(getText());
+    }
+
+    private void addContextMenu() {
+        final ImageView filterIcon = new SizableImageView("coat/img/black/filter.png", SizableImageView.SMALL_SIZE);
+        final MenuItem filterMenuItem = new MenuItem(OS.getString("filter"), filterIcon);
+        setContextMenu(new ContextMenu(filterMenuItem));
+        filterMenuItem.setOnAction(event -> showFilterMenu());
     }
 
     private void showFilterMenu() {

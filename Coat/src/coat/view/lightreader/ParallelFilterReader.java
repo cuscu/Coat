@@ -1,5 +1,5 @@
 /*
- * Copyright (c) UICHUIMI 2016
+ * Copyright (c) UICHUIMI 2017
  *
  * This file is part of Coat.
  *
@@ -15,9 +15,32 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
+package coat.view.lightreader;
+
+import htsjdk.variant.variantcontext.VariantContext;
+
+import java.util.Iterator;
+
 /**
- * TSV files management and TSVReader associated classes.
- *
- * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
+ * Created by uichuimi on 2/05/17.
  */
-package coat.view.tsv;
+public class ParallelFilterReader implements Iterator<VariantContext> {
+
+    private final Iterator<VariantContext> iterator;
+
+    public ParallelFilterReader(Iterator<VariantContext> iterator) {
+        this.iterator = iterator;
+    }
+
+    @Override
+    public boolean hasNext() {
+        return iterator.hasNext();
+    }
+
+    @Override
+    public VariantContext next() {
+        return null;
+    }
+
+
+}

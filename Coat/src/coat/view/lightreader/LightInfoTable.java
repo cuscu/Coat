@@ -1,24 +1,27 @@
-/******************************************************************************
- * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
- * This program is free software: you can redistribute it and/or modify it    *
- * under the terms of the GNU General Public License as published by the      *
- * Free Software Foundation, either version 3 of the License, or (at your     *
- * option) any later version.                                                 *
- *                                                                            *
- * This program is distributed in the hope that it will be useful, but        *
- * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
- * See the GNU General Public License for more details.                       *
- *                                                                            *
- * You should have received a copy of the GNU General Public License          *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
- ******************************************************************************/
+/*
+ * Copyright (c) UICHUIMI 2017
+ *
+ * This file is part of Coat.
+ *
+ * Coat is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * Coat is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with Foobar.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
-package coat.view.vcfreader;
+package coat.view.lightreader;
 
 import coat.utils.OS;
 import coat.view.graphic.NaturalCell;
+import coat.view.vcfreader.Info;
+import htsjdk.variant.variantcontext.VariantContext;
+import htsjdk.variant.vcf.VCFHeader;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -30,19 +33,13 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import vcf.ValueUtils;
-import vcf.Variant;
-import vcf.VcfHeader;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
-public class InfoTable extends VBox {
+public class LightInfoTable extends VBox {
 
-    private final Property<Variant> variantProperty = new SimpleObjectProperty<>();
+    private final Property<VariantContext> variantProperty = new SimpleObjectProperty<>();
 
     private final CheckBox showAllCheckBox = new CheckBox(OS.getString("show.all.properties"));
 
@@ -53,8 +50,10 @@ public class InfoTable extends VBox {
             = new TableColumn<>(OS.getResources().getString("value"));
 
     private final TextFlow description = new TextFlow();
+    private VCFHeader header;
 
-    public InfoTable() {
+    public LightInfoTable(VCFHeader header) {
+        this.header = header;
         initTable();
         initDescription();
         initShowAll();
@@ -84,10 +83,10 @@ public class InfoTable extends VBox {
     private void setCellValueFactories() {
         property.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getName()));
         value.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getValue()));
-        value.setCellFactory(param -> new NaturalCell());
+        value.setCellFactory(param -> new NaturalCell<>());
     }
 
-    public Property<Variant> getVariantProperty() {
+    public Property<VariantContext> getVariantProperty() {
         return variantProperty;
     }
 
@@ -97,14 +96,12 @@ public class InfoTable extends VBox {
     }
 
     private void addInfos() {
-        final Variant variant = variantProperty.getValue();
-        final VcfHeader header = variant.getVcfHeader();
-        final List<Map<String, String>> idList = header.getComplexHeaders().get("INFO");
-        idList.forEach(map -> {
-            final String id = map.get("ID");
-            final String description = map.get("Description");
-            if (variant.getInfo().hasInfo(id)) {
-                final String value = ValueUtils.getString(variant.getInfo().get(id));
+        final VariantContext variant = variantProperty.getValue();
+        header.getInfoHeaderLines().forEach(headerLine -> {
+            final String id = headerLine.getID();
+            final String description = headerLine.getDescription();
+            if (variant.hasAttribute(id)) {
+                final String value = String.valueOf(variant.getAttribute(id));
                 table.getItems().add(new Info(id, value, description));
             } else if (showAllCheckBox.isSelected())
                 table.getItems().add(new Info(id, null, description));

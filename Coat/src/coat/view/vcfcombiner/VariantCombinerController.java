@@ -24,11 +24,10 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.ComboBoxTableCell;
-import vcf.Sample;
 import vcf.VariantSet;
-import vcf.VariantSetFactory;
+import vcf.io.VariantSetFactory;
 import vcf.VcfHeader;
+import vcf.combine.Sample;
 import vcf.combine.VariantCombinerTask;
 
 import java.io.BufferedReader;
@@ -36,7 +35,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Created by uichuimi on 24/05/16.
@@ -64,7 +62,7 @@ public class VariantCombinerController {
         name.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getName()));
         variants.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getSize()));
         status.setCellValueFactory(param -> param.getValue().statusProperty());
-        status.setCellFactory(param -> new ComboBoxTableCell<>(Sample.Status.values()));
+        status.setCellFactory(param -> new StatusComboBoxCell());
         mist.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getMistFile()));
         mist.setCellFactory(param -> new MistCell());
     }
@@ -105,7 +103,7 @@ public class VariantCombinerController {
     }
 
     public void combine(ActionEvent actionEvent) {
-        final VariantCombinerTask combinerTask = new VariantCombinerTask(sampleTable.getItems(), removeVariants.isSelected());
+        final VariantCombinerTask combinerTask = new VariantCombinerTask(sampleTable.getItems(), !removeVariants.isSelected());
         combinerTask.setOnSucceeded(event -> endCombine(combinerTask.getValue()));
         setProgressGUI(combinerTask);
         new Thread(combinerTask).start();
@@ -120,7 +118,6 @@ public class VariantCombinerController {
 
     private void endCombine(VariantSet variantSet) {
         CoatView.getCoatView().openVcfFile(variantSet, null);
-        Logger.getLogger(getClass().getName()).info("Combined " + variantSet.getVariants().size() + " variants");
         unsetProgressGUI();
     }
 

@@ -1,16 +1,16 @@
 /******************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
+ * *
  * This program is free software: you can redistribute it and/or modify it    *
  * under the terms of the GNU General Public License as published by the      *
  * Free Software Foundation, either version 3 of the License, or (at your     *
  * option) any later version.                                                 *
- *                                                                            *
+ * *
  * This program is distributed in the hope that it will be useful, but        *
  * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
  * See the GNU General Public License for more details.                       *
- *                                                                            *
+ * *
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
  ******************************************************************************/
@@ -35,7 +35,7 @@ public class MemoryPane extends StackPane {
     private final ProgressBar bar = new ProgressBar();
     private final Label info = new Label();
 
-    public MemoryPane(){
+    public MemoryPane() {
         getChildren().setAll(bar, info);
         setPadding(new Insets(5));
         Timer timer = new Timer();
@@ -52,12 +52,12 @@ public class MemoryPane extends StackPane {
     }
 
     private void updateRamUsage() {
-        final double usedMegas = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory() ) * 0.000000954;
+        final double usedMegas = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) * 0.000000954;
         final double maxMegas = Runtime.getRuntime().maxMemory() * 0.000000954;
         final double progress = usedMegas / maxMegas;
         Platform.runLater(() -> {
             bar.setProgress(progress);
-            info.setText(String.format("%.0f/%.0f(%.0f%%)", usedMegas, maxMegas, progress * 100.0));
+            info.setText(String.format("%.0f/%.0f(%.0f%%)", usedMegas, maxMegas, progress * 100));
         });
 
     }

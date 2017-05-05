@@ -17,7 +17,6 @@
 
 package coat.view.vcfreader.filter;
 
-import coat.core.vcf.VcfFilter;
 import coat.view.vcfreader.VariantsTable;
 
 import java.util.Arrays;
@@ -36,9 +35,11 @@ public class NumberFilterTableColumn<S, T> extends ConnectorTextFilterTableColum
     }
 
     @Override
-    protected List<VcfFilter.Connector> getConnectors() {
-        return Arrays.asList(VcfFilter.Connector.EQUALS, VcfFilter.Connector.DIFFERS, VcfFilter.Connector.GREATER,
-                VcfFilter.Connector.LESS);
+    protected List<Connector> getConnectors() {
+        return Arrays.asList(ConnectorTextFilterTableColumn.Connector.EQUALS,
+                ConnectorTextFilterTableColumn.Connector.DIFFERS,
+                ConnectorTextFilterTableColumn.Connector.GREATER,
+                ConnectorTextFilterTableColumn.Connector.LESS);
     }
 
     @Override

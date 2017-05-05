@@ -29,17 +29,17 @@
    <children>
       <HBox alignment="CENTER_LEFT" spacing="5.0">
          <children>
-            <Label fx:id="name" text="name" />
+            <Label fx:id="name" />
             <ComboBox fx:id="connector" prefWidth="150.0" />
             <TextField fx:id="filterText" HBox.hgrow="ALWAYS" />
          </children>
       </HBox>
       <HBox alignment="CENTER_RIGHT" spacing="5.0">
          <children>
-            <CheckBox fx:id="strict" mnemonicParsing="false" text="Strict (remove empty values)" />
+            <CheckBox fx:id="strict" mnemonicParsing="false" text="%strict" />
             <Separator visible="false" HBox.hgrow="ALWAYS" />
-            <Button mnemonicParsing="false" onAction="#clear" text="Clear" />
-            <Button fx:id="applyButton" mnemonicParsing="false" text="Apply" />
+            <Button mnemonicParsing="false" onAction="#clear" text="%clear" />
+            <Button fx:id="applyButton" mnemonicParsing="false" text="%apply" />
          </children>
       </HBox>
    </children>

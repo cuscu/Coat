@@ -39,7 +39,7 @@ public class CombineVcfTool extends Tool {
 
     public CombineVcfTool() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("vcf-combiner.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("vcf-combiner.fxml"), OS.getResources());
             final Parent parent = loader.load();
             getChildren().add(parent);
             VBox.setVgrow(parent, Priority.ALWAYS);
