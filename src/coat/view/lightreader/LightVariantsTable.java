@@ -21,7 +21,9 @@ import coat.utils.OS;
 import coat.view.graphic.NaturalCell;
 import coat.view.graphic.SizableImageView;
 import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.vcf.*;
+import htsjdk.variant.vcf.VCFConstants;
+import htsjdk.variant.vcf.VCFHeader;
+import htsjdk.variant.vcf.VCFInfoHeaderLine;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -139,9 +141,11 @@ public class LightVariantsTable extends VBox {
     private boolean matches(VariantContext variant, String searchValue) {
         for (TableColumn<VariantContext, ?> column : table.getColumns()) {
             if (column.isVisible()) {
-                if (column.getCellObservableValue(variant) == null) return false;
+                if (column.getCellObservableValue(variant) == null)
+                    return false;
                 String value = String.valueOf(column.getCellObservableValue(variant).getValue());
-                if (value.toLowerCase().contains(searchValue.toLowerCase())) return true;
+                if (value.toLowerCase().contains(searchValue.toLowerCase()))
+                    return true;
             }
         }
         return false;
@@ -231,14 +235,12 @@ public class LightVariantsTable extends VBox {
     }
 
     public void updateChromosomeComboBox() {
-        synchronized (table.getItems()){
-            if (table.getItems().isEmpty()) return;
-            final List<String> list = table.getItems().stream()
-                    .map(VariantContext::getContig)
-                    .distinct()
-                    .collect(Collectors.toList());
-            currentChromosome.getItems().setAll(list);
-        }
+        if (table.getItems().isEmpty()) return;
+        final List<String> list = table.getItems().stream()
+                .map(VariantContext::getContig)
+                .distinct()
+                .collect(Collectors.toList());
+        currentChromosome.getItems().setAll(list);
     }
 
     private void createColumns() {

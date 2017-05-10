@@ -452,7 +452,7 @@ public class LightVcfReader extends VBox implements Reader {
             if (total.get() > numberOfVariants.get())
                 numberOfVariants.set(total.get());
             updateProgressInPlatform(total.get(), passed.get());
-            Platform.runLater(variantsTable::updateChromosomeComboBox);
+            variantsTable.updateChromosomeComboBox();
         });
         thread.start();
     }
