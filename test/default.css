@@ -1,0 +1,373 @@
+/******************************************************************************
+ * Copyright (C) 2015 UICHUIMI                                                *
+ *                                                                            *
+ * This program is free software: you can redistribute it and/or modify it    *
+ * under the terms of the GNU General Public License as published by the      *
+ * Free Software Foundation, either version 3 of the License, or (at your     *
+ * option) any later version.                                                 *
+ *                                                                            *
+ * This program is distributed in the hope that it will be useful, but        *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
+ * See the GNU General Public License for more details.                       *
+ *                                                                            *
+ * You should have received a copy of the GNU General Public License          *
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
+ ******************************************************************************/
+
+.background {
+    -fx-background-color: #1d1d1d;
+}
+
+.custom-list .list-cell {
+    -fx-background-color: white;
+    -fx-border-color: grey;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-insets: 0 5 0 5;
+    -fx-text-fill: black;
+}
+
+.custom-list .list-cell:selected {
+    -fx-background-color: aliceblue;
+    -fx-border-color: white white grey dodgerblue;
+    -fx-border-width: 0 0 1 4;
+    -fx-text-fill: black;
+}
+
+.custom-list .list-cell:selected .tex {
+    -fx-fill: black;
+}
+
+/* Clear the end of lists*/
+.list-view .list-cell:empty {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+
+.tab-pane, .vbox, .hbox {
+    -fx-background-color: transparent;
+}
+
+.flow-pane {
+    -fx-background-color: white;
+}
+
+.tool {
+    -fx-border-color: lightgray;
+    -fx-border-width: 2;
+    -fx-padding: 2;
+}
+
+.index-cell:filled {
+    -fx-background-color: lightgrey;
+    -fx-border-width: 1 0 0 0;
+    -fx-border-color: whitesmoke;
+}
+
+/* Buttons that only show an icon, hover and pressed are only made by decreasing the opacity*/
+.graphic-button {
+    -fx-background-color: transparent;
+}
+
+.graphic-button:hover {
+    -fx-opacity: 0.5;
+}
+
+.graphic-button:pressed {
+    -fx-opacity: 0.25;
+}
+
+.graphic-file-button {
+    -fx-background-color: transparent;
+    -fx-border-color: black;
+    -fx-border-width: 0 0 2 0;
+}
+
+.graphic-file-button:hover {
+    -fx-background-color: aliceblue;
+}
+
+.graphic-file-button:focused {
+    -fx-background-color: aliceblue;
+}
+
+.graphic-file-button:pressed {
+    -fx-opacity: 0.25;
+}
+
+#nameColumn, #codeColumn {
+    -fx-alignment: CENTER;
+}
+
+/* Filtering boxes in TSVReader/VCFReader*/
+.filter-box {
+    -fx-background-color: ghostwhite;
+    -fx-text-alignment: left;
+    /* -fx-border-color : darkgray;*/
+    -fx-padding: 5px;
+}
+
+.filter-box:hover {
+    -fx-background-color: white;
+}
+
+/* A button that is in a filter box */
+.filter-box .button {
+    -fx-background-color: transparent;
+}
+
+.filter-box .button:hover {
+    -fx-opacity: 0.5;
+}
+
+.list-cell .button {
+    -fx-background-radius: 8px;
+    -fx-border-radius: 16px;
+}
+
+/* Clear the bottom of tables*/
+.table-row-cell:empty {
+    -fx-opacity: 0;
+}
+
+.root {
+    -fx-background-color: white;
+}
+
+.text-area {
+    -fx-font: 1em monospace;
+}
+
+/* Isabel Castillo http://isabelcastillo.com/error-info-messages-css */
+.info-label {
+    -fx-text-fill: #00529B;
+}
+
+.success-label {
+    -fx-text-fill: #4F8A10;
+}
+
+.warning-label {
+    -fx-text-fill: #9F6000;
+}
+
+.error-label {
+    -fx-text-fill: #D8000C;
+}
+
+.info-box {
+    -fx-background-color: #BDE5F8;
+}
+
+.success-box {
+    -fx-background-color: #DFF2BF;
+}
+
+.warning-box {
+    -fx-background-color: #FEEFB3;
+}
+
+.error-box, .error-box .button {
+    -fx-background-color: #FFBABA;
+}
+
+.success-box .button {
+    -fx-border-color: #4F8A10;
+}
+
+.info-box .button {
+    -fx-border-color: #00529B;
+}
+
+.warning-box .button {
+    -fx-border-color: #9F6000;
+}
+
+.error-box .button {
+    -fx-border-color: #D8000C;
+}
+
+.niceBox {
+    -fx-padding: 4px;
+    -fx-border-color: darkgray;
+    -fx-border-width: 1px;
+    -fx-border-insets: 2px;
+    -fx-border-radius: 5px;
+}
+
+.combo-box {
+    -fx-padding: 0;
+    -fx-border-width: 0;
+}
+
+/* Progress bar */
+.progress-bar {
+    -fx-background-radius: 5;
+    -fx-background-color: lightgrey;
+    -fx-border-color: grey;
+    -fx-border-radius: 5;
+}
+
+.progress-bar > *.track {
+    -fx-background-color: transparent;
+}
+
+.progress-bar > *.bar {
+    -fx-background-color: lightblue;
+    -fx-background-insets: 0;
+    -fx-background-radius: 5;
+}
+
+.search-box {
+    -fx-background-radius: 0;
+}
+
+.drop-entered {
+    /*    -fx-background-color: whitesmoke;*/
+    -fx-border-width: 2;
+    -fx-border-color: darkgrey;
+}
+
+/*.table-view:focused .table-row-cell:filled:focused:selected {*/
+/*-fx-background-color: lightblue;*/
+/*}*/
+
+.table-view {
+    -fx-background-color: transparent;
+    /*-fx-table-cell-border-color: transparent;*/
+    /*-fx-table-cell-border-width: 0;*/
+    /*-fx-table-header-border-color: transparent;*/
+}
+
+
+.table-view .column-header-background {
+    -fx-background-color: transparent;
+}
+
+.table-row-cell {
+    -fx-background-color: white;
+    /*-fx-border-color: white white grey grey;*/
+    /*-fx-border-width: 0 0 1 4;*/
+    /*-fx-text-fill: black;*/
+}
+
+.variants-table .table-row-cell {
+    -fx-background-color: white;
+    -fx-border-color: grey;
+    -fx-border-width: 0 0 1 4;
+    -fx-text-fill: black;
+}
+
+.variants-table .table-row-cell:selected {
+    -fx-background-color: aliceblue;
+    -fx-border-color: white white grey dodgerblue;
+    -fx-text-fill: black;
+}
+
+.variants-table .table-row-cell:selected .text {
+    -fx-fill: black;
+}
+
+.variants-table .protein-coding {
+    -fx-border-color: white white grey #1cfb00;
+}
+
+.variants-table .damaging {
+    -fx-border-color: white white grey red;
+}
+
+.variants-table .column-header-background .table-column {
+    -fx-border-color:  white white grey red;
+    /*-fx-border-width: 1;*/
+    /*-fx-border-insets: 0;*/
+
+}
+
+
+.variants-table .table-column {
+    /*-fx-border-color: green;*/
+}
+
+.graph-info-box {
+    -fx-background-color: rgba(100, 100, 100, 0.1);
+}
+
+.fancy-text-field {
+    -fx-background-color: white;
+    -fx-border-color: black;
+    -fx-border-width: 0 0 2 0;
+}
+
+.fancy-text-field:hover {
+    -fx-background-color: aliceblue;
+}
+
+.fancy-text-field:focused {
+    -fx-border-color: dodgerblue;
+}
+
+#bottom-pane {
+    -fx-border-width: 1 0 0 0;
+    -fx-border-color: black;
+}
+
+/* Tab panes */
+.tab-header-area {
+    -fx-padding: 0 0 0 0;
+}
+
+.tab-header-area .headers-region {
+    -fx-background-color: transparent;
+    /*    -fx-padding: 0 0 0 0;*/
+}
+
+.tab-header-background {
+    /*    -fx-background-color: green;*/
+}
+
+.tab {
+    -fx-border-width: 2 0 0 0;
+    -fx-background-color: white;
+}
+
+.tab:hover {
+    -fx-background-color: aliceblue;
+    -fx-border-color: black;
+    /*    -fx-background-color: transparent;*/
+}
+
+.tab:selected, .tab:focused {
+    -fx-border-width: 2 0 0 0;
+    -fx-border-color: dodgerblue;
+    -fx-background-color: aliceblue;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: aliceblue;
+}
+
+.damaging .variant-column {
+    -fx-border-color: red;
+}
+
+.protein-coding .variant-column {
+    -fx-border-color: limegreen;
+}
+
+.table-row-cell:selected .variant-column {
+    -fx-border-color: dodgerblue;
+}
+
+.table-row-cell:selected .text {
+    -fx-fill: black;
+}
+
+.table-column {
+    -fx-border-width: 0;
+}
+
+.variant-column:filled {
+    -fx-border-color: grey;
+    -fx-border-width: 0 0 0 4;
+}
+
