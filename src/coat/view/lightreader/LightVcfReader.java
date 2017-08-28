@@ -77,13 +77,16 @@ public class LightVcfReader extends VBox implements Reader {
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.###",
             DecimalFormatSymbols.getInstance(Locale.US));
 
-    private final static long LIMIT = 10000;
+    private final static long LIMIT = 100000;
 
     private final static Set<String> FREQUENCY_IDS = new LinkedHashSet<>(Arrays.asList("AA_F", "EUR_F", "AFR_F",
             "AMR_F", "EA_F", "ASN_F", "AA_MAF", "EUR_MAF", "AFR_MAF", "AMR_MAF", "EA_MAF", "ASN_MAF", "afr_maf",
             "eur_maf", "amr_maf", "ea_maf", "asn_maf", "GMAF", "1KG14", "MINOR_ALLELE_FREQ", "EXAC_ADJ_MAF",
             "EXAC_AFR_MAF", "EXAC_AMR_MAF", "EXAC_EAS_MAF", "EXAC_FIN_MAF", "EXAC_MAF", "EXAC_NFE_MAF",
-            "EXAC_OTH_MAF", "EXAC_SAS_MAF"));
+            "EXAC_OTH_MAF", "EXAC_SAS_MAF", "AFR_AF", "AMR_AF", "EAS_AF", "EUR_AF", "SAS_AF",
+            "AA_AF", "EA_AF", "ExAC_AF", "ExAC_Adj_AF", "ExAC_AFR_AF", "ExAC_AMR_AF",
+            "ExAC_EAS_AF", "ExAC_FIN_AF", "ExAC_NFE_AF", "ExAC_OTH_AF", "ExAC_SAS_AF"));
+
     private static final String TSV_EMPTY_VALUE = ".";
 
     private final LightInfoTable infoTable;
@@ -131,7 +134,7 @@ public class LightVcfReader extends VBox implements Reader {
         initializeButtons();
         initializeTabs();
         bindFile();
-        filter();
+        loadAndFilter();
     }
 
     private void initializeLeftPane() {
@@ -174,7 +177,7 @@ public class LightVcfReader extends VBox implements Reader {
         samplesTableView.setVariant(variantsTable.getVariantProperty().get());
         tabs.getTabs().addAll(infoTab, sampleTab);
         sampleFilterView.setSamples(vcfHeader.getGenotypeSamples());
-        sampleFilterView.onChange(event -> filter());
+        sampleFilterView.onChange(event -> loadAndFilter());
     }
 
     @Override
@@ -209,6 +212,11 @@ public class LightVcfReader extends VBox implements Reader {
 
     private void saveVcf(File f, List<String> infos, List<String> samples,
                          ProgressDialog progressDialog) {
+        if (variants.size() < LIMIT) saveFromCache(f, infos, samples);
+        else saveReloading(f, infos, samples, progressDialog);
+    }
+
+    private void saveReloading(File f, List<String> infos, List<String> samples, ProgressDialog progressDialog) {
         variants.clear();
         final VCFHeader header = new VCFHeader(vcfHeader.getMetaDataInInputOrder(), samples);
         for (VCFHeaderLine headerLine : vcfHeader.getInfoHeaderLines()) {
@@ -237,6 +245,23 @@ public class LightVcfReader extends VBox implements Reader {
 
                     }
                 }
+            }
+        }
+    }
+
+    private void saveFromCache(File f, List<String> infos, List<String> samples) {
+        final VCFHeader header = new VCFHeader(vcfHeader.getMetaDataInInputOrder(), samples);
+        for (VCFHeaderLine headerLine : vcfHeader.getInfoHeaderLines()) {
+            if (!infos.contains(headerLine.getKey()))
+                header.getInfoHeaderLines().remove(header.getInfoHeaderLine
+                        (headerLine.getKey()));
+        }
+        try (VariantContextWriter writer = new VariantContextWriterBuilder()
+                .setOutputFile(f).unsetOption(Options.INDEX_ON_THE_FLY).build()) {
+            Locale.setDefault(Locale.ENGLISH);
+            writer.writeHeader(header);
+            for (VariantContext variantContext : variants) {
+                saveVariant(infos, writer, variantContext);
             }
         }
     }
@@ -415,29 +440,16 @@ public class LightVcfReader extends VBox implements Reader {
         infoTable.getVariantProperty().bind(variantsTable.getVariantProperty());
     }
 
-    public void filter() {
+    public void loadAndFilter() {
         stopCurrentThread();
         thread = new Thread(() -> {
-//            try (FastFilter reader = new FastFilter(file)) {
-//                variants.clear();
-//                for (VariantContext variantContext : reader) {
-//                    if (reader.getTotal() % 1000 == 0) {
-//                        if (Thread.currentThread().isInterrupted()) break;
-//                        updateProgressInPlatform(reader.getTotal(), reader.getPassed());
-//                    }
-//                    if (variants.size() < LIMIT) variants.add(variantContext);
-//                }
-//                updateProgressInPlatform(reader.getTotal(), reader.getPassed());
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
             final AtomicLong total = new AtomicLong();
             final AtomicLong passed = new AtomicLong();
             try (VCFFileReader reader = new VCFFileReader(file, false)) {
                 variants.clear();
                 for (VariantContext variantContext : reader) {
                     if (total.incrementAndGet() % 1000 == 0) {
-                        if (Thread.currentThread().isInterrupted()) break;
+                        if (thread.isInterrupted()) break;
                         updateProgressInPlatform(total.get(), passed.get());
                     }
                     if (filterBySample(variantContext) && filterByColumns(variantContext)) {
@@ -483,7 +495,7 @@ public class LightVcfReader extends VBox implements Reader {
                 ex.printStackTrace();
             }
         });
-        filter();
+        loadAndFilter();
     }
 
     private boolean filterBySample(VariantContext variant) {
@@ -499,7 +511,7 @@ public class LightVcfReader extends VBox implements Reader {
 
     private void clearFilters() {
         filtersPane.getItems().clear();
-        filter();
+        loadAndFilter();
     }
 
 

@@ -42,7 +42,7 @@ abstract class VcfParallelReaderFilter implements Closeable, Iterable<VariantCon
 
     public VcfParallelReaderFilter(File file) {
         reader = new VCFFileReader(file, false);
-        for (int i = 0; i < Runtime.getRuntime().availableProcessors(); i++)
+        for (int i = 0; i < Runtime.getRuntime().availableProcessors() - 1; i++)
             threads.add(new VariantFilter(this));
         for (Thread thread : threads) thread.start();
     }
@@ -94,10 +94,11 @@ abstract class VcfParallelReaderFilter implements Closeable, Iterable<VariantCon
         }
     }
 
-    private Tupla<VariantContext> take() {
-        final VariantContext next = reader.iterator().next();
-        if (next == null) return null;
-        return new Tupla<>(stamp.getAndIncrement(), next);
+    private synchronized Tupla<VariantContext> take() {
+        if (reader.iterator().hasNext()) {
+            final VariantContext next = reader.iterator().next();
+            return new Tupla<>(stamp.getAndIncrement(), next);
+        } return null;
     }
 
     abstract boolean filter(VariantContext variantContext);

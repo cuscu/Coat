@@ -129,7 +129,7 @@ public class LightVcfFilterCell extends ListCell<LightVcfFilter> {
 
     private void delete() {
         getListView().getItems().remove(getItem());
-        reader.filter();
+        reader.loadAndFilter();
     }
 
     private void apply() {
@@ -140,7 +140,7 @@ public class LightVcfFilterCell extends ListCell<LightVcfFilter> {
         item.setValue(value.getText());
 //        final String type = item.getType();
 //        Object v = ValueUtils.getValue(value.getText(), type);
-        reader.filter();
+        reader.loadAndFilter();
         apply.setDisable(true);
     }
 

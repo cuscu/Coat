@@ -17,10 +17,8 @@
 
 package coat.core;
 
-import de.saxsys.mvvmfx.testingutils.jfxrunner.JfxRunner;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.util.Arrays;
