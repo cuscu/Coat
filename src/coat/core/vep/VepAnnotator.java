@@ -1,19 +1,25 @@
-/******************************************************************************
- * Copyright (C) 2015 UICHUIMI                                                *
- * *
- * This program is free software: you can redistribute it and/or modify it    *
- * under the terms of the GNU General Public License as published by the      *
- * Free Software Foundation, either version 3 of the License, or (at your     *
- * option) any later version.                                                 *
- * *
- * This program is distributed in the hope that it will be useful, but        *
- * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
- * See the GNU General Public License for more details.                       *
- * *
- * You should have received a copy of the GNU General Public License          *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
- ******************************************************************************/
+/*
+ * Copyright (c) UICHUIMI 2017
+ *
+ * This file is part of Coat.
+ *
+ * Coat is free software:
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Coat is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with Coat.
+ *
+ * If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 package coat.core.vep;
 
@@ -23,6 +29,7 @@ import coat.json.JSONObject;
 import coat.utils.OS;
 import javafx.concurrent.Task;
 import org.jetbrains.annotations.NotNull;
+import vcf.ComplexHeaderLine;
 import vcf.Variant;
 import vcf.VariantSet;
 
@@ -332,7 +339,8 @@ public class VepAnnotator extends Task<Boolean> {
             map.put("Number", info[1]);
             map.put("Type", info[2]);
             map.put("Description", info[3]);
-            variantSet.getHeader().addComplexHeader("INFO", map);
+            variantSet.getHeader().getHeaderLines()
+                    .add(new ComplexHeaderLine("INFO", map));
         });
 //        Arrays.stream(HEADERS).forEach(variantSet.getHeader()::addHeader);
     }

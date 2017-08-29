@@ -1,18 +1,24 @@
 /*
- * Copyright (c) UICHUIMI 2016
+ * Copyright (c) UICHUIMI 2017
  *
  * This file is part of Coat.
  *
- * Coat is free software: you can redistribute it and/or modify it under the terms of the
- * GNU General Public License as published by the Free Software Foundation, either version 3 of
- * the License, or (at your option) any later version.
+ * Coat is free software:
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
  *
- * Coat is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * Coat is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Foobar.
+ * You should have received a copy of the GNU General Public License along
+ * with Coat.
+ *
  * If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 package coat.view.vcfreader;
@@ -105,9 +111,9 @@ public class VariantsTable extends VBox {
     }
 
     private void changeFrequencyColumnsType() {
-        variantSet.getHeader().getComplexHeaders().get("INFO").stream()
-                .filter(map -> FREQUENCY_IDS.contains(map.get("ID")))
-                .forEach(map -> map.put("Type", "Float"));
+        variantSet.getHeader().getComplexHeaders("INFO").stream()
+                .filter(line -> FREQUENCY_IDS.contains(line.getValue("ID")))
+                .forEach(header -> header.getMap().put("Type", "Float"));
     }
 
     private void initStructure() {
@@ -181,9 +187,11 @@ public class VariantsTable extends VBox {
     private boolean matches(Variant variant, String searchValue) {
         for (TableColumn<Variant, ?> column : table.getColumns()) {
             if (column.isVisible()) {
-                if (column.getCellObservableValue(variant) == null) return false;
+                if (column.getCellObservableValue(variant) == null)
+                    return false;
                 String value = String.valueOf(column.getCellObservableValue(variant).getValue());
-                if (value.toLowerCase().contains(searchValue.toLowerCase())) return true;
+                if (value.toLowerCase().contains(searchValue.toLowerCase()))
+                    return true;
             }
         }
         return false;
@@ -293,12 +301,6 @@ public class VariantsTable extends VBox {
     @NotNull
     private TableColumn<Variant, String> createInfoColumn(String info) {
         TableColumn<Variant, String> column = new TableColumn<>(info);
-        final Map<String, String> map = variantSet.getHeader().getComplexHeader("INFO", info);
-        final String type = map.get("Type");
-        // Integer, Float, Flag, Character, and String
-//        if (type.matches("String|Character")) column = new StringFilterTableColumn<>(this, info);
-//        if (type.matches("Integer|Float")) column = new NumberFilterTableColumn<>(this, info);
-//        if (type.matches("Flag")) column = new BooleanFilterColumn<>(this, info);
         column.setCellValueFactory(param -> new SimpleObjectProperty<>(ValueUtils.getString(param.getValue().getInfo().get(info))));
         column.setVisible(info.matches("GNAME|SYMBOL"));
         return column;

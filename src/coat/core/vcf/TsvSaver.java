@@ -1,19 +1,25 @@
-/******************************************************************************
- * Copyright (C) 2015 UICHUIMI                                                *
- *                                                                            *
- * This program is free software: you can redistribute it and/or modify it    *
- * under the terms of the GNU General Public License as published by the      *
- * Free Software Foundation, either version 3 of the License, or (at your     *
- * option) any later version.                                                 *
- *                                                                            *
- * This program is distributed in the hope that it will be useful, but        *
- * WITHOUT ANY WARRANTY; without even the implied warranty of                 *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       *
- * See the GNU General Public License for more details.                       *
- *                                                                            *
- * You should have received a copy of the GNU General Public License          *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
- ******************************************************************************/
+/*
+ * Copyright (c) UICHUIMI 2017
+ *
+ * This file is part of Coat.
+ *
+ * Coat is free software:
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * Coat is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with Coat.
+ *
+ * If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 package coat.core.vcf;
 
@@ -67,9 +73,11 @@ public class TsvSaver {
 
     private void readInfoColumns() {
         this.length = FIXED_COLUMNS
-                + variantSet.getHeader().getComplexHeaders().get("INFO").size()
+                + variantSet.getHeader().getComplexHeaders("INFO").size()
                 + variantSet.getHeader().getSamples().size();
-        this.infoNames = variantSet.getHeader().getComplexHeaders().get("INFO").stream().map(map -> map.get("ID")).collect(Collectors.toList());
+        this.infoNames = variantSet.getHeader().getComplexHeaders("INFO")
+                .stream().map(line -> line.getValue("ID"))
+                .collect(Collectors.toList());
         this.header = createHeader();
     }
 
@@ -78,7 +86,8 @@ public class TsvSaver {
         setFixedHeaderColumns(head);
         int i = FIXED_COLUMNS;
         for (String info : infoNames) head[i++] = info;
-        for (String name : variantSet.getHeader().getSamples()) head[i++] = name;
+        for (String name : variantSet.getHeader().getSamples())
+            head[i++] = name;
         return head;
     }
 

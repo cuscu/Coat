@@ -1,40 +1,51 @@
 /*
- * Copyright (c) UICHUIMI 2016
+ * Copyright (c) UICHUIMI 2017
  *
  * This file is part of Coat.
  *
- * Coat is free software: you can redistribute it and/or modify it under the terms of the
- * GNU General Public License as published by the Free Software Foundation, either version 3 of
- * the License, or (at your option) any later version.
+ * Coat is free software:
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
  *
- * Coat is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * Coat is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with Foobar.
+ * You should have received a copy of the GNU General Public License along
+ * with Coat.
+ *
  * If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 package coat.view.vcfcombiner;
 
-import coat.CoatView;
 import coat.utils.FileManager;
 import coat.utils.OS;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import vcf.VariantSet;
-import vcf.io.VariantSetFactory;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import vcf.Genotype;
+import vcf.Variant;
 import vcf.VcfHeader;
 import vcf.combine.Sample;
-import vcf.combine.VariantCombinerTask;
+import vcf.io.VariantSetFactory;
+import vcf.io.VariantSetReaderList;
+import vcf.io.VariantSetWriter;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 /**
  * Created by uichuimi on 24/05/16.
@@ -49,7 +60,7 @@ public class VariantCombinerController {
     @FXML
     private TableColumn<Sample, File> mist;
     @FXML
-    private TableColumn<Sample, Sample.Status> status;
+    private TableColumn<Sample, Genotype> status;
     @FXML
     private TableColumn<Sample, Long> variants;
     @FXML
@@ -61,13 +72,14 @@ public class VariantCombinerController {
     private void initialize() {
         name.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getName()));
         variants.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getSize()));
-        status.setCellValueFactory(param -> param.getValue().statusProperty());
+        status.setCellValueFactory(param -> new SimpleObjectProperty<>(param
+                .getValue().getGenotype()));
         status.setCellFactory(param -> new StatusComboBoxCell());
         mist.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getMistFile()));
         mist.setCellFactory(param -> new MistCell());
     }
 
-    public void addVcf(ActionEvent actionEvent) {
+    public void addVcf() {
         final List<File> files = FileManager.openFiles("Select VCF files", FileManager.VCF_FILTER);
         if (files != null) for (File file : files) addSamples(file);
     }
@@ -94,38 +106,75 @@ public class VariantCombinerController {
     private void setMistFile(File file, String name, Sample sample) {
         final File[] files = file.getParentFile().listFiles((dir, filename)
                 -> filename.toLowerCase().matches(name.toLowerCase() + ".*\\.mist"));
-        if (files.length > 0) sample.setMistFile(files[0]);
+//        if (files.length > 0) sample.setMistFile(files[0]);
     }
 
-    public void deleteSample(ActionEvent actionEvent) {
+    public void deleteSample() {
         if (!sampleTable.getSelectionModel().isEmpty())
             sampleTable.getItems().remove(sampleTable.getSelectionModel().getSelectedItem());
     }
 
-    public void combine(ActionEvent actionEvent) {
-        final VariantCombinerTask combinerTask = new VariantCombinerTask(sampleTable.getItems(), !removeVariants.isSelected());
-        combinerTask.setOnSucceeded(event -> endCombine(combinerTask.getValue()));
-        setProgressGUI(combinerTask);
+    public void combine() {
+        final List<File> files = getFiles();
+        if (files == null) return;
+        final File output = getOutput();
+        if (output == null) return;
+        final Runnable combinerTask = getCombiner(files, output);
         new Thread(combinerTask).start();
     }
 
-    private void setProgressGUI(VariantCombinerTask combinerTask) {
-        message.textProperty().bind(combinerTask.messageProperty());
-        progressBar.progressProperty().bind(combinerTask.progressProperty());
-        message.setVisible(true);
-        progressBar.setVisible(true);
+    @NotNull
+    private Runnable getCombiner(List<File> files, File output) {
+        return () -> {
+            message.setVisible(true);
+            progressBar.setVisible(true);
+            Platform.runLater(() -> progressBar.setProgress(-1));
+            try (VariantSetReaderList reader = new VariantSetReaderList(files);
+                 VariantSetWriter writer = new VariantSetWriter(output)) {
+                writer.setHeader(reader.getMergedHeader());
+                writer.writeHeader();
+                final AtomicLong counter = new AtomicLong();
+                while (reader.hasNext()) {
+                    final Variant variant = reader.nextMerged();
+                    if (counter.incrementAndGet() % 1000 == 0)
+                        updateProgress(counter, variant);
+                    if (filter(variant))
+                        writer.write(variant);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            message.setVisible(false);
+            progressBar.setVisible(false);
+        };
     }
 
-    private void endCombine(VariantSet variantSet) {
-        CoatView.getCoatView().openVcfFile(variantSet, null);
-        unsetProgressGUI();
+    @Nullable
+    private File getOutput() {
+        return FileManager.saveFile("Select ouput file",
+                FileManager.VCF_FILTER);
     }
 
-    private void unsetProgressGUI() {
-        message.textProperty().unbind();
-        progressBar.progressProperty().unbind();
-        message.setVisible(false);
-        progressBar.setVisible(false);
+    @Nullable
+    private List<File> getFiles() {
+        return sampleTable.getItems().stream()
+                .map(Sample::getFile)
+                .distinct().collect(Collectors.toList());
+    }
+
+    private void updateProgress(AtomicLong counter, Variant variant) {
+        Platform.runLater(() -> message.setText(String.format("%12d %s",
+                counter.get(), variant.getCoordinate())));
+    }
+
+    private boolean filter(Variant variant) {
+        for (Sample sample : sampleTable.getItems()) {
+            final Genotype selected = sample.getGenotype();
+            final Genotype predicted = variant.getSampleInfo().getGenotype(sample.getName());
+            if (predicted != selected)
+                return false;
+        }
+        return true;
     }
 
     private class MistCell extends TableCell<Sample, File> {
