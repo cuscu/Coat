@@ -31,13 +31,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import vcf.Genotype;
-import vcf.Variant;
-import vcf.VcfHeader;
-import vcf.combine.Sample;
-import vcf.io.VariantSetFactory;
-import vcf.io.VariantSetReaderList;
-import vcf.io.VariantSetWriter;
+import org.uichuimi.vcf.header.VcfHeader;
 
 import java.io.BufferedReader;
 import java.io.File;
