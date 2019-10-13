@@ -24,7 +24,7 @@
 package coat.core.vcf;
 
 import coat.core.vcf.stats.InfoStats;
-import vcf.VariantSet;
+import org.uichuimi.vcf.variant.Variant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,18 +37,18 @@ import java.util.TreeMap;
 public class VcfStats {
 
     private final Map<String, InfoStats> stats = new TreeMap<>();
-    private final VariantSet variantSet;
+    private final List<Variant> variants;
 
-    public VcfStats(VariantSet variantSet) {
-        this.variantSet = variantSet;
-        variantSet.getHeader().getComplexHeaders("INFO").stream().map(line
-                -> line.getValue("ID")).forEach(info -> stats.put(info, getStats(info)));
+    public VcfStats(List<Variant> variants) {
+        this.variants = variants;
+        variants.get(0).getHeader().getInfoLines().values().stream()
+		        .map(line -> line.getValue("ID")).forEach(info -> stats.put(info, getStats(info)));
     }
 
     private InfoStats getStats(String id) {
         final TreeMap<String, Integer> counts = new TreeMap<>();
         final List<Double> values = new ArrayList<>();
-        variantSet.getVariants().forEach(variant -> {
+        variants.forEach(variant -> {
             final Object o = variant.getInfo().get(id);
             if (o == null) return;
             if (o.getClass() == String.class) {

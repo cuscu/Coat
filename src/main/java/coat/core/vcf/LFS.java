@@ -24,7 +24,7 @@
 package coat.core.vcf;
 
 
-import vcf.Variant;
+import org.uichuimi.vcf.variant.Variant;
 
 import java.util.Map;
 import java.util.TreeMap;

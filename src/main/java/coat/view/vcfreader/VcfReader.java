@@ -28,14 +28,12 @@ import coat.core.reader.Reader;
 import coat.core.vcf.LFS;
 import coat.core.vcf.TsvSaver;
 import coat.core.vcf.VcfStats;
-import coat.core.vep.VepAnnotator;
 import coat.utils.FileManager;
 import coat.utils.OS;
 import coat.view.graphic.SizableImageView;
 import coat.view.vcfreader.header.HeaderViewController;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Orientation;
 import javafx.scene.Parent;
@@ -44,13 +42,16 @@ import javafx.scene.control.*;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import vcf.ComplexHeaderLine;
-import vcf.Variant;
-import vcf.VariantSet;
+import org.uichuimi.vcf.header.InfoHeaderLine;
+import org.uichuimi.vcf.io.VariantWriter;
+import org.uichuimi.vcf.variant.Variant;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.TreeSet;
 
 /**
  * FXML Controller class
@@ -74,19 +75,19 @@ public class VcfReader extends VBox implements Reader {
 
     private final ListView<VcfFilter> filtersPane = new ListView<>();
 
-    private final VariantSet variantSet;
     private final List<Button> actions = new LinkedList<>();
     private final Property<String> titleProperty = new SimpleStringProperty();
+    private final List<Variant> variants;
     private File file;
     private String baseName;
 
-    public VcfReader(VariantSet variantSet, File file) {
-        this.variantSet = variantSet;
+    public VcfReader(List<Variant> variants, File file) {
+        this.variants = variants;
         this.file = file;
-        this.variantsTable = new VariantsTable(variantSet);
+        this.variantsTable = new VariantsTable(variants);
         this.variantsTable.setFilters(filtersPane.getItems());
-        filtersPane.setCellFactory(param -> new VcfFilterCell(variantSet.getHeader(), variantsTable));
-        VcfFilter.setVcfHeader(variantSet.getHeader());
+        filtersPane.setCellFactory(param -> new VcfFilterCell(variants.get(0).getHeader(), variantsTable));
+        VcfFilter.setVcfHeader(variants.get(0).getHeader());
         this.variantsTable.setSampleFilters(sampleFilterView.getFilters());
         this.baseName = file != null ? file.getName() : "New vcf " + NEW_VCF++;
         initializeLeftPane();
@@ -122,7 +123,7 @@ public class VcfReader extends VBox implements Reader {
         variantsTable.getVariantProperty().addListener((observable, oldValue, newValue) -> samplesTableView.setVariant(newValue));
         samplesTableView.setVariant(variantsTable.getVariantProperty().get());
         tabs.getTabs().addAll(infoTab, sampleTab);
-        sampleFilterView.setSamples(variantSet.getHeader().getSamples());
+        sampleFilterView.setSamples(variants.get(0).getHeader().getSamples());
         sampleFilterView.onChange(event -> variantsTable.filter());
     }
 
@@ -140,11 +141,21 @@ public class VcfReader extends VBox implements Reader {
                 FileManager.VCF_FILTER, FileManager.TSV_FILTER);
         final TreeSet<Variant> toSaveVariants = new TreeSet<>(variantsTable.getFilteredVariants());
         if (output != null) {
-            if (output.getName().endsWith(".vcf")) variantSet.save(output, toSaveVariants);
-            else new TsvSaver(variantSet, output, toSaveVariants).invoke();
+            if (output.getName().endsWith(".vcf"))
+                saveAsVcf(output, toSaveVariants);
+            else new TsvSaver(output, toSaveVariants).invoke();
             this.file = output;
             baseName = output.getName();
             titleProperty.setValue(baseName);
+        }
+    }
+
+    private void saveAsVcf(File output, TreeSet<Variant> toSaveVariants) {
+        try (VariantWriter writer = new VariantWriter(output)) {
+            writer.setHeader(toSaveVariants.iterator().next().getHeader());
+            for (Variant variant : toSaveVariants) writer.write(variant);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -161,15 +172,14 @@ public class VcfReader extends VBox implements Reader {
     private void initializeButtons() {
         Button viewheaders = getViewHeadersButton();
         Button lfs = getLfsButton();
-        Button vep = getVepButton();
         Button statsButton = getStatsButton();
-        actions.addAll(Arrays.asList(viewheaders, lfs, statsButton, vep));
+        actions.addAll(Arrays.asList(viewheaders, lfs, statsButton));
     }
 
     private Button getViewHeadersButton() {
         Button viewheaders = new Button(OS.getResources().getString("headers"));
         viewheaders.setOnAction(event -> viewHeaders());
-        viewheaders.setGraphic(new SizableImageView("coat/img/black/headers.png", SizableImageView.SMALL_SIZE));
+        viewheaders.setGraphic(new SizableImageView("img/black/headers.png", SizableImageView.SMALL_SIZE));
         return viewheaders;
     }
 
@@ -178,7 +188,7 @@ public class VcfReader extends VBox implements Reader {
             final FXMLLoader loader = new FXMLLoader(HeaderViewController.class.getResource("header-view.fxml"));
             final Parent root = loader.load();
             final HeaderViewController controller = loader.getController();
-            controller.setHeader(variantSet.getHeader());
+            controller.setHeader(variants.get(0).getHeader());
             final Scene scene = new Scene(root);
             final Stage stage = new Stage();
             stage.setWidth(600);
@@ -195,13 +205,13 @@ public class VcfReader extends VBox implements Reader {
     private Button getLfsButton() {
         final Button lfs = new Button("LFS");
         lfs.setOnAction(event -> addLFS());
-        lfs.setGraphic(new SizableImageView("coat/img/black/lfs.png", SizableImageView.SMALL_SIZE));
+        lfs.setGraphic(new SizableImageView("img/black/lfs.png", SizableImageView.SMALL_SIZE));
         return lfs;
     }
 
     private void addLFS() {
         injectLFSHeader();
-        variantSet.getVariants().parallelStream().forEach(LFS::addLFS);
+        variants.parallelStream().forEach(LFS::addLFS);
         CoatView.printMessage("LFS tag added", "success");
     }
 
@@ -209,43 +219,21 @@ public class VcfReader extends VBox implements Reader {
      * Inserts LFS header alphabetically.
      */
     private void injectLFSHeader() {
-        if (!variantSet.getHeader().getIdList("INFO").contains("LFS")) {
-            final Map<String, String> map = new TreeMap<>();
-            map.put("ID", "LFS");
-            map.put("Number", "1");
-            map.put("Type", "Float");
-            map.put("Description", "Low frequency codon substitution");
-            variantSet.getHeader().getHeaderLines()
-                    .add(new ComplexHeaderLine("INFO", map));
+        if (!variants.get(0).getHeader().getIdList("INFO").contains("LFS")) {
+            variants.get(0).getHeader().getHeaderLines()
+                    .add(new InfoHeaderLine("LFS", "1", "Float", "Low frequency codon substitution"));
         }
-    }
-
-    private Button getVepButton() {
-        Button vep = new Button("VEP");
-        vep.setGraphic(new SizableImageView("coat/img/black/vep_logo.png", SizableImageView.SMALL_SIZE));
-        vep.setOnAction(e -> addVep());
-        return vep;
-    }
-
-    private void addVep() {
-        final Task annotator = new VepAnnotator(variantSet);
-        annotator.setOnSucceeded(event -> CoatView.printMessage(variantSet.getVariants().size() + " "
-                + OS.getString("variants.annotated"), "success"));
-        annotator.setOnFailed(event -> CoatView.printMessage("something wrong", "error"));
-        annotator.messageProperty().addListener((obs, old, current) -> CoatView.printMessage(current, "info"));
-        CoatView.printMessage(OS.getString("annotating.variants") + "...", "info");
-        new Thread(annotator).start();
     }
 
     private Button getStatsButton() {
         Button statsButton = new Button(OS.getString("view.stats"));
-        statsButton.setGraphic(new SizableImageView("coat/img/black/stats.png", SizableImageView.SMALL_SIZE));
+        statsButton.setGraphic(new SizableImageView("img/black/stats.png", SizableImageView.SMALL_SIZE));
         statsButton.setOnAction(event -> showStats());
         return statsButton;
     }
 
     private void showStats() {
-        VcfStats vcfStats = new VcfStats(variantSet);
+        VcfStats vcfStats = new VcfStats(variants);
         StatsReader statsReader = new StatsReader(vcfStats);
         Scene scene = new Scene(statsReader);
         Stage stage = new Stage();

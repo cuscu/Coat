@@ -1,4 +1,4 @@
-/******************************************************************************
+/* ****************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
  *                                                                            *
  * This program is free software: you can redistribute it and/or modify it    *
@@ -13,11 +13,11 @@
  *                                                                            *
  * You should have received a copy of the GNU General Public License          *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.      *
- ******************************************************************************/
+ **************************************************************************** */
 
 package coat.core;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
 import java.io.File;

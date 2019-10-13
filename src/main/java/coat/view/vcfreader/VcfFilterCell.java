@@ -29,8 +29,9 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
-import vcf.ValueUtils;
-import vcf.VcfHeader;
+import org.uichuimi.vcf.header.VcfHeader;
+
+import java.util.List;
 
 /**
  * Created by uichuimi on 23/03/17.
@@ -85,7 +86,8 @@ public class VcfFilterCell extends ListCell<VcfFilter> {
         item.setKey(key.getValue());
         item.setConnector(connector.getValue());
         final String type = item.getType();
-        Object v = ValueUtils.getValue(value.getText(), type);
+        Object v = header.getInfoHeader(key.getValue()).getProperty(value.getText());
+        if (v instanceof List) v = ((List) v).iterator().next();
         item.setValue(v);
         table.filter();
         apply.setDisable(true);

@@ -32,8 +32,8 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TitledPane;
 import org.jetbrains.annotations.NotNull;
-import vcf.ComplexHeaderLine;
-import vcf.VcfHeader;
+import org.uichuimi.vcf.header.ComplexHeaderLine;
+import org.uichuimi.vcf.header.VcfHeader;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -65,28 +65,25 @@ public class HeaderViewController {
     }
 
     private void addComplexHeaders(VcfHeader header) {
-        final List<String> keys = header.getComplexHeaders().stream()
-                .map(ComplexHeaderLine::getKey)
-                .distinct().collect(Collectors.toList());
-        keys.forEach(key -> {
-            final List<String> columns = header.getComplexHeaders(key).stream()
-                    .flatMap(line -> line.getMap().keySet().stream())
+        header.getComplexLines().forEach((domain, map) -> {
+            final List<String> columns = map.values().stream()
+                    .flatMap(headerLine -> headerLine.getValue().keySet().stream())
+                    .distinct()
                     .collect(Collectors.toList());
             final TableView<String[]> tableView = createTableView(columns);
-            final List<String[]> rows = header.getComplexHeaders(key).stream()
-                    .map(line -> toRow(line, keys))
+            final List<String[]> rows = map.values().stream()
+                    .map(headerLine -> toRow(headerLine, columns))
                     .collect(Collectors.toList());
-            tableView.getItems().addAll(rows);
+            tableView.getItems().setAll(rows);
             styleTable(tableView);
-            accordion.getPanes().add(new TitledPane(key, tableView));
+            accordion.getPanes().add(new TitledPane(domain, tableView));
         });
-//        header.getComplexHeaders().forEach(this::addHeaderTable);
     }
 
     private String[] toRow(ComplexHeaderLine line, List<String> cols) {
         final String[] row = new String[cols.size()];
         for (int i = 0; i < cols.size(); i++)
-            row[i] = line.getMap().getOrDefault(cols.get(i), "");
+            row[i] = line.getValue().getOrDefault(cols.get(i), "");
         return row;
     }
 

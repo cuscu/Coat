@@ -24,8 +24,8 @@
 package coat.view.vcfreader;
 
 import coat.utils.OS;
-import vcf.Variant;
-import vcf.VcfHeader;
+import org.uichuimi.vcf.header.VcfHeader;
+import org.uichuimi.vcf.variant.Variant;
 
 import java.util.Arrays;
 import java.util.List;
@@ -133,22 +133,22 @@ public class VcfFilter {
 
     private Object getVariantValue(Variant variant) {
         if (column.equals("INFO"))
-            if (variant.getInfo().hasInfo(key)) return variant.getInfo().get(key);
+            if (variant.getInfo().contains(key)) return variant.getInfo().get(key);
             else return null;
         if (column.equalsIgnoreCase("chrom") || column.equalsIgnoreCase("chromosome"))
-            return variant.getChrom();
+            return variant.getCoordinate().getChrom();
         if (column.equalsIgnoreCase("pos") || column.equalsIgnoreCase("position"))
-            return variant.getPosition();
+            return variant.getCoordinate().getPosition();
         if (column.equalsIgnoreCase("id"))
-            return variant.getId();
+            return variant.getIdentifiers();
         if (column.equalsIgnoreCase("qual") || column.equalsIgnoreCase("quality"))
-            return variant.getQual();
+            return variant.getQuality();
         if (column.equalsIgnoreCase("ref") || column.equalsIgnoreCase("reference"))
-            return variant.getRef();
+            return variant.getReferences();
         if (column.equalsIgnoreCase("alt") || column.equalsIgnoreCase("alternative"))
-            return variant.getAlt();
+            return variant.getAlternatives();
         if (column.equalsIgnoreCase("filter"))
-            return variant.getFilter();
+            return variant.getFilters();
         return null;
     }
 

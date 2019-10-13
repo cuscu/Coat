@@ -31,7 +31,7 @@
 <BorderPane fx:id="root" prefHeight="600" prefWidth="1000" xmlns="http://javafx.com/javafx/8"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="coat.CoatView">
     <stylesheets>
-        <URL value="@/coat/css/default.css"/>
+        <URL value="@/css/default.css"/>
     </stylesheets>
     <top>
         <MenuBar fx:id="menu">

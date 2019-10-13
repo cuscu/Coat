@@ -71,7 +71,7 @@ public class BooleanFilterColumn<S, T> extends FilterTableColumn<S, T> {
     }
 
     private void addContextMenu() {
-        final ImageView filterIcon = new SizableImageView("coat/img/black/filter.png", SizableImageView.SMALL_SIZE);
+        final ImageView filterIcon = new SizableImageView("img/black/filter.png", SizableImageView.SMALL_SIZE);
         final MenuItem filterMenuItem = new MenuItem(OS.getString("filter"), filterIcon);
         setContextMenu(new ContextMenu(filterMenuItem));
         filterMenuItem.setOnAction(event -> showFilterMenu());

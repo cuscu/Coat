@@ -25,7 +25,7 @@ package coat.view.vcfreader;
 
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import vcf.Variant;
+import org.uichuimi.vcf.variant.Variant;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -46,7 +46,8 @@ public class SampleFilter {
     }
 
     public boolean filter(Variant variant) {
-        final String gt = variant.getSampleInfo().getFormat(sample, "GT");
+        final int i = variant.getHeader().getSamples().indexOf(sample);
+        final String gt = variant.getSampleInfo().get(i).get("GT");
         final Zigosity zigosity = getZigosity(gt);
         return zigosities.contains(zigosity);
     }

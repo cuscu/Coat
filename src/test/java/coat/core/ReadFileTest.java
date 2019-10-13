@@ -1,4 +1,4 @@
-/******************************************************************************
+/* ****************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
  *                                                                            *
  * This program is free software: you can redistribute it and/or modify it    *
@@ -17,8 +17,9 @@
 
 package coat.core;
 
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.Arrays;
@@ -36,7 +37,7 @@ public class ReadFileTest {
                 "RSU1", "SAA2", "CLECL1", "MGP", "P2RX2", "CCNA1", "AL133373.1", "SYNM", "NPEPPS", "OGFOD3", "MIER2",
                 "SIGLEC12", "ZNF880", "ZNF211", "GPCPD1", "XRN2", "ARFGEF2", "OSBP2", "SYNGR1", "SHROOM4");
         final List<String> readList = ReadList.read(new File("test/geneTable.list"));
-        Assert.assertEquals(geneList, readList);
+        Assertions.assertEquals(geneList, readList);
     }
 
     @Test
@@ -48,6 +49,6 @@ public class ReadFileTest {
                 "CELA3B", "EPHB2", "MYOM3", "RP4-799D16.1", "RP11-70P17.1", "SEPN1", "PAFAH2", "CEP85", "UBXN11",
                 "RP11-344H11.4", "RPA2", "DNAJC8", "MATN1", "RP11-439L8.2", "HCRTR1", "PEF1", "COL16A1", "FNDC5");
                 final List<String> readList = ReadList.read(new File("test/genes2.list"));
-        Assert.assertEquals(geneList, readList);
+        Assertions.assertEquals(geneList, readList);
     }
 }

@@ -36,8 +36,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import vcf.ValueUtils;
-import vcf.Variant;
+import org.uichuimi.vcf.variant.Variant;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
@@ -100,11 +99,11 @@ public class InfoTable extends VBox {
 
     private void addInfos() {
         final Variant variant = variantProperty.getValue();
-        variant.getVcfHeader().getComplexHeaders("INFO").forEach(header -> {
-            final String id = header.getValue("ID");
-            final String description = header.getValue("Description");
-            if (variant.getInfo().hasInfo(id)) {
-                final String value = ValueUtils.getString(variant.getInfo().get(id));
+        variant.getHeader().getInfoLines().values().forEach(header -> {
+            final String id = header.getId();
+            final String description = header.getDescription();
+            if (variant.getInfo().contains(id)) {
+                final String value = ValueUtils.toString(variant.getInfo().get(id));
                 table.getItems().add(new Info(id, value, description));
             } else if (showAllCheckBox.isSelected())
                 table.getItems().add(new Info(id, null, description));

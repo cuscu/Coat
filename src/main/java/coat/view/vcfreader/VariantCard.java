@@ -27,7 +27,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
-import vcf.Variant;
+import org.uichuimi.vcf.variant.Variant;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
@@ -59,8 +59,8 @@ class VariantCard extends TableCell<Variant, Variant> {
         if (!empty && item != null) {
             String codon = (String) item.getInfo().get("COD");
             if (codon == null){
-                ref.setText(item.getRef());
-                alt.setText(item.getAlt());
+                ref.setText(String.join(",", item.getReferences()));
+                alt.setText(String.join(",", item.getAlternatives()));
             } else {
                 String [] cods = codon.split("[-/]");
                 String amino = (String) item.getInfo().get("AMINO");

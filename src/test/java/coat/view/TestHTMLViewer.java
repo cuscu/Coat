@@ -1,4 +1,4 @@
-/******************************************************************************
+/* ****************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
  *                                                                            *
  * This program is free software: you can redistribute it and/or modify it    *
@@ -17,15 +17,9 @@
 
 package coat.view;
 
-import org.junit.Test;
-
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
  */
 public class TestHTMLViewer {
-
-    @Test
-    public void test(){
-    }
 
 }

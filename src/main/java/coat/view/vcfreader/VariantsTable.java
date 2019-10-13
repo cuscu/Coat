@@ -44,9 +44,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
-import vcf.ValueUtils;
-import vcf.Variant;
-import vcf.VariantSet;
+import org.uichuimi.vcf.variant.Variant;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -89,13 +87,13 @@ public class VariantsTable extends VBox {
     private final Label coordinate = new Label(OS.getResources().getString("coordinate"));
 
     private final EventHandler<ActionEvent> coordinateHandler = event -> selectVariant();
-    private final VariantSet variantSet;
+    private final List<Variant> variants;
     private ObservableList<SampleFilter> sampleFilters;
 
     private ObservableList<VcfFilter> filters = FXCollections.observableArrayList();
 
-    public VariantsTable(VariantSet variantSet) {
-        this.variantSet = variantSet;
+    public VariantsTable(List<Variant> variants) {
+        this.variants = variants;
         changeFrequencyColumnsType();
         initStructure();
         filter();
@@ -111,9 +109,6 @@ public class VariantsTable extends VBox {
     }
 
     private void changeFrequencyColumnsType() {
-        variantSet.getHeader().getComplexHeaders("INFO").stream()
-                .filter(line -> FREQUENCY_IDS.contains(line.getValue("ID")))
-                .forEach(header -> header.getMap().put("Type", "Float"));
     }
 
     private void initStructure() {
@@ -153,7 +148,7 @@ public class VariantsTable extends VBox {
     }
 
     private void setCopyContextMenu() {
-        final SizableImageView COPY = new SizableImageView("coat/img/black/copy.png", SizableImageView.SMALL_SIZE);
+        final SizableImageView COPY = new SizableImageView("img/black/copy.png", SizableImageView.SMALL_SIZE);
         final MenuItem menuItem = new MenuItem(OS.getString("copy.variant"), COPY);
         final ContextMenu contextMenu = new ContextMenu(menuItem);
         table.setContextMenu(contextMenu);
@@ -203,12 +198,12 @@ public class VariantsTable extends VBox {
     }
 
     private void setTableCellValueFactories() {
-        chrom.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getChrom()));
+        chrom.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getCoordinate().getChrom()));
         variant.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
-        rsId.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getId()));
-        qual.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getQual() + ""));
+        rsId.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getIdentifiers().get(0)));
+        qual.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getQuality() + ""));
         position.setCellValueFactory(param
-                -> new SimpleStringProperty(String.format("%,d", param.getValue().getPosition())));
+                -> new SimpleStringProperty(String.format("%,d", param.getValue().getCoordinate().getPosition())));
     }
 
     private void setTableColumnWidths() {
@@ -238,8 +233,8 @@ public class VariantsTable extends VBox {
     private void setCoordinate(Variant current) {
         if (current != null) {
             disableCoordinateHandler();
-            currentChromosome.setValue(current.getChrom());
-            currentPosition.setText(String.format(Locale.US, "%,d", current.getPosition()));
+            currentChromosome.setValue(current.getCoordinate().getChrom());
+            currentPosition.setText(String.format(Locale.US, "%,d", current.getCoordinate().getPosition()));
             enableCoordinateHandler();
         }
     }
@@ -261,7 +256,7 @@ public class VariantsTable extends VBox {
     private void selectVariant() {
         try {
             String cChromosome = currentChromosome.getValue();
-            int cPos = Integer.valueOf(currentPosition.getText().replace(",", ""));
+            int cPos = Integer.parseInt(currentPosition.getText().replace(",", ""));
             goTo(cChromosome, cPos);
         } catch (NumberFormatException ignored) {
         }
@@ -269,7 +264,7 @@ public class VariantsTable extends VBox {
 
     private void goTo(String cChromosome, int cPos) {
         for (Variant v : table.getItems())
-            if (v.getChrom().equals(cChromosome) && v.getPosition() >= cPos) {
+            if (v.getCoordinate().getChrom().equals(cChromosome) && v.getCoordinate().getPosition() >= cPos) {
                 select(v);
                 break;
             }
@@ -283,7 +278,7 @@ public class VariantsTable extends VBox {
     private void updateChromosomeComboBox() {
         if (table.getItems().isEmpty()) return;
         final List<String> list = table.getItems().stream()
-                .map(Variant::getChrom)
+                .map(v -> v.getCoordinate().getChrom())
                 .distinct()
                 .collect(Collectors.toList());
         currentChromosome.getItems().setAll(list);
@@ -295,13 +290,13 @@ public class VariantsTable extends VBox {
 
     private void createColumns() {
         table.getColumns().setAll(chrom, position, variant, rsId, qual);
-        variantSet.getHeader().getIdList("INFO").stream().map(this::createInfoColumn).forEach(table.getColumns()::add);
+        variants.get(0).getHeader().getIdList("INFO").stream().map(this::createInfoColumn).forEach(table.getColumns()::add);
     }
 
     @NotNull
     private TableColumn<Variant, String> createInfoColumn(String info) {
         TableColumn<Variant, String> column = new TableColumn<>(info);
-        column.setCellValueFactory(param -> new SimpleObjectProperty<>(ValueUtils.getString(param.getValue().getInfo().get(info))));
+        column.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getInfo(info)));
         column.setVisible(info.matches("GNAME|SYMBOL"));
         return column;
     }
@@ -314,7 +309,7 @@ public class VariantsTable extends VBox {
         dialog.showAndWait().ifPresent(s -> {
             try {
                 final double th = Double.valueOf(s);
-                final List<String> idList = variantSet.getHeader().getIdList("INFO");
+                final List<String> idList = variants.get(0).getHeader().getIdList("INFO");
                 for (String id : idList) {
                     if (FREQUENCY_IDS.contains(id)) {
                         final VcfFilter filter = new VcfFilter("INFO", id, VcfFilter.Connector.LESS_THAN, th);
@@ -330,13 +325,13 @@ public class VariantsTable extends VBox {
     }
 
     public void filter() {
-        table.getItems().setAll(variantSet.getVariants().stream().parallel()
+        table.getItems().setAll(variants.stream().parallel()
                 .filter(this::filterBySample)
                 .filter(this::filterByColumns)
                 .collect(Collectors.toList()));
-        final double progress = (double) table.getItems().size() / variantSet.getVariants().size();
+        final double progress = (double) table.getItems().size() / variants.size();
         progressBar.setProgress(progress);
-        progressLabel.setText(String.format("%s/%s (%.2f%%)", table.getItems().size(), variantSet.getVariants().size(),
+        progressLabel.setText(String.format("%s/%s (%.2f%%)", table.getItems().size(), variants.size(),
                 100 * progress));
         updateChromosomeComboBox();
     }

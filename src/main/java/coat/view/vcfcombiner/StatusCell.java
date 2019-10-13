@@ -24,7 +24,6 @@
 package coat.view.vcfcombiner;
 
 import javafx.scene.control.ListCell;
-import vcf.Genotype;
 
 /**
  * Cell for ListView that shows the level of affection. The image is taken from coat/img/black/ plus level name plus .png.

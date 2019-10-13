@@ -28,8 +28,8 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import org.jetbrains.annotations.NotNull;
-import vcf.Variant;
-import vcf.VariantSet;
+import org.uichuimi.vcf.variant.Variant;
+import org.uichuimi.vcf.variant.VcfConstants;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -47,7 +47,7 @@ public class SampleTable extends TableView<String> {
         getItems().clear();
         if (variant == null) return;
         makeColumns(variant);
-        getItems().addAll(variant.getVcfHeader().getSamples());
+        getItems().addAll(variant.getHeader().getSamples());
     }
 
     private void makeColumns(Variant variant) {
@@ -67,17 +67,21 @@ public class SampleTable extends TableView<String> {
     @NotNull
     private TableColumn<String, String> getTagColumn(String tag) {
         final TableColumn<String, String> tableColumn = new TableColumn<>(tag);
-        tableColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(variant.getSampleInfo().getFormat(param.getValue(), tag)));
+        tableColumn.setCellValueFactory(param -> {
+            final int i = variant.getHeader().getSamples().indexOf(param.getValue());
+            return new SimpleObjectProperty<>(variant.getSampleInfo(i).get(tag));
+        });
         return tableColumn;
     }
 
     private Set<String> getUsedTags(Variant variant) {
-        final List<String> tags = variant.getVcfHeader().getIdList("FORMAT");
+        final List<String> tags = variant.getHeader().getIdList("FORMAT");
         final Set<String> usedTags = new LinkedHashSet<>();
-        variant.getVcfHeader().getSamples().forEach(sample -> {
+        variant.getHeader().getSamples().forEach(sample -> {
+            final int i = variant.getHeader().getSamples().indexOf(sample);
             tags.forEach(tag -> {
-                final String format = variant.getSampleInfo().getFormat(sample, tag);
-                if (format != null && !format.equals(VariantSet.EMPTY_VALUE)) usedTags.add(tag);
+                final String format = variant.getSampleInfo(i).get(tag);
+                if (format != null && !format.equals(VcfConstants.EMPTY_VALUE)) usedTags.add(tag);
             });
         });
         return usedTags;

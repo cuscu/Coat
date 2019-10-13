@@ -24,16 +24,15 @@
 package coat.core.vcf;
 
 import coat.utils.OS;
-import vcf.ValueUtils;
-import vcf.Variant;
-import vcf.VariantSet;
+import coat.view.vcfreader.ValueUtils;
+import org.uichuimi.vcf.header.VcfHeader;
+import org.uichuimi.vcf.variant.Variant;
 
 import java.io.*;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * @author Lorente Arencibia, Pascual (pasculorente@gmail.com)
@@ -41,19 +40,19 @@ import java.util.stream.Collectors;
 public class TsvSaver {
 
     private static final int FIXED_COLUMNS = 7;
-    private final VariantSet variantSet;
     private final File output;
     private final Set<Variant> variants;
     private List<String> infoNames;
     private String[] header;
     private int length;
+    private final VcfHeader vcfHeader;
 
     private PrintWriter writer;
 
-    public TsvSaver(VariantSet variantSet, File output, Set<Variant> variants) {
-        this.variantSet = variantSet;
+    public TsvSaver(File output, Set<Variant> variants) {
         this.output = output;
         this.variants = variants;
+        this.vcfHeader = variants.iterator().next().getHeader();
     }
 
     public void invoke() {
@@ -73,11 +72,9 @@ public class TsvSaver {
 
     private void readInfoColumns() {
         this.length = FIXED_COLUMNS
-                + variantSet.getHeader().getComplexHeaders("INFO").size()
-                + variantSet.getHeader().getSamples().size();
-        this.infoNames = variantSet.getHeader().getComplexHeaders("INFO")
-                .stream().map(line -> line.getValue("ID"))
-                .collect(Collectors.toList());
+                + vcfHeader.getInfoLines().size()
+                + vcfHeader.getSamples().size();
+        this.infoNames = vcfHeader.getIdList("INFO");
         this.header = createHeader();
     }
 
@@ -86,7 +83,7 @@ public class TsvSaver {
         setFixedHeaderColumns(head);
         int i = FIXED_COLUMNS;
         for (String info : infoNames) head[i++] = info;
-        for (String name : variantSet.getHeader().getSamples())
+        for (String name : vcfHeader.getSamples())
             head[i++] = name;
         return head;
     }
@@ -115,26 +112,28 @@ public class TsvSaver {
     }
 
     private void setFixedColumns(Variant var, String[] line) {
-        line[0] = var.getChrom();
-        line[1] = String.valueOf(var.getPosition());
-        line[2] = var.getId();
-        line[3] = var.getRef();
-        line[4] = var.getAlt();
-        line[5] = String.format("%.4f", var.getQual());
-        line[6] = var.getFilter();
+        line[0] = var.getCoordinate().getChrom();
+        line[1] = String.valueOf(var.getCoordinate().getPosition());
+        line[2] = String.join(",", var.getIdentifiers());
+        line[3] = String.join(",", var.getReferences());
+        line[4] = String.join(",", var.getAlternatives());
+        line[5] = String.format("%.4f", var.getQuality());
+        line[6] = String.join(",", var.getFilters());
     }
 
     private void setInfoColumns(Variant var, String[] line) {
         for (int i = 0; i < infoNames.size(); i++) {
             final Object info = var.getInfo().get(infoNames.get(i));
-            line[i + FIXED_COLUMNS] = ValueUtils.getString(info);
+            line[i + FIXED_COLUMNS] = ValueUtils.toString(info);
         }
     }
 
+
+
     private void setFormatColumns(Variant variant, String[] line) {
-        final List<String> samples = variantSet.getHeader().getSamples();
+        final List<String> samples = vcfHeader.getSamples();
         final int start = line.length - samples.size();
         for (int i = 0; i < samples.size(); i++)
-            line[i + start] = variant.getSampleInfo().getFormat(samples.get(i), "GT");
+            line[i + start] = variant.getSampleInfo(i).get("GT");
     }
 }

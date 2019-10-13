@@ -26,8 +26,7 @@ package coat.view.vcfcombiner;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableCell;
-import vcf.Genotype;
-import vcf.combine.Sample;
+
 
 /**
  * Cell for the VcfSampleTableView which shows the level of affection of the sample.
@@ -78,7 +77,7 @@ class StatusComboBoxCell extends TableCell<Sample, Genotype> {
     @Override
     public void commitEdit(Genotype newValue) {
         super.commitEdit(newValue);
-        final Sample sample = (Sample) getTableRow().getItem();
+        final Sample sample = getTableRow().getItem();
         sample.setGenotype(newValue);
         setText(newValue.toString());
         setGraphic(null);

@@ -1,4 +1,4 @@
-/******************************************************************************
+/* ****************************************************************************
  * Copyright (C) 2015 UICHUIMI                                                *
  *                                                                            *
  * This program is free software: you can redistribute it and/or modify it    *
@@ -17,8 +17,8 @@
 
 package coat.core;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,8 +34,8 @@ public class DictionaryTest {
     public void testOneWord() {
         final Dictionary dictionary = new Dictionary();
         final int code = dictionary.addWord("one");
-        Assert.assertEquals(code, dictionary.getCode("one"));
-        Assert.assertNotEquals(code, dictionary.getCode("two"));
+        Assertions.assertEquals(code, dictionary.getCode("one"));
+        Assertions.assertNotEquals(code, dictionary.getCode("two"));
     }
 
     @Test
@@ -44,15 +44,15 @@ public class DictionaryTest {
         final String[] words = {"one", "two", "three"};
         for (String word : words) dictionary.addWord(word);
         final int code = dictionary.addWord("four");
-        Assert.assertEquals(code, dictionary.getCode("four"));
-        Assert.assertNotEquals(code, dictionary.getCode("one"));
+        Assertions.assertEquals(code, dictionary.getCode("four"));
+        Assertions.assertNotEquals(code, dictionary.getCode("one"));
     }
 
     @Test
     public void testNotInDictionary() {
         final Dictionary dictionary = new Dictionary();
-        Assert.assertTrue(dictionary.getCode("one") < 0);
-        Assert.assertNull(dictionary.getWord(0));
+        Assertions.assertTrue(dictionary.getCode("one") < 0);
+        Assertions.assertNull(dictionary.getWord(0));
     }
 
     @Test
@@ -61,17 +61,17 @@ public class DictionaryTest {
         final String[] words = {"one", "two", "three", "one"};
         for (String word : words) {
             int code = dictionary.addWord(word);
-            Assert.assertEquals(code, dictionary.getCode(word));
-            Assert.assertEquals(word, dictionary.getWord(code));
+            Assertions.assertEquals(code, dictionary.getCode(word));
+            Assertions.assertEquals(word, dictionary.getWord(code));
         }
     }
 
     @Test
     public void testWordList() {
         final Dictionary dictionary = new Dictionary();
-        Assert.assertEquals(Collections.emptyList(), dictionary.getWordList());
+        Assertions.assertEquals(Collections.emptyList(), dictionary.getWordList());
         final String[] words = {"one", "two", "three", "one"};
         for (String word : words) dictionary.addWord(word);
-        Assert.assertEquals(Arrays.asList("one", "two", "three"), dictionary.getWordList());
+        Assertions.assertEquals(Arrays.asList("one", "two", "three"), dictionary.getWordList());
     }
 }

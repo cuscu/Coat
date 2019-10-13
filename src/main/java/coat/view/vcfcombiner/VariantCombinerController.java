@@ -27,11 +27,16 @@ import coat.utils.FileManager;
 import coat.utils.OS;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.uichuimi.vcf.header.VcfHeader;
+import org.uichuimi.vcf.io.MultipleVariantReader;
+import org.uichuimi.vcf.io.VariantReader;
+import org.uichuimi.vcf.io.VariantWriter;
+import org.uichuimi.vcf.variant.Variant;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -79,13 +84,22 @@ public class VariantCombinerController {
     }
 
     private void addSamples(File file) {
-        final VcfHeader header = VariantSetFactory.readHeader(file);
+        final VcfHeader header = extractHeader(file);
         final long size = getLinesCount(file);
         for (String name : header.getSamples()) {
             final Sample sample = new Sample(file, name, size);
             sampleTable.getItems().add(sample);
             setMistFile(file, name, sample);
         }
+    }
+
+    private VcfHeader extractHeader(File file) {
+        try (VariantReader reader = new VariantReader(file)) {
+            return reader.getHeader();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private long getLinesCount(File file) {
@@ -123,10 +137,9 @@ public class VariantCombinerController {
             message.setVisible(true);
             progressBar.setVisible(true);
             Platform.runLater(() -> progressBar.setProgress(-1));
-            try (VariantSetReaderList reader = new VariantSetReaderList(files);
-                 VariantSetWriter writer = new VariantSetWriter(output)) {
-                writer.setHeader(reader.getMergedHeader());
-                writer.writeHeader();
+            try (MultipleVariantReader reader = MultipleVariantReader.getInstance(files);
+                 VariantWriter writer = new VariantWriter(output)) {
+                writer.setHeader(reader.getHeader());
                 final AtomicLong counter = new AtomicLong();
                 while (reader.hasNext()) {
                     final Variant variant = reader.nextMerged();
@@ -162,13 +175,19 @@ public class VariantCombinerController {
     }
 
     private boolean filter(Variant variant) {
-        for (Sample sample : sampleTable.getItems()) {
+        ObservableList<Sample> items = sampleTable.getItems();
+        for (int i = 0; i < items.size(); i++) {
+            Sample sample = items.get(i);
             final Genotype selected = sample.getGenotype();
-            final Genotype predicted = variant.getSampleInfo().getGenotype(sample.getName());
+            final Genotype predicted = createGenotype(variant.getSampleInfo(i).get("GT"));
             if (predicted != selected)
                 return false;
         }
         return true;
+    }
+
+    private Genotype createGenotype(String gt) {
+        return null;
     }
 
     private class MistCell extends TableCell<Sample, File> {

@@ -59,7 +59,7 @@ public class Coat extends Application {
         final Parent root = FXMLLoader.load(getClass().getResource("CoatView.fxml"), OS.getResources());
         final Scene scene = new Scene(root);
 
-        stage.getIcons().add(new Image("coat/img/black/lfs.png"));
+        stage.getIcons().add(new Image("img/black/lfs.png"));
         stage.setTitle("COAT");
         stage.setScene(scene);
         stage.show();
