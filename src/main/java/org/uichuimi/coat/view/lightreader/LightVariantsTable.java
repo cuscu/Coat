@@ -23,13 +23,11 @@
 
 package org.uichuimi.coat.view.lightreader;
 
-import org.uichuimi.coat.utils.OS;
-import org.uichuimi.coat.view.graphic.NaturalCell;
-import org.uichuimi.coat.view.graphic.SizableImageView;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFConstants;
 import htsjdk.variant.vcf.VCFHeader;
 import htsjdk.variant.vcf.VCFInfoHeaderLine;
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -46,6 +44,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
+import org.uichuimi.coat.utils.OS;
+import org.uichuimi.coat.view.graphic.NaturalCell;
+import org.uichuimi.coat.view.graphic.SizableImageView;
 
 import java.util.List;
 import java.util.Locale;
@@ -246,7 +247,7 @@ public class LightVariantsTable extends VBox {
                 .map(VariantContext::getContig)
                 .distinct()
                 .collect(Collectors.toList());
-        currentChromosome.getItems().setAll(list);
+        Platform.runLater(() -> currentChromosome.getItems().setAll(list));
     }
 
     private void createColumns() {

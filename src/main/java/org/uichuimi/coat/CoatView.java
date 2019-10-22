@@ -23,18 +23,6 @@
 
 package org.uichuimi.coat;
 
-import org.uichuimi.coat.core.reader.Reader;
-import org.uichuimi.coat.core.tool.Tool;
-import org.uichuimi.coat.core.tool.ToolMenu;
-import org.uichuimi.coat.utils.FileManager;
-import org.uichuimi.coat.utils.OS;
-import org.uichuimi.coat.view.graphic.MemoryPane;
-import org.uichuimi.coat.view.graphic.SizableImageView;
-import org.uichuimi.coat.view.lightreader.LightVcfReader;
-import org.uichuimi.coat.view.mist.CombineMistMenu;
-import org.uichuimi.coat.view.tsv.TsvFileReader;
-import org.uichuimi.coat.view.vcfcombiner.CombineVcfMenu;
-import org.uichuimi.coat.view.vcfreader.VcfReader;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
@@ -47,6 +35,18 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.uichuimi.coat.core.reader.Reader;
+import org.uichuimi.coat.core.tool.Tool;
+import org.uichuimi.coat.core.tool.ToolMenu;
+import org.uichuimi.coat.utils.FileManager;
+import org.uichuimi.coat.utils.OS;
+import org.uichuimi.coat.view.graphic.MemoryPane;
+import org.uichuimi.coat.view.graphic.SizableImageView;
+import org.uichuimi.coat.view.lightreader.LightVcfReader;
+import org.uichuimi.coat.view.mist.CombineMistMenu;
+import org.uichuimi.coat.view.tsv.TsvFileReader;
+import org.uichuimi.coat.view.vcfcombiner.CombineVcfMenu;
+import org.uichuimi.coat.view.vcfreader.VcfReader;
 import org.uichuimi.vcf.variant.Variant;
 
 import java.io.File;
@@ -305,7 +305,6 @@ public class CoatView {
 	}
 
 	private void addReaderToWorkspace(Reader reader, Node content) {
-		System.out.println("Adding tab");
 		final Tab t = new Tab();
 		t.textProperty().bind(reader.titleProperty());
 		t.setContent(content);
