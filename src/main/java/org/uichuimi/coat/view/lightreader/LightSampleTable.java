@@ -23,7 +23,6 @@
 
 package org.uichuimi.coat.view.lightreader;
 
-import org.uichuimi.coat.utils.OS;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFCompoundHeaderLine;
 import htsjdk.variant.vcf.VCFHeader;
@@ -31,6 +30,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import org.jetbrains.annotations.NotNull;
+import org.uichuimi.coat.utils.OS;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -78,7 +78,7 @@ public class LightSampleTable extends TableView<String> {
             tableColumn.setCellValueFactory(param
                     -> new SimpleObjectProperty<>(variant.getGenotype(param.getValue()).getGenotypeString()));
         } else tableColumn.setCellValueFactory(param
-                -> new SimpleObjectProperty<>(variant.getGenotype(param.getValue()).getAnyAttribute(tag) + ""));
+                -> new SimpleObjectProperty<>(String.valueOf(variant.getGenotype(param.getValue()).getAnyAttribute(tag))));
         return tableColumn;
     }
 

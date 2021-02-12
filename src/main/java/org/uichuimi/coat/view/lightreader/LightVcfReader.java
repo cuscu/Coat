@@ -67,6 +67,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -83,6 +84,8 @@ public class LightVcfReader extends VBox implements Reader {
 	 */
 	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.###",
 			DecimalFormatSymbols.getInstance(Locale.US));
+
+	final AtomicBoolean loading = new AtomicBoolean(false);
 
 	private final static long LIMIT = 100000;
 
@@ -221,6 +224,7 @@ public class LightVcfReader extends VBox implements Reader {
 
 	private void saveVcf(File f, List<String> infos, List<String> samples,
 	                     ProgressDialog progressDialog) {
+		System.out.println(loading.get());
 		if (variants.size() < LIMIT) saveFromCache(f, infos, samples);
 		else saveReloading(f, infos, samples, progressDialog);
 	}
@@ -230,8 +234,7 @@ public class LightVcfReader extends VBox implements Reader {
 		final VCFHeader header = new VCFHeader(vcfHeader.getMetaDataInInputOrder(), samples);
 		for (VCFHeaderLine headerLine : vcfHeader.getInfoHeaderLines()) {
 			if (!infos.contains(headerLine.getKey()))
-				header.getInfoHeaderLines().remove(header.getInfoHeaderLine
-						(headerLine.getKey()));
+				header.getInfoHeaderLines().remove(header.getInfoHeaderLine(headerLine.getKey()));
 		}
 		final AtomicLong total = new AtomicLong();
 		final AtomicLong passed = new AtomicLong();
@@ -275,8 +278,7 @@ public class LightVcfReader extends VBox implements Reader {
 		}
 	}
 
-	private void saveVariant(List<String> infos, VariantContextWriter writer,
-	                         VariantContext variantContext) {
+	private void saveVariant(List<String> infos, VariantContextWriter writer, VariantContext variantContext) {
 		final List<String> attributesToRemove = new LinkedList<>();
 		for (String id : variantContext.getAttributes().keySet())
 			if (!infos.contains(id)) attributesToRemove.add(id);
@@ -312,7 +314,7 @@ public class LightVcfReader extends VBox implements Reader {
 	}
 
 
-	private void stopCurrentThread() {
+	private synchronized void stopCurrentThread() {
 		try {
 			if (thread != null && thread.isAlive()) {
 				thread.interrupt();
@@ -348,6 +350,7 @@ public class LightVcfReader extends VBox implements Reader {
 			vcfHeader.getFormatHeaderLines().forEach(vcfFormatHeaderLine -> headers.add(
 					sample + "." + vcfFormatHeaderLine.getID()
 			));
+			headers.add(sample + ".TYPE");
 		}
 		return headers;
 	}
@@ -358,10 +361,10 @@ public class LightVcfReader extends VBox implements Reader {
 		fields.add(variant.getStart() + "");
 		fields.add(variant.getID());
 		fields.add(variant.getReference().getBaseString());
-		fields.add(String.join(",", variant.getAlternateAlleles()
+		fields.add(variant.getAlternateAlleles()
 				.stream()
 				.map(Allele::getBaseString)
-				.collect(Collectors.toList())));
+				.collect(Collectors.joining(",")));
 		fields.add(DECIMAL_FORMAT.format(variant.getPhredScaledQual()));
 		fields.add(String.join(",", variant.getFilters()));
 		vcfHeader.getInfoHeaderLines().forEach(headerLine ->
@@ -371,6 +374,7 @@ public class LightVcfReader extends VBox implements Reader {
 					variant.getGenotype(sample).hasAnyAttribute(line.getID())
 							? variant.getGenotype(sample).getAnyAttribute(line.getID()).toString()
 							: TSV_EMPTY_VALUE));
+			fields.add(variant.getGenotype(sample).getType().name());
 		}
 		return fields;
 
@@ -449,9 +453,10 @@ public class LightVcfReader extends VBox implements Reader {
 		infoTable.getVariantProperty().bind(variantsTable.getVariantProperty());
 	}
 
-	public void loadAndFilter() {
+	public synchronized void loadAndFilter() {
 		stopCurrentThread();
 		thread = new Thread(() -> {
+			loading.set(true);
 			final AtomicLong total = new AtomicLong();
 			final AtomicLong passed = new AtomicLong();
 			try (VCFFileReader reader = new VCFFileReader(file, false)) {
@@ -468,13 +473,13 @@ public class LightVcfReader extends VBox implements Reader {
 					}
 				}
 			} catch (Exception ex) {
-				ex.printStackTrace();
 				CoatView.printMessage(ex.getMessage(), "severe");
 			}
 			if (total.get() > numberOfVariants.get())
 				numberOfVariants.set(total.get());
 			updateProgressInPlatform(total.get(), passed.get());
 			variantsTable.updateChromosomeComboBox();
+			loading.set(false);
 		});
 		thread.start();
 	}

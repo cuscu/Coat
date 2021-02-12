@@ -23,8 +23,6 @@
 
 package org.uichuimi.coat.view.vcfcombiner;
 
-import org.uichuimi.coat.utils.FileManager;
-import org.uichuimi.coat.utils.OS;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
@@ -32,6 +30,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.uichuimi.coat.utils.FileManager;
+import org.uichuimi.coat.utils.OS;
 import org.uichuimi.vcf.header.VcfHeader;
 import org.uichuimi.vcf.io.MultipleVariantReader;
 import org.uichuimi.vcf.io.VariantReader;
@@ -142,7 +142,7 @@ public class VariantCombinerController {
                 writer.setHeader(reader.getHeader());
                 final AtomicLong counter = new AtomicLong();
                 while (reader.hasNext()) {
-                    final Variant variant = reader.nextMerged();
+                    final Variant variant = reader.next();
                     if (counter.incrementAndGet() % 1000 == 0)
                         updateProgress(counter, variant);
                     if (filter(variant))
